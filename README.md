@@ -27,6 +27,7 @@ npm start
 ## 当前结论
 
 - 自动化规则与 100 次动态改路回放已通过。
-- Cocos Web Mobile 构建和 390×844 浏览器核心交互走查已通过，控制台无错误或警告；POC 矢量按钮符号偏小与统计层遮挡仍需修复。
-- iPhone 12 Safari、Redmi Note 11 Chrome 真机与首次玩家测试尚未执行，所以 Phase A 尚未放行 Phase B。
-- 详细证据见 `docs/poc/phase-a-report.md` 与 `docs/validation.md`；交叉评审按 `docs/poc/phase-a-review-checklist.md` 执行。
+- Cocos Web Mobile 发布构建和 390×844 浏览器核心交互走查已通过，控制台 0 error / 0 warning；按钮可读性与统计层遮挡已复验关闭。
+- Phase A 自动化与右侧浏览器工程门禁已通过，可继续第一关灰盒开发；首次玩家评审仍需收集。
+- Android/iOS 真机测试延后到移动端发布前，不得把“未阻断开发”表述为“真机已通过”。
+- 详细证据见 `docs/poc/phase-a-report.md`、`docs/poc/phase-a-browser-regression.md` 与 `docs/validation.md`；交叉评审按 `docs/poc/phase-a-review-checklist.md` 执行。

@@ -57,6 +57,7 @@ export class NightwatchPocBootstrap extends Component {
     private pausedByLifecycle = false;
     private statusText = '拖动底部炮塔，或点塔后双击格子提交';
     private enemy: EnemyRuntime | null = null;
+    private publishedDiagnostics = '';
 
     protected override onLoad(): void {
         view.setDesignResolutionSize(DESIGN_WIDTH, DESIGN_HEIGHT, ResolutionPolicy.FIXED_HEIGHT);
@@ -366,6 +367,37 @@ export class NightwatchPocBootstrap extends Component {
             this.statusLabel.string = `${this.statusText}\n${this.model.grid.columns}×${this.model.grid.rows}  ·  金币 ${this.model.gold}  ·  路径 ${path} 格  ·  ${this.preparing ? '准备态' : this.pausedByLifecycle ? '后台暂停' : '运行态'}`;
         }
         if (this.helpLabel) this.helpLabel.string = '上排 9×13 / 10×14 / 8×13｜↻重置 ▷运行｜折线/迷宫样例｜底部炮塔';
+        this.publishBrowserDiagnostics();
+    }
+
+    private publishBrowserDiagnostics(): void {
+        if (typeof document === 'undefined') return;
+        const canvas = document.querySelector('canvas');
+        if (!canvas) return;
+        const pathLength = this.preview?.accepted && this.preview.path
+            ? this.preview.path.length - 1
+            : this.model.flowField.distanceAt(this.model.grid.entry);
+        const diagnostics = JSON.stringify({
+            gridId: this.selectedGridId,
+            columns: this.model.grid.columns,
+            rows: this.model.grid.rows,
+            gold: this.model.gold,
+            mapVersion: this.model.mapVersion,
+            towerCount: this.model.towers.size,
+            pathLength,
+            phase: this.preparing ? 'preparing' : this.pausedByLifecycle ? 'paused' : 'running',
+            inputMode: this.inputMode,
+            previewAccepted: this.preview?.accepted ?? null,
+            status: this.statusText,
+        });
+        if (diagnostics === this.publishedDiagnostics) return;
+        // 浏览器 POC 用 DOM 属性暴露只读快照，方便 QA 核对画布操作的原子性，不提供跳过输入的修改接口。
+        canvas.setAttribute('data-phase-a-state', diagnostics);
+        canvas.setAttribute(
+            'aria-label',
+            `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，${this.statusText}`,
+        );
+        this.publishedDiagnostics = diagnostics;
     }
 
     private drawTabs(graphics: Graphics): void {
@@ -463,24 +495,25 @@ export class NightwatchPocBootstrap extends Component {
     }
 
     private drawGridCode(graphics: Graphics, centerX: number, centerY: number, digits: readonly number[]): void {
-        const digitWidth = 24;
-        const gap = 10;
-        const crossGap = 24;
+        const scale = 1.45;
+        const digitWidth = 24 * scale;
+        const gap = 12;
+        const crossGap = 32;
         const split = digits.length === 3 ? 1 : 2;
         const totalWidth = digits.length * digitWidth + (digits.length - 1) * gap + crossGap;
         let x = centerX - totalWidth / 2;
         for (let index = 0; index < digits.length; index += 1) {
             if (index === split) {
                 graphics.strokeColor = new Color('#F2E4BF');
-                graphics.lineWidth = 5;
-                graphics.moveTo(x - 4, centerY - 9);
-                graphics.lineTo(x + 10, centerY + 9);
-                graphics.moveTo(x - 4, centerY + 9);
-                graphics.lineTo(x + 10, centerY - 9);
+                graphics.lineWidth = 7;
+                graphics.moveTo(x - 5, centerY - 14);
+                graphics.lineTo(x + 16, centerY + 14);
+                graphics.moveTo(x - 5, centerY + 14);
+                graphics.lineTo(x + 16, centerY - 14);
                 graphics.stroke();
                 x += crossGap;
             }
-            this.drawDigit(graphics, digits[index], x, centerY, 1);
+            this.drawDigit(graphics, digits[index], x, centerY, scale);
             x += digitWidth + gap;
         }
     }
@@ -505,13 +538,13 @@ export class NightwatchPocBootstrap extends Component {
 
     private drawResetIcon(graphics: Graphics, x: number, y: number): void {
         graphics.strokeColor = new Color('#F2E4BF');
-        graphics.lineWidth = 9;
-        graphics.arc(x, y, 27, 0.4, 5.4, false);
+        graphics.lineWidth = 12;
+        graphics.arc(x, y, 35, 0.4, 5.4, false);
         graphics.stroke();
         graphics.fillColor = new Color('#F2E4BF');
-        graphics.moveTo(x - 29, y + 15);
-        graphics.lineTo(x - 6, y + 27);
-        graphics.lineTo(x - 12, y + 2);
+        graphics.moveTo(x - 38, y + 20);
+        graphics.lineTo(x - 8, y + 35);
+        graphics.lineTo(x - 16, y + 3);
         graphics.close();
         graphics.fill();
     }
@@ -519,29 +552,29 @@ export class NightwatchPocBootstrap extends Component {
     private drawPhaseIcon(graphics: Graphics, x: number, y: number): void {
         graphics.fillColor = new Color('#F2E4BF');
         if (this.preparing || this.pausedByLifecycle) {
-            graphics.moveTo(x - 18, y - 27);
-            graphics.lineTo(x + 30, y);
-            graphics.lineTo(x - 18, y + 27);
+            graphics.moveTo(x - 24, y - 36);
+            graphics.lineTo(x + 40, y);
+            graphics.lineTo(x - 24, y + 36);
             graphics.close();
             graphics.fill();
             return;
         }
-        graphics.rect(x - 22, y - 28, 14, 56);
+        graphics.rect(x - 30, y - 36, 19, 72);
         graphics.fill();
-        graphics.rect(x + 8, y - 28, 14, 56);
+        graphics.rect(x + 11, y - 36, 19, 72);
         graphics.fill();
     }
 
     private drawRouteIcon(graphics: Graphics, x: number, y: number, long: boolean): void {
         graphics.strokeColor = long ? new Color('#7ED9B0') : new Color('#8FB9E8');
-        graphics.lineWidth = 10;
-        graphics.moveTo(x - 72, y + 22);
-        graphics.lineTo(x - 30, y + 22);
-        graphics.lineTo(x - 30, y - 22);
-        graphics.lineTo(long ? x + 5 : x + 72, y - 22);
+        graphics.lineWidth = 14;
+        graphics.moveTo(x - 88, y + 29);
+        graphics.lineTo(x - 38, y + 29);
+        graphics.lineTo(x - 38, y - 29);
+        graphics.lineTo(long ? x + 8 : x + 88, y - 29);
         if (long) {
-            graphics.lineTo(x + 5, y + 22);
-            graphics.lineTo(x + 72, y + 22);
+            graphics.lineTo(x + 8, y + 29);
+            graphics.lineTo(x + 88, y + 29);
         }
         graphics.stroke();
     }

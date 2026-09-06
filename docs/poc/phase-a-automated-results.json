@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-06T03:55:39.653Z",
+  "generatedAt": "2026-09-06T05:26:26.386Z",
   "runtime": "v20.20.0",
   "fixturesPassed": true,
   "dynamicReplayCount": 100,
@@ -8,7 +8,7 @@
   "backtrackCount": 0,
   "stuckCount": 0,
   "atomicViolationCount": 0,
-  "flowRebuildP95Milliseconds": 0.11624999999999908,
+  "flowRebuildP95Milliseconds": 0.09587500000000126,
   "flowRebuildGateMilliseconds": 4,
   "flowRebuildPassed": true,
   "fixtureResults": [
@@ -17,42 +17,42 @@
       "fixture": "shortFold",
       "expected": 16,
       "actual": 16,
-      "flowRebuildMs": 0.25637500000000024
+      "flowRebuildMs": 0.27295799999999915
     },
     {
       "gridId": "grid-9x13",
       "fixture": "longSnake",
       "expected": 22,
       "actual": 22,
-      "flowRebuildMs": 0.09358399999999989
+      "flowRebuildMs": 0.09445799999999949
     },
     {
       "gridId": "grid-10x14",
       "fixture": "shortFold",
       "expected": 17,
       "actual": 17,
-      "flowRebuildMs": 0.1943330000000003
+      "flowRebuildMs": 0.19462500000000027
     },
     {
       "gridId": "grid-10x14",
       "fixture": "longSnake",
       "expected": 25,
       "actual": 25,
-      "flowRebuildMs": 0.11945799999999984
+      "flowRebuildMs": 0.09587500000000126
     },
     {
       "gridId": "grid-8x13",
       "fixture": "shortFold",
       "expected": 16,
       "actual": 16,
-      "flowRebuildMs": 0.09804199999999952
+      "flowRebuildMs": 0.09575000000000067
     },
     {
       "gridId": "grid-8x13",
       "fixture": "longSnake",
       "expected": 22,
       "actual": 22,
-      "flowRebuildMs": 0.07479200000000041
+      "flowRebuildMs": 0.0744170000000004
     }
   ]
 }
