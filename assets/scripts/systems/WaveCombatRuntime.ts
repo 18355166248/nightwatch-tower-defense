@@ -10,12 +10,19 @@ export interface CombatEnemy {
     toCell: GridCell;
     progress: number;
     readonly spawnOrder: number;
-    hitFlashSeconds: number;
+}
+
+export interface GridPoint {
+    readonly column: number;
+    readonly row: number;
 }
 
 export interface ShotEvent {
     readonly towerCell: GridCell;
     readonly targetId: string;
+    readonly targetPoint: GridPoint;
+    readonly damage: number;
+    readonly lethal: boolean;
 }
 
 export interface CombatTickResult {
@@ -23,6 +30,12 @@ export interface CombatTickResult {
     readonly killed: readonly CombatEnemy[];
     readonly leaked: readonly CombatEnemy[];
     readonly spawningCompleted: boolean;
+}
+
+export interface CombatTotals {
+    readonly spawned: number;
+    readonly killed: number;
+    readonly leaked: number;
 }
 
 export class WaveCombatRuntime {
@@ -35,6 +48,9 @@ export class WaveCombatRuntime {
     private nextEnemyId = 1;
     private nextSpawnOrder = 1;
     private spawningCompleted = false;
+    private spawnedCount = 0;
+    private killedCount = 0;
+    private leakedCount = 0;
 
     public constructor(
         private readonly grid: GridDefinition,
@@ -47,6 +63,10 @@ export class WaveCombatRuntime {
 
     public get isSpawningComplete(): boolean {
         return this.spawningCompleted;
+    }
+
+    public get totals(): CombatTotals {
+        return { spawned: this.spawnedCount, killed: this.killedCount, leaked: this.leakedCount };
     }
 
     public start(wave: WaveDefinition): void {
@@ -69,6 +89,9 @@ export class WaveCombatRuntime {
         this.nextEnemyId = 1;
         this.nextSpawnOrder = 1;
         this.spawningCompleted = false;
+        this.spawnedCount = 0;
+        this.killedCount = 0;
+        this.leakedCount = 0;
     }
 
     public enemyRouteStates(): readonly EnemyRouteState[] {
@@ -109,8 +132,8 @@ export class WaveCombatRuntime {
                 toCell: next,
                 progress: 0,
                 spawnOrder: this.nextSpawnOrder++,
-                hitFlashSeconds: 0,
             });
+            this.spawnedCount += 1;
             this.spawnedInGroup += 1;
             this.spawnCountdown += group.spawnIntervalSeconds;
             if (this.spawnedInGroup < group.count) continue;
@@ -128,7 +151,6 @@ export class WaveCombatRuntime {
     private moveEnemies(deltaSeconds: number, flowField: FlowField): CombatEnemy[] {
         const leaked: CombatEnemy[] = [];
         for (const enemy of this.activeEnemies) {
-            enemy.hitFlashSeconds = Math.max(0, enemy.hitFlashSeconds - deltaSeconds);
             enemy.progress += deltaSeconds * enemy.archetype.speedCellsPerSecond;
             while (enemy.progress >= 1) {
                 if (sameCell(enemy.toCell, this.grid.exit)) {
@@ -143,6 +165,7 @@ export class WaveCombatRuntime {
             }
         }
         if (leaked.length > 0) {
+            this.leakedCount += leaked.length;
             const leakedIds = new Set(leaked.map((enemy) => enemy.id));
             this.activeEnemies = this.activeEnemies.filter((enemy) => !leakedIds.has(enemy.id));
         }
@@ -157,7 +180,7 @@ export class WaveCombatRuntime {
         const shots: ShotEvent[] = [];
         const killed: CombatEnemy[] = [];
         for (const key of towerKeys) {
-            const cooldown = Math.max(0, (this.towerCooldowns.get(key) ?? 0) - deltaSeconds);
+            const cooldown = (this.towerCooldowns.get(key) ?? 0) - deltaSeconds;
             if (cooldown > 0) {
                 this.towerCooldowns.set(key, cooldown);
                 continue;
@@ -168,13 +191,21 @@ export class WaveCombatRuntime {
                 this.towerCooldowns.set(key, 0);
                 continue;
             }
-            target.health -= this.tower.damage;
-            target.hitFlashSeconds = 0.08;
-            shots.push({ towerCell, targetId: target.id });
-            this.towerCooldowns.set(key, this.tower.attackIntervalSeconds);
+            const damage = Math.min(target.health, this.tower.damage);
+            target.health -= damage;
+            shots.push({
+                towerCell,
+                targetId: target.id,
+                targetPoint: this.enemyPoint(target),
+                damage,
+                lethal: target.health <= 0,
+            });
+            // 保留本帧越过冷却零点的余量，避免 20/30/60 FPS 下累计射速不同。
+            this.towerCooldowns.set(key, this.tower.attackIntervalSeconds + cooldown);
             if (target.health <= 0 && !killed.some((enemy) => enemy.id === target.id)) killed.push(target);
         }
         if (killed.length > 0) {
+            this.killedCount += killed.length;
             const killedIds = new Set(killed.map((enemy) => enemy.id));
             this.activeEnemies = this.activeEnemies.filter((enemy) => !killedIds.has(enemy.id));
         }
@@ -199,6 +230,13 @@ export class WaveCombatRuntime {
             return leftDistance - rightDistance || left.spawnOrder - right.spawnOrder;
         });
         return candidates[0] ?? null;
+    }
+
+    private enemyPoint(enemy: CombatEnemy): GridPoint {
+        return {
+            column: enemy.fromCell.column + (enemy.toCell.column - enemy.fromCell.column) * enemy.progress,
+            row: enemy.fromCell.row + (enemy.toCell.row - enemy.fromCell.row) * enemy.progress,
+        };
     }
 
     private cellFromKey(key: string): GridCell {

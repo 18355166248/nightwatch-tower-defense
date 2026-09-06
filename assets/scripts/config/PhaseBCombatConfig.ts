@@ -25,7 +25,7 @@ export interface WaveDefinition {
 
 export const CLOCKWORK_INFANTRY: EnemyArchetype = {
     id: 'clockwork-infantry',
-    maxHealth: 55,
+    maxHealth: 85,
     speedCellsPerSecond: 1,
     killReward: 4,
 };
@@ -33,11 +33,11 @@ export const CLOCKWORK_INFANTRY: EnemyArchetype = {
 export const RIVET_GUN: TowerArchetype = {
     id: 'rivet-gun',
     rangeCells: 2.6,
-    damage: 8,
-    attackIntervalSeconds: 0.3,
+    damage: 7,
+    attackIntervalSeconds: 0.35,
 };
 
 export const PHASE_B_WAVE_ONE: WaveDefinition = {
     wave: 1,
-    groups: [{ enemy: CLOCKWORK_INFANTRY, count: 8, spawnIntervalSeconds: 0.9 }],
+    groups: [{ enemy: CLOCKWORK_INFANTRY, count: 8, spawnIntervalSeconds: 0.6 }],
 };

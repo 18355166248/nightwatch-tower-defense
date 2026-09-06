@@ -4,6 +4,7 @@ const { readFileSync } = require('node:fs');
 const { resolve } = require('node:path');
 
 const { PHASE_A_GRIDS } = require('../.test-dist/config/PhaseAGrids.js');
+const { PHASE_B_WAVE_ONE, RIVET_GUN } = require('../.test-dist/config/PhaseBCombatConfig.js');
 const { cellKey } = require('../.test-dist/core/GridTypes.js');
 const { FlowField } = require('../.test-dist/systems/FlowField.js');
 const { PlacementModel } = require('../.test-dist/systems/PlacementModel.js');
@@ -11,6 +12,7 @@ const { simulateNoDamageRoute } = require('../.test-dist/systems/RouteSimulation
 const { BattleStateMachine } = require('../.test-dist/systems/BattleStateMachine.js');
 const { EconomyLedger } = require('../.test-dist/systems/EconomyLedger.js');
 const { WaveCombatRuntime } = require('../.test-dist/systems/WaveCombatRuntime.js');
+const { CombatFeedbackRuntime } = require('../.test-dist/presentation/CombatFeedbackRuntime.js');
 
 const fixtures = JSON.parse(readFileSync(resolve(__dirname, '../docs/poc/phase-a-fixtures.json'), 'utf8'));
 
@@ -222,6 +224,7 @@ test('波次运行时按冻结间隔生成，塔优先攻击接近出口的敌�
     assert.equal(second.killed.length, 1);
     assert.equal(second.spawningCompleted, true);
     assert.equal(runtime.enemies.length, 0);
+    assert.deepEqual(runtime.totals, { spawned: 2, killed: 2, leaked: 0 });
 });
 
 test('敌人到达出口只上报漏怪，不在运行时内直接修改核心生命', () => {
@@ -238,4 +241,47 @@ test('敌人到达出口只上报漏怪，不在运行时内直接修改核心�
     const result = runtime.tick(1.1, flow, new Set());
     assert.equal(result.leaked.length, 1);
     assert.equal(runtime.enemies.length, 0);
+    assert.deepEqual(runtime.totals, { spawned: 1, killed: 0, leaked: 1 });
+});
+
+test('战斗反馈消费只读事件，并在独立时间轴上自动回收', () => {
+    const feedback = new CombatFeedbackRuntime();
+    const enemy = {
+        id: 'enemy-1', archetype: { id: 'clockwork-infantry', maxHealth: 55, speedCellsPerSecond: 1, killReward: 4 },
+        health: 0, fromCell: { column: 1, row: 1 }, toCell: { column: 1, row: 2 }, progress: 0.5, spawnOrder: 1,
+    };
+    const result = {
+        shots: [{ towerCell: { column: 0, row: 1 }, targetId: enemy.id, targetPoint: { column: 1, row: 1.5 }, damage: 7, lethal: true }],
+        killed: [enemy], leaked: [], spawningCompleted: false,
+    };
+    feedback.consume(result);
+    assert.equal(feedback.snapshot.tracers.length, 1);
+    assert.equal(feedback.snapshot.deaths.length, 1);
+    assert.equal(feedback.snapshot.rewards[0].amount, 4);
+    feedback.advance(0.17);
+    assert.equal(feedback.snapshot.tracers.length, 0);
+    assert.equal(feedback.snapshot.impacts.length, 0);
+    assert.equal(feedback.snapshot.deaths.length, 1);
+    feedback.advance(0.54);
+    assert.equal(feedback.snapshot.deaths.length, 0);
+    assert.equal(feedback.snapshot.rewards.length, 0);
+    assert.equal(result.shots[0].damage, 7);
+});
+
+test('第一波短折线在 20/30/60 FPS 下都保持可读同屏量与 6 杀 2 漏', () => {
+    const grid = PHASE_A_GRIDS['grid-9x13'];
+    const fixture = fixtures.fixtures.find((item) => item.gridId === 'grid-9x13').shortFold;
+    const towers = new Set(toCells(fixture.towerCells).map(cellKey));
+    const flow = new FlowField(grid, towers);
+    for (const deltaSeconds of [1 / 60, 1 / 30, 1 / 20]) {
+        const runtime = new WaveCombatRuntime(grid, RIVET_GUN);
+        runtime.start(PHASE_B_WAVE_ONE);
+        let maxActiveEnemies = 0;
+        for (let elapsed = 0; elapsed < 30 && (!runtime.isSpawningComplete || runtime.enemies.length > 0); elapsed += deltaSeconds) {
+            runtime.tick(deltaSeconds, flow, towers);
+            maxActiveEnemies = Math.max(maxActiveEnemies, runtime.enemies.length);
+        }
+        assert.ok(maxActiveEnemies >= 2, `${deltaSeconds} 秒步长的同屏峰值只有 ${maxActiveEnemies}`);
+        assert.deepEqual(runtime.totals, { spawned: 8, killed: 6, leaked: 2 });
+    }
 });

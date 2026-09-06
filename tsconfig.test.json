@@ -11,6 +11,7 @@
   "include": [
     "assets/scripts/core/**/*.ts",
     "assets/scripts/config/**/*.ts",
-    "assets/scripts/systems/**/*.ts"
+    "assets/scripts/systems/**/*.ts",
+    "assets/scripts/presentation/**/*.ts"
   ]
 }

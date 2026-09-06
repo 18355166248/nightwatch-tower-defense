@@ -18,10 +18,11 @@ import { DEFAULT_GRID_ID, PHASE_A_GRIDS, PHASE_A_INITIAL_GOLD, PHASE_A_TOWER_COS
 import { PHASE_B_WAVE_ONE, RIVET_GUN } from '../config/PhaseBCombatConfig';
 import { cellKey, sameCell, type EnemyRouteState, type GridCell, type GridId } from '../core/GridTypes';
 import { PhaseBDebugInput, type PhaseBDebugAction } from '../input/PhaseBDebugInput';
+import { CombatFeedbackRuntime } from '../presentation/CombatFeedbackRuntime';
 import { BattleStateMachine } from '../systems/BattleStateMachine';
 import { EconomyLedger } from '../systems/EconomyLedger';
 import { PlacementModel, type PlacementPreview } from '../systems/PlacementModel';
-import { WaveCombatRuntime } from '../systems/WaveCombatRuntime';
+import { WaveCombatRuntime, type GridPoint } from '../systems/WaveCombatRuntime';
 
 const { ccclass } = _decorator;
 
@@ -50,6 +51,7 @@ export class NightwatchPocBootstrap extends Component {
     private model = new PlacementModel(PHASE_A_GRIDS[DEFAULT_GRID_ID], this.economy, PHASE_A_TOWER_COST);
     private battle = new BattleStateMachine(1);
     private combat = new WaveCombatRuntime(PHASE_A_GRIDS[DEFAULT_GRID_ID], RIVET_GUN);
+    private readonly feedback = new CombatFeedbackRuntime();
     private selectedGridId: GridId = DEFAULT_GRID_ID;
     private preview: PlacementPreview | null = null;
     private inputMode: InputMode = 'idle';
@@ -58,7 +60,6 @@ export class NightwatchPocBootstrap extends Component {
     private preparing = true;
     private pausedByLifecycle = false;
     private statusText = '拖动底部炮塔，或点塔后双击格子提交';
-    private shotPulseCells: Array<{ cell: GridCell; seconds: number }> = [];
     private publishedDiagnostics = '';
     private readonly debugInput = new PhaseBDebugInput((action) => this.handleDebugAction(action));
 
@@ -104,10 +105,8 @@ export class NightwatchPocBootstrap extends Component {
 
     protected override update(deltaTime: number): void {
         const step = Math.min(deltaTime, 0.05);
+        this.feedback.advance(step);
         if (!this.preparing && this.battle.snapshot.phase !== 'paused') this.advanceCombat(step);
-        this.shotPulseCells = this.shotPulseCells
-            .map((pulse) => ({ ...pulse, seconds: pulse.seconds - step }))
-            .filter((pulse) => pulse.seconds > 0);
         this.redraw();
     }
 
@@ -315,7 +314,7 @@ export class NightwatchPocBootstrap extends Component {
         this.combat = new WaveCombatRuntime(grid, RIVET_GUN);
         this.preparing = true;
         this.pausedByLifecycle = false;
-        this.shotPulseCells = [];
+        this.feedback.clear();
         this.cancelInput('已重置为空网格');
     }
 
@@ -332,6 +331,7 @@ export class NightwatchPocBootstrap extends Component {
 
     private advanceCombat(deltaTime: number): void {
         const result = this.combat.tick(deltaTime, this.model.flowField, this.model.towers);
+        this.feedback.consume(result);
         for (const killed of result.killed) {
             this.economy.credit(killed.archetype.killReward);
         }
@@ -339,8 +339,6 @@ export class NightwatchPocBootstrap extends Component {
             this.battle.resolveCombatOutcome(result.leaked.length, this.combat.enemies.length);
         }
         if (result.spawningCompleted) this.battle.markSpawningComplete(this.combat.enemies.length);
-        this.shotPulseCells.push(...result.shots.map((shot) => ({ cell: shot.towerCell, seconds: 0.09 })));
-
         const phase = this.battle.snapshot.phase;
         if (phase === 'victory') this.statusText = `第 1 波清场！击杀奖励已结算，剩余金币 ${this.model.gold}`;
         else if (phase === 'defeat') this.statusText = '核心已失守';
@@ -373,10 +371,14 @@ export class NightwatchPocBootstrap extends Component {
     }
 
     private cellCenter(cell: GridCell): Vec3 {
+        return this.gridPointCenter(cell);
+    }
+
+    private gridPointCenter(point: GridPoint): Vec3 {
         const metrics = this.boardMetrics();
         return new Vec3(
-            metrics.left + (cell.column + 0.5) * metrics.cellSize,
-            metrics.bottom + metrics.height - (cell.row + 0.5) * metrics.cellSize,
+            metrics.left + (point.column + 0.5) * metrics.cellSize,
+            metrics.bottom + metrics.height - (point.row + 0.5) * metrics.cellSize,
             0,
         );
     }
@@ -428,6 +430,10 @@ export class NightwatchPocBootstrap extends Component {
             coreHealth: this.battle.snapshot.coreHealth,
             activeEnemyCount: this.combat.enemies.length,
             spawningCompleted: this.combat.isSpawningComplete,
+            spawnedEnemyCount: this.combat.totals.spawned,
+            defeatedEnemyCount: this.combat.totals.killed,
+            leakedEnemyCount: this.combat.totals.leaked,
+            activeFeedbackCount: this.activeFeedbackCount(),
             inputMode: this.inputMode,
             previewAccepted: this.preview?.accepted ?? null,
             status: this.statusText,
@@ -503,7 +509,7 @@ export class NightwatchPocBootstrap extends Component {
             const to = this.cellCenter(enemy.toCell);
             const x = from.x + (to.x - from.x) * enemy.progress;
             const y = from.y + (to.y - from.y) * enemy.progress;
-            graphics.fillColor = enemy.hitFlashSeconds > 0 ? new Color('#FFF1CF') : new Color('#F06A63');
+            graphics.fillColor = new Color('#F06A63');
             graphics.circle(x, y, metrics.cellSize * 0.25);
             graphics.fill();
             graphics.strokeColor = new Color('#FFF1CF');
@@ -519,13 +525,76 @@ export class NightwatchPocBootstrap extends Component {
             graphics.fill();
         }
 
-        for (const pulse of this.shotPulseCells) {
-            const center = this.cellCenter(pulse.cell);
-            graphics.strokeColor = new Color(255, 232, 153, Math.round(255 * Math.min(1, pulse.seconds / 0.09)));
-            graphics.lineWidth = 7;
-            graphics.circle(center.x, center.y, metrics.cellSize * 0.34);
+        this.drawCombatFeedback(graphics, metrics.cellSize);
+    }
+
+    private drawCombatFeedback(graphics: Graphics, cellSize: number): void {
+        const feedback = this.feedback.snapshot;
+        for (const tracer of feedback.tracers) {
+            const origin = this.gridPointCenter(tracer.origin);
+            const target = this.gridPointCenter(tracer.point);
+            const life = tracer.remainingSeconds / tracer.durationSeconds;
+            graphics.strokeColor = tracer.lethal
+                ? new Color(255, 244, 188, Math.round(255 * life))
+                : new Color(255, 205, 105, Math.round(225 * life));
+            graphics.lineWidth = tracer.lethal ? 9 : 6;
+            graphics.moveTo(origin.x, origin.y);
+            graphics.lineTo(target.x, target.y);
+            graphics.stroke();
+            graphics.fillColor = new Color(255, 239, 169, Math.round(230 * life));
+            graphics.circle(origin.x, origin.y, cellSize * (0.08 + 0.07 * life));
+            graphics.fill();
+        }
+        for (const impact of feedback.impacts) {
+            const point = this.gridPointCenter(impact.point);
+            const progress = 1 - impact.remainingSeconds / impact.durationSeconds;
+            graphics.strokeColor = new Color(255, 241, 207, Math.round(230 * (1 - progress)));
+            graphics.lineWidth = 5;
+            graphics.circle(point.x, point.y, cellSize * (0.1 + progress * 0.2));
             graphics.stroke();
         }
+        for (const death of feedback.deaths) {
+            const point = this.gridPointCenter(death.point);
+            const progress = 1 - death.remainingSeconds / death.durationSeconds;
+            const alpha = Math.round(230 * (1 - progress));
+            graphics.strokeColor = new Color(240, 106, 99, alpha);
+            graphics.lineWidth = 8 * (1 - progress) + 2;
+            graphics.circle(point.x, point.y, cellSize * (0.24 + progress * 0.48));
+            graphics.stroke();
+            for (let ray = 0; ray < 6; ray += 1) {
+                const angle = ray * Math.PI / 3;
+                const inner = cellSize * (0.2 + progress * 0.18);
+                const outer = cellSize * (0.28 + progress * 0.5);
+                graphics.moveTo(point.x + Math.cos(angle) * inner, point.y + Math.sin(angle) * inner);
+                graphics.lineTo(point.x + Math.cos(angle) * outer, point.y + Math.sin(angle) * outer);
+            }
+            graphics.stroke();
+        }
+        for (const reward of feedback.rewards) {
+            const point = this.gridPointCenter(reward.point);
+            const progress = 1 - reward.remainingSeconds / reward.durationSeconds;
+            const y = point.y + cellSize * (0.35 + progress * 0.55);
+            const alpha = Math.round(255 * Math.min(1, reward.remainingSeconds / 0.2));
+            graphics.fillColor = new Color(244, 198, 82, alpha);
+            for (let coin = 0; coin < Math.min(4, reward.amount); coin += 1) {
+                graphics.circle(point.x + (coin - 1.5) * cellSize * 0.11, y, cellSize * 0.055);
+                graphics.fill();
+            }
+        }
+        for (const coreHit of feedback.coreHits) {
+            const exit = this.cellCenter(this.model.grid.exit);
+            const progress = 1 - coreHit.remainingSeconds / coreHit.durationSeconds;
+            graphics.strokeColor = new Color(255, 82, 82, Math.round(245 * (1 - progress)));
+            graphics.lineWidth = 12;
+            graphics.circle(exit.x, exit.y, cellSize * (0.35 + progress * 0.45));
+            graphics.stroke();
+        }
+    }
+
+    private activeFeedbackCount(): number {
+        const feedback = this.feedback.snapshot;
+        return feedback.tracers.length + feedback.impacts.length + feedback.deaths.length
+            + feedback.rewards.length + feedback.coreHits.length;
     }
 
     private drawControls(graphics: Graphics): void {

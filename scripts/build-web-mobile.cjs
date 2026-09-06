@@ -36,4 +36,4 @@ while (result.status === 36 && broken.length > 0 && Date.now() < deadline) {
     broken = brokenArtifacts();
 }
 if (broken.length > 0) throw new Error(`Web Mobile 产物缺失或为空：${broken.join(', ')}`);
-console.log(`[build:web] Phase A ${debug ? '调试' : '发布'}构建完成。`);
+console.log(`[build:web] Web Mobile ${debug ? '调试' : '发布'}构建完成。`);
