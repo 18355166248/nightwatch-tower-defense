@@ -6,11 +6,13 @@ import {
     game,
     Game,
     Graphics,
+    HorizontalTextAlignment,
     Label,
     Node,
     ResolutionPolicy,
     UITransform,
     Vec3,
+    VerticalTextAlignment,
     view,
 } from 'cc';
 import { PHASE_A_FIXTURES } from '../config/PhaseAFixtures';
@@ -18,7 +20,9 @@ import { DEFAULT_GRID_ID, PHASE_A_GRIDS, PHASE_A_INITIAL_GOLD, PHASE_A_TOWER_COS
 import { PHASE_B_WAVE_ONE, RIVET_GUN } from '../config/PhaseBCombatConfig';
 import { cellKey, sameCell, type EnemyRouteState, type GridCell, type GridId } from '../core/GridTypes';
 import { PhaseBDebugInput, type PhaseBDebugAction } from '../input/PhaseBDebugInput';
+import { buildBattleResultViewModel } from '../presentation/BattleResultViewModel';
 import { CombatFeedbackRuntime } from '../presentation/CombatFeedbackRuntime';
+import { BattleRunCheckpoint } from '../systems/BattleRunCheckpoint';
 import { BattleStateMachine } from '../systems/BattleStateMachine';
 import { EconomyLedger } from '../systems/EconomyLedger';
 import { PlacementModel, type PlacementPreview } from '../systems/PlacementModel';
@@ -32,6 +36,7 @@ const BOARD_TOP = 610;
 const BOARD_MAX_WIDTH = 860;
 const BOARD_MAX_HEIGHT = 1110;
 const TOWER_BUTTON = { left: -160, right: 160, bottom: -890, top: -735 };
+const RESULT_RESTART_BUTTON = { left: -300, right: 300, bottom: -300, top: -135 };
 const GRID_TABS: readonly { id: GridId; label: string; left: number; right: number }[] = [
     { id: 'grid-9x13', label: '9×13', left: -430, right: -155 },
     { id: 'grid-10x14', label: '10×14', left: -135, right: 135 },
@@ -47,6 +52,9 @@ export class NightwatchPocBootstrap extends Component {
     private titleLabel: Label | null = null;
     private statusLabel: Label | null = null;
     private helpLabel: Label | null = null;
+    private resultTitleLabel: Label | null = null;
+    private resultSummaryLabel: Label | null = null;
+    private resultActionLabel: Label | null = null;
     private economy = new EconomyLedger(PHASE_A_INITIAL_GOLD);
     private model = new PlacementModel(PHASE_A_GRIDS[DEFAULT_GRID_ID], this.economy, PHASE_A_TOWER_COST);
     private battle = new BattleStateMachine(1);
@@ -59,6 +67,9 @@ export class NightwatchPocBootstrap extends Component {
     private pressStart = new Vec3();
     private preparing = true;
     private pausedByLifecycle = false;
+    private initialCoreHealth = 10;
+    private initialPathLength = this.model.flowField.distanceAt(this.model.grid.entry);
+    private runCheckpoint: BattleRunCheckpoint | null = null;
     private statusText = '拖动底部炮塔，或点塔后双击格子提交';
     private publishedDiagnostics = '';
     private readonly debugInput = new PhaseBDebugInput((action) => this.handleDebugAction(action));
@@ -77,11 +88,15 @@ export class NightwatchPocBootstrap extends Component {
         this.statusLabel = this.createLabel(layer, 27, new Color('#D7E6F5'), 755);
         this.statusLabel.node.getComponent(UITransform)?.setContentSize(920, 125);
         this.helpLabel = this.createLabel(layer, 25, new Color('#8FA9C4'), -945);
-        // Cocos UI 子节点按逆序提交批次：底板节点最后加入，使其先画；前面的 Label 才能稳定盖在色块上。
+        this.resultTitleLabel = this.createCenteredLabel(layer, 64, new Color('#F4D58D'), 230, 760, 100);
+        this.resultSummaryLabel = this.createCenteredLabel(layer, 34, new Color('#D7E6F5'), 25, 760, 190);
+        this.resultActionLabel = this.createCenteredLabel(layer, 38, new Color('#101827'), -218, 600, 120);
         const graphicsNode = new Node('PhaseAGraphics');
         graphicsNode.layer = layer.layer;
         graphicsNode.addComponent(UITransform).setContentSize(DESIGN_WIDTH, DESIGN_HEIGHT);
         layer.addChild(graphicsNode);
+        // Graphics 承担所有底板与战场绘制，固定到首个 sibling，避免结算遮罩盖住 Label。
+        graphicsNode.setSiblingIndex(0);
         this.graphics = graphicsNode.addComponent(Graphics);
 
         this.canvas.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
@@ -106,7 +121,8 @@ export class NightwatchPocBootstrap extends Component {
     protected override update(deltaTime: number): void {
         const step = Math.min(deltaTime, 0.05);
         this.feedback.advance(step);
-        if (!this.preparing && this.battle.snapshot.phase !== 'paused') this.advanceCombat(step);
+        const phase = this.battle.snapshot.phase;
+        if (phase === 'spawning' || phase === 'clearing') this.advanceCombat(step);
         this.redraw();
     }
 
@@ -133,6 +149,25 @@ export class NightwatchPocBootstrap extends Component {
         return label;
     }
 
+    private createCenteredLabel(parent: Node, fontSize: number, color: Color, y: number, width: number, height: number): Label {
+        const node = new Node('ResultLabel');
+        node.layer = parent.layer;
+        node.setPosition(0, y, 0);
+        const label = node.addComponent(Label);
+        const transform = node.getComponent(UITransform) ?? node.addComponent(UITransform);
+        transform.setContentSize(width, height);
+        transform.setAnchorPoint(0.5, 0.5);
+        label.fontSize = fontSize;
+        label.lineHeight = Math.round(fontSize * 1.35);
+        label.color = color;
+        label.horizontalAlign = HorizontalTextAlignment.CENTER;
+        label.verticalAlign = VerticalTextAlignment.CENTER;
+        label.overflow = Label.Overflow.CLAMP;
+        node.active = false;
+        parent.addChild(node);
+        return label;
+    }
+
     private onTouchStart(event: EventTouch): void {
         const id = event.getID();
         if (this.primaryTouchId !== null && this.primaryTouchId !== id) return;
@@ -140,6 +175,10 @@ export class NightwatchPocBootstrap extends Component {
         const point = this.localPoint(event);
         this.pressStart.set(point);
 
+        if (this.handleResultTouch(point)) {
+            this.primaryTouchId = null;
+            return;
+        }
         if (this.handleTopControls(point)) {
             this.primaryTouchId = null;
             return;
@@ -178,7 +217,8 @@ export class NightwatchPocBootstrap extends Component {
     private onLifecycleHide(): void {
         // 首次生命周期阻塞统一取消活动手势，恢复后保持暂停，避免后台补跑敌人。
         this.cancelInput('页面进入后台：操作取消，战斗保持暂停');
-        if (!this.preparing) {
+        const phase = this.battle.snapshot.phase;
+        if (phase === 'spawning' || phase === 'clearing' || phase === 'countdown') {
             this.battle.pause();
             this.pausedByLifecycle = true;
         }
@@ -216,10 +256,19 @@ export class NightwatchPocBootstrap extends Component {
         if (action === 'reset') this.resetGrid();
         else if (action === 'apply-short') this.applyFixture('shortFold');
         else if (action === 'apply-long') this.applyFixture('longSnake');
+        else if (action === 'apply-failure') this.applyFixture('shortFold', 2);
+        else if (action === 'restart-run') this.restartFromCheckpoint();
         else this.toggleBattle();
     }
 
+    private handleResultTouch(point: Vec3): boolean {
+        if (!this.resultViewModel()) return false;
+        if (this.insideRect(point, RESULT_RESTART_BUTTON)) this.restartFromCheckpoint();
+        return true;
+    }
+
     private toggleBattle(): void {
+        if (this.resultViewModel()) return;
         if (this.battle.snapshot.phase === 'paused') {
             this.pausedByLifecycle = false;
             this.battle.resume();
@@ -231,8 +280,9 @@ export class NightwatchPocBootstrap extends Component {
             this.statusText = '已暂停，保留当前波次状态';
             return;
         }
-        const initialPath = this.model.grid.rows - 1;
-        const pathDelta = this.model.flowField.distanceAt(this.model.grid.entry) - initialPath;
+        const pathDelta = this.currentPathDelta();
+        // 先生成无副作用检查点，再推进状态机，避免快照失败留下“已开波但运行时未启动”的半状态。
+        const checkpoint = BattleRunCheckpoint.capture(this.model, PHASE_A_TOWER_COST);
         const start = this.battle.startFirstWave(this.model.towers.size, pathDelta);
         if (!start.accepted) {
             this.statusText = start.reason === 'needs-two-towers'
@@ -240,6 +290,7 @@ export class NightwatchPocBootstrap extends Component {
                 : '第一波门禁：路径至少增加 2 格';
             return;
         }
+        this.runCheckpoint = checkpoint;
         this.combat.start(PHASE_B_WAVE_ONE);
         this.preparing = false;
         this.statusText = '第 1 波：8 名发条步兵进场';
@@ -306,27 +357,51 @@ export class NightwatchPocBootstrap extends Component {
         this.statusText = `已切换 ${PHASE_A_GRIDS[id].columns}×${PHASE_A_GRIDS[id].rows}，证据需独立记录`;
     }
 
-    private resetGrid(initialGold = PHASE_A_INITIAL_GOLD): void {
+    private resetGrid(initialGold = PHASE_A_INITIAL_GOLD, coreHealth = 10): void {
         const grid = PHASE_A_GRIDS[this.selectedGridId];
         this.economy = new EconomyLedger(initialGold);
         this.model = new PlacementModel(grid, this.economy, PHASE_A_TOWER_COST);
-        this.battle = new BattleStateMachine(1);
+        // 开战门槛以当前地图空场流场为基线，不能假设入口出口永远纵向对齐。
+        this.initialPathLength = this.model.flowField.distanceAt(grid.entry);
+        this.battle = new BattleStateMachine(1, coreHealth);
         this.combat = new WaveCombatRuntime(grid, RIVET_GUN);
+        this.initialCoreHealth = coreHealth;
+        this.runCheckpoint = null;
         this.preparing = true;
         this.pausedByLifecycle = false;
         this.feedback.clear();
         this.cancelInput('已重置为空网格');
     }
 
-    private applyFixture(kind: 'shortFold' | 'longSnake'): void {
+    private applyFixture(kind: 'shortFold' | 'longSnake', coreHealth = 10): void {
         const cells = PHASE_A_FIXTURES[this.selectedGridId][kind];
-        this.resetGrid(kind === 'longSnake' ? 450 : 120);
+        this.resetGrid(kind === 'longSnake' ? 450 : 120, coreHealth);
         for (const cell of cells) {
             const preview = this.model.preview(cell, []);
             const result = this.model.commit(preview, []);
             if (!result.accepted) throw new Error(`${kind} fixture 无法提交：${result.reason}`);
         }
-        this.statusText = `${kind === 'shortFold' ? '短折线' : '长蛇形'} fixture · 路径 ${this.model.flowField.distanceAt(this.model.grid.entry)} 格`;
+        this.statusText = `${kind === 'shortFold' ? '短折线' : '长蛇形'} fixture · 路径 ${this.model.flowField.distanceAt(this.model.grid.entry)} 格${coreHealth < 10 ? ' · 失败回归' : ''}`;
+    }
+
+    private restartFromCheckpoint(): void {
+        const checkpoint = this.runCheckpoint;
+        if (!checkpoint || !this.resultViewModel()) return;
+        const restored = checkpoint.restore();
+        this.economy = restored.economy;
+        this.model = restored.model;
+        this.selectedGridId = restored.model.grid.id;
+        this.battle = new BattleStateMachine(1, this.initialCoreHealth);
+        this.combat = new WaveCombatRuntime(restored.model.grid, RIVET_GUN);
+        this.feedback.clear();
+        this.preparing = true;
+        this.pausedByLifecycle = false;
+        this.cancelInput('已恢复开战前部署，可调整后再次开波');
+        this.runCheckpoint = checkpoint;
+    }
+
+    private currentPathDelta(): number {
+        return this.model.flowField.distanceAt(this.model.grid.entry) - this.initialPathLength;
     }
 
     private advanceCombat(deltaTime: number): void {
@@ -338,7 +413,9 @@ export class NightwatchPocBootstrap extends Component {
         if (result.killed.length > 0 || result.leaked.length > 0) {
             this.battle.resolveCombatOutcome(result.leaked.length, this.combat.enemies.length);
         }
-        if (result.spawningCompleted) this.battle.markSpawningComplete(this.combat.enemies.length);
+        if (result.spawningCompleted && this.battle.snapshot.phase !== 'defeat') {
+            this.battle.markSpawningComplete(this.combat.enemies.length);
+        }
         const phase = this.battle.snapshot.phase;
         if (phase === 'victory') this.statusText = `第 1 波清场！击杀奖励已结算，剩余金币 ${this.model.gold}`;
         else if (phase === 'defeat') this.statusText = '核心已失守';
@@ -400,13 +477,15 @@ export class NightwatchPocBootstrap extends Component {
         this.drawTabs(graphics);
         this.drawBoard(graphics);
         this.drawControls(graphics);
+        this.drawResultOverlay(graphics);
         if (this.titleLabel) this.titleLabel.string = '夜城防线 · Phase B 第一波灰盒';
         if (this.statusLabel) {
             const path = this.preview?.path?.length ? this.preview.path.length - 1 : this.model.flowField.distanceAt(this.model.grid.entry);
             const battle = this.battle.snapshot;
             this.statusLabel.string = `${this.statusText}\n金币 ${this.model.gold} · 路径 ${path} 格 · 波次 ${battle.wave}/1 · 核心 ${battle.coreHealth} · ${this.phaseText()}`;
         }
-        if (this.helpLabel) this.helpLabel.string = '先建 2 塔且路径 +2｜↻重置 ▷开波/暂停｜键盘 F/G/R/空格｜底部机枪塔';
+        if (this.helpLabel) this.helpLabel.string = '先建 2 塔且路径 +2｜↻重置 ▷开波/暂停｜F/G/H样例 R重置 Enter重试｜底部机枪塔';
+        this.updateResultLabels();
         this.publishBrowserDiagnostics();
     }
 
@@ -425,6 +504,7 @@ export class NightwatchPocBootstrap extends Component {
             mapVersion: this.model.mapVersion,
             towerCount: this.model.towers.size,
             pathLength,
+            pathDelta: this.currentPathDelta(),
             phase: this.battle.snapshot.phase,
             wave: this.battle.snapshot.wave,
             coreHealth: this.battle.snapshot.coreHealth,
@@ -434,6 +514,8 @@ export class NightwatchPocBootstrap extends Component {
             defeatedEnemyCount: this.combat.totals.killed,
             leakedEnemyCount: this.combat.totals.leaked,
             activeFeedbackCount: this.activeFeedbackCount(),
+            resultVisible: Boolean(this.resultViewModel()),
+            retryAvailable: Boolean(this.runCheckpoint && this.resultViewModel()),
             inputMode: this.inputMode,
             previewAccepted: this.preview?.accepted ?? null,
             status: this.statusText,
@@ -441,9 +523,12 @@ export class NightwatchPocBootstrap extends Component {
         if (diagnostics === this.publishedDiagnostics) return;
         // 浏览器 POC 用 DOM 属性暴露只读快照，方便 QA 核对画布操作的原子性，不提供跳过输入的修改接口。
         canvas.setAttribute('data-phase-a-state', diagnostics);
+        const result = this.resultViewModel();
         canvas.setAttribute(
             'aria-label',
-            `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，${this.statusText}`,
+            result
+                ? `${result.title}，${result.summary.replace('\n', '，')}，${result.actionLabel}`
+                : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，${this.statusText}`,
         );
         this.publishedDiagnostics = diagnostics;
     }
@@ -595,6 +680,55 @@ export class NightwatchPocBootstrap extends Component {
         const feedback = this.feedback.snapshot;
         return feedback.tracers.length + feedback.impacts.length + feedback.deaths.length
             + feedback.rewards.length + feedback.coreHits.length;
+    }
+
+    private resultViewModel() {
+        return buildBattleResultViewModel(
+            this.battle.snapshot,
+            this.combat.totals,
+            this.model.gold,
+            this.initialCoreHealth,
+        );
+    }
+
+    private updateResultLabels(): void {
+        const result = this.resultViewModel();
+        for (const label of [this.resultTitleLabel, this.resultSummaryLabel, this.resultActionLabel]) {
+            if (label) label.node.active = Boolean(result);
+        }
+        if (this.titleLabel) this.titleLabel.node.active = !result;
+        if (this.statusLabel) this.statusLabel.node.active = !result;
+        if (this.helpLabel) this.helpLabel.node.active = !result;
+        if (!result) return;
+        if (this.resultTitleLabel) {
+            this.resultTitleLabel.string = result.title;
+            this.resultTitleLabel.color = new Color(result.kind === 'victory' ? '#79E0AD' : '#FF8580');
+        }
+        if (this.resultSummaryLabel) this.resultSummaryLabel.string = result.summary;
+        if (this.resultActionLabel) this.resultActionLabel.string = result.actionLabel;
+    }
+
+    private drawResultOverlay(graphics: Graphics): void {
+        const result = this.resultViewModel();
+        if (!result) return;
+        graphics.fillColor = new Color(7, 12, 21, 232);
+        graphics.rect(-540, -960, 1080, 1920);
+        graphics.fill();
+        graphics.fillColor = new Color('#17263A');
+        graphics.roundRect(-430, -430, 860, 850, 34);
+        graphics.fill();
+        graphics.fillColor = new Color(result.kind === 'victory' ? '#2F9E72' : '#B84F50');
+        graphics.rect(-430, 350, 860, 70);
+        graphics.fill();
+        graphics.fillColor = new Color(result.kind === 'victory' ? '#79E0AD' : '#FF8580');
+        graphics.roundRect(
+            RESULT_RESTART_BUTTON.left,
+            RESULT_RESTART_BUTTON.bottom,
+            RESULT_RESTART_BUTTON.right - RESULT_RESTART_BUTTON.left,
+            RESULT_RESTART_BUTTON.top - RESULT_RESTART_BUTTON.bottom,
+            24,
+        );
+        graphics.fill();
     }
 
     private drawControls(graphics: Graphics): void {

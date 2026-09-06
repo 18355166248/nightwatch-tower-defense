@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const { readFileSync } = require('node:fs');
 const { resolve } = require('node:path');
 
-const { PHASE_A_GRIDS } = require('../.test-dist/config/PhaseAGrids.js');
+const { PHASE_A_GRIDS, PHASE_A_TOWER_COST } = require('../.test-dist/config/PhaseAGrids.js');
 const { PHASE_B_WAVE_ONE, RIVET_GUN } = require('../.test-dist/config/PhaseBCombatConfig.js');
 const { cellKey } = require('../.test-dist/core/GridTypes.js');
 const { FlowField } = require('../.test-dist/systems/FlowField.js');
@@ -11,7 +11,9 @@ const { PlacementModel } = require('../.test-dist/systems/PlacementModel.js');
 const { simulateNoDamageRoute } = require('../.test-dist/systems/RouteSimulation.js');
 const { BattleStateMachine } = require('../.test-dist/systems/BattleStateMachine.js');
 const { EconomyLedger } = require('../.test-dist/systems/EconomyLedger.js');
+const { BattleRunCheckpoint } = require('../.test-dist/systems/BattleRunCheckpoint.js');
 const { WaveCombatRuntime } = require('../.test-dist/systems/WaveCombatRuntime.js');
+const { buildBattleResultViewModel } = require('../.test-dist/presentation/BattleResultViewModel.js');
 const { CombatFeedbackRuntime } = require('../.test-dist/presentation/CombatFeedbackRuntime.js');
 
 const fixtures = JSON.parse(readFileSync(resolve(__dirname, '../docs/poc/phase-a-fixtures.json'), 'utf8'));
@@ -203,6 +205,32 @@ test('建造与击杀共用独立经济账本', () => {
     assert.equal(ledger.balance, 90);
     ledger.credit(4);
     assert.equal(model.gold, 94);
+});
+
+test('重新部署从开战检查点恢复塔位与当时金币，不带回击杀收益', () => {
+    const grid = PHASE_A_GRIDS['grid-9x13'];
+    const ledger = new EconomyLedger(120);
+    const model = new PlacementModel(grid, ledger, PHASE_A_TOWER_COST);
+    for (const cell of [{ column: 2, row: 2 }, { column: 3, row: 2 }, { column: 4, row: 2 }, { column: 5, row: 2 }]) {
+        assert.equal(model.commit(model.preview(cell, []), []).accepted, true);
+    }
+    const checkpoint = BattleRunCheckpoint.capture(model, PHASE_A_TOWER_COST);
+    ledger.credit(24);
+    const restored = checkpoint.restore();
+    assert.equal(restored.model.gold, 0);
+    assert.deepEqual([...restored.model.towers], [...model.towers]);
+    assert.equal(restored.model.flowField.distanceAt(grid.entry), 16);
+});
+
+test('结算视图模型只在终局生成，并区分胜利与失败', () => {
+    const totals = { spawned: 8, killed: 6, leaked: 2 };
+    assert.equal(buildBattleResultViewModel({ phase: 'clearing', wave: 1, coreHealth: 8, countdownSeconds: 0 }, totals, 24, 10), null);
+    const victory = buildBattleResultViewModel({ phase: 'victory', wave: 1, coreHealth: 8, countdownSeconds: 0 }, totals, 24, 10);
+    assert.equal(victory.kind, 'victory');
+    assert.match(victory.summary, /击毁 6\/8/);
+    const defeat = buildBattleResultViewModel({ phase: 'defeat', wave: 1, coreHealth: 0, countdownSeconds: 0 }, totals, 24, 2);
+    assert.equal(defeat.kind, 'defeat');
+    assert.match(defeat.summary, /核心 0\/2/);
 });
 
 test('波次运行时按冻结间隔生成，塔优先攻击接近出口的敌人', () => {

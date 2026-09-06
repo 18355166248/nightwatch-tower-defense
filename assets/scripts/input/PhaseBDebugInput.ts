@@ -1,6 +1,6 @@
 import { EventKeyboard, input, Input, KeyCode } from 'cc';
 
-export type PhaseBDebugAction = 'reset' | 'apply-short' | 'apply-long' | 'toggle-battle';
+export type PhaseBDebugAction = 'reset' | 'apply-short' | 'apply-long' | 'apply-failure' | 'toggle-battle' | 'restart-run';
 
 /**
  * 浏览器灰盒的键盘适配层。这里只把物理按键翻译成动作，不依赖关卡或战斗实现。
@@ -26,6 +26,8 @@ export class PhaseBDebugInput {
         if (event.keyCode === KeyCode.KEY_R) this.dispatch('reset');
         else if (event.keyCode === KeyCode.KEY_F) this.dispatch('apply-short');
         else if (event.keyCode === KeyCode.KEY_G) this.dispatch('apply-long');
+        else if (event.keyCode === KeyCode.KEY_H) this.dispatch('apply-failure');
+        else if (event.keyCode === KeyCode.ENTER) this.dispatch('restart-run');
         else if (event.keyCode === KeyCode.SPACE) this.dispatch('toggle-battle');
     }
 }
