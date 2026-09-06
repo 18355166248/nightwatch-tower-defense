@@ -8,6 +8,7 @@ const { cellKey } = require('../.test-dist/core/GridTypes.js');
 const { FlowField } = require('../.test-dist/systems/FlowField.js');
 const { PlacementModel } = require('../.test-dist/systems/PlacementModel.js');
 const { simulateNoDamageRoute } = require('../.test-dist/systems/RouteSimulation.js');
+const { BattleStateMachine } = require('../.test-dist/systems/BattleStateMachine.js');
 
 const fixtures = JSON.parse(readFileSync(resolve(__dirname, '../docs/poc/phase-a-fixtures.json'), 'utf8'));
 
@@ -143,4 +144,50 @@ test('出售只在 preparing 开放并恢复金币与流场', () => {
     assert.equal(model.sell(cell, true), true);
     assert.equal(model.gold, 120);
     assert.equal(model.flowField.distanceAt(model.grid.entry), 12);
+});
+
+test('第一波同时要求两座塔和至少 2 格路径增量', () => {
+    const battle = new BattleStateMachine();
+    assert.deepEqual(battle.startFirstWave(1, 2), { accepted: false, reason: 'needs-two-towers' });
+    assert.deepEqual(battle.startFirstWave(2, 1), { accepted: false, reason: 'needs-path-delta' });
+    assert.deepEqual(battle.startFirstWave(2, 2), { accepted: true });
+    assert.deepEqual(battle.snapshot, { phase: 'spawning', wave: 1, coreHealth: 10, countdownSeconds: 0 });
+});
+
+test('波次不重叠，清场后完整保留 8 秒倒计时', () => {
+    const battle = new BattleStateMachine();
+    battle.startFirstWave(2, 2);
+    battle.markSpawningComplete(1);
+    battle.resolveEnemyKilled(0);
+    assert.deepEqual(battle.snapshot, { phase: 'countdown', wave: 1, coreHealth: 10, countdownSeconds: 8 });
+    battle.advance(3.25);
+    assert.equal(battle.snapshot.countdownSeconds, 4.75);
+    battle.advance(4.75);
+    assert.deepEqual(battle.snapshot, { phase: 'spawning', wave: 2, coreHealth: 10, countdownSeconds: 0 });
+});
+
+test('暂停恢复原阶段和剩余倒计时', () => {
+    const battle = new BattleStateMachine();
+    battle.startFirstWave(2, 2);
+    battle.markSpawningComplete(0);
+    battle.advance(2);
+    assert.equal(battle.pause(), true);
+    battle.advance(20);
+    assert.deepEqual(battle.snapshot, { phase: 'paused', wave: 1, coreHealth: 10, countdownSeconds: 6 });
+    assert.equal(battle.resume(), true);
+    assert.deepEqual(battle.snapshot, { phase: 'countdown', wave: 1, coreHealth: 10, countdownSeconds: 6 });
+});
+
+test('核心生命归零立即失败，第八波清场才胜利', () => {
+    const defeat = new BattleStateMachine(8, 1);
+    defeat.startFirstWave(2, 2);
+    defeat.resolveEnemyLeak(3);
+    assert.equal(defeat.snapshot.phase, 'defeat');
+
+    const victory = new BattleStateMachine(1);
+    victory.startFirstWave(2, 2);
+    victory.markSpawningComplete(1);
+    assert.equal(victory.snapshot.phase, 'clearing');
+    victory.resolveEnemyKilled(0);
+    assert.equal(victory.snapshot.phase, 'victory');
 });
