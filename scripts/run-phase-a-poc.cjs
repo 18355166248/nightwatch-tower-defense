@@ -45,10 +45,14 @@ for (let iteration = 0; iteration < 100; iteration += 1) {
     const fromCell = { column: grid.entry.column, row: 1 };
     const toCell = { column: grid.entry.column, row: 2 };
     const enemy = [{ id: `enemy-${iteration}`, fromCell, toCell, progress: 0.25 + (iteration % 50) / 100 }];
-    const candidate = {
-        column: iteration % grid.columns,
-        row: 3 + (iteration % Math.max(1, grid.rows - 5)),
-    };
+    // 固定混入入口、活动格、承诺格和越界输入，保证回放同时覆盖接受事务与原子拒绝事务。
+    const forcedCandidates = [grid.entry, fromCell, toCell, { column: -1, row: 4 }];
+    const candidate = iteration % 10 < forcedCandidates.length
+        ? forcedCandidates[iteration % 10]
+        : {
+            column: iteration % grid.columns,
+            row: 3 + (iteration % Math.max(1, grid.rows - 5)),
+        };
     const started = performance.now();
     const before = { gold: model.gold, mapVersion: model.mapVersion, towerCount: model.towers.size };
     const preview = model.preview(candidate, enemy);

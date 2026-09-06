@@ -8,7 +8,6 @@ import {
     Graphics,
     Label,
     Node,
-    profiler,
     ResolutionPolicy,
     UITransform,
     Vec3,
@@ -47,9 +46,7 @@ export class NightwatchPocBootstrap extends Component {
     private graphics: Graphics | null = null;
     private titleLabel: Label | null = null;
     private statusLabel: Label | null = null;
-    private controlLegendLabel: Label | null = null;
     private helpLabel: Label | null = null;
-    private phaseButtonLabel: Label | null = null;
     private model = new PlacementModel(PHASE_A_GRIDS[DEFAULT_GRID_ID], PHASE_A_INITIAL_GOLD, PHASE_A_TOWER_COST);
     private selectedGridId: GridId = DEFAULT_GRID_ID;
     private preview: PlacementPreview | null = null;
@@ -71,38 +68,24 @@ export class NightwatchPocBootstrap extends Component {
         const transform = layer.addComponent(UITransform);
         transform.setContentSize(DESIGN_WIDTH, DESIGN_HEIGHT);
         this.canvas.addChild(layer);
-        // Graphics 独立放在第一个子节点，保证网格和按钮底板不会覆盖后续 Label。
-        const graphicsNode = new Node('PhaseAGraphics');
-        graphicsNode.layer = layer.layer;
-        const graphicsTransform = graphicsNode.addComponent(UITransform);
-        graphicsTransform.setContentSize(DESIGN_WIDTH, DESIGN_HEIGHT);
-        layer.addChild(graphicsNode);
-        this.graphics = graphicsNode.addComponent(Graphics);
         this.titleLabel = this.createLabel(layer, 46, new Color('#F4D58D'), 850);
         this.statusLabel = this.createLabel(layer, 27, new Color('#D7E6F5'), 755);
         this.statusLabel.node.getComponent(UITransform)?.setContentSize(920, 125);
-        this.controlLegendLabel = this.createLabel(layer, 22, new Color('#AFC6DA'), 705);
         this.helpLabel = this.createLabel(layer, 25, new Color('#8FA9C4'), -945);
-        for (const tab of GRID_TABS) this.createCenteredLabel(layer, tab.label, 28, (tab.left + tab.right) / 2, 655, tab.right - tab.left);
-        this.createCenteredLabel(layer, '重置网格', 28, -270, -557, 320);
-        this.phaseButtonLabel = this.createCenteredLabel(layer, '开始运行', 28, 270, -557, 320);
-        this.createCenteredLabel(layer, '短折线 +4', 26, -300, -655, 260);
-        this.createCenteredLabel(layer, '长蛇 ≥80%', 26, 300, -655, 260);
-        this.createCenteredLabel(layer, `铆钉塔  ${PHASE_A_TOWER_COST}`, 30, 0, -865, 300);
+        // Cocos UI 子节点按逆序提交批次：底板节点最后加入，使其先画；前面的 Label 才能稳定盖在色块上。
+        const graphicsNode = new Node('PhaseAGraphics');
+        graphicsNode.layer = layer.layer;
+        graphicsNode.addComponent(UITransform).setContentSize(DESIGN_WIDTH, DESIGN_HEIGHT);
+        layer.addChild(graphicsNode);
+        this.graphics = graphicsNode.addComponent(Graphics);
 
         this.canvas.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
         this.canvas.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
         this.canvas.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
         this.canvas.on(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
         game.on(Game.EVENT_HIDE, this.onLifecycleHide, this);
-        profiler.hideStats();
         this.resetEnemy();
         this.redraw();
-    }
-
-    protected override start(): void {
-        // 调试构建可能在 onLoad 后自动开启统计层，延迟一帧关闭，避免遮挡 POC 控件。
-        this.scheduleOnce(() => profiler.hideStats(), 0);
     }
 
     protected override onDestroy(): void {
@@ -115,7 +98,6 @@ export class NightwatchPocBootstrap extends Component {
     }
 
     protected override update(deltaTime: number): void {
-        profiler.hideStats();
         if (!this.preparing && !this.pausedByLifecycle) this.advanceEnemy(Math.min(deltaTime, 0.05));
         this.redraw();
     }
@@ -140,23 +122,6 @@ export class NightwatchPocBootstrap extends Component {
         label.color = color;
         label.overflow = Label.Overflow.NONE;
         parent.addChild(node);
-        return label;
-    }
-
-    private createCenteredLabel(parent: Node, text: string, fontSize: number, x: number, y: number, width: number): Label {
-        const node = new Node(`Label-${text}`);
-        node.layer = parent.layer;
-        node.setPosition(x - width / 2, y, 0);
-        const transform = node.addComponent(UITransform);
-        const label = node.addComponent(Label);
-        transform.setContentSize(width, 100);
-        transform.setAnchorPoint(0, 0.5);
-        label.fontSize = fontSize;
-        label.lineHeight = Math.round(fontSize * 1.5);
-        label.color = new Color('#F2E4BF');
-        label.overflow = Label.Overflow.NONE;
-        parent.addChild(node);
-        label.string = text;
         return label;
     }
 
@@ -398,11 +363,9 @@ export class NightwatchPocBootstrap extends Component {
         if (this.titleLabel) this.titleLabel.string = '夜城防线 · Phase A 风险 POC';
         if (this.statusLabel) {
             const path = this.preview?.path?.length ? this.preview.path.length - 1 : this.model.flowField.distanceAt(this.model.grid.entry);
-            this.statusLabel.string = `${this.statusText}\n金币 ${this.model.gold}  ·  路径 ${path} 格  ·  ${this.preparing ? '准备态' : this.pausedByLifecycle ? '后台暂停' : '运行态'}\n上排：9×13｜10×14｜8×13　下排：重置｜运行　样例：短折｜长蛇`;
+            this.statusLabel.string = `${this.statusText}\n${this.model.grid.columns}×${this.model.grid.rows}  ·  金币 ${this.model.gold}  ·  路径 ${path} 格  ·  ${this.preparing ? '准备态' : this.pausedByLifecycle ? '后台暂停' : '运行态'}`;
         }
-        if (this.helpLabel) this.helpLabel.string = '程序色块仅验证玩法风险｜拖拽松手提交｜点击建塔需同格二次确认｜准备态点塔撤销';
-        if (this.controlLegendLabel) this.controlLegendLabel.string = '上排网格：9×13｜10×14｜8×13　下排：重置｜运行　样例：短折｜长蛇';
-        if (this.phaseButtonLabel) this.phaseButtonLabel.string = this.pausedByLifecycle ? '主动继续' : this.preparing ? '开始运行' : '回准备态';
+        if (this.helpLabel) this.helpLabel.string = '上排 9×13 / 10×14 / 8×13｜↻重置 ▷运行｜折线/迷宫样例｜底部炮塔';
     }
 
     private drawTabs(graphics: Graphics): void {
@@ -411,6 +374,9 @@ export class NightwatchPocBootstrap extends Component {
             graphics.rect(tab.left, 610, tab.right - tab.left, 90);
             graphics.fill();
         }
+        this.drawGridCode(graphics, -292, 655, [9, 1, 3]);
+        this.drawGridCode(graphics, 0, 655, [1, 0, 1, 4]);
+        this.drawGridCode(graphics, 292, 655, [8, 1, 3]);
     }
 
     private drawBoard(graphics: Graphics): void {
@@ -478,12 +444,106 @@ export class NightwatchPocBootstrap extends Component {
         this.drawButton(graphics, 100, -600, 340, 85);
         this.drawButton(graphics, -440, -700, 280, 90);
         this.drawButton(graphics, 160, -700, 280, 90);
+        this.drawResetIcon(graphics, -270, -558);
+        this.drawPhaseIcon(graphics, 270, -558);
+        this.drawRouteIcon(graphics, -300, -655, false);
+        this.drawRouteIcon(graphics, 300, -655, true);
         graphics.fillColor = this.model.gold >= PHASE_A_TOWER_COST ? new Color('#D5A84B') : new Color('#596273');
         graphics.rect(TOWER_BUTTON.left, TOWER_BUTTON.bottom, TOWER_BUTTON.right - TOWER_BUTTON.left, TOWER_BUTTON.top - TOWER_BUTTON.bottom);
         graphics.fill();
         graphics.fillColor = new Color('#263043');
         graphics.circle(0, -800, 44);
         graphics.fill();
+        graphics.strokeColor = new Color('#F7E4B1');
+        graphics.lineWidth = 10;
+        graphics.moveTo(-52, -842);
+        graphics.lineTo(0, -790);
+        graphics.lineTo(52, -842);
+        graphics.stroke();
+    }
+
+    private drawGridCode(graphics: Graphics, centerX: number, centerY: number, digits: readonly number[]): void {
+        const digitWidth = 24;
+        const gap = 10;
+        const crossGap = 24;
+        const split = digits.length === 3 ? 1 : 2;
+        const totalWidth = digits.length * digitWidth + (digits.length - 1) * gap + crossGap;
+        let x = centerX - totalWidth / 2;
+        for (let index = 0; index < digits.length; index += 1) {
+            if (index === split) {
+                graphics.strokeColor = new Color('#F2E4BF');
+                graphics.lineWidth = 5;
+                graphics.moveTo(x - 4, centerY - 9);
+                graphics.lineTo(x + 10, centerY + 9);
+                graphics.moveTo(x - 4, centerY + 9);
+                graphics.lineTo(x + 10, centerY - 9);
+                graphics.stroke();
+                x += crossGap;
+            }
+            this.drawDigit(graphics, digits[index], x, centerY, 1);
+            x += digitWidth + gap;
+        }
+    }
+
+    private drawDigit(graphics: Graphics, digit: number, x: number, y: number, scale: number): void {
+        const enabled: Readonly<Record<number, readonly number[]>> = {
+            0: [0, 1, 2, 3, 4, 5], 1: [1, 2], 2: [0, 1, 6, 4, 3], 3: [0, 1, 2, 3, 6],
+            4: [5, 6, 1, 2], 5: [0, 5, 6, 2, 3], 6: [0, 5, 4, 3, 2, 6], 7: [0, 1, 2],
+            8: [0, 1, 2, 3, 4, 5, 6], 9: [0, 1, 2, 3, 5, 6],
+        };
+        const segments = [
+            [2, 18, 18, 4], [18, 2, 4, 18], [18, -18, 4, 18], [2, -22, 18, 4],
+            [-2, -18, 4, 18], [-2, 2, 4, 18], [2, -2, 18, 4],
+        ] as const;
+        graphics.fillColor = new Color('#F2E4BF');
+        for (const segment of enabled[digit] ?? []) {
+            const [left, bottom, width, height] = segments[segment];
+            graphics.rect(x + left * scale, y + bottom * scale, width * scale, height * scale);
+            graphics.fill();
+        }
+    }
+
+    private drawResetIcon(graphics: Graphics, x: number, y: number): void {
+        graphics.strokeColor = new Color('#F2E4BF');
+        graphics.lineWidth = 9;
+        graphics.arc(x, y, 27, 0.4, 5.4, false);
+        graphics.stroke();
+        graphics.fillColor = new Color('#F2E4BF');
+        graphics.moveTo(x - 29, y + 15);
+        graphics.lineTo(x - 6, y + 27);
+        graphics.lineTo(x - 12, y + 2);
+        graphics.close();
+        graphics.fill();
+    }
+
+    private drawPhaseIcon(graphics: Graphics, x: number, y: number): void {
+        graphics.fillColor = new Color('#F2E4BF');
+        if (this.preparing || this.pausedByLifecycle) {
+            graphics.moveTo(x - 18, y - 27);
+            graphics.lineTo(x + 30, y);
+            graphics.lineTo(x - 18, y + 27);
+            graphics.close();
+            graphics.fill();
+            return;
+        }
+        graphics.rect(x - 22, y - 28, 14, 56);
+        graphics.fill();
+        graphics.rect(x + 8, y - 28, 14, 56);
+        graphics.fill();
+    }
+
+    private drawRouteIcon(graphics: Graphics, x: number, y: number, long: boolean): void {
+        graphics.strokeColor = long ? new Color('#7ED9B0') : new Color('#8FB9E8');
+        graphics.lineWidth = 10;
+        graphics.moveTo(x - 72, y + 22);
+        graphics.lineTo(x - 30, y + 22);
+        graphics.lineTo(x - 30, y - 22);
+        graphics.lineTo(long ? x + 5 : x + 72, y - 22);
+        if (long) {
+            graphics.lineTo(x + 5, y + 22);
+            graphics.lineTo(x + 72, y + 22);
+        }
+        graphics.stroke();
     }
 
     private drawButton(graphics: Graphics, x: number, y: number, width: number, height: number): void {
