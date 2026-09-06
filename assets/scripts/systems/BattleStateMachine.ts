@@ -57,13 +57,21 @@ export class BattleStateMachine {
     }
 
     public resolveEnemyKilled(activeEnemyCountAfterRemoval: number): void {
-        this.requireCombatPhase();
-        this.resolveWaveIfClear(activeEnemyCountAfterRemoval);
+        this.resolveCombatOutcome(0, activeEnemyCountAfterRemoval);
     }
 
     public resolveEnemyLeak(activeEnemyCountAfterRemoval: number): void {
+        this.resolveEnemyLeaks(1, activeEnemyCountAfterRemoval);
+    }
+
+    public resolveEnemyLeaks(count: number, activeEnemyCountAfterRemoval: number): void {
+        this.resolveCombatOutcome(count, activeEnemyCountAfterRemoval);
+    }
+
+    public resolveCombatOutcome(leakCount: number, activeEnemyCountAfterRemoval: number): void {
         this.requireCombatPhase();
-        this.currentCoreHealth = Math.max(0, this.currentCoreHealth - 1);
+        if (!Number.isInteger(leakCount) || leakCount < 0) throw new RangeError('leakCount 不能为负数');
+        this.currentCoreHealth = Math.max(0, this.currentCoreHealth - leakCount);
         if (this.currentCoreHealth === 0) {
             // 失败要求立即终止生成和倒计时，不再等待场上其他敌人结算。
             this.currentPhase = 'defeat';

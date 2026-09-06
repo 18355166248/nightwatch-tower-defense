@@ -9,6 +9,8 @@ const { FlowField } = require('../.test-dist/systems/FlowField.js');
 const { PlacementModel } = require('../.test-dist/systems/PlacementModel.js');
 const { simulateNoDamageRoute } = require('../.test-dist/systems/RouteSimulation.js');
 const { BattleStateMachine } = require('../.test-dist/systems/BattleStateMachine.js');
+const { EconomyLedger } = require('../.test-dist/systems/EconomyLedger.js');
+const { WaveCombatRuntime } = require('../.test-dist/systems/WaveCombatRuntime.js');
 
 const fixtures = JSON.parse(readFileSync(resolve(__dirname, '../docs/poc/phase-a-fixtures.json'), 'utf8'));
 
@@ -190,4 +192,50 @@ test('核心生命归零立即失败，第八波清场才胜利', () => {
     assert.equal(victory.snapshot.phase, 'clearing');
     victory.resolveEnemyKilled(0);
     assert.equal(victory.snapshot.phase, 'victory');
+});
+
+test('建造与击杀共用独立经济账本', () => {
+    const ledger = new EconomyLedger(120);
+    const model = new PlacementModel(PHASE_A_GRIDS['grid-9x13'], ledger, 30);
+    assert.ok(model.commit(model.preview({ column: 2, row: 2 }, []), []).accepted);
+    assert.equal(ledger.balance, 90);
+    ledger.credit(4);
+    assert.equal(model.gold, 94);
+});
+
+test('波次运行时按冻结间隔生成，塔优先攻击接近出口的敌人', () => {
+    const grid = {
+        id: 'grid-9x13', columns: 5, rows: 5,
+        entry: { column: 2, row: 0 }, exit: { column: 2, row: 4 },
+    };
+    const enemy = { id: 'clockwork-infantry', maxHealth: 55, speedCellsPerSecond: 0.01, killReward: 4 };
+    const tower = { id: 'rivet-gun', rangeCells: 10, damage: 55, attackIntervalSeconds: 0.3 };
+    const wave = { wave: 1, groups: [{ enemy, count: 2, spawnIntervalSeconds: 0.9 }] };
+    const runtime = new WaveCombatRuntime(grid, tower);
+    const flow = new FlowField(grid, new Set());
+    const towers = new Set([cellKey({ column: 1, row: 1 })]);
+    runtime.start(wave);
+    const first = runtime.tick(0, flow, towers);
+    assert.equal(first.killed.length, 1);
+    assert.equal(first.spawningCompleted, false);
+    const second = runtime.tick(0.9, flow, towers);
+    assert.equal(second.killed.length, 1);
+    assert.equal(second.spawningCompleted, true);
+    assert.equal(runtime.enemies.length, 0);
+});
+
+test('敌人到达出口只上报漏怪，不在运行时内直接修改核心生命', () => {
+    const grid = {
+        id: 'grid-9x13', columns: 3, rows: 2,
+        entry: { column: 1, row: 0 }, exit: { column: 1, row: 1 },
+    };
+    const enemy = { id: 'clockwork-infantry', maxHealth: 55, speedCellsPerSecond: 1, killReward: 4 };
+    const tower = { id: 'rivet-gun', rangeCells: 2.6, damage: 8, attackIntervalSeconds: 0.3 };
+    const runtime = new WaveCombatRuntime(grid, tower);
+    runtime.start({ wave: 1, groups: [{ enemy, count: 1, spawnIntervalSeconds: 0.9 }] });
+    const flow = new FlowField(grid, new Set());
+    runtime.tick(0, flow, new Set());
+    const result = runtime.tick(1.1, flow, new Set());
+    assert.equal(result.leaked.length, 1);
+    assert.equal(runtime.enemies.length, 0);
 });

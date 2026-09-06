@@ -15,8 +15,13 @@ import {
 } from 'cc';
 import { PHASE_A_FIXTURES } from '../config/PhaseAFixtures';
 import { DEFAULT_GRID_ID, PHASE_A_GRIDS, PHASE_A_INITIAL_GOLD, PHASE_A_TOWER_COST } from '../config/PhaseAGrids';
+import { PHASE_B_WAVE_ONE, RIVET_GUN } from '../config/PhaseBCombatConfig';
 import { cellKey, sameCell, type EnemyRouteState, type GridCell, type GridId } from '../core/GridTypes';
+import { PhaseBDebugInput, type PhaseBDebugAction } from '../input/PhaseBDebugInput';
+import { BattleStateMachine } from '../systems/BattleStateMachine';
+import { EconomyLedger } from '../systems/EconomyLedger';
 import { PlacementModel, type PlacementPreview } from '../systems/PlacementModel';
+import { WaveCombatRuntime } from '../systems/WaveCombatRuntime';
 
 const { ccclass } = _decorator;
 
@@ -34,12 +39,6 @@ const GRID_TABS: readonly { id: GridId; label: string; left: number; right: numb
 
 type InputMode = 'idle' | 'tower-pressed' | 'armed' | 'dragging' | 'click-preview';
 
-interface EnemyRuntime {
-    fromCell: GridCell;
-    toCell: GridCell;
-    progress: number;
-}
-
 @ccclass('NightwatchPocBootstrap')
 export class NightwatchPocBootstrap extends Component {
     private canvas: Node | null = null;
@@ -47,7 +46,10 @@ export class NightwatchPocBootstrap extends Component {
     private titleLabel: Label | null = null;
     private statusLabel: Label | null = null;
     private helpLabel: Label | null = null;
-    private model = new PlacementModel(PHASE_A_GRIDS[DEFAULT_GRID_ID], PHASE_A_INITIAL_GOLD, PHASE_A_TOWER_COST);
+    private economy = new EconomyLedger(PHASE_A_INITIAL_GOLD);
+    private model = new PlacementModel(PHASE_A_GRIDS[DEFAULT_GRID_ID], this.economy, PHASE_A_TOWER_COST);
+    private battle = new BattleStateMachine(1);
+    private combat = new WaveCombatRuntime(PHASE_A_GRIDS[DEFAULT_GRID_ID], RIVET_GUN);
     private selectedGridId: GridId = DEFAULT_GRID_ID;
     private preview: PlacementPreview | null = null;
     private inputMode: InputMode = 'idle';
@@ -56,8 +58,9 @@ export class NightwatchPocBootstrap extends Component {
     private preparing = true;
     private pausedByLifecycle = false;
     private statusText = '拖动底部炮塔，或点塔后双击格子提交';
-    private enemy: EnemyRuntime | null = null;
+    private shotPulseCells: Array<{ cell: GridCell; seconds: number }> = [];
     private publishedDiagnostics = '';
+    private readonly debugInput = new PhaseBDebugInput((action) => this.handleDebugAction(action));
 
     protected override onLoad(): void {
         view.setDesignResolutionSize(DESIGN_WIDTH, DESIGN_HEIGHT, ResolutionPolicy.FIXED_HEIGHT);
@@ -85,7 +88,7 @@ export class NightwatchPocBootstrap extends Component {
         this.canvas.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
         this.canvas.on(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
         game.on(Game.EVENT_HIDE, this.onLifecycleHide, this);
-        this.resetEnemy();
+        this.debugInput.attach();
         this.redraw();
     }
 
@@ -96,10 +99,15 @@ export class NightwatchPocBootstrap extends Component {
         this.canvas?.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
         this.canvas?.off(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
         game.off(Game.EVENT_HIDE, this.onLifecycleHide, this);
+        this.debugInput.detach();
     }
 
     protected override update(deltaTime: number): void {
-        if (!this.preparing && !this.pausedByLifecycle) this.advanceEnemy(Math.min(deltaTime, 0.05));
+        const step = Math.min(deltaTime, 0.05);
+        if (!this.preparing && this.battle.snapshot.phase !== 'paused') this.advanceCombat(step);
+        this.shotPulseCells = this.shotPulseCells
+            .map((pulse) => ({ ...pulse, seconds: pulse.seconds - step }))
+            .filter((pulse) => pulse.seconds > 0);
         this.redraw();
     }
 
@@ -171,7 +179,10 @@ export class NightwatchPocBootstrap extends Component {
     private onLifecycleHide(): void {
         // 首次生命周期阻塞统一取消活动手势，恢复后保持暂停，避免后台补跑敌人。
         this.cancelInput('页面进入后台：操作取消，战斗保持暂停');
-        if (!this.preparing) this.pausedByLifecycle = true;
+        if (!this.preparing) {
+            this.battle.pause();
+            this.pausedByLifecycle = true;
+        }
     }
 
     private handleTopControls(point: Vec3): boolean {
@@ -196,17 +207,43 @@ export class NightwatchPocBootstrap extends Component {
             return true;
         }
         if (point.y >= -600 && point.y <= -515 && point.x >= 100 && point.x <= 440) {
-            if (this.pausedByLifecycle) {
-                this.pausedByLifecycle = false;
-                this.preparing = false;
-                this.statusText = '已主动继续运行';
-            } else {
-                this.preparing = !this.preparing;
-                this.statusText = this.preparing ? '准备态：点击已有塔可全额撤销' : '运行态：敌人开始移动，可战斗中改路';
-            }
+            this.toggleBattle();
             return true;
         }
         return false;
+    }
+
+    private handleDebugAction(action: PhaseBDebugAction): void {
+        if (action === 'reset') this.resetGrid();
+        else if (action === 'apply-short') this.applyFixture('shortFold');
+        else if (action === 'apply-long') this.applyFixture('longSnake');
+        else this.toggleBattle();
+    }
+
+    private toggleBattle(): void {
+        if (this.battle.snapshot.phase === 'paused') {
+            this.pausedByLifecycle = false;
+            this.battle.resume();
+            this.statusText = '已继续第 1 波';
+            return;
+        }
+        if (!this.preparing) {
+            this.battle.pause();
+            this.statusText = '已暂停，保留当前波次状态';
+            return;
+        }
+        const initialPath = this.model.grid.rows - 1;
+        const pathDelta = this.model.flowField.distanceAt(this.model.grid.entry) - initialPath;
+        const start = this.battle.startFirstWave(this.model.towers.size, pathDelta);
+        if (!start.accepted) {
+            this.statusText = start.reason === 'needs-two-towers'
+                ? '第一波门禁：至少建造 2 座机枪塔'
+                : '第一波门禁：路径至少增加 2 格';
+            return;
+        }
+        this.combat.start(PHASE_B_WAVE_ONE);
+        this.preparing = false;
+        this.statusText = '第 1 波：8 名发条步兵进场';
     }
 
     private handleGridTap(point: Vec3): void {
@@ -271,11 +308,15 @@ export class NightwatchPocBootstrap extends Component {
     }
 
     private resetGrid(initialGold = PHASE_A_INITIAL_GOLD): void {
-        this.model = new PlacementModel(PHASE_A_GRIDS[this.selectedGridId], initialGold, PHASE_A_TOWER_COST);
+        const grid = PHASE_A_GRIDS[this.selectedGridId];
+        this.economy = new EconomyLedger(initialGold);
+        this.model = new PlacementModel(grid, this.economy, PHASE_A_TOWER_COST);
+        this.battle = new BattleStateMachine(1);
+        this.combat = new WaveCombatRuntime(grid, RIVET_GUN);
         this.preparing = true;
         this.pausedByLifecycle = false;
+        this.shotPulseCells = [];
         this.cancelInput('已重置为空网格');
-        this.resetEnemy();
     }
 
     private applyFixture(kind: 'shortFold' | 'longSnake'): void {
@@ -289,32 +330,28 @@ export class NightwatchPocBootstrap extends Component {
         this.statusText = `${kind === 'shortFold' ? '短折线' : '长蛇形'} fixture · 路径 ${this.model.flowField.distanceAt(this.model.grid.entry)} 格`;
     }
 
-    private resetEnemy(): void {
-        const next = this.model.flowField.nextCell(this.model.grid.entry);
-        this.enemy = next ? { fromCell: this.model.grid.entry, toCell: next, progress: 0 } : null;
-    }
+    private advanceCombat(deltaTime: number): void {
+        const result = this.combat.tick(deltaTime, this.model.flowField, this.model.towers);
+        for (const killed of result.killed) {
+            this.economy.credit(killed.archetype.killReward);
+        }
+        if (result.killed.length > 0 || result.leaked.length > 0) {
+            this.battle.resolveCombatOutcome(result.leaked.length, this.combat.enemies.length);
+        }
+        if (result.spawningCompleted) this.battle.markSpawningComplete(this.combat.enemies.length);
+        this.shotPulseCells.push(...result.shots.map((shot) => ({ cell: shot.towerCell, seconds: 0.09 })));
 
-    private advanceEnemy(deltaTime: number): void {
-        if (!this.enemy) return;
-        this.enemy.progress += deltaTime;
-        if (this.enemy.progress < 1) return;
-        if (sameCell(this.enemy.toCell, this.model.grid.exit)) {
-            this.resetEnemy();
-            return;
-        }
-        const next = this.model.flowField.nextCell(this.enemy.toCell, this.enemy.fromCell);
-        if (!next) {
-            this.preparing = true;
-            this.statusText = '诊断失败：敌人在格心没有非回头路线';
-            return;
-        }
-        this.enemy = { fromCell: this.enemy.toCell, toCell: next, progress: this.enemy.progress - 1 };
+        const phase = this.battle.snapshot.phase;
+        if (phase === 'victory') this.statusText = `第 1 波清场！击杀奖励已结算，剩余金币 ${this.model.gold}`;
+        else if (phase === 'defeat') this.statusText = '核心已失守';
+        else if (result.killed.length > 0) this.statusText = `击杀 ${result.killed.length} 名敌人 · +${result.killed.reduce((sum, enemy) => sum + enemy.archetype.killReward, 0)} 金币`;
+        else if (result.leaked.length > 0) this.statusText = `漏怪 ${result.leaked.length} 名 · 核心生命 ${this.battle.snapshot.coreHealth}`;
     }
 
     private enemyStates(): readonly EnemyRouteState[] {
         // 生命周期暂停只冻结时间，不抹掉敌人的已承诺路段；恢复前仍不可在 from/to 格落塔。
-        if (!this.enemy || this.preparing) return [];
-        return [{ id: 'phase-a-enemy', ...this.enemy }];
+        if (this.preparing) return [];
+        return this.combat.enemyRouteStates();
     }
 
     private boardMetrics(): { cellSize: number; left: number; bottom: number; width: number; height: number } {
@@ -361,12 +398,13 @@ export class NightwatchPocBootstrap extends Component {
         this.drawTabs(graphics);
         this.drawBoard(graphics);
         this.drawControls(graphics);
-        if (this.titleLabel) this.titleLabel.string = '夜城防线 · Phase A 风险 POC';
+        if (this.titleLabel) this.titleLabel.string = '夜城防线 · Phase B 第一波灰盒';
         if (this.statusLabel) {
             const path = this.preview?.path?.length ? this.preview.path.length - 1 : this.model.flowField.distanceAt(this.model.grid.entry);
-            this.statusLabel.string = `${this.statusText}\n${this.model.grid.columns}×${this.model.grid.rows}  ·  金币 ${this.model.gold}  ·  路径 ${path} 格  ·  ${this.preparing ? '准备态' : this.pausedByLifecycle ? '后台暂停' : '运行态'}`;
+            const battle = this.battle.snapshot;
+            this.statusLabel.string = `${this.statusText}\n金币 ${this.model.gold} · 路径 ${path} 格 · 波次 ${battle.wave}/1 · 核心 ${battle.coreHealth} · ${this.phaseText()}`;
         }
-        if (this.helpLabel) this.helpLabel.string = '上排 9×13 / 10×14 / 8×13｜↻重置 ▷运行｜折线/迷宫样例｜底部炮塔';
+        if (this.helpLabel) this.helpLabel.string = '先建 2 塔且路径 +2｜↻重置 ▷开波/暂停｜键盘 F/G/R/空格｜底部机枪塔';
         this.publishBrowserDiagnostics();
     }
 
@@ -385,7 +423,11 @@ export class NightwatchPocBootstrap extends Component {
             mapVersion: this.model.mapVersion,
             towerCount: this.model.towers.size,
             pathLength,
-            phase: this.preparing ? 'preparing' : this.pausedByLifecycle ? 'paused' : 'running',
+            phase: this.battle.snapshot.phase,
+            wave: this.battle.snapshot.wave,
+            coreHealth: this.battle.snapshot.coreHealth,
+            activeEnemyCount: this.combat.enemies.length,
+            spawningCompleted: this.combat.isSpawningComplete,
             inputMode: this.inputMode,
             previewAccepted: this.preview?.accepted ?? null,
             status: this.statusText,
@@ -456,17 +498,32 @@ export class NightwatchPocBootstrap extends Component {
             }
         }
 
-        if (this.enemy && !this.preparing) {
-            const from = this.cellCenter(this.enemy.fromCell);
-            const to = this.cellCenter(this.enemy.toCell);
-            const x = from.x + (to.x - from.x) * this.enemy.progress;
-            const y = from.y + (to.y - from.y) * this.enemy.progress;
-            graphics.fillColor = new Color('#F06A63');
+        for (const enemy of this.combat.enemies) {
+            const from = this.cellCenter(enemy.fromCell);
+            const to = this.cellCenter(enemy.toCell);
+            const x = from.x + (to.x - from.x) * enemy.progress;
+            const y = from.y + (to.y - from.y) * enemy.progress;
+            graphics.fillColor = enemy.hitFlashSeconds > 0 ? new Color('#FFF1CF') : new Color('#F06A63');
             graphics.circle(x, y, metrics.cellSize * 0.25);
             graphics.fill();
             graphics.strokeColor = new Color('#FFF1CF');
             graphics.lineWidth = 4;
             graphics.circle(x, y, metrics.cellSize * 0.25);
+            graphics.stroke();
+            const healthWidth = metrics.cellSize * 0.62;
+            graphics.fillColor = new Color('#35262C');
+            graphics.rect(x - healthWidth / 2, y + metrics.cellSize * 0.31, healthWidth, 7);
+            graphics.fill();
+            graphics.fillColor = new Color('#69D391');
+            graphics.rect(x - healthWidth / 2, y + metrics.cellSize * 0.31, healthWidth * Math.max(0, enemy.health / enemy.archetype.maxHealth), 7);
+            graphics.fill();
+        }
+
+        for (const pulse of this.shotPulseCells) {
+            const center = this.cellCenter(pulse.cell);
+            graphics.strokeColor = new Color(255, 232, 153, Math.round(255 * Math.min(1, pulse.seconds / 0.09)));
+            graphics.lineWidth = 7;
+            graphics.circle(center.x, center.y, metrics.cellSize * 0.34);
             graphics.stroke();
         }
     }
@@ -551,7 +608,7 @@ export class NightwatchPocBootstrap extends Component {
 
     private drawPhaseIcon(graphics: Graphics, x: number, y: number): void {
         graphics.fillColor = new Color('#F2E4BF');
-        if (this.preparing || this.pausedByLifecycle) {
+        if (this.preparing || this.battle.snapshot.phase === 'paused') {
             graphics.moveTo(x - 24, y - 36);
             graphics.lineTo(x + 40, y);
             graphics.lineTo(x - 24, y + 36);
@@ -587,6 +644,20 @@ export class NightwatchPocBootstrap extends Component {
 
     private insideRect(point: Vec3, rect: { left: number; right: number; bottom: number; top: number }): boolean {
         return point.x >= rect.left && point.x <= rect.right && point.y >= rect.bottom && point.y <= rect.top;
+    }
+
+    private phaseText(): string {
+        const phase = this.battle.snapshot.phase;
+        const labels: Record<typeof phase, string> = {
+            preparing: '准备态',
+            spawning: '出怪中',
+            clearing: '清场中',
+            countdown: '波间倒计时',
+            paused: this.pausedByLifecycle ? '后台暂停' : '已暂停',
+            victory: '已胜利',
+            defeat: '已失败',
+        };
+        return labels[phase];
     }
 
     private rejectText(reason: PlacementPreview['reason']): string {
