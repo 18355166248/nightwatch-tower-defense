@@ -1,0 +1,9 @@
+{
+  "extends": "./temp/tsconfig.cocos.json",
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitOverride": true,
+    "experimentalDecorators": true,
+    "skipLibCheck": true
+  }
+}

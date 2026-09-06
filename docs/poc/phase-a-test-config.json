@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "status": "frozen-for-automated-poc",
+  "designResolution": { "width": 1080, "height": 1920 },
+  "speedMultiplier": 1,
+  "tower": {
+    "type": "rivet-gun-placeholder",
+    "cost": 30,
+    "damage": 8,
+    "attackIntervalSeconds": 0.3,
+    "rangeCells": 2.6,
+    "level": 1
+  },
+  "enemy": {
+    "type": "clockwork-infantry-placeholder",
+    "health": 55,
+    "speedCellsPerSecond": 1,
+    "combatReplayCount": 20,
+    "spawnIntervalSeconds": 0.75
+  },
+  "budgets": {
+    "shortFoldGold": 120,
+    "longSnakeGold": 450
+  },
+  "touchAttemptsPerPlayerGridDevice": {
+    "legalDrag": 20,
+    "legalClick": 20,
+    "illegalSubmit": 10,
+    "cancel": 10
+  },
+  "gates": {
+    "validSubmitRate": 0.99,
+    "expectedCellAccuracy": 0.95,
+    "illegalBlockRate": 1,
+    "cancelSuccessRate": 1,
+    "ordinaryIntentRejectRateMax": 0.1,
+    "flowRebuildP95MillisecondsMax": 4,
+    "dynamicRepathReplayCount": 100,
+    "shortFoldExtraCellsMin": 4,
+    "longSnakeRelativeExtraMin": 0.8,
+    "travelTimeRelativeIncreaseMin": 0.25,
+    "leakRelativeReductionMin": 0.2,
+    "leakAbsoluteReductionMin": 2
+  },
+  "targetDevices": [
+    { "device": "iPhone 12", "browser": "Safari", "status": "unverified" },
+    { "device": "Redmi Note 11", "browser": "Chrome", "status": "unverified" }
+  ]
+}

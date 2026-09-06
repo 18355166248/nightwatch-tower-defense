@@ -1,0 +1,24 @@
+{
+  "name": "nightwatch-tower-defense",
+  "private": true,
+  "version": "0.1.0",
+  "description": "《夜城防线》Phase A：Cocos Creator 3.8.8 竖屏动态改路塔防风险 POC。",
+  "scripts": {
+    "check": "tsc -p tsconfig.test.json --noEmit",
+    "test": "npm run test:rules",
+    "test:rules": "tsc -p tsconfig.test.json && node --test tests/*.test.cjs",
+    "verify": "npm run check && npm run test:rules",
+    "poc:automated": "tsc -p tsconfig.test.json && node scripts/run-phase-a-poc.cjs",
+    "build:web": "node scripts/build-web-mobile.cjs",
+    "build:web:debug": "node scripts/build-web-mobile.cjs --debug",
+    "start": "node scripts/serve-web-mobile.cjs",
+    "dev": "npm run build:web:debug && npm start"
+  },
+  "creator": {
+    "version": "3.8.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "uuid": "2867469d-ed3f-4daf-9a09-85f9640a9cb7"
+}

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "coordinateSystem": "zero-based column,row",
+  "towerCost": 30,
+  "fixtures": [
+    {
+      "gridId": "grid-9x13",
+      "columns": 9,
+      "rows": 13,
+      "entry": [4, 0],
+      "exit": [4, 12],
+      "initialPathLength": 12,
+      "shortFold": {
+        "budget": 120,
+        "towerCells": [[2, 2], [3, 2], [4, 2], [5, 2]],
+        "expectedPathLength": 16
+      },
+      "longSnake": {
+        "budget": 450,
+        "towerCells": [[0, 2], [1, 2], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [4, 8], [5, 8], [6, 8], [7, 8], [8, 8]],
+        "expectedPathLength": 22
+      }
+    },
+    {
+      "gridId": "grid-10x14",
+      "columns": 10,
+      "rows": 14,
+      "entry": [4, 0],
+      "exit": [4, 13],
+      "initialPathLength": 13,
+      "shortFold": {
+        "budget": 120,
+        "towerCells": [[2, 2], [3, 2], [4, 2], [5, 2]],
+        "expectedPathLength": 17
+      },
+      "longSnake": {
+        "budget": 450,
+        "towerCells": [[0, 2], [1, 2], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [8, 2], [4, 8], [5, 8], [6, 8], [7, 8], [8, 8], [9, 8]],
+        "expectedPathLength": 25
+      }
+    },
+    {
+      "gridId": "grid-8x13",
+      "columns": 8,
+      "rows": 13,
+      "entry": [3, 0],
+      "exit": [3, 12],
+      "initialPathLength": 12,
+      "shortFold": {
+        "budget": 120,
+        "towerCells": [[1, 2], [2, 2], [3, 2], [4, 2]],
+        "expectedPathLength": 16
+      },
+      "longSnake": {
+        "budget": 450,
+        "towerCells": [[0, 2], [1, 2], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [3, 8], [4, 8], [5, 8], [6, 8], [7, 8]],
+        "expectedPathLength": 22
+      }
+    }
+  ]
+}
