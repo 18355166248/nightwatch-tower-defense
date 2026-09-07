@@ -24,8 +24,10 @@ import { PhaseBHudView } from '../presentation/PhaseBHudView';
 import {
     PHASE_B_DESIGN_HEIGHT,
     PHASE_B_DESIGN_WIDTH,
+    PHASE_B_EARLY_WAVE_BUTTON,
     PHASE_B_GRID_TABS,
     PHASE_B_RESULT_RESTART_BUTTON,
+    PHASE_B_SPEED_BUTTON,
     PHASE_B_TOWER_BUTTON,
     PhaseBLayout,
 } from '../presentation/PhaseBLayout';
@@ -33,6 +35,7 @@ import { BattleRunCheckpoint } from '../systems/BattleRunCheckpoint';
 import { BattleStateMachine } from '../systems/BattleStateMachine';
 import { EconomyLedger } from '../systems/EconomyLedger';
 import { PlacementModel, type PlacementPreview } from '../systems/PlacementModel';
+import { SimulationClock } from '../systems/SimulationClock';
 import { WaveCombatRuntime } from '../systems/WaveCombatRuntime';
 import { WaveCatalog } from '../systems/WaveCatalog';
 
@@ -51,6 +54,7 @@ export class NightwatchPocBootstrap extends Component {
     private battle = new BattleStateMachine(this.waves.totalWaves);
     private combat = new WaveCombatRuntime(PHASE_A_GRIDS[DEFAULT_GRID_ID], RIVET_GUN);
     private readonly feedback = new CombatFeedbackRuntime();
+    private readonly simulationClock = new SimulationClock();
     private selectedGridId: GridId = DEFAULT_GRID_ID;
     private preview: PlacementPreview | null = null;
     private inputMode: InputMode = 'idle';
@@ -106,7 +110,7 @@ export class NightwatchPocBootstrap extends Component {
     }
 
     protected override update(deltaTime: number): void {
-        const step = Math.min(deltaTime, 0.05);
+        const step = this.simulationClock.gameDeltaSeconds(deltaTime);
         this.feedback.advance(step);
         const phaseBeforeAdvance = this.battle.snapshot.phase;
         if (phaseBeforeAdvance === 'countdown') {
@@ -205,6 +209,14 @@ export class NightwatchPocBootstrap extends Component {
             this.toggleBattle();
             return true;
         }
+        if (this.layout.insideRect(point, PHASE_B_SPEED_BUTTON)) {
+            this.toggleSpeed();
+            return true;
+        }
+        if (this.layout.insideRect(point, PHASE_B_EARLY_WAVE_BUTTON)) {
+            this.startNextWaveEarly();
+            return true;
+        }
         return false;
     }
 
@@ -214,6 +226,8 @@ export class NightwatchPocBootstrap extends Component {
         else if (action === 'apply-long') this.applyFixture('longSnake');
         else if (action === 'apply-failure') this.applyFixture('shortFold', 2);
         else if (action === 'restart-run') this.restartFromCheckpoint();
+        else if (action === 'toggle-speed') this.toggleSpeed();
+        else if (action === 'start-next-wave') this.startNextWaveEarly();
         else this.toggleBattle();
     }
 
@@ -230,11 +244,6 @@ export class NightwatchPocBootstrap extends Component {
             this.pausedByLifecycle = false;
             this.battle.resume();
             this.statusText = `已继续第 ${this.battle.snapshot.wave} 波`;
-            return;
-        }
-        if (phase === 'countdown') {
-            this.battle.startNextWaveEarly();
-            this.startCurrentWave();
             return;
         }
         if (!this.preparing) {
@@ -254,6 +263,19 @@ export class NightwatchPocBootstrap extends Component {
         }
         this.runCheckpoint = checkpoint;
         this.preparing = false;
+        this.startCurrentWave();
+    }
+
+    private toggleSpeed(): void {
+        const multiplier = this.simulationClock.cycleScale();
+        this.statusText = `游戏速度已切换为 ${multiplier}×`;
+    }
+
+    private startNextWaveEarly(): void {
+        if (!this.battle.startNextWaveEarly()) {
+            this.statusText = '只能在波间倒计时提前开波';
+            return;
+        }
         this.startCurrentWave();
     }
 
@@ -412,6 +434,7 @@ export class NightwatchPocBootstrap extends Component {
 
     private redraw(): void {
         const result = this.resultViewModel();
+        const battle = this.battle.snapshot;
         const activePath = this.preview?.accepted && this.preview.path
             ? this.preview.path
             : this.model.flowField.pathFrom(this.model.grid.entry);
@@ -424,13 +447,14 @@ export class NightwatchPocBootstrap extends Component {
             enemies: this.combat.enemies,
             feedback: this.feedback.snapshot,
             gold: this.model.gold,
+            speedMultiplier: this.simulationClock.scale,
+            canStartNextWaveEarly: battle.phase === 'countdown',
             showPlayControl: this.preparing || this.battle.snapshot.phase === 'paused',
             result,
         });
         const pathLength = this.preview?.path?.length
             ? this.preview.path.length - 1
             : this.model.flowField.distanceAt(this.model.grid.entry);
-        const battle = this.battle.snapshot;
         this.hud?.render({
             statusText: this.statusText,
             gold: this.model.gold,
@@ -439,6 +463,9 @@ export class NightwatchPocBootstrap extends Component {
             totalWaves: this.waves.totalWaves,
             coreHealth: battle.coreHealth,
             phaseText: this.phaseText(),
+            speedMultiplier: this.simulationClock.scale,
+            canStartNextWaveEarly: battle.phase === 'countdown',
+            countdownSeconds: battle.countdownSeconds,
             result,
         });
         this.publishBrowserDiagnostics();
@@ -462,6 +489,8 @@ export class NightwatchPocBootstrap extends Component {
             wave: this.battle.snapshot.wave,
             totalWaves: this.waves.totalWaves,
             countdownSeconds: this.battle.snapshot.countdownSeconds,
+            speedMultiplier: this.simulationClock.scale,
+            canStartNextWaveEarly: this.battle.snapshot.phase === 'countdown',
             coreHealth: this.battle.snapshot.coreHealth,
             activeEnemyCount: this.combat.enemies.length,
             spawningCompleted: this.combat.isSpawningComplete,
@@ -477,7 +506,7 @@ export class NightwatchPocBootstrap extends Component {
         },
             result
                 ? `${result.title}，${result.summary.replace('\n', '，')}，${result.actionLabel}`
-                : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，${this.statusText}`,
+                : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，速度${this.simulationClock.scale}倍，${this.battle.snapshot.phase === 'countdown' ? '可提前开波' : '提前开波未激活'}，${this.statusText}`,
         );
     }
 

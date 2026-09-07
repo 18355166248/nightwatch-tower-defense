@@ -5,7 +5,9 @@ import type { BattleResultViewModel } from './BattleResultViewModel';
 import type { CombatFeedbackSnapshot } from './CombatFeedbackRuntime';
 import {
     PHASE_B_GRID_TABS,
+    PHASE_B_EARLY_WAVE_BUTTON,
     PHASE_B_RESULT_RESTART_BUTTON,
+    PHASE_B_SPEED_BUTTON,
     PHASE_B_TOWER_BUTTON,
     type PhaseBGridPoint,
     type PhaseBPoint,
@@ -27,6 +29,8 @@ export interface PhaseBCanvasRenderState {
     }[];
     readonly feedback: CombatFeedbackSnapshot;
     readonly gold: number;
+    readonly speedMultiplier: number;
+    readonly canStartNextWaveEarly: boolean;
     readonly showPlayControl: boolean;
     readonly result: BattleResultViewModel | null;
 }
@@ -228,6 +232,24 @@ export class PhaseBCanvasRenderer {
         this.drawPhaseIcon(270, -558, state.showPlayControl);
         this.drawRouteIcon(-300, -655, false);
         this.drawRouteIcon(300, -655, true);
+        graphics.fillColor = new Color('#29405C');
+        graphics.roundRect(
+            PHASE_B_SPEED_BUTTON.left,
+            PHASE_B_SPEED_BUTTON.bottom,
+            PHASE_B_SPEED_BUTTON.right - PHASE_B_SPEED_BUTTON.left,
+            PHASE_B_SPEED_BUTTON.top - PHASE_B_SPEED_BUTTON.bottom,
+            20,
+        );
+        graphics.fill();
+        graphics.fillColor = state.canStartNextWaveEarly ? new Color('#2F9E72') : new Color('#354355');
+        graphics.roundRect(
+            PHASE_B_EARLY_WAVE_BUTTON.left,
+            PHASE_B_EARLY_WAVE_BUTTON.bottom,
+            PHASE_B_EARLY_WAVE_BUTTON.right - PHASE_B_EARLY_WAVE_BUTTON.left,
+            PHASE_B_EARLY_WAVE_BUTTON.top - PHASE_B_EARLY_WAVE_BUTTON.bottom,
+            20,
+        );
+        graphics.fill();
         graphics.fillColor = state.gold >= PHASE_A_TOWER_COST ? new Color('#D5A84B') : new Color('#596273');
         graphics.rect(PHASE_B_TOWER_BUTTON.left, PHASE_B_TOWER_BUTTON.bottom, PHASE_B_TOWER_BUTTON.right - PHASE_B_TOWER_BUTTON.left, PHASE_B_TOWER_BUTTON.top - PHASE_B_TOWER_BUTTON.bottom);
         graphics.fill();

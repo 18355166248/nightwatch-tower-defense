@@ -1,0 +1,41 @@
+export interface SimulationClockOptions {
+    readonly supportedScales?: readonly number[];
+    readonly maxFrameDeltaSeconds?: number;
+}
+
+/** 统一生成玩法时间，避免各系统自行乘速后出现倒计时、战斗和反馈不同步。 */
+export class SimulationClock {
+    private readonly scales: readonly number[];
+    private readonly maxFrameDeltaSeconds: number;
+    private scaleIndex = 0;
+
+    public constructor(options: SimulationClockOptions = {}) {
+        const scales = options.supportedScales ?? [1, 2];
+        const maxFrameDeltaSeconds = options.maxFrameDeltaSeconds ?? 0.05;
+        if (scales.length === 0 || scales.some((scale) => !Number.isFinite(scale) || scale <= 0)) {
+            throw new RangeError('supportedScales 必须包含至少一个正数倍率');
+        }
+        if (!Number.isFinite(maxFrameDeltaSeconds) || maxFrameDeltaSeconds <= 0) {
+            throw new RangeError('maxFrameDeltaSeconds 必须为正数');
+        }
+        this.scales = [...scales];
+        this.maxFrameDeltaSeconds = maxFrameDeltaSeconds;
+    }
+
+    public get scale(): number {
+        return this.scales[this.scaleIndex];
+    }
+
+    public cycleScale(): number {
+        this.scaleIndex = (this.scaleIndex + 1) % this.scales.length;
+        return this.scale;
+    }
+
+    public gameDeltaSeconds(realDeltaSeconds: number): number {
+        if (!Number.isFinite(realDeltaSeconds) || realDeltaSeconds < 0) {
+            throw new RangeError('realDeltaSeconds 不能为负数');
+        }
+        // 先限制单帧真实时间再乘倍率，后台恢复时不会用一帧补跑整段战斗。
+        return Math.min(realDeltaSeconds, this.maxFrameDeltaSeconds) * this.scale;
+    }
+}

@@ -16,14 +16,20 @@ export interface PhaseBHudState {
     readonly totalWaves: number;
     readonly coreHealth: number;
     readonly phaseText: string;
+    readonly speedMultiplier: number;
+    readonly canStartNextWaveEarly: boolean;
+    readonly countdownSeconds: number;
     readonly result: BattleResultViewModel | null;
 }
 
 /** 管理程序化 HUD 节点与结算文案，Bootstrap 只提供展示快照。 */
 export class PhaseBHudView {
+    private renderedSignature = '';
     private readonly titleLabel: Label;
     private readonly statusLabel: Label;
     private readonly helpLabel: Label;
+    private readonly speedLabel: Label;
+    private readonly earlyWaveLabel: Label;
     private readonly resultTitleLabel: Label;
     private readonly resultSummaryLabel: Label;
     private readonly resultActionLabel: Label;
@@ -33,16 +39,28 @@ export class PhaseBHudView {
         this.statusLabel = this.createLabel(parent, 27, new Color('#D7E6F5'), 755);
         this.statusLabel.node.getComponent(UITransform)?.setContentSize(920, 125);
         this.helpLabel = this.createLabel(parent, 25, new Color('#8FA9C4'), -945);
+        this.speedLabel = this.createControlLabel(parent, -340, -812);
+        this.earlyWaveLabel = this.createControlLabel(parent, 340, -812);
         this.resultTitleLabel = this.createCenteredLabel(parent, 64, new Color('#F4D58D'), 230, 760, 100);
         this.resultSummaryLabel = this.createCenteredLabel(parent, 34, new Color('#D7E6F5'), 25, 760, 190);
         this.resultActionLabel = this.createCenteredLabel(parent, 38, new Color('#101827'), -218, 600, 120);
     }
 
     public render(state: PhaseBHudState): void {
+        const signature = [
+            state.statusText, state.gold, state.pathLength, state.wave, state.totalWaves,
+            state.coreHealth, state.phaseText, state.speedMultiplier, state.canStartNextWaveEarly,
+            Math.ceil(state.countdownSeconds), state.result?.kind ?? '', state.result?.summary ?? '',
+        ].join('|');
+        // Bootstrap 仍可提交每帧快照，但 Label 只在展示字段变化时写入，避免 UI 跟随战斗帧率刷新。
+        if (signature === this.renderedSignature) return;
+        this.renderedSignature = signature;
         const result = state.result;
         this.titleLabel.node.active = !result;
         this.statusLabel.node.active = !result;
         this.helpLabel.node.active = !result;
+        this.speedLabel.node.active = !result;
+        this.earlyWaveLabel.node.active = !result;
         this.resultTitleLabel.node.active = Boolean(result);
         this.resultSummaryLabel.node.active = Boolean(result);
         this.resultActionLabel.node.active = Boolean(result);
@@ -50,13 +68,25 @@ export class PhaseBHudView {
         if (!result) {
             this.titleLabel.string = '夜城防线 · Phase B 八波灰盒';
             this.statusLabel.string = `${state.statusText}\n金币 ${state.gold} · 路径 ${state.pathLength} 格 · 波次 ${state.wave}/${state.totalWaves} · 核心 ${state.coreHealth} · ${state.phaseText}`;
-            this.helpLabel.string = '先建 2 塔且路径 +2｜倒计时可提前开波｜F/G/H样例 R重置 Enter重试｜底部机枪塔';
+            this.speedLabel.string = `速度\n${state.speedMultiplier}×`;
+            this.earlyWaveLabel.string = state.canStartNextWaveEarly
+                ? `提前开波\n${Math.ceil(state.countdownSeconds)} 秒`
+                : '提前开波\n等待中';
+            this.earlyWaveLabel.color = new Color(state.canStartNextWaveEarly ? '#E9FFF4' : '#718197');
+            this.helpLabel.string = '先建 2 塔且路径 +2｜X切速 N提前开波｜F/G/H样例 R重置 Enter重试｜底部机枪塔';
             return;
         }
         this.resultTitleLabel.string = result.title;
         this.resultTitleLabel.color = new Color(result.kind === 'victory' ? '#79E0AD' : '#FF8580');
         this.resultSummaryLabel.string = result.summary;
         this.resultActionLabel.string = result.actionLabel;
+    }
+
+    private createControlLabel(parent: Node, x: number, y: number): Label {
+        const label = this.createCenteredLabel(parent, 30, new Color('#F2E4BF'), y, 250, 120);
+        label.node.setPosition(x, y, 0);
+        label.node.active = true;
+        return label;
     }
 
     private createLabel(parent: Node, fontSize: number, color: Color, y: number): Label {

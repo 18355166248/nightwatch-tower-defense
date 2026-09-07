@@ -14,9 +14,15 @@ const { EconomyLedger } = require('../.test-dist/systems/EconomyLedger.js');
 const { BattleRunCheckpoint } = require('../.test-dist/systems/BattleRunCheckpoint.js');
 const { WaveCombatRuntime } = require('../.test-dist/systems/WaveCombatRuntime.js');
 const { WaveCatalog } = require('../.test-dist/systems/WaveCatalog.js');
+const { SimulationClock } = require('../.test-dist/systems/SimulationClock.js');
 const { buildBattleResultViewModel } = require('../.test-dist/presentation/BattleResultViewModel.js');
 const { countCombatFeedback, CombatFeedbackRuntime } = require('../.test-dist/presentation/CombatFeedbackRuntime.js');
-const { PhaseBLayout } = require('../.test-dist/presentation/PhaseBLayout.js');
+const {
+    PHASE_B_EARLY_WAVE_BUTTON,
+    PHASE_B_SPEED_BUTTON,
+    PHASE_B_TOWER_BUTTON,
+    PhaseBLayout,
+} = require('../.test-dist/presentation/PhaseBLayout.js');
 
 const fixtures = JSON.parse(readFileSync(resolve(__dirname, '../docs/poc/phase-a-fixtures.json'), 'utf8'));
 
@@ -37,6 +43,11 @@ test('战场布局让绘制中心点与输入命中使用同一套网格换算',
     }
     assert.equal(layout.pointToCell({ x: metrics.left - 0.01, y: 0 }, grid), null);
     assert.equal(layout.pointToCell({ x: 0, y: metrics.bottom - 0.01 }, grid), null);
+    assert.equal(layout.insideRect({ x: -340, y: -812 }, PHASE_B_SPEED_BUTTON), true);
+    assert.equal(layout.insideRect({ x: 340, y: -812 }, PHASE_B_EARLY_WAVE_BUTTON), true);
+    assert.equal(layout.insideRect({ x: 0, y: -812 }, PHASE_B_TOWER_BUTTON), true);
+    assert.equal(layout.insideRect({ x: 0, y: -812 }, PHASE_B_SPEED_BUTTON), false);
+    assert.equal(layout.insideRect({ x: 0, y: -812 }, PHASE_B_EARLY_WAVE_BUTTON), false);
 });
 
 test('八波目录连续可索引且保留第一波冻结配置', () => {
@@ -48,6 +59,18 @@ test('八波目录连续可索引且保留第一波冻结配置', () => {
     ]);
     assert.throws(() => new WaveCatalog([PHASE_B_WAVES[1]]), /连续编号/);
     assert.throws(() => catalog.get(9), /不存在第 9 波/);
+});
+
+test('模拟时钟统一限制长帧并在 1x 与 2x 间循环', () => {
+    const clock = new SimulationClock();
+    assert.equal(clock.scale, 1);
+    assert.equal(clock.gameDeltaSeconds(0.02), 0.02);
+    assert.equal(clock.cycleScale(), 2);
+    assert.equal(clock.gameDeltaSeconds(0.02), 0.04);
+    assert.equal(clock.gameDeltaSeconds(3), 0.1);
+    assert.equal(clock.cycleScale(), 1);
+    assert.throws(() => clock.gameDeltaSeconds(-1), /不能为负数/);
+    assert.throws(() => new SimulationClock({ supportedScales: [] }), /正数倍率/);
 });
 
 test('三种候选网格的初始、短折线和长蛇形 fixture 与冻结值一致', () => {
