@@ -11,6 +11,9 @@ export class WaveCatalog {
             const expected = index + 1;
             if (wave.wave !== expected) throw new Error(`波次必须从 1 连续编号，期望 ${expected}，实际 ${wave.wave}`);
             if (wave.groups.length === 0) throw new Error(`第 ${wave.wave} 波缺少敌人分组`);
+            if (!Number.isInteger(wave.clearReward) || wave.clearReward < 0) {
+                throw new Error(`第 ${wave.wave} 波清场奖励必须为非负整数`);
+            }
             this.byNumber.set(wave.wave, wave);
         }
     }

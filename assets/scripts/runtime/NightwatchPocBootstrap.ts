@@ -39,6 +39,7 @@ import { PlacementModel, type PlacementPreview } from '../systems/PlacementModel
 import { SimulationClock } from '../systems/SimulationClock';
 import { WaveCombatRuntime } from '../systems/WaveCombatRuntime';
 import { WaveCatalog } from '../systems/WaveCatalog';
+import { WaveRewardRuntime } from '../systems/WaveRewardRuntime';
 
 const { ccclass } = _decorator;
 
@@ -54,6 +55,7 @@ export class NightwatchPocBootstrap extends Component {
     private model = new PlacementModel(PHASE_A_GRIDS[DEFAULT_GRID_ID], this.economy, PHASE_B_TOWERS);
     private battle = new BattleStateMachine(this.waves.totalWaves);
     private combat = new WaveCombatRuntime(PHASE_A_GRIDS[DEFAULT_GRID_ID], PHASE_B_TOWERS);
+    private waveRewards = new WaveRewardRuntime();
     private readonly feedback = new CombatFeedbackRuntime();
     private readonly simulationClock = new SimulationClock();
     private selectedGridId: GridId = DEFAULT_GRID_ID;
@@ -363,6 +365,7 @@ export class NightwatchPocBootstrap extends Component {
         this.initialPathLength = this.model.flowField.distanceAt(grid.entry);
         this.battle = new BattleStateMachine(this.waves.totalWaves, coreHealth);
         this.combat = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
+        this.waveRewards = new WaveRewardRuntime();
         this.initialCoreHealth = coreHealth;
         this.runCheckpoint = null;
         this.preparing = true;
@@ -414,6 +417,7 @@ export class NightwatchPocBootstrap extends Component {
         this.selectedGridId = restored.model.grid.id;
         this.battle = new BattleStateMachine(this.waves.totalWaves, this.initialCoreHealth);
         this.combat = new WaveCombatRuntime(restored.model.grid, PHASE_B_TOWERS);
+        this.waveRewards = new WaveRewardRuntime();
         this.feedback.clear();
         this.preparing = true;
         this.pausedByLifecycle = false;
@@ -446,9 +450,14 @@ export class NightwatchPocBootstrap extends Component {
             this.battle.markSpawningComplete(this.combat.enemies.length);
         }
         const phase = this.battle.snapshot.phase;
-        if (phase === 'countdown' || phase === 'victory') this.combat.completeWave();
-        if (phase === 'victory') this.statusText = `第 ${this.battle.snapshot.wave} 波清场！击杀奖励已结算，剩余金币 ${this.model.gold}`;
-        else if (phase === 'countdown') this.statusText = `第 ${this.battle.snapshot.wave} 波清场，下一波 8 秒后到达`;
+        let clearReward = 0;
+        if (phase === 'countdown' || phase === 'victory') {
+            this.combat.completeWave();
+            // 状态机只决定波次结束；经济奖励经独立幂等结算器发放，避免职责互相反向依赖。
+            clearReward = this.waveRewards.settle(this.waves.get(this.battle.snapshot.wave), this.economy).amount;
+        }
+        if (phase === 'victory') this.statusText = `第 ${this.battle.snapshot.wave} 波清场！清场 +${clearReward} · 剩余金币 ${this.model.gold}`;
+        else if (phase === 'countdown') this.statusText = `第 ${this.battle.snapshot.wave} 波清场 +${clearReward} 金币，下一波 8 秒后到达`;
         else if (phase === 'defeat') this.statusText = '核心已失守';
         else if (result.killed.length > 0) this.statusText = `击杀 ${result.killed.length} 名敌人 · +${result.killed.reduce((sum, enemy) => sum + enemy.archetype.killReward, 0)} 金币`;
         else if (result.leaked.length > 0) this.statusText = `漏怪 ${result.leaked.length} 名 · 核心生命 ${this.battle.snapshot.coreHealth}`;
@@ -532,6 +541,7 @@ export class NightwatchPocBootstrap extends Component {
             frostTowerCount,
             selectedTowerId: this.selectedTowerId,
             slowedEnemyCount,
+            waveRewardTotal: this.waveRewards.totalAwarded,
             pathLength,
             pathDelta: this.currentPathDelta(),
             phase: this.battle.snapshot.phase,

@@ -9,6 +9,7 @@ export interface BrowserBattleDiagnosticsState {
     readonly frostTowerCount: number;
     readonly selectedTowerId: string;
     readonly slowedEnemyCount: number;
+    readonly waveRewardTotal: number;
     readonly pathLength: number;
     readonly pathDelta: number;
     readonly phase: string;

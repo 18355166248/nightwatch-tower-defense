@@ -14,6 +14,7 @@ const { EconomyLedger } = require('../.test-dist/systems/EconomyLedger.js');
 const { BattleRunCheckpoint } = require('../.test-dist/systems/BattleRunCheckpoint.js');
 const { WaveCombatRuntime } = require('../.test-dist/systems/WaveCombatRuntime.js');
 const { WaveCatalog } = require('../.test-dist/systems/WaveCatalog.js');
+const { WaveRewardRuntime } = require('../.test-dist/systems/WaveRewardRuntime.js');
 const { SimulationClock } = require('../.test-dist/systems/SimulationClock.js');
 const { buildBattleResultViewModel } = require('../.test-dist/presentation/BattleResultViewModel.js');
 const { countCombatFeedback, CombatFeedbackRuntime } = require('../.test-dist/presentation/CombatFeedbackRuntime.js');
@@ -61,7 +62,12 @@ test('八波目录连续可索引且保留第一波冻结配置', () => {
     assert.deepEqual(PHASE_B_WAVE_ONE.groups.map(({ count, spawnIntervalSeconds }) => ({ count, spawnIntervalSeconds })), [
         { count: 8, spawnIntervalSeconds: 0.6 },
     ]);
+    assert.deepEqual(PHASE_B_WAVES.map(({ clearReward }) => clearReward), [20, 18, 22, 20, 24, 24, 28, 40]);
     assert.throws(() => new WaveCatalog([PHASE_B_WAVES[1]]), /连续编号/);
+    assert.throws(
+        () => new WaveCatalog([{ wave: 1, clearReward: -1, groups: PHASE_B_WAVE_ONE.groups }]),
+        /清场奖励必须为非负整数/,
+    );
     assert.throws(() => catalog.get(9), /不存在第 9 波/);
 });
 
@@ -272,6 +278,18 @@ test('建造与击杀共用独立经济账本', () => {
     assert.equal(model.gold, 94);
 });
 
+test('清场奖励连续且幂等，不会因重复清场帧重复发钱', () => {
+    const economy = new EconomyLedger(10);
+    const rewards = new WaveRewardRuntime();
+    const first = rewards.settle(PHASE_B_WAVES[0], economy);
+    assert.deepEqual(first, { credited: true, wave: 1, amount: 20, totalAwarded: 20, gold: 30 });
+    assert.deepEqual(rewards.settle(PHASE_B_WAVES[0], economy), {
+        credited: false, wave: 1, amount: 0, totalAwarded: 20, gold: 30,
+    });
+    assert.throws(() => rewards.settle(PHASE_B_WAVES[2], economy), /必须连续结算/);
+    assert.equal(rewards.settle(PHASE_B_WAVES[1], economy).gold, 48);
+});
+
 test('塔种价格绑定在预览事务中，出售按各自造价全额返还', () => {
     const model = new PlacementModel(PHASE_A_GRIDS['grid-9x13'], 100, PHASE_B_TOWERS);
     const rivetCell = { column: 2, row: 2 };
@@ -447,4 +465,58 @@ test('冷凝前置混合塔组在 20/30/60 FPS 下保持 6 杀 2 漏并出现减
         assert.ok(maxSlowedEnemies >= 2, `${deltaSeconds} 秒步长未形成可读减速同屏`);
         assert.deepEqual(runtime.totals, { spawned: 8, killed: 6, leaked: 2 });
     }
+});
+
+test('首关推荐构筑可用实战收益逐步扩建并通过完整八波', () => {
+    const grid = PHASE_A_GRIDS['grid-9x13'];
+    const shortCells = toCells(fixtures.fixtures.find((item) => item.gridId === 'grid-9x13').shortFold.towerCells);
+    const buildPlan = [
+        [[1, 2], 'rivet-gun'], [[0, 2], 'rivet-gun'], [[6, 2], 'rivet-gun'], [[7, 2], 'rivet-gun'],
+        [[4, 8], 'frost-coil'], [[5, 8], 'rivet-gun'], [[6, 8], 'rivet-gun'],
+        [[7, 8], 'rivet-gun'], [[8, 8], 'rivet-gun'],
+    ].map(([[column, row], towerId]) => ({ cell: { column, row }, towerId }));
+    const economy = new EconomyLedger(140);
+    const model = new PlacementModel(grid, economy, PHASE_B_TOWERS);
+    const combat = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
+    const rewards = new WaveRewardRuntime();
+    shortCells.forEach((cell, index) => {
+        const towerId = index === 0 ? 'frost-coil' : 'rivet-gun';
+        assert.equal(model.commit(model.preview(cell, [], towerId), []).accepted, true);
+    });
+
+    let coreHealth = 10;
+    let nextBuild = 0;
+    const waveResults = [];
+    for (const wave of PHASE_B_WAVES) {
+        combat.start(wave);
+        let killed = 0;
+        let leaked = 0;
+        for (let elapsed = 0; elapsed < 120 && (!combat.isSpawningComplete || combat.enemies.length > 0); elapsed += 1 / 30) {
+            const result = combat.tick(1 / 30, model.flowField, model.deployments);
+            killed += result.killed.length;
+            leaked += result.leaked.length;
+            result.killed.forEach((enemy) => economy.credit(enemy.archetype.killReward));
+        }
+        combat.completeWave();
+        coreHealth -= leaked;
+        rewards.settle(wave, economy);
+        while (nextBuild < buildPlan.length) {
+            const candidate = buildPlan[nextBuild];
+            const preview = model.preview(candidate.cell, [], candidate.towerId);
+            if (!preview.accepted && preview.reason === 'insufficient-gold') break;
+            assert.equal(model.commit(preview, []).accepted, true);
+            nextBuild += 1;
+        }
+        waveResults.push({ wave: wave.wave, killed, leaked, coreHealth, towers: model.towers.size });
+    }
+
+    assert.deepEqual(waveResults.slice(0, 3), [
+        { wave: 1, killed: 6, leaked: 2, coreHealth: 8, towers: 5 },
+        { wave: 2, killed: 6, leaked: 2, coreHealth: 6, towers: 7 },
+        { wave: 3, killed: 10, leaked: 0, coreHealth: 6, towers: 8 },
+    ]);
+    assert.equal(waveResults.at(-1).coreHealth, 6);
+    assert.equal(model.towers.size, 13);
+    assert.equal(combat.totals.spawned, 90);
+    assert.deepEqual(combat.totals, { spawned: 90, killed: 86, leaked: 4 });
 });
