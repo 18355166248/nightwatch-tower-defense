@@ -6,13 +6,10 @@ import {
     game,
     Game,
     Graphics,
-    HorizontalTextAlignment,
-    Label,
     Node,
     ResolutionPolicy,
     UITransform,
     Vec3,
-    VerticalTextAlignment,
     view,
 } from 'cc';
 import { PHASE_A_FIXTURES } from '../config/PhaseAFixtures';
@@ -21,7 +18,17 @@ import { PHASE_B_WAVE_ONE, RIVET_GUN } from '../config/PhaseBCombatConfig';
 import { cellKey, sameCell, type EnemyRouteState, type GridCell, type GridId } from '../core/GridTypes';
 import { PhaseBDebugInput, type PhaseBDebugAction } from '../input/PhaseBDebugInput';
 import { buildBattleResultViewModel } from '../presentation/BattleResultViewModel';
+import { BrowserBattleDiagnostics } from '../presentation/BrowserBattleDiagnostics';
 import { CombatFeedbackRuntime } from '../presentation/CombatFeedbackRuntime';
+import { PhaseBHudView } from '../presentation/PhaseBHudView';
+import {
+    PHASE_B_DESIGN_HEIGHT,
+    PHASE_B_DESIGN_WIDTH,
+    PHASE_B_GRID_TABS,
+    PHASE_B_RESULT_RESTART_BUTTON,
+    PHASE_B_TOWER_BUTTON,
+    PhaseBLayout,
+} from '../presentation/PhaseBLayout';
 import { BattleRunCheckpoint } from '../systems/BattleRunCheckpoint';
 import { BattleStateMachine } from '../systems/BattleStateMachine';
 import { EconomyLedger } from '../systems/EconomyLedger';
@@ -30,18 +37,7 @@ import { WaveCombatRuntime, type GridPoint } from '../systems/WaveCombatRuntime'
 
 const { ccclass } = _decorator;
 
-const DESIGN_WIDTH = 1080;
-const DESIGN_HEIGHT = 1920;
-const BOARD_TOP = 610;
-const BOARD_MAX_WIDTH = 860;
-const BOARD_MAX_HEIGHT = 1110;
-const TOWER_BUTTON = { left: -160, right: 160, bottom: -890, top: -735 };
-const RESULT_RESTART_BUTTON = { left: -300, right: 300, bottom: -300, top: -135 };
-const GRID_TABS: readonly { id: GridId; label: string; left: number; right: number }[] = [
-    { id: 'grid-9x13', label: '9×13', left: -430, right: -155 },
-    { id: 'grid-10x14', label: '10×14', left: -135, right: 135 },
-    { id: 'grid-8x13', label: '8×13', left: 155, right: 430 },
-];
+const PHASE_B_TOTAL_WAVES = 1;
 
 type InputMode = 'idle' | 'tower-pressed' | 'armed' | 'dragging' | 'click-preview';
 
@@ -49,15 +45,10 @@ type InputMode = 'idle' | 'tower-pressed' | 'armed' | 'dragging' | 'click-previe
 export class NightwatchPocBootstrap extends Component {
     private canvas: Node | null = null;
     private graphics: Graphics | null = null;
-    private titleLabel: Label | null = null;
-    private statusLabel: Label | null = null;
-    private helpLabel: Label | null = null;
-    private resultTitleLabel: Label | null = null;
-    private resultSummaryLabel: Label | null = null;
-    private resultActionLabel: Label | null = null;
+    private hud: PhaseBHudView | null = null;
     private economy = new EconomyLedger(PHASE_A_INITIAL_GOLD);
     private model = new PlacementModel(PHASE_A_GRIDS[DEFAULT_GRID_ID], this.economy, PHASE_A_TOWER_COST);
-    private battle = new BattleStateMachine(1);
+    private battle = new BattleStateMachine(PHASE_B_TOTAL_WAVES);
     private combat = new WaveCombatRuntime(PHASE_A_GRIDS[DEFAULT_GRID_ID], RIVET_GUN);
     private readonly feedback = new CombatFeedbackRuntime();
     private selectedGridId: GridId = DEFAULT_GRID_ID;
@@ -71,29 +62,24 @@ export class NightwatchPocBootstrap extends Component {
     private initialPathLength = this.model.flowField.distanceAt(this.model.grid.entry);
     private runCheckpoint: BattleRunCheckpoint | null = null;
     private statusText = '拖动底部炮塔，或点塔后双击格子提交';
-    private publishedDiagnostics = '';
+    private readonly layout = new PhaseBLayout();
+    private readonly browserDiagnostics = new BrowserBattleDiagnostics();
     private readonly debugInput = new PhaseBDebugInput((action) => this.handleDebugAction(action));
 
     protected override onLoad(): void {
-        view.setDesignResolutionSize(DESIGN_WIDTH, DESIGN_HEIGHT, ResolutionPolicy.FIXED_HEIGHT);
+        view.setDesignResolutionSize(PHASE_B_DESIGN_WIDTH, PHASE_B_DESIGN_HEIGHT, ResolutionPolicy.FIXED_HEIGHT);
         this.canvas = this.findCanvas();
         if (!this.canvas) throw new Error('Phase A 场景缺少 Canvas');
 
         const layer = new Node('PhaseAProgrammaticLayer');
         layer.layer = this.canvas.layer;
         const transform = layer.addComponent(UITransform);
-        transform.setContentSize(DESIGN_WIDTH, DESIGN_HEIGHT);
+        transform.setContentSize(PHASE_B_DESIGN_WIDTH, PHASE_B_DESIGN_HEIGHT);
         this.canvas.addChild(layer);
-        this.titleLabel = this.createLabel(layer, 46, new Color('#F4D58D'), 850);
-        this.statusLabel = this.createLabel(layer, 27, new Color('#D7E6F5'), 755);
-        this.statusLabel.node.getComponent(UITransform)?.setContentSize(920, 125);
-        this.helpLabel = this.createLabel(layer, 25, new Color('#8FA9C4'), -945);
-        this.resultTitleLabel = this.createCenteredLabel(layer, 64, new Color('#F4D58D'), 230, 760, 100);
-        this.resultSummaryLabel = this.createCenteredLabel(layer, 34, new Color('#D7E6F5'), 25, 760, 190);
-        this.resultActionLabel = this.createCenteredLabel(layer, 38, new Color('#101827'), -218, 600, 120);
+        this.hud = new PhaseBHudView(layer);
         const graphicsNode = new Node('PhaseAGraphics');
         graphicsNode.layer = layer.layer;
-        graphicsNode.addComponent(UITransform).setContentSize(DESIGN_WIDTH, DESIGN_HEIGHT);
+        graphicsNode.addComponent(UITransform).setContentSize(PHASE_B_DESIGN_WIDTH, PHASE_B_DESIGN_HEIGHT);
         layer.addChild(graphicsNode);
         // Graphics 承担所有底板与战场绘制，固定到首个 sibling，避免结算遮罩盖住 Label。
         graphicsNode.setSiblingIndex(0);
@@ -132,42 +118,6 @@ export class NightwatchPocBootstrap extends Component {
         return scene.getChildByName('Canvas');
     }
 
-    private createLabel(parent: Node, fontSize: number, color: Color, y: number): Label {
-        const node = new Node('Label');
-        node.layer = parent.layer;
-        node.setPosition(-460, y, 0);
-        const transform = node.addComponent(UITransform);
-        const label = node.addComponent(Label);
-        // Label 挂载时会初始化 UITransform，尺寸必须在挂载后设置，否则 SHRINK 会把按钮字压成细线。
-        transform.setContentSize(920, 80);
-        transform.setAnchorPoint(0, 0.5);
-        label.fontSize = fontSize;
-        label.lineHeight = Math.round(fontSize * 1.25);
-        label.color = color;
-        label.overflow = Label.Overflow.NONE;
-        parent.addChild(node);
-        return label;
-    }
-
-    private createCenteredLabel(parent: Node, fontSize: number, color: Color, y: number, width: number, height: number): Label {
-        const node = new Node('ResultLabel');
-        node.layer = parent.layer;
-        node.setPosition(0, y, 0);
-        const label = node.addComponent(Label);
-        const transform = node.getComponent(UITransform) ?? node.addComponent(UITransform);
-        transform.setContentSize(width, height);
-        transform.setAnchorPoint(0.5, 0.5);
-        label.fontSize = fontSize;
-        label.lineHeight = Math.round(fontSize * 1.35);
-        label.color = color;
-        label.horizontalAlign = HorizontalTextAlignment.CENTER;
-        label.verticalAlign = VerticalTextAlignment.CENTER;
-        label.overflow = Label.Overflow.CLAMP;
-        node.active = false;
-        parent.addChild(node);
-        return label;
-    }
-
     private onTouchStart(event: EventTouch): void {
         const id = event.getID();
         if (this.primaryTouchId !== null && this.primaryTouchId !== id) return;
@@ -183,7 +133,7 @@ export class NightwatchPocBootstrap extends Component {
             this.primaryTouchId = null;
             return;
         }
-        if (this.insideRect(point, TOWER_BUTTON)) {
+        if (this.layout.insideRect(point, PHASE_B_TOWER_BUTTON)) {
             this.inputMode = 'tower-pressed';
             this.preview = null;
             this.statusText = '拖到网格落塔；轻点则进入点击建塔';
@@ -226,7 +176,7 @@ export class NightwatchPocBootstrap extends Component {
 
     private handleTopControls(point: Vec3): boolean {
         if (point.y >= 610 && point.y <= 700) {
-            for (const tab of GRID_TABS) {
+            for (const tab of PHASE_B_GRID_TABS) {
                 if (point.x >= tab.left && point.x <= tab.right) {
                     this.switchGrid(tab.id);
                     return true;
@@ -263,7 +213,7 @@ export class NightwatchPocBootstrap extends Component {
 
     private handleResultTouch(point: Vec3): boolean {
         if (!this.resultViewModel()) return false;
-        if (this.insideRect(point, RESULT_RESTART_BUTTON)) this.restartFromCheckpoint();
+        if (this.layout.insideRect(point, PHASE_B_RESULT_RESTART_BUTTON)) this.restartFromCheckpoint();
         return true;
     }
 
@@ -363,7 +313,7 @@ export class NightwatchPocBootstrap extends Component {
         this.model = new PlacementModel(grid, this.economy, PHASE_A_TOWER_COST);
         // 开战门槛以当前地图空场流场为基线，不能假设入口出口永远纵向对齐。
         this.initialPathLength = this.model.flowField.distanceAt(grid.entry);
-        this.battle = new BattleStateMachine(1, coreHealth);
+        this.battle = new BattleStateMachine(PHASE_B_TOTAL_WAVES, coreHealth);
         this.combat = new WaveCombatRuntime(grid, RIVET_GUN);
         this.initialCoreHealth = coreHealth;
         this.runCheckpoint = null;
@@ -391,7 +341,7 @@ export class NightwatchPocBootstrap extends Component {
         this.economy = restored.economy;
         this.model = restored.model;
         this.selectedGridId = restored.model.grid.id;
-        this.battle = new BattleStateMachine(1, this.initialCoreHealth);
+        this.battle = new BattleStateMachine(PHASE_B_TOTAL_WAVES, this.initialCoreHealth);
         this.combat = new WaveCombatRuntime(restored.model.grid, RIVET_GUN);
         this.feedback.clear();
         this.preparing = true;
@@ -430,21 +380,11 @@ export class NightwatchPocBootstrap extends Component {
     }
 
     private boardMetrics(): { cellSize: number; left: number; bottom: number; width: number; height: number } {
-        const grid = this.model.grid;
-        const cellSize = Math.floor(Math.min(BOARD_MAX_WIDTH / grid.columns, BOARD_MAX_HEIGHT / grid.rows));
-        const width = cellSize * grid.columns;
-        const height = cellSize * grid.rows;
-        return { cellSize, width, height, left: -width / 2, bottom: BOARD_TOP - height };
+        return this.layout.boardMetrics(this.model.grid);
     }
 
     private pointToCell(point: Vec3): GridCell | null {
-        const metrics = this.boardMetrics();
-        if (point.x < metrics.left || point.x >= metrics.left + metrics.width) return null;
-        if (point.y < metrics.bottom || point.y >= metrics.bottom + metrics.height) return null;
-        return {
-            column: Math.floor((point.x - metrics.left) / metrics.cellSize),
-            row: Math.floor((metrics.bottom + metrics.height - point.y) / metrics.cellSize),
-        };
+        return this.layout.pointToCell(point, this.model.grid);
     }
 
     private cellCenter(cell: GridCell): Vec3 {
@@ -452,12 +392,8 @@ export class NightwatchPocBootstrap extends Component {
     }
 
     private gridPointCenter(point: GridPoint): Vec3 {
-        const metrics = this.boardMetrics();
-        return new Vec3(
-            metrics.left + (point.column + 0.5) * metrics.cellSize,
-            metrics.bottom + metrics.height - (point.row + 0.5) * metrics.cellSize,
-            0,
-        );
+        const center = this.layout.gridPointCenter(point, this.model.grid);
+        return new Vec3(center.x, center.y, 0);
     }
 
     private localPoint(event: EventTouch): Vec3 {
@@ -478,25 +414,29 @@ export class NightwatchPocBootstrap extends Component {
         this.drawBoard(graphics);
         this.drawControls(graphics);
         this.drawResultOverlay(graphics);
-        if (this.titleLabel) this.titleLabel.string = '夜城防线 · Phase B 第一波灰盒';
-        if (this.statusLabel) {
-            const path = this.preview?.path?.length ? this.preview.path.length - 1 : this.model.flowField.distanceAt(this.model.grid.entry);
-            const battle = this.battle.snapshot;
-            this.statusLabel.string = `${this.statusText}\n金币 ${this.model.gold} · 路径 ${path} 格 · 波次 ${battle.wave}/1 · 核心 ${battle.coreHealth} · ${this.phaseText()}`;
-        }
-        if (this.helpLabel) this.helpLabel.string = '先建 2 塔且路径 +2｜↻重置 ▷开波/暂停｜F/G/H样例 R重置 Enter重试｜底部机枪塔';
-        this.updateResultLabels();
+        const pathLength = this.preview?.path?.length
+            ? this.preview.path.length - 1
+            : this.model.flowField.distanceAt(this.model.grid.entry);
+        const battle = this.battle.snapshot;
+        this.hud?.render({
+            statusText: this.statusText,
+            gold: this.model.gold,
+            pathLength,
+            wave: battle.wave,
+            totalWaves: PHASE_B_TOTAL_WAVES,
+            coreHealth: battle.coreHealth,
+            phaseText: this.phaseText(),
+            result: this.resultViewModel(),
+        });
         this.publishBrowserDiagnostics();
     }
 
     private publishBrowserDiagnostics(): void {
-        if (typeof document === 'undefined') return;
-        const canvas = document.querySelector('canvas');
-        if (!canvas) return;
         const pathLength = this.preview?.accepted && this.preview.path
             ? this.preview.path.length - 1
             : this.model.flowField.distanceAt(this.model.grid.entry);
-        const diagnostics = JSON.stringify({
+        const result = this.resultViewModel();
+        this.browserDiagnostics.publish({
             gridId: this.selectedGridId,
             columns: this.model.grid.columns,
             rows: this.model.grid.rows,
@@ -514,27 +454,20 @@ export class NightwatchPocBootstrap extends Component {
             defeatedEnemyCount: this.combat.totals.killed,
             leakedEnemyCount: this.combat.totals.leaked,
             activeFeedbackCount: this.activeFeedbackCount(),
-            resultVisible: Boolean(this.resultViewModel()),
-            retryAvailable: Boolean(this.runCheckpoint && this.resultViewModel()),
+            resultVisible: Boolean(result),
+            retryAvailable: Boolean(this.runCheckpoint && result),
             inputMode: this.inputMode,
             previewAccepted: this.preview?.accepted ?? null,
             status: this.statusText,
-        });
-        if (diagnostics === this.publishedDiagnostics) return;
-        // 浏览器 POC 用 DOM 属性暴露只读快照，方便 QA 核对画布操作的原子性，不提供跳过输入的修改接口。
-        canvas.setAttribute('data-phase-a-state', diagnostics);
-        const result = this.resultViewModel();
-        canvas.setAttribute(
-            'aria-label',
+        },
             result
                 ? `${result.title}，${result.summary.replace('\n', '，')}，${result.actionLabel}`
                 : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，${this.statusText}`,
         );
-        this.publishedDiagnostics = diagnostics;
     }
 
     private drawTabs(graphics: Graphics): void {
-        for (const tab of GRID_TABS) {
+        for (const tab of PHASE_B_GRID_TABS) {
             graphics.fillColor = tab.id === this.selectedGridId ? new Color('#C68A35') : new Color('#263A55');
             graphics.rect(tab.left, 610, tab.right - tab.left, 90);
             graphics.fill();
@@ -691,23 +624,6 @@ export class NightwatchPocBootstrap extends Component {
         );
     }
 
-    private updateResultLabels(): void {
-        const result = this.resultViewModel();
-        for (const label of [this.resultTitleLabel, this.resultSummaryLabel, this.resultActionLabel]) {
-            if (label) label.node.active = Boolean(result);
-        }
-        if (this.titleLabel) this.titleLabel.node.active = !result;
-        if (this.statusLabel) this.statusLabel.node.active = !result;
-        if (this.helpLabel) this.helpLabel.node.active = !result;
-        if (!result) return;
-        if (this.resultTitleLabel) {
-            this.resultTitleLabel.string = result.title;
-            this.resultTitleLabel.color = new Color(result.kind === 'victory' ? '#79E0AD' : '#FF8580');
-        }
-        if (this.resultSummaryLabel) this.resultSummaryLabel.string = result.summary;
-        if (this.resultActionLabel) this.resultActionLabel.string = result.actionLabel;
-    }
-
     private drawResultOverlay(graphics: Graphics): void {
         const result = this.resultViewModel();
         if (!result) return;
@@ -722,10 +638,10 @@ export class NightwatchPocBootstrap extends Component {
         graphics.fill();
         graphics.fillColor = new Color(result.kind === 'victory' ? '#79E0AD' : '#FF8580');
         graphics.roundRect(
-            RESULT_RESTART_BUTTON.left,
-            RESULT_RESTART_BUTTON.bottom,
-            RESULT_RESTART_BUTTON.right - RESULT_RESTART_BUTTON.left,
-            RESULT_RESTART_BUTTON.top - RESULT_RESTART_BUTTON.bottom,
+            PHASE_B_RESULT_RESTART_BUTTON.left,
+            PHASE_B_RESULT_RESTART_BUTTON.bottom,
+            PHASE_B_RESULT_RESTART_BUTTON.right - PHASE_B_RESULT_RESTART_BUTTON.left,
+            PHASE_B_RESULT_RESTART_BUTTON.top - PHASE_B_RESULT_RESTART_BUTTON.bottom,
             24,
         );
         graphics.fill();
@@ -741,7 +657,7 @@ export class NightwatchPocBootstrap extends Component {
         this.drawRouteIcon(graphics, -300, -655, false);
         this.drawRouteIcon(graphics, 300, -655, true);
         graphics.fillColor = this.model.gold >= PHASE_A_TOWER_COST ? new Color('#D5A84B') : new Color('#596273');
-        graphics.rect(TOWER_BUTTON.left, TOWER_BUTTON.bottom, TOWER_BUTTON.right - TOWER_BUTTON.left, TOWER_BUTTON.top - TOWER_BUTTON.bottom);
+        graphics.rect(PHASE_B_TOWER_BUTTON.left, PHASE_B_TOWER_BUTTON.bottom, PHASE_B_TOWER_BUTTON.right - PHASE_B_TOWER_BUTTON.left, PHASE_B_TOWER_BUTTON.top - PHASE_B_TOWER_BUTTON.bottom);
         graphics.fill();
         graphics.fillColor = new Color('#263043');
         graphics.circle(0, -800, 44);
@@ -843,10 +759,6 @@ export class NightwatchPocBootstrap extends Component {
         graphics.fillColor = new Color('#29405C');
         graphics.rect(x, y, width, height);
         graphics.fill();
-    }
-
-    private insideRect(point: Vec3, rect: { left: number; right: number; bottom: number; top: number }): boolean {
-        return point.x >= rect.left && point.x <= rect.right && point.y >= rect.bottom && point.y <= rect.top;
     }
 
     private phaseText(): string {

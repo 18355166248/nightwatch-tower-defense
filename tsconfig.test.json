@@ -13,5 +13,8 @@
     "assets/scripts/config/**/*.ts",
     "assets/scripts/systems/**/*.ts",
     "assets/scripts/presentation/**/*.ts"
+  ],
+  "exclude": [
+    "assets/scripts/presentation/PhaseBHudView.ts"
   ]
 }

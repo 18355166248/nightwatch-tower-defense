@@ -15,12 +15,28 @@ const { BattleRunCheckpoint } = require('../.test-dist/systems/BattleRunCheckpoi
 const { WaveCombatRuntime } = require('../.test-dist/systems/WaveCombatRuntime.js');
 const { buildBattleResultViewModel } = require('../.test-dist/presentation/BattleResultViewModel.js');
 const { CombatFeedbackRuntime } = require('../.test-dist/presentation/CombatFeedbackRuntime.js');
+const { PhaseBLayout } = require('../.test-dist/presentation/PhaseBLayout.js');
 
 const fixtures = JSON.parse(readFileSync(resolve(__dirname, '../docs/poc/phase-a-fixtures.json'), 'utf8'));
 
 function toCells(pairs) {
     return pairs.map(([column, row]) => ({ column, row }));
 }
+
+test('战场布局让绘制中心点与输入命中使用同一套网格换算', () => {
+    const layout = new PhaseBLayout();
+    const grid = PHASE_A_GRIDS['grid-9x13'];
+    const metrics = layout.boardMetrics(grid);
+    assert.deepEqual(metrics, { cellSize: 85, width: 765, height: 1105, left: -382.5, bottom: -495 });
+    for (let row = 0; row < grid.rows; row += 1) {
+        for (let column = 0; column < grid.columns; column += 1) {
+            const center = layout.gridPointCenter({ column, row }, grid);
+            assert.deepEqual(layout.pointToCell(center, grid), { column, row });
+        }
+    }
+    assert.equal(layout.pointToCell({ x: metrics.left - 0.01, y: 0 }, grid), null);
+    assert.equal(layout.pointToCell({ x: 0, y: metrics.bottom - 0.01 }, grid), null);
+});
 
 test('三种候选网格的初始、短折线和长蛇形 fixture 与冻结值一致', () => {
     for (const fixture of fixtures.fixtures) {

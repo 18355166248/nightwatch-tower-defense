@@ -2,7 +2,7 @@
   "name": "nightwatch-tower-defense",
   "private": true,
   "version": "0.1.0",
-  "description": "《夜城防线》Phase A：Cocos Creator 3.8.8 竖屏动态改路塔防风险 POC。",
+  "description": "《夜城防线》：Cocos Creator 3.8.8 竖屏动态改路塔防第一关灰盒。",
   "scripts": {
     "check": "tsc -p tsconfig.test.json --noEmit",
     "test": "npm run test:rules",

@@ -33,5 +33,6 @@ npm start
 - Phase A 自动化与右侧浏览器工程门禁已通过，可继续第一关灰盒开发；首次玩家评审仍需收集。
 - Phase B 第一波运行时已接入：8 个敌人依次生成，塔按接近出口优先索敌；弹道、命中、死亡、奖励与核心受损反馈均由独立表现层消费事件。短折线当前冻结为 6 杀 2 漏、核心剩余 8。
 - Phase B 终局闭环已接入：胜败结算层独占输入，重新部署恢复开战检查点，不继承本轮击杀收益；失败样例以核心 2 验证 2 次漏怪后立即终止。
+- Phase B 表现边界已拆分：`PhaseBLayout` 统一输入与绘制坐标，`PhaseBHudView` 管理 HUD/结算节点，`BrowserBattleDiagnostics` 隔离浏览器 QA 快照；战斗规则不依赖这些适配层。
 - Android/iOS 真机测试延后到移动端发布前，不得把“未阻断开发”表述为“真机已通过”。
 - 详细证据见 `docs/poc/phase-a-report.md`、`docs/poc/phase-a-browser-regression.md`、`docs/poc/phase-b-wave-one-regression.md`、`docs/poc/phase-b-result-loop-regression.md` 与 `docs/validation.md`；交叉评审按 `docs/poc/phase-a-review-checklist.md` 执行。
