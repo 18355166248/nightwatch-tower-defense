@@ -14,7 +14,7 @@ const { EconomyLedger } = require('../.test-dist/systems/EconomyLedger.js');
 const { BattleRunCheckpoint } = require('../.test-dist/systems/BattleRunCheckpoint.js');
 const { WaveCombatRuntime } = require('../.test-dist/systems/WaveCombatRuntime.js');
 const { buildBattleResultViewModel } = require('../.test-dist/presentation/BattleResultViewModel.js');
-const { CombatFeedbackRuntime } = require('../.test-dist/presentation/CombatFeedbackRuntime.js');
+const { countCombatFeedback, CombatFeedbackRuntime } = require('../.test-dist/presentation/CombatFeedbackRuntime.js');
 const { PhaseBLayout } = require('../.test-dist/presentation/PhaseBLayout.js');
 
 const fixtures = JSON.parse(readFileSync(resolve(__dirname, '../docs/poc/phase-a-fixtures.json'), 'utf8'));
@@ -299,6 +299,7 @@ test('战斗反馈消费只读事件，并在独立时间轴上自动回收', ()
         killed: [enemy], leaked: [], spawningCompleted: false,
     };
     feedback.consume(result);
+    assert.equal(countCombatFeedback(feedback.snapshot), 4);
     assert.equal(feedback.snapshot.tracers.length, 1);
     assert.equal(feedback.snapshot.deaths.length, 1);
     assert.equal(feedback.snapshot.rewards[0].amount, 4);

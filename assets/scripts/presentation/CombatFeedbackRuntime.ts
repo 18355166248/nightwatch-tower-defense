@@ -31,6 +31,11 @@ const REWARD_SECONDS = 0.7;
 const CORE_HIT_SECONDS = 0.28;
 const MAX_FEEDBACK_PER_CHANNEL = 64;
 
+export function countCombatFeedback(snapshot: CombatFeedbackSnapshot): number {
+    return snapshot.tracers.length + snapshot.impacts.length + snapshot.deaths.length
+        + snapshot.rewards.length + snapshot.coreHits.length;
+}
+
 /**
  * 战斗表现只消费一次性事件并管理短生命周期，不参与伤害、寻路或胜负计算。
  * 因此即使暂停战斗，已有反馈也能自然回到静止态，不会污染可复现的模拟结果。

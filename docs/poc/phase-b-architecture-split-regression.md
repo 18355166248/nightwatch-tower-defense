@@ -49,4 +49,4 @@
 
 ## 下一步
 
-下一批先把剩余程序化绘制从 Bootstrap 抽成战场 Renderer，再接入配置驱动的 8 波编排。重构与波次规则分两个提交，便于交叉 Review 和回归定位。
+剩余程序化绘制已在下一提交抽成战场 Renderer，证据见 `phase-b-renderer-split-regression.md`。下一批接入配置驱动的 8 波编排；波次规则保持独立提交，便于交叉 Review 和回归定位。

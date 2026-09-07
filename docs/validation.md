@@ -26,7 +26,7 @@
 
 ## 3. 单局竖切
 
-Phase B 首波竖切已接入右侧浏览器运行时：8 名发条步兵按配置生成，机枪塔按“最接近出口、生成顺序”稳定索敌，击杀回款进入共享经济账本，漏怪由战斗状态机统一扣核心。弹道、命中、死亡、奖励和核心受损由独立表现层消费只读事件。首波造路门禁、暂停/恢复、胜负结算与重新部署均已回归通过；布局、HUD 和浏览器 QA 适配已从场景 Bootstrap 中拆分。8 波流程和波间倒计时仍只在规则层覆盖。证据见 `docs/poc/phase-b-wave-one-regression.md`、`docs/poc/phase-b-result-loop-regression.md` 与 `docs/poc/phase-b-architecture-split-regression.md`。
+Phase B 首波竖切已接入右侧浏览器运行时：8 名发条步兵按配置生成，机枪塔按“最接近出口、生成顺序”稳定索敌，击杀回款进入共享经济账本，漏怪由战斗状态机统一扣核心。弹道、命中、死亡、奖励和核心受损由独立表现层消费只读事件。首波造路门禁、暂停/恢复、胜负结算与重新部署均已回归通过；布局、战场 Renderer、HUD 和浏览器 QA 适配已从场景 Bootstrap 中拆分。8 波流程和波间倒计时仍只在规则层覆盖。证据见 `docs/poc/phase-b-wave-one-regression.md`、`docs/poc/phase-b-result-loop-regression.md`、`docs/poc/phase-b-architecture-split-regression.md` 与 `docs/poc/phase-b-renderer-split-regression.md`。
 
 ## 4. 移动端输入与生命周期
 

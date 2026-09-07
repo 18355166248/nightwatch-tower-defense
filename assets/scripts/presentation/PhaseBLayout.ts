@@ -1,5 +1,4 @@
 import type { GridCell, GridDefinition, GridId } from '../core/GridTypes';
-import type { GridPoint } from '../systems/WaveCombatRuntime';
 
 export const PHASE_B_DESIGN_WIDTH = 1080;
 export const PHASE_B_DESIGN_HEIGHT = 1920;
@@ -14,6 +13,11 @@ export const PHASE_B_GRID_TABS: readonly { id: GridId; label: string; left: numb
 export interface PhaseBPoint {
     readonly x: number;
     readonly y: number;
+}
+
+export interface PhaseBGridPoint {
+    readonly column: number;
+    readonly row: number;
 }
 
 export interface PhaseBRect {
@@ -54,7 +58,7 @@ export class PhaseBLayout {
         };
     }
 
-    public gridPointCenter(point: GridPoint, grid: GridDefinition): PhaseBPoint {
+    public gridPointCenter(point: PhaseBGridPoint, grid: GridDefinition): PhaseBPoint {
         const metrics = this.boardMetrics(grid);
         return {
             x: metrics.left + (point.column + 0.5) * metrics.cellSize,

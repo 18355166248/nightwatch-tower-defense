@@ -15,6 +15,7 @@
     "assets/scripts/presentation/**/*.ts"
   ],
   "exclude": [
-    "assets/scripts/presentation/PhaseBHudView.ts"
+    "assets/scripts/presentation/PhaseBHudView.ts",
+    "assets/scripts/presentation/PhaseBCanvasRenderer.ts"
   ]
 }

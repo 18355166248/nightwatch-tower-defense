@@ -1,6 +1,5 @@
 import {
     _decorator,
-    Color,
     Component,
     EventTouch,
     game,
@@ -19,7 +18,8 @@ import { cellKey, sameCell, type EnemyRouteState, type GridCell, type GridId } f
 import { PhaseBDebugInput, type PhaseBDebugAction } from '../input/PhaseBDebugInput';
 import { buildBattleResultViewModel } from '../presentation/BattleResultViewModel';
 import { BrowserBattleDiagnostics } from '../presentation/BrowserBattleDiagnostics';
-import { CombatFeedbackRuntime } from '../presentation/CombatFeedbackRuntime';
+import { countCombatFeedback, CombatFeedbackRuntime } from '../presentation/CombatFeedbackRuntime';
+import { PhaseBCanvasRenderer } from '../presentation/PhaseBCanvasRenderer';
 import { PhaseBHudView } from '../presentation/PhaseBHudView';
 import {
     PHASE_B_DESIGN_HEIGHT,
@@ -33,7 +33,7 @@ import { BattleRunCheckpoint } from '../systems/BattleRunCheckpoint';
 import { BattleStateMachine } from '../systems/BattleStateMachine';
 import { EconomyLedger } from '../systems/EconomyLedger';
 import { PlacementModel, type PlacementPreview } from '../systems/PlacementModel';
-import { WaveCombatRuntime, type GridPoint } from '../systems/WaveCombatRuntime';
+import { WaveCombatRuntime } from '../systems/WaveCombatRuntime';
 
 const { ccclass } = _decorator;
 
@@ -44,7 +44,7 @@ type InputMode = 'idle' | 'tower-pressed' | 'armed' | 'dragging' | 'click-previe
 @ccclass('NightwatchPocBootstrap')
 export class NightwatchPocBootstrap extends Component {
     private canvas: Node | null = null;
-    private graphics: Graphics | null = null;
+    private renderer: PhaseBCanvasRenderer | null = null;
     private hud: PhaseBHudView | null = null;
     private economy = new EconomyLedger(PHASE_A_INITIAL_GOLD);
     private model = new PlacementModel(PHASE_A_GRIDS[DEFAULT_GRID_ID], this.economy, PHASE_A_TOWER_COST);
@@ -83,7 +83,8 @@ export class NightwatchPocBootstrap extends Component {
         layer.addChild(graphicsNode);
         // Graphics 承担所有底板与战场绘制，固定到首个 sibling，避免结算遮罩盖住 Label。
         graphicsNode.setSiblingIndex(0);
-        this.graphics = graphicsNode.addComponent(Graphics);
+        const graphics = graphicsNode.addComponent(Graphics);
+        this.renderer = new PhaseBCanvasRenderer(graphics, this.layout);
 
         this.canvas.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
         this.canvas.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
@@ -379,21 +380,8 @@ export class NightwatchPocBootstrap extends Component {
         return this.combat.enemyRouteStates();
     }
 
-    private boardMetrics(): { cellSize: number; left: number; bottom: number; width: number; height: number } {
-        return this.layout.boardMetrics(this.model.grid);
-    }
-
     private pointToCell(point: Vec3): GridCell | null {
         return this.layout.pointToCell(point, this.model.grid);
-    }
-
-    private cellCenter(cell: GridCell): Vec3 {
-        return this.gridPointCenter(cell);
-    }
-
-    private gridPointCenter(point: GridPoint): Vec3 {
-        const center = this.layout.gridPointCenter(point, this.model.grid);
-        return new Vec3(center.x, center.y, 0);
     }
 
     private localPoint(event: EventTouch): Vec3 {
@@ -403,17 +391,22 @@ export class NightwatchPocBootstrap extends Component {
     }
 
     private redraw(): void {
-        const graphics = this.graphics;
-        if (!graphics) return;
-        graphics.clear();
-        graphics.fillColor = new Color('#101827');
-        graphics.rect(-540, -960, 1080, 1920);
-        graphics.fill();
-
-        this.drawTabs(graphics);
-        this.drawBoard(graphics);
-        this.drawControls(graphics);
-        this.drawResultOverlay(graphics);
+        const result = this.resultViewModel();
+        const activePath = this.preview?.accepted && this.preview.path
+            ? this.preview.path
+            : this.model.flowField.pathFrom(this.model.grid.entry);
+        this.renderer?.render({
+            selectedGridId: this.selectedGridId,
+            grid: this.model.grid,
+            towers: this.model.towers,
+            activePath,
+            preview: this.preview,
+            enemies: this.combat.enemies,
+            feedback: this.feedback.snapshot,
+            gold: this.model.gold,
+            showPlayControl: this.preparing || this.battle.snapshot.phase === 'paused',
+            result,
+        });
         const pathLength = this.preview?.path?.length
             ? this.preview.path.length - 1
             : this.model.flowField.distanceAt(this.model.grid.entry);
@@ -426,7 +419,7 @@ export class NightwatchPocBootstrap extends Component {
             totalWaves: PHASE_B_TOTAL_WAVES,
             coreHealth: battle.coreHealth,
             phaseText: this.phaseText(),
-            result: this.resultViewModel(),
+            result,
         });
         this.publishBrowserDiagnostics();
     }
@@ -453,7 +446,7 @@ export class NightwatchPocBootstrap extends Component {
             spawnedEnemyCount: this.combat.totals.spawned,
             defeatedEnemyCount: this.combat.totals.killed,
             leakedEnemyCount: this.combat.totals.leaked,
-            activeFeedbackCount: this.activeFeedbackCount(),
+            activeFeedbackCount: countCombatFeedback(this.feedback.snapshot),
             resultVisible: Boolean(result),
             retryAvailable: Boolean(this.runCheckpoint && result),
             inputMode: this.inputMode,
@@ -466,155 +459,6 @@ export class NightwatchPocBootstrap extends Component {
         );
     }
 
-    private drawTabs(graphics: Graphics): void {
-        for (const tab of PHASE_B_GRID_TABS) {
-            graphics.fillColor = tab.id === this.selectedGridId ? new Color('#C68A35') : new Color('#263A55');
-            graphics.rect(tab.left, 610, tab.right - tab.left, 90);
-            graphics.fill();
-        }
-        this.drawGridCode(graphics, -292, 655, [9, 1, 3]);
-        this.drawGridCode(graphics, 0, 655, [1, 0, 1, 4]);
-        this.drawGridCode(graphics, 292, 655, [8, 1, 3]);
-    }
-
-    private drawBoard(graphics: Graphics): void {
-        const metrics = this.boardMetrics();
-        const activePath = this.preview?.accepted && this.preview.path
-            ? this.preview.path
-            : this.model.flowField.pathFrom(this.model.grid.entry);
-
-        if (activePath && activePath.length > 1) {
-            graphics.strokeColor = this.preview?.accepted ? new Color('#5FE1A2') : new Color('#5E8FC6');
-            graphics.lineWidth = Math.max(10, metrics.cellSize * 0.18);
-            const first = this.cellCenter(activePath[0]);
-            graphics.moveTo(first.x, first.y);
-            for (let index = 1; index < activePath.length; index += 1) {
-                const point = this.cellCenter(activePath[index]);
-                graphics.lineTo(point.x, point.y);
-            }
-            graphics.stroke();
-        }
-
-        for (let row = 0; row < this.model.grid.rows; row += 1) {
-            for (let column = 0; column < this.model.grid.columns; column += 1) {
-                const cell = { column, row };
-                const center = this.cellCenter(cell);
-                const half = metrics.cellSize / 2;
-                let fill = new Color(31, 47, 67, 160);
-                if (sameCell(cell, this.model.grid.entry)) fill = new Color('#5678D4');
-                else if (sameCell(cell, this.model.grid.exit)) fill = new Color('#D65F5F');
-                else if (this.model.towers.has(cellKey(cell))) fill = new Color('#D5A84B');
-                if (this.preview && sameCell(cell, this.preview.cell)) {
-                    fill = this.preview.accepted ? new Color('#45C486') : new Color('#E05252');
-                }
-                graphics.fillColor = fill;
-                graphics.rect(center.x - half + 3, center.y - half + 3, metrics.cellSize - 6, metrics.cellSize - 6);
-                graphics.fill();
-                graphics.strokeColor = new Color(111, 143, 169, 130);
-                graphics.lineWidth = 2;
-                graphics.rect(center.x - half, center.y - half, metrics.cellSize, metrics.cellSize);
-                graphics.stroke();
-                if (this.model.towers.has(cellKey(cell))) {
-                    graphics.fillColor = new Color('#172235');
-                    graphics.circle(center.x, center.y, metrics.cellSize * 0.22);
-                    graphics.fill();
-                }
-            }
-        }
-
-        for (const enemy of this.combat.enemies) {
-            const from = this.cellCenter(enemy.fromCell);
-            const to = this.cellCenter(enemy.toCell);
-            const x = from.x + (to.x - from.x) * enemy.progress;
-            const y = from.y + (to.y - from.y) * enemy.progress;
-            graphics.fillColor = new Color('#F06A63');
-            graphics.circle(x, y, metrics.cellSize * 0.25);
-            graphics.fill();
-            graphics.strokeColor = new Color('#FFF1CF');
-            graphics.lineWidth = 4;
-            graphics.circle(x, y, metrics.cellSize * 0.25);
-            graphics.stroke();
-            const healthWidth = metrics.cellSize * 0.62;
-            graphics.fillColor = new Color('#35262C');
-            graphics.rect(x - healthWidth / 2, y + metrics.cellSize * 0.31, healthWidth, 7);
-            graphics.fill();
-            graphics.fillColor = new Color('#69D391');
-            graphics.rect(x - healthWidth / 2, y + metrics.cellSize * 0.31, healthWidth * Math.max(0, enemy.health / enemy.archetype.maxHealth), 7);
-            graphics.fill();
-        }
-
-        this.drawCombatFeedback(graphics, metrics.cellSize);
-    }
-
-    private drawCombatFeedback(graphics: Graphics, cellSize: number): void {
-        const feedback = this.feedback.snapshot;
-        for (const tracer of feedback.tracers) {
-            const origin = this.gridPointCenter(tracer.origin);
-            const target = this.gridPointCenter(tracer.point);
-            const life = tracer.remainingSeconds / tracer.durationSeconds;
-            graphics.strokeColor = tracer.lethal
-                ? new Color(255, 244, 188, Math.round(255 * life))
-                : new Color(255, 205, 105, Math.round(225 * life));
-            graphics.lineWidth = tracer.lethal ? 9 : 6;
-            graphics.moveTo(origin.x, origin.y);
-            graphics.lineTo(target.x, target.y);
-            graphics.stroke();
-            graphics.fillColor = new Color(255, 239, 169, Math.round(230 * life));
-            graphics.circle(origin.x, origin.y, cellSize * (0.08 + 0.07 * life));
-            graphics.fill();
-        }
-        for (const impact of feedback.impacts) {
-            const point = this.gridPointCenter(impact.point);
-            const progress = 1 - impact.remainingSeconds / impact.durationSeconds;
-            graphics.strokeColor = new Color(255, 241, 207, Math.round(230 * (1 - progress)));
-            graphics.lineWidth = 5;
-            graphics.circle(point.x, point.y, cellSize * (0.1 + progress * 0.2));
-            graphics.stroke();
-        }
-        for (const death of feedback.deaths) {
-            const point = this.gridPointCenter(death.point);
-            const progress = 1 - death.remainingSeconds / death.durationSeconds;
-            const alpha = Math.round(230 * (1 - progress));
-            graphics.strokeColor = new Color(240, 106, 99, alpha);
-            graphics.lineWidth = 8 * (1 - progress) + 2;
-            graphics.circle(point.x, point.y, cellSize * (0.24 + progress * 0.48));
-            graphics.stroke();
-            for (let ray = 0; ray < 6; ray += 1) {
-                const angle = ray * Math.PI / 3;
-                const inner = cellSize * (0.2 + progress * 0.18);
-                const outer = cellSize * (0.28 + progress * 0.5);
-                graphics.moveTo(point.x + Math.cos(angle) * inner, point.y + Math.sin(angle) * inner);
-                graphics.lineTo(point.x + Math.cos(angle) * outer, point.y + Math.sin(angle) * outer);
-            }
-            graphics.stroke();
-        }
-        for (const reward of feedback.rewards) {
-            const point = this.gridPointCenter(reward.point);
-            const progress = 1 - reward.remainingSeconds / reward.durationSeconds;
-            const y = point.y + cellSize * (0.35 + progress * 0.55);
-            const alpha = Math.round(255 * Math.min(1, reward.remainingSeconds / 0.2));
-            graphics.fillColor = new Color(244, 198, 82, alpha);
-            for (let coin = 0; coin < Math.min(4, reward.amount); coin += 1) {
-                graphics.circle(point.x + (coin - 1.5) * cellSize * 0.11, y, cellSize * 0.055);
-                graphics.fill();
-            }
-        }
-        for (const coreHit of feedback.coreHits) {
-            const exit = this.cellCenter(this.model.grid.exit);
-            const progress = 1 - coreHit.remainingSeconds / coreHit.durationSeconds;
-            graphics.strokeColor = new Color(255, 82, 82, Math.round(245 * (1 - progress)));
-            graphics.lineWidth = 12;
-            graphics.circle(exit.x, exit.y, cellSize * (0.35 + progress * 0.45));
-            graphics.stroke();
-        }
-    }
-
-    private activeFeedbackCount(): number {
-        const feedback = this.feedback.snapshot;
-        return feedback.tracers.length + feedback.impacts.length + feedback.deaths.length
-            + feedback.rewards.length + feedback.coreHits.length;
-    }
-
     private resultViewModel() {
         return buildBattleResultViewModel(
             this.battle.snapshot,
@@ -622,143 +466,6 @@ export class NightwatchPocBootstrap extends Component {
             this.model.gold,
             this.initialCoreHealth,
         );
-    }
-
-    private drawResultOverlay(graphics: Graphics): void {
-        const result = this.resultViewModel();
-        if (!result) return;
-        graphics.fillColor = new Color(7, 12, 21, 232);
-        graphics.rect(-540, -960, 1080, 1920);
-        graphics.fill();
-        graphics.fillColor = new Color('#17263A');
-        graphics.roundRect(-430, -430, 860, 850, 34);
-        graphics.fill();
-        graphics.fillColor = new Color(result.kind === 'victory' ? '#2F9E72' : '#B84F50');
-        graphics.rect(-430, 350, 860, 70);
-        graphics.fill();
-        graphics.fillColor = new Color(result.kind === 'victory' ? '#79E0AD' : '#FF8580');
-        graphics.roundRect(
-            PHASE_B_RESULT_RESTART_BUTTON.left,
-            PHASE_B_RESULT_RESTART_BUTTON.bottom,
-            PHASE_B_RESULT_RESTART_BUTTON.right - PHASE_B_RESULT_RESTART_BUTTON.left,
-            PHASE_B_RESULT_RESTART_BUTTON.top - PHASE_B_RESULT_RESTART_BUTTON.bottom,
-            24,
-        );
-        graphics.fill();
-    }
-
-    private drawControls(graphics: Graphics): void {
-        this.drawButton(graphics, -440, -600, 340, 85);
-        this.drawButton(graphics, 100, -600, 340, 85);
-        this.drawButton(graphics, -440, -700, 280, 90);
-        this.drawButton(graphics, 160, -700, 280, 90);
-        this.drawResetIcon(graphics, -270, -558);
-        this.drawPhaseIcon(graphics, 270, -558);
-        this.drawRouteIcon(graphics, -300, -655, false);
-        this.drawRouteIcon(graphics, 300, -655, true);
-        graphics.fillColor = this.model.gold >= PHASE_A_TOWER_COST ? new Color('#D5A84B') : new Color('#596273');
-        graphics.rect(PHASE_B_TOWER_BUTTON.left, PHASE_B_TOWER_BUTTON.bottom, PHASE_B_TOWER_BUTTON.right - PHASE_B_TOWER_BUTTON.left, PHASE_B_TOWER_BUTTON.top - PHASE_B_TOWER_BUTTON.bottom);
-        graphics.fill();
-        graphics.fillColor = new Color('#263043');
-        graphics.circle(0, -800, 44);
-        graphics.fill();
-        graphics.strokeColor = new Color('#F7E4B1');
-        graphics.lineWidth = 10;
-        graphics.moveTo(-52, -842);
-        graphics.lineTo(0, -790);
-        graphics.lineTo(52, -842);
-        graphics.stroke();
-    }
-
-    private drawGridCode(graphics: Graphics, centerX: number, centerY: number, digits: readonly number[]): void {
-        const scale = 1.45;
-        const digitWidth = 24 * scale;
-        const gap = 12;
-        const crossGap = 32;
-        const split = digits.length === 3 ? 1 : 2;
-        const totalWidth = digits.length * digitWidth + (digits.length - 1) * gap + crossGap;
-        let x = centerX - totalWidth / 2;
-        for (let index = 0; index < digits.length; index += 1) {
-            if (index === split) {
-                graphics.strokeColor = new Color('#F2E4BF');
-                graphics.lineWidth = 7;
-                graphics.moveTo(x - 5, centerY - 14);
-                graphics.lineTo(x + 16, centerY + 14);
-                graphics.moveTo(x - 5, centerY + 14);
-                graphics.lineTo(x + 16, centerY - 14);
-                graphics.stroke();
-                x += crossGap;
-            }
-            this.drawDigit(graphics, digits[index], x, centerY, scale);
-            x += digitWidth + gap;
-        }
-    }
-
-    private drawDigit(graphics: Graphics, digit: number, x: number, y: number, scale: number): void {
-        const enabled: Readonly<Record<number, readonly number[]>> = {
-            0: [0, 1, 2, 3, 4, 5], 1: [1, 2], 2: [0, 1, 6, 4, 3], 3: [0, 1, 2, 3, 6],
-            4: [5, 6, 1, 2], 5: [0, 5, 6, 2, 3], 6: [0, 5, 4, 3, 2, 6], 7: [0, 1, 2],
-            8: [0, 1, 2, 3, 4, 5, 6], 9: [0, 1, 2, 3, 5, 6],
-        };
-        const segments = [
-            [2, 18, 18, 4], [18, 2, 4, 18], [18, -18, 4, 18], [2, -22, 18, 4],
-            [-2, -18, 4, 18], [-2, 2, 4, 18], [2, -2, 18, 4],
-        ] as const;
-        graphics.fillColor = new Color('#F2E4BF');
-        for (const segment of enabled[digit] ?? []) {
-            const [left, bottom, width, height] = segments[segment];
-            graphics.rect(x + left * scale, y + bottom * scale, width * scale, height * scale);
-            graphics.fill();
-        }
-    }
-
-    private drawResetIcon(graphics: Graphics, x: number, y: number): void {
-        graphics.strokeColor = new Color('#F2E4BF');
-        graphics.lineWidth = 12;
-        graphics.arc(x, y, 35, 0.4, 5.4, false);
-        graphics.stroke();
-        graphics.fillColor = new Color('#F2E4BF');
-        graphics.moveTo(x - 38, y + 20);
-        graphics.lineTo(x - 8, y + 35);
-        graphics.lineTo(x - 16, y + 3);
-        graphics.close();
-        graphics.fill();
-    }
-
-    private drawPhaseIcon(graphics: Graphics, x: number, y: number): void {
-        graphics.fillColor = new Color('#F2E4BF');
-        if (this.preparing || this.battle.snapshot.phase === 'paused') {
-            graphics.moveTo(x - 24, y - 36);
-            graphics.lineTo(x + 40, y);
-            graphics.lineTo(x - 24, y + 36);
-            graphics.close();
-            graphics.fill();
-            return;
-        }
-        graphics.rect(x - 30, y - 36, 19, 72);
-        graphics.fill();
-        graphics.rect(x + 11, y - 36, 19, 72);
-        graphics.fill();
-    }
-
-    private drawRouteIcon(graphics: Graphics, x: number, y: number, long: boolean): void {
-        graphics.strokeColor = long ? new Color('#7ED9B0') : new Color('#8FB9E8');
-        graphics.lineWidth = 14;
-        graphics.moveTo(x - 88, y + 29);
-        graphics.lineTo(x - 38, y + 29);
-        graphics.lineTo(x - 38, y - 29);
-        graphics.lineTo(long ? x + 8 : x + 88, y - 29);
-        if (long) {
-            graphics.lineTo(x + 8, y + 29);
-            graphics.lineTo(x + 88, y + 29);
-        }
-        graphics.stroke();
-    }
-
-    private drawButton(graphics: Graphics, x: number, y: number, width: number, height: number): void {
-        graphics.fillColor = new Color('#29405C');
-        graphics.rect(x, y, width, height);
-        graphics.fill();
     }
 
     private phaseText(): string {
