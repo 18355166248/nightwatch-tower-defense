@@ -7,6 +7,7 @@ import {
     VerticalTextAlignment,
 } from 'cc';
 import type { BattleResultViewModel } from './BattleResultViewModel';
+import type { TowerId } from '../config/PhaseBCombatConfig';
 
 export interface PhaseBHudState {
     readonly statusText: string;
@@ -19,6 +20,7 @@ export interface PhaseBHudState {
     readonly speedMultiplier: number;
     readonly canStartNextWaveEarly: boolean;
     readonly countdownSeconds: number;
+    readonly selectedTowerId: TowerId;
     readonly result: BattleResultViewModel | null;
 }
 
@@ -30,6 +32,8 @@ export class PhaseBHudView {
     private readonly helpLabel: Label;
     private readonly speedLabel: Label;
     private readonly earlyWaveLabel: Label;
+    private readonly rivetLabel: Label;
+    private readonly frostLabel: Label;
     private readonly resultTitleLabel: Label;
     private readonly resultSummaryLabel: Label;
     private readonly resultActionLabel: Label;
@@ -41,6 +45,8 @@ export class PhaseBHudView {
         this.helpLabel = this.createLabel(parent, 25, new Color('#8FA9C4'), -945);
         this.speedLabel = this.createControlLabel(parent, -340, -812);
         this.earlyWaveLabel = this.createControlLabel(parent, 340, -812);
+        this.rivetLabel = this.createTowerLabel(parent, -89, -812);
+        this.frostLabel = this.createTowerLabel(parent, 89, -812);
         this.resultTitleLabel = this.createCenteredLabel(parent, 64, new Color('#F4D58D'), 230, 760, 100);
         this.resultSummaryLabel = this.createCenteredLabel(parent, 34, new Color('#D7E6F5'), 25, 760, 190);
         this.resultActionLabel = this.createCenteredLabel(parent, 38, new Color('#101827'), -218, 600, 120);
@@ -50,7 +56,7 @@ export class PhaseBHudView {
         const signature = [
             state.statusText, state.gold, state.pathLength, state.wave, state.totalWaves,
             state.coreHealth, state.phaseText, state.speedMultiplier, state.canStartNextWaveEarly,
-            Math.ceil(state.countdownSeconds), state.result?.kind ?? '', state.result?.summary ?? '',
+            Math.ceil(state.countdownSeconds), state.selectedTowerId, state.result?.kind ?? '', state.result?.summary ?? '',
         ].join('|');
         // Bootstrap 仍可提交每帧快照，但 Label 只在展示字段变化时写入，避免 UI 跟随战斗帧率刷新。
         if (signature === this.renderedSignature) return;
@@ -61,6 +67,8 @@ export class PhaseBHudView {
         this.helpLabel.node.active = !result;
         this.speedLabel.node.active = !result;
         this.earlyWaveLabel.node.active = !result;
+        this.rivetLabel.node.active = !result;
+        this.frostLabel.node.active = !result;
         this.resultTitleLabel.node.active = Boolean(result);
         this.resultSummaryLabel.node.active = Boolean(result);
         this.resultActionLabel.node.active = Boolean(result);
@@ -73,13 +81,24 @@ export class PhaseBHudView {
                 ? `提前开波\n${Math.ceil(state.countdownSeconds)} 秒`
                 : '提前开波\n等待中';
             this.earlyWaveLabel.color = new Color(state.canStartNextWaveEarly ? '#E9FFF4' : '#718197');
-            this.helpLabel.string = '先建 2 塔且路径 +2｜X切速 N提前开波｜F/G/H样例 R重置 Enter重试｜底部机枪塔';
+            this.rivetLabel.string = '机枪\n30';
+            this.frostLabel.string = '冷凝\n40';
+            this.rivetLabel.color = new Color(state.selectedTowerId === 'rivet-gun' ? '#101827' : '#F2E4BF');
+            this.frostLabel.color = new Color(state.selectedTowerId === 'frost-coil' ? '#101827' : '#DDFBFF');
+            this.helpLabel.string = '先建 2 塔且路径 +2｜Q/W选塔 J混合样例｜X切速 N提前开波｜F/G/H样例 R重置';
             return;
         }
         this.resultTitleLabel.string = result.title;
         this.resultTitleLabel.color = new Color(result.kind === 'victory' ? '#79E0AD' : '#FF8580');
         this.resultSummaryLabel.string = result.summary;
         this.resultActionLabel.string = result.actionLabel;
+    }
+
+    private createTowerLabel(parent: Node, x: number, y: number): Label {
+        const label = this.createCenteredLabel(parent, 24, new Color('#F2E4BF'), y, 145, 110);
+        label.node.setPosition(x, y, 0);
+        label.node.active = true;
+        return label;
     }
 
     private createControlLabel(parent: Node, x: number, y: number): Label {

@@ -1,4 +1,5 @@
 import type { CombatEnemy, CombatTickResult, GridPoint, ShotEvent } from '../systems/WaveCombatRuntime';
+import type { TowerId } from '../config/PhaseBCombatConfig';
 
 export interface TimedFeedback {
     readonly point: GridPoint;
@@ -10,6 +11,8 @@ export interface TracerFeedback extends TimedFeedback {
     readonly origin: GridPoint;
     readonly damage: number;
     readonly lethal: boolean;
+    readonly towerId: TowerId;
+    readonly appliedSlow: boolean;
 }
 
 export interface RewardFeedback extends TimedFeedback {
@@ -92,6 +95,8 @@ export class CombatFeedbackRuntime {
             origin: { column: shot.towerCell.column, row: shot.towerCell.row },
             damage: shot.damage,
             lethal: shot.lethal,
+            towerId: shot.towerId,
+            appliedSlow: shot.appliedSlow,
         };
     }
 

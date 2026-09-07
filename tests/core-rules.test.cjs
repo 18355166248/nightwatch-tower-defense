@@ -4,7 +4,7 @@ const { readFileSync } = require('node:fs');
 const { resolve } = require('node:path');
 
 const { PHASE_A_GRIDS, PHASE_A_TOWER_COST } = require('../.test-dist/config/PhaseAGrids.js');
-const { PHASE_B_WAVES, PHASE_B_WAVE_ONE, RIVET_GUN } = require('../.test-dist/config/PhaseBCombatConfig.js');
+const { FROST_COIL, PHASE_B_TOWERS, PHASE_B_WAVES, PHASE_B_WAVE_ONE, RIVET_GUN } = require('../.test-dist/config/PhaseBCombatConfig.js');
 const { cellKey } = require('../.test-dist/core/GridTypes.js');
 const { FlowField } = require('../.test-dist/systems/FlowField.js');
 const { PlacementModel } = require('../.test-dist/systems/PlacementModel.js');
@@ -20,6 +20,8 @@ const { countCombatFeedback, CombatFeedbackRuntime } = require('../.test-dist/pr
 const {
     PHASE_B_EARLY_WAVE_BUTTON,
     PHASE_B_SPEED_BUTTON,
+    PHASE_B_RIVET_BUTTON,
+    PHASE_B_FROST_BUTTON,
     PHASE_B_TOWER_BUTTON,
     PhaseBLayout,
 } = require('../.test-dist/presentation/PhaseBLayout.js');
@@ -46,6 +48,8 @@ test('战场布局让绘制中心点与输入命中使用同一套网格换算',
     assert.equal(layout.insideRect({ x: -340, y: -812 }, PHASE_B_SPEED_BUTTON), true);
     assert.equal(layout.insideRect({ x: 340, y: -812 }, PHASE_B_EARLY_WAVE_BUTTON), true);
     assert.equal(layout.insideRect({ x: 0, y: -812 }, PHASE_B_TOWER_BUTTON), true);
+    assert.equal(layout.insideRect({ x: -89, y: -812 }, PHASE_B_RIVET_BUTTON), true);
+    assert.equal(layout.insideRect({ x: 89, y: -812 }, PHASE_B_FROST_BUTTON), true);
     assert.equal(layout.insideRect({ x: 0, y: -812 }, PHASE_B_SPEED_BUTTON), false);
     assert.equal(layout.insideRect({ x: 0, y: -812 }, PHASE_B_EARLY_WAVE_BUTTON), false);
 });
@@ -268,6 +272,21 @@ test('建造与击杀共用独立经济账本', () => {
     assert.equal(model.gold, 94);
 });
 
+test('塔种价格绑定在预览事务中，出售按各自造价全额返还', () => {
+    const model = new PlacementModel(PHASE_A_GRIDS['grid-9x13'], 100, PHASE_B_TOWERS);
+    const rivetCell = { column: 2, row: 2 };
+    const frostCell = { column: 3, row: 2 };
+    const frostPreview = model.preview(frostCell, [], 'frost-coil');
+    assert.deepEqual({ towerId: frostPreview.towerId, cost: frostPreview.cost }, { towerId: 'frost-coil', cost: 40 });
+    assert.equal(model.commit(model.preview(rivetCell, [], 'rivet-gun'), []).accepted, true);
+    assert.equal(model.commit(frostPreview, []).reason, 'stale-preview');
+    assert.equal(model.commit(model.preview(frostCell, [], 'frost-coil'), []).accepted, true);
+    assert.equal(model.gold, 30);
+    assert.deepEqual(model.deployments.map(({ towerId }) => towerId), ['rivet-gun', 'frost-coil']);
+    assert.equal(model.sell(frostCell, true), true);
+    assert.equal(model.gold, 70);
+});
+
 test('重新部署从开战检查点恢复塔位与当时金币，不带回击杀收益', () => {
     const grid = PHASE_A_GRIDS['grid-9x13'];
     const ledger = new EconomyLedger(120);
@@ -281,6 +300,16 @@ test('重新部署从开战检查点恢复塔位与当时金币，不带回击�
     assert.equal(restored.model.gold, 0);
     assert.deepEqual([...restored.model.towers], [...model.towers]);
     assert.equal(restored.model.flowField.distanceAt(grid.entry), 16);
+});
+
+test('重新部署检查点保留混合塔种与不同造价', () => {
+    const grid = PHASE_A_GRIDS['grid-9x13'];
+    const model = new PlacementModel(grid, 100, PHASE_B_TOWERS);
+    assert.equal(model.commit(model.preview({ column: 2, row: 2 }, [], 'rivet-gun'), []).accepted, true);
+    assert.equal(model.commit(model.preview({ column: 3, row: 2 }, [], 'frost-coil'), []).accepted, true);
+    const restored = BattleRunCheckpoint.capture(model).restore().model;
+    assert.equal(restored.gold, 30);
+    assert.deepEqual(restored.deployments, model.deployments);
 });
 
 test('结算视图模型只在终局生成，并区分胜利与失败', () => {
@@ -337,6 +366,26 @@ test('敌人到达出口只上报漏怪，不在运行时内直接修改核心�
     assert.deepEqual(runtime.totals, { spawned: 1, killed: 0, leaked: 1 });
 });
 
+test('冷凝塔命中后按持续时间减速，重复命中刷新而不叠乘', () => {
+    const grid = {
+        id: 'grid-9x13', columns: 3, rows: 5,
+        entry: { column: 1, row: 0 }, exit: { column: 1, row: 4 },
+    };
+    const enemy = { id: 'clockwork-infantry', maxHealth: 100, speedCellsPerSecond: 1, killReward: 4 };
+    const runtime = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
+    const flow = new FlowField(grid, new Set());
+    const towers = [{ cell: { column: 0, row: 1 }, towerId: 'frost-coil' }];
+    runtime.start({ wave: 1, groups: [{ enemy, count: 1, spawnIntervalSeconds: 1 }] });
+    const first = runtime.tick(0, flow, towers);
+    assert.equal(first.shots[0].towerId, 'frost-coil');
+    assert.equal(first.shots[0].appliedSlow, true);
+    assert.equal(runtime.enemies[0].slowMultiplier, FROST_COIL.effect.speedMultiplier);
+    runtime.tick(1, flow, towers);
+    assert.ok(Math.abs(runtime.enemies[0].progress - 0.55) < 1e-9);
+    assert.equal(runtime.enemies[0].slowMultiplier, 0.55);
+    assert.equal(runtime.enemies[0].slowRemainingSeconds, 1.2);
+});
+
 test('战斗反馈消费只读事件，并在独立时间轴上自动回收', () => {
     const feedback = new CombatFeedbackRuntime();
     const enemy = {
@@ -344,7 +393,7 @@ test('战斗反馈消费只读事件，并在独立时间轴上自动回收', ()
         health: 0, fromCell: { column: 1, row: 1 }, toCell: { column: 1, row: 2 }, progress: 0.5, spawnOrder: 1,
     };
     const result = {
-        shots: [{ towerCell: { column: 0, row: 1 }, targetId: enemy.id, targetPoint: { column: 1, row: 1.5 }, damage: 7, lethal: true }],
+        shots: [{ towerCell: { column: 0, row: 1 }, towerId: 'rivet-gun', targetId: enemy.id, targetPoint: { column: 1, row: 1.5 }, damage: 7, lethal: true, appliedSlow: false }],
         killed: [enemy], leaked: [], spawningCompleted: false,
     };
     feedback.consume(result);
@@ -376,6 +425,26 @@ test('第一波短折线在 20/30/60 FPS 下都保持可读同屏量与 6 杀 2 
             maxActiveEnemies = Math.max(maxActiveEnemies, runtime.enemies.length);
         }
         assert.ok(maxActiveEnemies >= 2, `${deltaSeconds} 秒步长的同屏峰值只有 ${maxActiveEnemies}`);
+        assert.deepEqual(runtime.totals, { spawned: 8, killed: 6, leaked: 2 });
+    }
+});
+
+test('冷凝前置混合塔组在 20/30/60 FPS 下保持 6 杀 2 漏并出现减速反馈', () => {
+    const grid = PHASE_A_GRIDS['grid-9x13'];
+    const fixture = fixtures.fixtures.find((item) => item.gridId === 'grid-9x13').shortFold;
+    const cells = toCells(fixture.towerCells);
+    const towers = new Set(cells.map(cellKey));
+    const deployments = cells.map((cell, index) => ({ cell, towerId: index === 0 ? 'frost-coil' : 'rivet-gun' }));
+    const flow = new FlowField(grid, towers);
+    for (const deltaSeconds of [1 / 60, 1 / 30, 1 / 20]) {
+        const runtime = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
+        runtime.start(PHASE_B_WAVE_ONE);
+        let maxSlowedEnemies = 0;
+        for (let elapsed = 0; elapsed < 40 && (!runtime.isSpawningComplete || runtime.enemies.length > 0); elapsed += deltaSeconds) {
+            runtime.tick(deltaSeconds, flow, deployments);
+            maxSlowedEnemies = Math.max(maxSlowedEnemies, runtime.enemies.filter(({ slowRemainingSeconds }) => slowRemainingSeconds > 0).length);
+        }
+        assert.ok(maxSlowedEnemies >= 2, `${deltaSeconds} 秒步长未形成可读减速同屏`);
         assert.deepEqual(runtime.totals, { spawned: 8, killed: 6, leaked: 2 });
     }
 });

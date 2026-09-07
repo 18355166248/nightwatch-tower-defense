@@ -3,6 +3,8 @@ import type { GridCell, GridDefinition, GridId } from '../core/GridTypes';
 export const PHASE_B_DESIGN_WIDTH = 1080;
 export const PHASE_B_DESIGN_HEIGHT = 1920;
 export const PHASE_B_TOWER_BUTTON = { left: -160, right: 160, bottom: -890, top: -735 } as const;
+export const PHASE_B_RIVET_BUTTON = { left: -170, right: -8, bottom: -890, top: -735 } as const;
+export const PHASE_B_FROST_BUTTON = { left: 8, right: 170, bottom: -890, top: -735 } as const;
 export const PHASE_B_SPEED_BUTTON = { left: -480, right: -200, bottom: -890, top: -735 } as const;
 export const PHASE_B_EARLY_WAVE_BUTTON = { left: 200, right: 480, bottom: -890, top: -735 } as const;
 export const PHASE_B_RESULT_RESTART_BUTTON = { left: -300, right: 300, bottom: -300, top: -135 } as const;

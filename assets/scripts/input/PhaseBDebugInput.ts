@@ -1,6 +1,7 @@
 import { EventKeyboard, input, Input, KeyCode } from 'cc';
 
 export type PhaseBDebugAction = 'reset' | 'apply-short' | 'apply-long' | 'apply-failure'
+    | 'apply-mixed' | 'select-rivet' | 'select-frost'
     | 'toggle-battle' | 'toggle-speed' | 'start-next-wave' | 'restart-run';
 
 /**
@@ -28,6 +29,9 @@ export class PhaseBDebugInput {
         else if (event.keyCode === KeyCode.KEY_F) this.dispatch('apply-short');
         else if (event.keyCode === KeyCode.KEY_G) this.dispatch('apply-long');
         else if (event.keyCode === KeyCode.KEY_H) this.dispatch('apply-failure');
+        else if (event.keyCode === KeyCode.KEY_J) this.dispatch('apply-mixed');
+        else if (event.keyCode === KeyCode.KEY_Q) this.dispatch('select-rivet');
+        else if (event.keyCode === KeyCode.KEY_W) this.dispatch('select-frost');
         else if (event.keyCode === KeyCode.KEY_X) this.dispatch('toggle-speed');
         else if (event.keyCode === KeyCode.KEY_N) this.dispatch('start-next-wave');
         else if (event.keyCode === KeyCode.ENTER) this.dispatch('restart-run');

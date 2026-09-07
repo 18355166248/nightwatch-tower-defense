@@ -5,11 +5,22 @@ export interface EnemyArchetype {
     readonly killReward: number;
 }
 
+export type TowerId = 'rivet-gun' | 'frost-coil';
+
+export interface SlowEffect {
+    readonly kind: 'slow';
+    readonly speedMultiplier: number;
+    readonly durationSeconds: number;
+}
+
 export interface TowerArchetype {
-    readonly id: 'rivet-gun';
+    readonly id: TowerId;
+    readonly label: string;
+    readonly cost: number;
     readonly rangeCells: number;
     readonly damage: number;
     readonly attackIntervalSeconds: number;
+    readonly effect?: SlowEffect;
 }
 
 export interface WaveGroup {
@@ -32,10 +43,24 @@ export const CLOCKWORK_INFANTRY: EnemyArchetype = {
 
 export const RIVET_GUN: TowerArchetype = {
     id: 'rivet-gun',
+    label: '机枪塔',
+    cost: 30,
     rangeCells: 2.6,
     damage: 7,
     attackIntervalSeconds: 0.35,
 };
+
+export const FROST_COIL: TowerArchetype = {
+    id: 'frost-coil',
+    label: '冷凝塔',
+    cost: 40,
+    rangeCells: 3,
+    damage: 4,
+    attackIntervalSeconds: 0.65,
+    effect: { kind: 'slow', speedMultiplier: 0.55, durationSeconds: 1.2 },
+};
+
+export const PHASE_B_TOWERS: readonly TowerArchetype[] = [RIVET_GUN, FROST_COIL];
 
 export const PHASE_B_WAVES: readonly WaveDefinition[] = [
     { wave: 1, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 8, spawnIntervalSeconds: 0.6 }] },

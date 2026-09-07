@@ -1,14 +1,15 @@
 import { Color, Graphics } from 'cc';
-import { PHASE_A_TOWER_COST } from '../config/PhaseAGrids';
+import { FROST_COIL, RIVET_GUN, type TowerId } from '../config/PhaseBCombatConfig';
 import { cellKey, sameCell, type GridCell, type GridDefinition, type GridId } from '../core/GridTypes';
 import type { BattleResultViewModel } from './BattleResultViewModel';
 import type { CombatFeedbackSnapshot } from './CombatFeedbackRuntime';
 import {
     PHASE_B_GRID_TABS,
+    PHASE_B_FROST_BUTTON,
     PHASE_B_EARLY_WAVE_BUTTON,
     PHASE_B_RESULT_RESTART_BUTTON,
     PHASE_B_SPEED_BUTTON,
-    PHASE_B_TOWER_BUTTON,
+    PHASE_B_RIVET_BUTTON,
     type PhaseBGridPoint,
     type PhaseBPoint,
     PhaseBLayout,
@@ -18,6 +19,7 @@ export interface PhaseBCanvasRenderState {
     readonly selectedGridId: GridId;
     readonly grid: GridDefinition;
     readonly towers: ReadonlySet<string>;
+    readonly towerIdsByCell: ReadonlyMap<string, TowerId>;
     readonly activePath: readonly GridCell[] | null;
     readonly preview: { readonly accepted: boolean; readonly cell: GridCell } | null;
     readonly enemies: readonly {
@@ -26,10 +28,12 @@ export interface PhaseBCanvasRenderState {
         readonly fromCell: GridCell;
         readonly toCell: GridCell;
         readonly progress: number;
+        readonly slowRemainingSeconds: number;
     }[];
     readonly feedback: CombatFeedbackSnapshot;
     readonly gold: number;
     readonly speedMultiplier: number;
+    readonly selectedTowerId: TowerId;
     readonly canStartNextWaveEarly: boolean;
     readonly showPlayControl: boolean;
     readonly result: BattleResultViewModel | null;
@@ -94,6 +98,7 @@ export class PhaseBCanvasRenderer {
                 let fill = new Color(31, 47, 67, 160);
                 if (sameCell(cell, state.grid.entry)) fill = new Color('#5678D4');
                 else if (sameCell(cell, state.grid.exit)) fill = new Color('#D65F5F');
+                else if (state.towerIdsByCell.get(cellKey(cell)) === 'frost-coil') fill = new Color('#62BCD0');
                 else if (state.towers.has(cellKey(cell))) fill = new Color('#D5A84B');
                 if (state.preview && sameCell(cell, state.preview.cell)) {
                     fill = state.preview.accepted ? new Color('#45C486') : new Color('#E05252');
@@ -106,9 +111,15 @@ export class PhaseBCanvasRenderer {
                 graphics.rect(center.x - half, center.y - half, metrics.cellSize, metrics.cellSize);
                 graphics.stroke();
                 if (state.towers.has(cellKey(cell))) {
-                    graphics.fillColor = new Color('#172235');
+                    graphics.fillColor = new Color(state.towerIdsByCell.get(cellKey(cell)) === 'frost-coil' ? '#E3FAFF' : '#172235');
                     graphics.circle(center.x, center.y, metrics.cellSize * 0.22);
                     graphics.fill();
+                    if (state.towerIdsByCell.get(cellKey(cell)) === 'frost-coil') {
+                        graphics.strokeColor = new Color('#28758A');
+                        graphics.lineWidth = 5;
+                        graphics.circle(center.x, center.y, metrics.cellSize * 0.13);
+                        graphics.stroke();
+                    }
                 }
             }
         }
@@ -125,6 +136,12 @@ export class PhaseBCanvasRenderer {
             graphics.lineWidth = 4;
             graphics.circle(x, y, metrics.cellSize * 0.25);
             graphics.stroke();
+            if (enemy.slowRemainingSeconds > 0) {
+                graphics.strokeColor = new Color('#8BE8F4');
+                graphics.lineWidth = 5;
+                graphics.circle(x, y, metrics.cellSize * 0.31);
+                graphics.stroke();
+            }
             const healthWidth = metrics.cellSize * 0.62;
             graphics.fillColor = new Color('#35262C');
             graphics.rect(x - healthWidth / 2, y + metrics.cellSize * 0.31, healthWidth, 7);
@@ -142,14 +159,18 @@ export class PhaseBCanvasRenderer {
             const origin = this.center(tracer.origin, state.grid);
             const target = this.center(tracer.point, state.grid);
             const life = tracer.remainingSeconds / tracer.durationSeconds;
-            graphics.strokeColor = tracer.lethal
-                ? new Color(255, 244, 188, Math.round(255 * life))
-                : new Color(255, 205, 105, Math.round(225 * life));
+            graphics.strokeColor = tracer.towerId === 'frost-coil'
+                ? new Color(139, 232, 244, Math.round(235 * life))
+                : tracer.lethal
+                    ? new Color(255, 244, 188, Math.round(255 * life))
+                    : new Color(255, 205, 105, Math.round(225 * life));
             graphics.lineWidth = tracer.lethal ? 9 : 6;
             graphics.moveTo(origin.x, origin.y);
             graphics.lineTo(target.x, target.y);
             graphics.stroke();
-            graphics.fillColor = new Color(255, 239, 169, Math.round(230 * life));
+            graphics.fillColor = tracer.towerId === 'frost-coil'
+                ? new Color(190, 248, 255, Math.round(230 * life))
+                : new Color(255, 239, 169, Math.round(230 * life));
             graphics.circle(origin.x, origin.y, cellSize * (0.08 + 0.07 * life));
             graphics.fill();
         }
@@ -250,17 +271,19 @@ export class PhaseBCanvasRenderer {
             20,
         );
         graphics.fill();
-        graphics.fillColor = state.gold >= PHASE_A_TOWER_COST ? new Color('#D5A84B') : new Color('#596273');
-        graphics.rect(PHASE_B_TOWER_BUTTON.left, PHASE_B_TOWER_BUTTON.bottom, PHASE_B_TOWER_BUTTON.right - PHASE_B_TOWER_BUTTON.left, PHASE_B_TOWER_BUTTON.top - PHASE_B_TOWER_BUTTON.bottom);
+        this.drawTowerButton(PHASE_B_RIVET_BUTTON, state.gold >= RIVET_GUN.cost, state.selectedTowerId === RIVET_GUN.id, '#D5A84B');
+        this.drawTowerButton(PHASE_B_FROST_BUTTON, state.gold >= FROST_COIL.cost, state.selectedTowerId === FROST_COIL.id, '#62BCD0');
+    }
+
+    private drawTowerButton(rect: { left: number; right: number; bottom: number; top: number }, affordable: boolean, selected: boolean, color: string): void {
+        const graphics = this.graphics;
+        graphics.fillColor = new Color(affordable ? color : '#596273');
+        graphics.roundRect(rect.left, rect.bottom, rect.right - rect.left, rect.top - rect.bottom, 16);
         graphics.fill();
-        graphics.fillColor = new Color('#263043');
-        graphics.circle(0, -800, 44);
-        graphics.fill();
-        graphics.strokeColor = new Color('#F7E4B1');
-        graphics.lineWidth = 10;
-        graphics.moveTo(-52, -842);
-        graphics.lineTo(0, -790);
-        graphics.lineTo(52, -842);
+        if (!selected) return;
+        graphics.strokeColor = new Color('#FFF1CF');
+        graphics.lineWidth = 8;
+        graphics.roundRect(rect.left + 5, rect.bottom + 5, rect.right - rect.left - 10, rect.top - rect.bottom - 10, 13);
         graphics.stroke();
     }
 

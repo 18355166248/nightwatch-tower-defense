@@ -1,6 +1,7 @@
-import type { EnemyArchetype, TowerArchetype, WaveDefinition } from '../config/PhaseBCombatConfig';
+import type { EnemyArchetype, TowerArchetype, TowerId, WaveDefinition } from '../config/PhaseBCombatConfig';
 import { sameCell, type EnemyRouteState, type GridCell, type GridDefinition } from '../core/GridTypes';
 import { FlowField } from './FlowField';
+import type { TowerDeployment } from './PlacementModel';
 
 export interface CombatEnemy {
     readonly id: string;
@@ -10,6 +11,8 @@ export interface CombatEnemy {
     toCell: GridCell;
     progress: number;
     readonly spawnOrder: number;
+    slowMultiplier: number;
+    slowRemainingSeconds: number;
 }
 
 export interface GridPoint {
@@ -19,10 +22,12 @@ export interface GridPoint {
 
 export interface ShotEvent {
     readonly towerCell: GridCell;
+    readonly towerId: TowerId;
     readonly targetId: string;
     readonly targetPoint: GridPoint;
     readonly damage: number;
     readonly lethal: boolean;
+    readonly appliedSlow: boolean;
 }
 
 export interface CombatTickResult {
@@ -51,11 +56,18 @@ export class WaveCombatRuntime {
     private spawnedCount = 0;
     private killedCount = 0;
     private leakedCount = 0;
+    private readonly towersById = new Map<TowerId, TowerArchetype>();
+    private readonly defaultTowerId: TowerId;
 
     public constructor(
         private readonly grid: GridDefinition,
-        private readonly tower: TowerArchetype,
-    ) {}
+        towerSource: TowerArchetype | readonly TowerArchetype[],
+    ) {
+        const towers = Array.isArray(towerSource) ? towerSource : [towerSource];
+        if (towers.length === 0) throw new Error('战斗运行时至少需要一种炮塔');
+        for (const tower of towers) this.towersById.set(tower.id, tower);
+        this.defaultTowerId = towers[0].id;
+    }
 
     public get enemies(): readonly CombatEnemy[] {
         return this.activeEnemies;
@@ -116,13 +128,19 @@ export class WaveCombatRuntime {
     public tick(
         deltaSeconds: number,
         flowField: FlowField,
-        towerKeys: ReadonlySet<string>,
+        towerSource: ReadonlySet<string> | readonly TowerDeployment[],
     ): CombatTickResult {
         if (!Number.isFinite(deltaSeconds) || deltaSeconds < 0) throw new RangeError('deltaSeconds 不能为负数');
         const spawningWasComplete = this.spawningCompleted;
         this.spawn(deltaSeconds, flowField);
         const leaked = this.moveEnemies(deltaSeconds, flowField);
-        const { shots, killed } = this.fireTowers(deltaSeconds, flowField, towerKeys);
+        const deployments: readonly TowerDeployment[] = Array.isArray(towerSource)
+            ? towerSource as readonly TowerDeployment[]
+            : Array.from(towerSource as ReadonlySet<string>, (key) => ({
+                cell: this.cellFromKey(key),
+                towerId: this.defaultTowerId,
+            }));
+        const { shots, killed } = this.fireTowers(deltaSeconds, flowField, deployments);
         return {
             shots,
             killed,
@@ -147,6 +165,8 @@ export class WaveCombatRuntime {
                 toCell: next,
                 progress: 0,
                 spawnOrder: this.nextSpawnOrder++,
+                slowMultiplier: 1,
+                slowRemainingSeconds: 0,
             });
             this.spawnedCount += 1;
             this.spawnedInGroup += 1;
@@ -166,7 +186,13 @@ export class WaveCombatRuntime {
     private moveEnemies(deltaSeconds: number, flowField: FlowField): CombatEnemy[] {
         const leaked: CombatEnemy[] = [];
         for (const enemy of this.activeEnemies) {
-            enemy.progress += deltaSeconds * enemy.archetype.speedCellsPerSecond;
+            // 状态恰好在长帧中到期时分段积分，避免整帧都按减速或原速计算造成帧率差异。
+            const slowedSeconds = Math.min(deltaSeconds, enemy.slowRemainingSeconds);
+            const normalSeconds = deltaSeconds - slowedSeconds;
+            const travelSeconds = slowedSeconds * enemy.slowMultiplier + normalSeconds;
+            enemy.slowRemainingSeconds = Math.max(0, enemy.slowRemainingSeconds - deltaSeconds);
+            if (enemy.slowRemainingSeconds === 0) enemy.slowMultiplier = 1;
+            enemy.progress += travelSeconds * enemy.archetype.speedCellsPerSecond;
             while (enemy.progress >= 1) {
                 if (sameCell(enemy.toCell, this.grid.exit)) {
                     leaked.push(enemy);
@@ -190,33 +216,46 @@ export class WaveCombatRuntime {
     private fireTowers(
         deltaSeconds: number,
         flowField: FlowField,
-        towerKeys: ReadonlySet<string>,
+        deployments: readonly TowerDeployment[],
     ): { shots: ShotEvent[]; killed: CombatEnemy[] } {
         const shots: ShotEvent[] = [];
         const killed: CombatEnemy[] = [];
-        for (const key of towerKeys) {
+        const activeTowerKeys = new Set<string>();
+        for (const deployment of deployments) {
+            const key = `${deployment.cell.column},${deployment.cell.row}`;
+            activeTowerKeys.add(key);
+            const tower = this.towersById.get(deployment.towerId);
+            if (!tower) throw new Error(`战斗运行时未知塔种：${deployment.towerId}`);
             const cooldown = (this.towerCooldowns.get(key) ?? 0) - deltaSeconds;
             if (cooldown > 0) {
                 this.towerCooldowns.set(key, cooldown);
                 continue;
             }
-            const towerCell = this.cellFromKey(key);
-            const target = this.pickTarget(towerCell, flowField);
+            const towerCell = deployment.cell;
+            const target = this.pickTarget(towerCell, tower, flowField);
             if (!target) {
                 this.towerCooldowns.set(key, 0);
                 continue;
             }
-            const damage = Math.min(target.health, this.tower.damage);
+            const damage = Math.min(target.health, tower.damage);
             target.health -= damage;
+            const appliedSlow = target.health > 0 && tower.effect?.kind === 'slow';
+            if (appliedSlow && tower.effect) {
+                // 多座减速塔只刷新时长并取更强倍率，禁止效果相乘把敌人永久钉死。
+                target.slowMultiplier = Math.min(target.slowMultiplier, tower.effect.speedMultiplier);
+                target.slowRemainingSeconds = Math.max(target.slowRemainingSeconds, tower.effect.durationSeconds);
+            }
             shots.push({
                 towerCell,
+                towerId: tower.id,
                 targetId: target.id,
                 targetPoint: this.enemyPoint(target),
                 damage,
                 lethal: target.health <= 0,
+                appliedSlow,
             });
             // 保留本帧越过冷却零点的余量，避免 20/30/60 FPS 下累计射速不同。
-            this.towerCooldowns.set(key, this.tower.attackIntervalSeconds + cooldown);
+            this.towerCooldowns.set(key, tower.attackIntervalSeconds + cooldown);
             if (target.health <= 0 && !killed.some((enemy) => enemy.id === target.id)) killed.push(target);
         }
         if (killed.length > 0) {
@@ -225,18 +264,18 @@ export class WaveCombatRuntime {
             this.activeEnemies = this.activeEnemies.filter((enemy) => !killedIds.has(enemy.id));
         }
         for (const key of [...this.towerCooldowns.keys()]) {
-            if (!towerKeys.has(key)) this.towerCooldowns.delete(key);
+            if (!activeTowerKeys.has(key)) this.towerCooldowns.delete(key);
         }
         return { shots, killed };
     }
 
-    private pickTarget(towerCell: GridCell, flowField: FlowField): CombatEnemy | null {
+    private pickTarget(towerCell: GridCell, tower: TowerArchetype, flowField: FlowField): CombatEnemy | null {
         const candidates = this.activeEnemies.filter((enemy) => {
             // 同一帧内前一座塔可能已击杀目标，后续塔只从仍存活的敌人中重新选敌。
             if (enemy.health <= 0) return false;
             const x = enemy.fromCell.column + (enemy.toCell.column - enemy.fromCell.column) * enemy.progress;
             const y = enemy.fromCell.row + (enemy.toCell.row - enemy.fromCell.row) * enemy.progress;
-            return Math.hypot(x - towerCell.column, y - towerCell.row) <= this.tower.rangeCells;
+            return Math.hypot(x - towerCell.column, y - towerCell.row) <= tower.rangeCells;
         });
         candidates.sort((left, right) => {
             // 先攻击沿当前路线最接近出口的敌人；并列时保留进入战场顺序，避免目标抖动。

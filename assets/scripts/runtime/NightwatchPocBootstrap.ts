@@ -12,8 +12,8 @@ import {
     view,
 } from 'cc';
 import { PHASE_A_FIXTURES } from '../config/PhaseAFixtures';
-import { DEFAULT_GRID_ID, PHASE_A_GRIDS, PHASE_A_INITIAL_GOLD, PHASE_A_TOWER_COST } from '../config/PhaseAGrids';
-import { PHASE_B_WAVES, RIVET_GUN } from '../config/PhaseBCombatConfig';
+import { DEFAULT_GRID_ID, PHASE_A_GRIDS, PHASE_A_INITIAL_GOLD } from '../config/PhaseAGrids';
+import { PHASE_B_TOWERS, PHASE_B_WAVES, type TowerId } from '../config/PhaseBCombatConfig';
 import { cellKey, sameCell, type EnemyRouteState, type GridCell, type GridId } from '../core/GridTypes';
 import { PhaseBDebugInput, type PhaseBDebugAction } from '../input/PhaseBDebugInput';
 import { buildBattleResultViewModel } from '../presentation/BattleResultViewModel';
@@ -25,10 +25,11 @@ import {
     PHASE_B_DESIGN_HEIGHT,
     PHASE_B_DESIGN_WIDTH,
     PHASE_B_EARLY_WAVE_BUTTON,
+    PHASE_B_FROST_BUTTON,
     PHASE_B_GRID_TABS,
     PHASE_B_RESULT_RESTART_BUTTON,
     PHASE_B_SPEED_BUTTON,
-    PHASE_B_TOWER_BUTTON,
+    PHASE_B_RIVET_BUTTON,
     PhaseBLayout,
 } from '../presentation/PhaseBLayout';
 import { BattleRunCheckpoint } from '../systems/BattleRunCheckpoint';
@@ -50,12 +51,13 @@ export class NightwatchPocBootstrap extends Component {
     private hud: PhaseBHudView | null = null;
     private readonly waves = new WaveCatalog(PHASE_B_WAVES);
     private economy = new EconomyLedger(PHASE_A_INITIAL_GOLD);
-    private model = new PlacementModel(PHASE_A_GRIDS[DEFAULT_GRID_ID], this.economy, PHASE_A_TOWER_COST);
+    private model = new PlacementModel(PHASE_A_GRIDS[DEFAULT_GRID_ID], this.economy, PHASE_B_TOWERS);
     private battle = new BattleStateMachine(this.waves.totalWaves);
-    private combat = new WaveCombatRuntime(PHASE_A_GRIDS[DEFAULT_GRID_ID], RIVET_GUN);
+    private combat = new WaveCombatRuntime(PHASE_A_GRIDS[DEFAULT_GRID_ID], PHASE_B_TOWERS);
     private readonly feedback = new CombatFeedbackRuntime();
     private readonly simulationClock = new SimulationClock();
     private selectedGridId: GridId = DEFAULT_GRID_ID;
+    private selectedTowerId: TowerId = 'rivet-gun';
     private preview: PlacementPreview | null = null;
     private inputMode: InputMode = 'idle';
     private primaryTouchId: number | null = null;
@@ -143,13 +145,23 @@ export class NightwatchPocBootstrap extends Component {
             this.primaryTouchId = null;
             return;
         }
-        if (this.layout.insideRect(point, PHASE_B_TOWER_BUTTON)) {
-            this.inputMode = 'tower-pressed';
-            this.preview = null;
-            this.statusText = '拖到网格落塔；轻点则进入点击建塔';
+        if (this.layout.insideRect(point, PHASE_B_RIVET_BUTTON)) {
+            this.selectTower('rivet-gun');
+            this.beginTowerInput();
+            return;
+        }
+        if (this.layout.insideRect(point, PHASE_B_FROST_BUTTON)) {
+            this.selectTower('frost-coil');
+            this.beginTowerInput();
             return;
         }
         this.handleGridTap(point);
+    }
+
+    private beginTowerInput(): void {
+        this.inputMode = 'tower-pressed';
+        this.preview = null;
+        this.statusText = `${this.selectedTowerLabel()}：拖到网格落塔；轻点则进入点击建塔`;
     }
 
     private onTouchMove(event: EventTouch): void {
@@ -225,6 +237,9 @@ export class NightwatchPocBootstrap extends Component {
         else if (action === 'apply-short') this.applyFixture('shortFold');
         else if (action === 'apply-long') this.applyFixture('longSnake');
         else if (action === 'apply-failure') this.applyFixture('shortFold', 2);
+        else if (action === 'apply-mixed') this.applyMixedFixture();
+        else if (action === 'select-rivet') this.selectTower('rivet-gun');
+        else if (action === 'select-frost') this.selectTower('frost-coil');
         else if (action === 'restart-run') this.restartFromCheckpoint();
         else if (action === 'toggle-speed') this.toggleSpeed();
         else if (action === 'start-next-wave') this.startNextWaveEarly();
@@ -253,7 +268,7 @@ export class NightwatchPocBootstrap extends Component {
         }
         const pathDelta = this.currentPathDelta();
         // 先生成无副作用检查点，再推进状态机，避免快照失败留下“已开波但运行时未启动”的半状态。
-        const checkpoint = BattleRunCheckpoint.capture(this.model, PHASE_A_TOWER_COST);
+        const checkpoint = BattleRunCheckpoint.capture(this.model);
         const start = this.battle.startFirstWave(this.model.towers.size, pathDelta);
         if (!start.accepted) {
             this.statusText = start.reason === 'needs-two-towers'
@@ -283,7 +298,7 @@ export class NightwatchPocBootstrap extends Component {
         const cell = this.pointToCell(point);
         if (!cell) return;
         if (this.inputMode === 'armed') {
-            this.preview = this.model.preview(cell, this.enemyStates());
+            this.preview = this.model.preview(cell, this.enemyStates(), this.selectedTowerId);
             this.inputMode = 'click-preview';
             this.statusText = this.preview.accepted ? '预览合法：再点同一格提交' : this.rejectText(this.preview.reason);
             return;
@@ -291,7 +306,7 @@ export class NightwatchPocBootstrap extends Component {
         if (this.inputMode === 'click-preview') {
             if (this.preview && sameCell(this.preview.cell, cell)) this.commitCurrentPreview();
             else {
-                this.preview = this.model.preview(cell, this.enemyStates());
+                this.preview = this.model.preview(cell, this.enemyStates(), this.selectedTowerId);
                 this.statusText = this.preview.accepted ? '已更换预览格：再点同一格提交' : this.rejectText(this.preview.reason);
             }
             return;
@@ -310,7 +325,7 @@ export class NightwatchPocBootstrap extends Component {
             return;
         }
         if (this.preview && sameCell(this.preview.cell, cell)) return;
-        this.preview = this.model.preview(cell, this.enemyStates());
+        this.preview = this.model.preview(cell, this.enemyStates(), this.selectedTowerId);
         this.statusText = this.preview.accepted ? `合法落点 (${cell.column},${cell.row})` : this.rejectText(this.preview.reason);
     }
 
@@ -321,7 +336,7 @@ export class NightwatchPocBootstrap extends Component {
         }
         const result = this.model.commit(this.preview, this.enemyStates());
         this.statusText = result.accepted
-            ? `建造成功 · 金币 ${result.gold} · 地图版本 ${result.mapVersion}`
+            ? `${this.selectedTowerLabel()}建造成功 · 金币 ${result.gold} · 地图版本 ${result.mapVersion}`
             : this.rejectText(result.reason);
         this.preview = null;
         this.inputMode = 'idle';
@@ -343,11 +358,11 @@ export class NightwatchPocBootstrap extends Component {
     private resetGrid(initialGold = PHASE_A_INITIAL_GOLD, coreHealth = 10): void {
         const grid = PHASE_A_GRIDS[this.selectedGridId];
         this.economy = new EconomyLedger(initialGold);
-        this.model = new PlacementModel(grid, this.economy, PHASE_A_TOWER_COST);
+        this.model = new PlacementModel(grid, this.economy, PHASE_B_TOWERS);
         // 开战门槛以当前地图空场流场为基线，不能假设入口出口永远纵向对齐。
         this.initialPathLength = this.model.flowField.distanceAt(grid.entry);
         this.battle = new BattleStateMachine(this.waves.totalWaves, coreHealth);
-        this.combat = new WaveCombatRuntime(grid, RIVET_GUN);
+        this.combat = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
         this.initialCoreHealth = coreHealth;
         this.runCheckpoint = null;
         this.preparing = true;
@@ -360,11 +375,34 @@ export class NightwatchPocBootstrap extends Component {
         const cells = PHASE_A_FIXTURES[this.selectedGridId][kind];
         this.resetGrid(kind === 'longSnake' ? 450 : 120, coreHealth);
         for (const cell of cells) {
-            const preview = this.model.preview(cell, []);
+            const preview = this.model.preview(cell, [], 'rivet-gun');
             const result = this.model.commit(preview, []);
             if (!result.accepted) throw new Error(`${kind} fixture 无法提交：${result.reason}`);
         }
         this.statusText = `${kind === 'shortFold' ? '短折线' : '长蛇形'} fixture · 路径 ${this.model.flowField.distanceAt(this.model.grid.entry)} 格${coreHealth < 10 ? ' · 失败回归' : ''}`;
+    }
+
+    private applyMixedFixture(): void {
+        const cells = PHASE_A_FIXTURES[this.selectedGridId].shortFold;
+        this.resetGrid(140);
+        for (let index = 0; index < cells.length; index += 1) {
+            const towerId: TowerId = index === 0 ? 'frost-coil' : 'rivet-gun';
+            const result = this.model.commit(this.model.preview(cells[index], [], towerId), []);
+            if (!result.accepted) throw new Error(`mixed fixture 无法提交：${result.reason}`);
+        }
+        this.selectedTowerId = 'frost-coil';
+        this.statusText = `混合塔组 fixture · 冷凝前置 + 3 机枪 · 路径 ${this.model.flowField.distanceAt(this.model.grid.entry)} 格`;
+    }
+
+    private selectTower(towerId: TowerId): void {
+        this.selectedTowerId = towerId;
+        this.preview = null;
+        this.inputMode = 'idle';
+        this.statusText = `已选择${this.selectedTowerLabel()} · ${towerId === 'frost-coil' ? '减速 45%，持续 1.2 秒' : '稳定单体输出'}`;
+    }
+
+    private selectedTowerLabel(): string {
+        return this.selectedTowerId === 'frost-coil' ? '冷凝塔' : '机枪塔';
     }
 
     private restartFromCheckpoint(): void {
@@ -375,7 +413,7 @@ export class NightwatchPocBootstrap extends Component {
         this.model = restored.model;
         this.selectedGridId = restored.model.grid.id;
         this.battle = new BattleStateMachine(this.waves.totalWaves, this.initialCoreHealth);
-        this.combat = new WaveCombatRuntime(restored.model.grid, RIVET_GUN);
+        this.combat = new WaveCombatRuntime(restored.model.grid, PHASE_B_TOWERS);
         this.feedback.clear();
         this.preparing = true;
         this.pausedByLifecycle = false;
@@ -396,7 +434,7 @@ export class NightwatchPocBootstrap extends Component {
     }
 
     private advanceCombat(deltaTime: number): void {
-        const result = this.combat.tick(deltaTime, this.model.flowField, this.model.towers);
+        const result = this.combat.tick(deltaTime, this.model.flowField, this.model.deployments);
         this.feedback.consume(result);
         for (const killed of result.killed) {
             this.economy.credit(killed.archetype.killReward);
@@ -442,12 +480,14 @@ export class NightwatchPocBootstrap extends Component {
             selectedGridId: this.selectedGridId,
             grid: this.model.grid,
             towers: this.model.towers,
+            towerIdsByCell: new Map(this.model.deployments.map(({ cell, towerId }) => [cellKey(cell), towerId])),
             activePath,
             preview: this.preview,
             enemies: this.combat.enemies,
             feedback: this.feedback.snapshot,
             gold: this.model.gold,
             speedMultiplier: this.simulationClock.scale,
+            selectedTowerId: this.selectedTowerId,
             canStartNextWaveEarly: battle.phase === 'countdown',
             showPlayControl: this.preparing || this.battle.snapshot.phase === 'paused',
             result,
@@ -466,6 +506,7 @@ export class NightwatchPocBootstrap extends Component {
             speedMultiplier: this.simulationClock.scale,
             canStartNextWaveEarly: battle.phase === 'countdown',
             countdownSeconds: battle.countdownSeconds,
+            selectedTowerId: this.selectedTowerId,
             result,
         });
         this.publishBrowserDiagnostics();
@@ -476,6 +517,10 @@ export class NightwatchPocBootstrap extends Component {
             ? this.preview.path.length - 1
             : this.model.flowField.distanceAt(this.model.grid.entry);
         const result = this.resultViewModel();
+        const deployments = this.model.deployments;
+        const rivetTowerCount = deployments.filter(({ towerId }) => towerId === 'rivet-gun').length;
+        const frostTowerCount = deployments.filter(({ towerId }) => towerId === 'frost-coil').length;
+        const slowedEnemyCount = this.combat.enemies.filter(({ slowRemainingSeconds }) => slowRemainingSeconds > 0).length;
         this.browserDiagnostics.publish({
             gridId: this.selectedGridId,
             columns: this.model.grid.columns,
@@ -483,6 +528,10 @@ export class NightwatchPocBootstrap extends Component {
             gold: this.model.gold,
             mapVersion: this.model.mapVersion,
             towerCount: this.model.towers.size,
+            rivetTowerCount,
+            frostTowerCount,
+            selectedTowerId: this.selectedTowerId,
+            slowedEnemyCount,
             pathLength,
             pathDelta: this.currentPathDelta(),
             phase: this.battle.snapshot.phase,
@@ -506,7 +555,7 @@ export class NightwatchPocBootstrap extends Component {
         },
             result
                 ? `${result.title}，${result.summary.replace('\n', '，')}，${result.actionLabel}`
-                : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，速度${this.simulationClock.scale}倍，${this.battle.snapshot.phase === 'countdown' ? '可提前开波' : '提前开波未激活'}，${this.statusText}`,
+                : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，机枪${rivetTowerCount}座，冷凝${frostTowerCount}座，减速中${slowedEnemyCount}名，已选${this.selectedTowerLabel()}，速度${this.simulationClock.scale}倍，${this.battle.snapshot.phase === 'countdown' ? '可提前开波' : '提前开波未激活'}，${this.statusText}`,
         );
     }
 

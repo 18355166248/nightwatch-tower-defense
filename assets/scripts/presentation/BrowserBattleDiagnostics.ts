@@ -5,6 +5,10 @@ export interface BrowserBattleDiagnosticsState {
     readonly gold: number;
     readonly mapVersion: number;
     readonly towerCount: number;
+    readonly rivetTowerCount: number;
+    readonly frostTowerCount: number;
+    readonly selectedTowerId: string;
+    readonly slowedEnemyCount: number;
     readonly pathLength: number;
     readonly pathDelta: number;
     readonly phase: string;
