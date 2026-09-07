@@ -26,7 +26,7 @@
 
 ## 3. 单局竖切
 
-Phase B 首波竖切已接入右侧浏览器运行时：8 名发条步兵按配置生成，机枪塔按“最接近出口、生成顺序”稳定索敌，击杀回款进入共享经济账本，漏怪由战斗状态机统一扣核心。弹道、命中、死亡、奖励和核心受损由独立表现层消费只读事件。首波造路门禁、暂停/恢复、胜负结算与重新部署均已回归通过；布局、战场 Renderer、HUD 和浏览器 QA 适配已从场景 Bootstrap 中拆分。8 波流程和波间倒计时仍只在规则层覆盖。证据见 `docs/poc/phase-b-wave-one-regression.md`、`docs/poc/phase-b-result-loop-regression.md`、`docs/poc/phase-b-architecture-split-regression.md` 与 `docs/poc/phase-b-renderer-split-regression.md`。
+Phase B 灰盒已接入浏览器运行时：发条步兵按配置生成，机枪塔按“最接近出口、生成顺序”稳定索敌，击杀回款进入共享经济账本，漏怪由战斗状态机统一扣核心。弹道、命中、死亡、奖励和核心受损由独立表现层消费只读事件。造路门禁、暂停/恢复、胜负结算与重新部署均已回归通过；布局、战场 Renderer、HUD 和浏览器 QA 适配已从场景 Bootstrap 中拆分。8 波配置、8 秒波间倒计时和提前开波已接入；第一波到第二波的浏览器链路通过，完整八波通关平衡仍待后续塔种与敌人变体完成后收敛。证据见 `docs/poc/phase-b-wave-one-regression.md`、`docs/poc/phase-b-eight-wave-transition-regression.md`、`docs/poc/phase-b-result-loop-regression.md`、`docs/poc/phase-b-architecture-split-regression.md` 与 `docs/poc/phase-b-renderer-split-regression.md`。
 
 ## 4. 移动端输入与生命周期
 
@@ -50,9 +50,10 @@ Phase B 首波竖切已接入右侧浏览器运行时：8 名发条步兵按配�
 ## 6. Phase B 当前结论
 
 - 已验证：第一波 8 敌人生成、路径运动、稳定索敌、伤害、击杀奖励、暂停冻结、恢复和胜利结算；短折线冻结为 6 杀 2 漏、核心剩余 8。
+- 已验证：8 波配置连续性、单波完成交接、8 秒波间倒计时和提前开波；浏览器实测第一波清场后保持核心 8，倒计时中可直接进入第二波且累计统计连续。
 - 已验证：空场开战被“两座塔”门禁拒绝；短折线 fixture 满足 4 塔、路径 +4 后允许开战。
 - 已验证：弹道、命中环、死亡消散、奖励金币和核心受损反馈可见，表现生命周期不修改战斗模拟。
-- 已验证：20/30/60 FPS 三档规则模拟结果一致；Cocos Web Mobile 发布构建通过，右侧浏览器控制台 0 error / 0 warning。
+- 已验证：20/30/60 FPS 三档规则模拟结果一致；21 条规则测试和 Cocos Web Mobile 调试构建通过；八波过渡在主机 Chrome 控制台 0 error / 0 warning。右侧内嵌标签本轮因错误页导航策略无法恢复，未冒充为通过。
 - 已验证：胜利与失败使用同一结算视图模型；结算层独占输入，重新部署恢复开战前 4 塔、金币 0、路径 16 的检查点，不带回本轮 24 金币收益。
 - 已验证：发布构建中的 `Set` 快照显式使用 `Array.from`，规避 Cocos loose Babel 对 iterable spread 的不兼容。
-- 未验证：玩家首次理解、后续波次、最终数值平衡、正式素材、音效与发布性能。
+- 未验证：玩家首次理解、第三至第八波浏览器通关、最终数值平衡、第二塔种、敌人变体、正式素材、音效与发布性能。

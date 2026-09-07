@@ -48,9 +48,9 @@ export class PhaseBHudView {
         this.resultActionLabel.node.active = Boolean(result);
 
         if (!result) {
-            this.titleLabel.string = '夜城防线 · Phase B 第一波灰盒';
+            this.titleLabel.string = '夜城防线 · Phase B 八波灰盒';
             this.statusLabel.string = `${state.statusText}\n金币 ${state.gold} · 路径 ${state.pathLength} 格 · 波次 ${state.wave}/${state.totalWaves} · 核心 ${state.coreHealth} · ${state.phaseText}`;
-            this.helpLabel.string = '先建 2 塔且路径 +2｜↻重置 ▷开波/暂停｜F/G/H样例 R重置 Enter重试｜底部机枪塔';
+            this.helpLabel.string = '先建 2 塔且路径 +2｜倒计时可提前开波｜F/G/H样例 R重置 Enter重试｜底部机枪塔';
             return;
         }
         this.resultTitleLabel.string = result.title;

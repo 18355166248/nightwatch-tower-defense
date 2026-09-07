@@ -9,6 +9,8 @@ export interface BrowserBattleDiagnosticsState {
     readonly pathDelta: number;
     readonly phase: string;
     readonly wave: number;
+    readonly totalWaves: number;
+    readonly countdownSeconds: number;
     readonly coreHealth: number;
     readonly activeEnemyCount: number;
     readonly spawningCompleted: boolean;

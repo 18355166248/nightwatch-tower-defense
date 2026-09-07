@@ -37,7 +37,15 @@ export const RIVET_GUN: TowerArchetype = {
     attackIntervalSeconds: 0.35,
 };
 
-export const PHASE_B_WAVE_ONE: WaveDefinition = {
-    wave: 1,
-    groups: [{ enemy: CLOCKWORK_INFANTRY, count: 8, spawnIntervalSeconds: 0.6 }],
-};
+export const PHASE_B_WAVES: readonly WaveDefinition[] = [
+    { wave: 1, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 8, spawnIntervalSeconds: 0.6 }] },
+    { wave: 2, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 8, spawnIntervalSeconds: 0.58 }] },
+    { wave: 3, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 10, spawnIntervalSeconds: 0.56 }] },
+    { wave: 4, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 10, spawnIntervalSeconds: 0.54 }] },
+    { wave: 5, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 12, spawnIntervalSeconds: 0.52 }] },
+    { wave: 6, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 12, spawnIntervalSeconds: 0.5 }] },
+    { wave: 7, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 14, spawnIntervalSeconds: 0.48 }] },
+    { wave: 8, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 16, spawnIntervalSeconds: 0.46 }] },
+];
+
+export const PHASE_B_WAVE_ONE = PHASE_B_WAVES[0];

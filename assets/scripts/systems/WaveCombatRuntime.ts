@@ -70,13 +70,28 @@ export class WaveCombatRuntime {
     }
 
     public start(wave: WaveDefinition): void {
-        if (this.wave || this.activeEnemies.length > 0) throw new Error('上一波未清空，不能启动新波次');
+        if (this.wave || this.spawningCompleted || this.activeEnemies.length > 0) {
+            throw new Error('上一波未完成清场交接，不能启动新波次');
+        }
         if (wave.groups.length === 0) throw new Error('波次至少需要一个敌人分组');
         this.wave = wave;
         this.groupIndex = 0;
         this.spawnedInGroup = 0;
         this.spawnCountdown = 0;
         this.spawningCompleted = false;
+    }
+
+    public completeWave(): void {
+        if (!this.spawningCompleted || this.activeEnemies.length > 0) {
+            throw new Error('只有完成生成且清场后才能结束当前波次');
+        }
+        // 波间休整清掉单波生成状态与炮塔冷却，但保留整局累计统计和敌人序号。
+        this.wave = null;
+        this.groupIndex = 0;
+        this.spawnedInGroup = 0;
+        this.spawnCountdown = 0;
+        this.spawningCompleted = false;
+        this.towerCooldowns.clear();
     }
 
     public reset(): void {

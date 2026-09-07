@@ -90,6 +90,15 @@ export class BattleStateMachine {
         this.currentPhase = 'spawning';
     }
 
+    public startNextWaveEarly(): boolean {
+        if (this.currentPhase !== 'countdown') return false;
+        // 提前开波与自然倒计时使用相同的目标状态，调用方只需走统一的波次启动入口。
+        this.remainingCountdown = 0;
+        this.currentWave += 1;
+        this.currentPhase = 'spawning';
+        return true;
+    }
+
     public pause(): boolean {
         if (this.currentPhase === 'paused' || this.currentPhase === 'preparing'
             || this.currentPhase === 'victory' || this.currentPhase === 'defeat') return false;

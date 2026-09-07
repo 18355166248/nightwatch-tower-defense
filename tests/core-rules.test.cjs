@@ -4,7 +4,7 @@ const { readFileSync } = require('node:fs');
 const { resolve } = require('node:path');
 
 const { PHASE_A_GRIDS, PHASE_A_TOWER_COST } = require('../.test-dist/config/PhaseAGrids.js');
-const { PHASE_B_WAVE_ONE, RIVET_GUN } = require('../.test-dist/config/PhaseBCombatConfig.js');
+const { PHASE_B_WAVES, PHASE_B_WAVE_ONE, RIVET_GUN } = require('../.test-dist/config/PhaseBCombatConfig.js');
 const { cellKey } = require('../.test-dist/core/GridTypes.js');
 const { FlowField } = require('../.test-dist/systems/FlowField.js');
 const { PlacementModel } = require('../.test-dist/systems/PlacementModel.js');
@@ -13,6 +13,7 @@ const { BattleStateMachine } = require('../.test-dist/systems/BattleStateMachine
 const { EconomyLedger } = require('../.test-dist/systems/EconomyLedger.js');
 const { BattleRunCheckpoint } = require('../.test-dist/systems/BattleRunCheckpoint.js');
 const { WaveCombatRuntime } = require('../.test-dist/systems/WaveCombatRuntime.js');
+const { WaveCatalog } = require('../.test-dist/systems/WaveCatalog.js');
 const { buildBattleResultViewModel } = require('../.test-dist/presentation/BattleResultViewModel.js');
 const { countCombatFeedback, CombatFeedbackRuntime } = require('../.test-dist/presentation/CombatFeedbackRuntime.js');
 const { PhaseBLayout } = require('../.test-dist/presentation/PhaseBLayout.js');
@@ -36,6 +37,17 @@ test('战场布局让绘制中心点与输入命中使用同一套网格换算',
     }
     assert.equal(layout.pointToCell({ x: metrics.left - 0.01, y: 0 }, grid), null);
     assert.equal(layout.pointToCell({ x: 0, y: metrics.bottom - 0.01 }, grid), null);
+});
+
+test('八波目录连续可索引且保留第一波冻结配置', () => {
+    const catalog = new WaveCatalog(PHASE_B_WAVES);
+    assert.equal(catalog.totalWaves, 8);
+    assert.equal(catalog.get(1), PHASE_B_WAVE_ONE);
+    assert.deepEqual(PHASE_B_WAVE_ONE.groups.map(({ count, spawnIntervalSeconds }) => ({ count, spawnIntervalSeconds })), [
+        { count: 8, spawnIntervalSeconds: 0.6 },
+    ]);
+    assert.throws(() => new WaveCatalog([PHASE_B_WAVES[1]]), /连续编号/);
+    assert.throws(() => catalog.get(9), /不存在第 9 波/);
 });
 
 test('三种候选网格的初始、短折线和长蛇形 fixture 与冻结值一致', () => {
@@ -188,6 +200,16 @@ test('波次不重叠，清场后完整保留 8 秒倒计时', () => {
     assert.deepEqual(battle.snapshot, { phase: 'spawning', wave: 2, coreHealth: 10, countdownSeconds: 0 });
 });
 
+test('倒计时允许提前开下一波且不能在其他阶段误触发', () => {
+    const battle = new BattleStateMachine();
+    assert.equal(battle.startNextWaveEarly(), false);
+    battle.startFirstWave(2, 2);
+    battle.markSpawningComplete(0);
+    assert.equal(battle.startNextWaveEarly(), true);
+    assert.deepEqual(battle.snapshot, { phase: 'spawning', wave: 2, coreHealth: 10, countdownSeconds: 0 });
+    assert.equal(battle.startNextWaveEarly(), false);
+});
+
 test('暂停恢复原阶段和剩余倒计时', () => {
     const battle = new BattleStateMachine();
     battle.startFirstWave(2, 2);
@@ -269,6 +291,10 @@ test('波次运行时按冻结间隔生成，塔优先攻击接近出口的敌�
     assert.equal(second.spawningCompleted, true);
     assert.equal(runtime.enemies.length, 0);
     assert.deepEqual(runtime.totals, { spawned: 2, killed: 2, leaked: 0 });
+    runtime.completeWave();
+    runtime.start({ wave: 2, groups: [{ enemy, count: 1, spawnIntervalSeconds: 0.9 }] });
+    runtime.tick(0, flow, towers);
+    assert.deepEqual(runtime.totals, { spawned: 3, killed: 3, leaked: 0 });
 });
 
 test('敌人到达出口只上报漏怪，不在运行时内直接修改核心生命', () => {
