@@ -1,9 +1,10 @@
 import { Color, Graphics } from 'cc';
 import { FROST_COIL, RIVET_GUN } from '../config/PhaseBCombatConfig';
-import { cellKey, sameCell, type GridDefinition } from '../core/GridTypes';
+import { cellKey, type GridDefinition } from '../core/GridTypes';
 import type { BattleResultViewModel } from './BattleResultViewModel';
 import type { PhaseBSceneState } from './PhaseBSceneState';
 import { CoreObjectiveView } from './CoreObjectiveView';
+import { BattlefieldSurfaceView } from './BattlefieldSurfaceView';
 import {
     PHASE_B_GRID_TABS,
     PHASE_B_FROST_BUTTON,
@@ -23,12 +24,14 @@ import {
  */
 export class PhaseBCanvasRenderer {
     private readonly coreObjective: CoreObjectiveView;
+    private readonly battlefieldSurface: BattlefieldSurfaceView;
 
     public constructor(
         private readonly graphics: Graphics,
         private readonly layout: PhaseBLayout,
     ) {
         this.coreObjective = new CoreObjectiveView(graphics, layout);
+        this.battlefieldSurface = new BattlefieldSurfaceView(graphics, layout);
     }
 
     public render(state: PhaseBSceneState): void {
@@ -86,51 +89,12 @@ export class PhaseBCanvasRenderer {
     private drawBoard(state: PhaseBSceneState): void {
         const graphics = this.graphics;
         const metrics = this.layout.boardMetrics(state.grid);
-        const activePath = state.activePath;
-        const pathCells = new Set(activePath?.map(cellKey) ?? []);
-
-        // 战场边框与道路使用同一格子坐标；正式素材接入前先保证路径在手机尺寸下可辨认。
-        graphics.fillColor = new Color('#495663');
-        graphics.roundRect(metrics.left - 14, metrics.bottom - 14, metrics.width + 28, metrics.height + 28, 13);
-        graphics.fill();
-
-        if (activePath && activePath.length > 1) {
-            graphics.strokeColor = state.preview?.accepted ? new Color('#5FE1A2') : new Color('#5E8FC6');
-            graphics.lineWidth = Math.max(10, metrics.cellSize * 0.18);
-            const first = this.center(activePath[0], state.grid);
-            graphics.moveTo(first.x, first.y);
-            for (let index = 1; index < activePath.length; index += 1) {
-                const point = this.center(activePath[index], state.grid);
-                graphics.lineTo(point.x, point.y);
-            }
-            graphics.stroke();
-        }
-
-        for (let row = 0; row < state.grid.rows; row += 1) {
-            for (let column = 0; column < state.grid.columns; column += 1) {
-                const cell = { column, row };
-                const center = this.center(cell, state.grid);
-                const half = metrics.cellSize / 2;
-                let fill = pathCells.has(cellKey(cell))
-                    ? new Color(150, 166, 151, 195)
-                    : new Color(55, 84, 105, 120);
-                if (sameCell(cell, state.grid.entry)) fill = new Color('#5678D4');
-                else if (sameCell(cell, state.grid.exit)) fill = new Color('#D65F5F');
-                else if (state.towerIdsByCell.get(cellKey(cell)) === 'frost-coil') fill = new Color('#62BCD0');
-                else if (state.towers.has(cellKey(cell))) fill = new Color('#D5A84B');
-                if (state.preview && sameCell(cell, state.preview.cell)) {
-                    fill = state.preview.accepted ? new Color('#45C486') : new Color('#E05252');
-                }
-                graphics.fillColor = fill;
-                graphics.rect(center.x - half + 3, center.y - half + 3, metrics.cellSize - 6, metrics.cellSize - 6);
-                graphics.fill();
-                graphics.strokeColor = new Color(16, 30, 43, 85);
-                graphics.lineWidth = 1;
-                graphics.rect(center.x - half, center.y - half, metrics.cellSize, metrics.cellSize);
-                graphics.stroke();
-                if (!state.useUnitSprites && state.towers.has(cellKey(cell))) {
-                    this.drawTower(center, metrics.cellSize, state.towerIdsByCell.get(cellKey(cell)) === 'frost-coil');
-                }
+        this.battlefieldSurface.draw(state);
+        if (!state.useUnitSprites) {
+            for (const key of Array.from(state.towers)) {
+                const [column, row] = key.split(',').map(Number);
+                const center = this.center({ column, row }, state.grid);
+                this.drawTower(center, metrics.cellSize, state.towerIdsByCell.get(key) === 'frost-coil');
             }
         }
 

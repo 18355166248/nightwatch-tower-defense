@@ -22,6 +22,7 @@
     "assets/scripts/presentation/PhaseBUnitSpriteView.ts",
     "assets/scripts/presentation/FirstLevelExperienceView.ts",
     "assets/scripts/presentation/PhaseBCanvasRenderer.ts",
+    "assets/scripts/presentation/BattlefieldSurfaceView.ts",
     "assets/scripts/presentation/CoreObjectiveView.ts"
   ]
 }
