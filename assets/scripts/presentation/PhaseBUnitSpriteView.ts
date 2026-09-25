@@ -1,7 +1,8 @@
 import { Color, Graphics, isValid, Node, resources, Sprite, SpriteFrame, UIOpacity, UITransform } from 'cc';
-import { cellKey, type GridCell } from '../core/GridTypes';
+import type { GridCell } from '../core/GridTypes';
 import { PHASE_B_DESIGN_HEIGHT, PHASE_B_DESIGN_WIDTH, PhaseBLayout } from './PhaseBLayout';
 import type { PhaseBSceneState } from './PhaseBSceneState';
+import { enemyVisualOffset } from './UnitVisualMotion';
 
 const UNIT_ASSETS = {
     'rivet-gun': 'level-one/units/rivet-gun/spriteFrame',
@@ -15,10 +16,12 @@ export class PhaseBUnitSpriteView {
     private readonly root = new Node('FirstLevelUnitSprites');
     private readonly towerLayer = new Node('TowerSprites');
     private readonly enemyLayer = new Node('EnemySprites');
+    private readonly deathLayer = new Node('DeathSprites');
     private readonly shopLayer = new Node('ShopSprites');
     private readonly frames = new Map<UnitArtId, SpriteFrame>();
     private readonly towers = new Map<string, Node>();
     private readonly enemies = new Map<string, Node>();
+    private readonly deaths = new Map<string, Node>();
     private readonly layout: PhaseBLayout;
     private readonly preview: Node;
 
@@ -27,7 +30,7 @@ export class PhaseBUnitSpriteView {
         this.root.layer = parent.layer;
         this.root.addComponent(UITransform).setContentSize(PHASE_B_DESIGN_WIDTH, PHASE_B_DESIGN_HEIGHT);
         parent.addChild(this.root);
-        for (const layer of [this.towerLayer, this.enemyLayer, this.shopLayer]) {
+        for (const layer of [this.towerLayer, this.enemyLayer, this.deathLayer, this.shopLayer]) {
             layer.layer = parent.layer;
             this.root.addChild(layer);
         }
@@ -56,6 +59,7 @@ export class PhaseBUnitSpriteView {
         if (!this.root.active) return;
         this.renderTowers(state);
         this.renderEnemies(state);
+        this.renderDeaths(state);
         this.renderPreview(state);
         this.renderShop();
     }
@@ -79,17 +83,48 @@ export class PhaseBUnitSpriteView {
         const visible = new Set<string>();
         const frame = this.frames.get('clockwork-infantry');
         if (!frame) return;
+        const cellSize = this.layout.boardMetrics(state.grid).cellSize;
         for (const enemy of state.enemies) {
-            const node = this.ensureNode(this.enemies, enemy.id, this.enemyLayer, frame, 88);
+            const node = this.ensureNode(this.enemies, enemy.id, this.enemyLayer, frame, 78);
             this.renderEnemyIndicators(node, enemy);
             const from = this.layout.gridPointCenter(enemy.fromCell, state.grid);
             const to = this.layout.gridPointCenter(enemy.toCell, state.grid);
             const x = from.x + (to.x - from.x) * enemy.progress;
             const y = from.y + (to.y - from.y) * enemy.progress;
-            node.setPosition(x, y, 0);
+            const offset = enemyVisualOffset(enemy.spawnOrder, cellSize);
+            node.setPosition(x + offset.x, y + offset.y, 0);
+            const hit = state.feedback.tracers.find((tracer) => tracer.targetId === enemy.id);
+            const life = hit ? hit.remainingSeconds / hit.durationSeconds : 0;
+            node.setScale(1 + life * 0.11, 1 - life * 0.07, 1);
+            const sprite = node.getComponent(Sprite);
+            if (sprite) sprite.color = hit
+                ? new Color(hit.towerId === 'frost-coil' ? '#C8F5FF' : '#FFE4B1')
+                : Color.WHITE;
             visible.add(enemy.id);
         }
         this.removeMissing(this.enemies, visible);
+    }
+
+    private renderDeaths(state: PhaseBSceneState): void {
+        const frame = this.frames.get('clockwork-infantry');
+        if (!frame) return;
+        const cellSize = this.layout.boardMetrics(state.grid).cellSize;
+        const visible = new Set<string>();
+        for (const death of state.feedback.deaths) {
+            const node = this.ensureNode(this.deaths, death.enemyId, this.deathLayer, frame, 78);
+            const point = this.layout.gridPointCenter(death.point, state.grid);
+            const offset = enemyVisualOffset(death.spawnOrder, cellSize);
+            const progress = 1 - death.remainingSeconds / death.durationSeconds;
+            node.setPosition(point.x + offset.x, point.y + offset.y + progress * 18, 0);
+            node.setScale(1 + progress * 0.2, 1 - progress * 0.2, 1);
+            const sprite = node.getComponent(Sprite);
+            if (sprite) sprite.color = new Color('#FFD0A4');
+            let opacity = node.getComponent(UIOpacity);
+            if (!opacity) opacity = node.addComponent(UIOpacity);
+            opacity.opacity = Math.round(255 * (1 - progress));
+            visible.add(death.enemyId);
+        }
+        this.removeMissing(this.deaths, visible);
     }
 
     private renderEnemyIndicators(node: Node, enemy: PhaseBSceneState['enemies'][number]): void {

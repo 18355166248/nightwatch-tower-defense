@@ -19,6 +19,7 @@ const { SimulationClock } = require('../.test-dist/systems/SimulationClock.js');
 const { buildBattleResultViewModel } = require('../.test-dist/presentation/BattleResultViewModel.js');
 const { countCombatFeedback, CombatFeedbackRuntime } = require('../.test-dist/presentation/CombatFeedbackRuntime.js');
 const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGuidance.js');
+const { enemyVisualOffset } = require('../.test-dist/presentation/UnitVisualMotion.js');
 const {
     PHASE_B_EARLY_WAVE_BUTTON,
     PHASE_B_SPEED_BUTTON,
@@ -65,6 +66,17 @@ test('战场布局让绘制中心点与输入命中使用同一套网格换算',
     assert.equal(layout.insideRect({ x: 89, y: -812 }, PHASE_B_FROST_BUTTON), true);
     assert.equal(layout.insideRect({ x: 0, y: -812 }, PHASE_B_SPEED_BUTTON), false);
     assert.equal(layout.insideRect({ x: 0, y: -812 }, PHASE_B_EARLY_WAVE_BUTTON), false);
+});
+
+test('步兵视觉错位稳定且不超过单格范围，循环后不会累计漂移', () => {
+    assert.deepEqual(enemyVisualOffset(1, 100), { x: -17, y: -8 });
+    assert.deepEqual(enemyVisualOffset(2, 100), { x: 17, y: 8 });
+    assert.deepEqual(enemyVisualOffset(5, 100), enemyVisualOffset(1, 100));
+    for (let order = 1; order <= 90; order += 1) {
+        const offset = enemyVisualOffset(order, 85);
+        assert.ok(Math.abs(offset.x) < 85 / 4);
+        assert.ok(Math.abs(offset.y) < 85 / 4);
+    }
 });
 
 test('八波目录连续可索引且保留第一波冻结配置', () => {
@@ -429,7 +441,10 @@ test('战斗反馈消费只读事件，并在独立时间轴上自动回收', ()
     feedback.consume(result);
     assert.equal(countCombatFeedback(feedback.snapshot), 4);
     assert.equal(feedback.snapshot.tracers.length, 1);
+    assert.equal(feedback.snapshot.tracers[0].targetId, enemy.id);
     assert.equal(feedback.snapshot.deaths.length, 1);
+    assert.equal(feedback.snapshot.deaths[0].enemyId, enemy.id);
+    assert.equal(feedback.snapshot.deaths[0].spawnOrder, enemy.spawnOrder);
     assert.equal(feedback.snapshot.rewards[0].amount, 4);
     feedback.advance(0.17);
     assert.equal(feedback.snapshot.tracers.length, 0);

@@ -15,6 +15,7 @@ export interface PhaseBSceneState {
     readonly preview: { readonly accepted: boolean; readonly cell: GridCell; readonly towerId: TowerId } | null;
     readonly enemies: readonly {
         readonly id: string;
+        readonly spawnOrder: number;
         readonly health: number;
         readonly archetype: { readonly maxHealth: number };
         readonly fromCell: GridCell;

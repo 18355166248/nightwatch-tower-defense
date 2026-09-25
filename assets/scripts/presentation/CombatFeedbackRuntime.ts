@@ -9,6 +9,7 @@ export interface TimedFeedback {
 
 export interface TracerFeedback extends TimedFeedback {
     readonly origin: GridPoint;
+    readonly targetId: string;
     readonly damage: number;
     readonly lethal: boolean;
     readonly towerId: TowerId;
@@ -19,10 +20,15 @@ export interface RewardFeedback extends TimedFeedback {
     readonly amount: number;
 }
 
+export interface DeathFeedback extends TimedFeedback {
+    readonly enemyId: string;
+    readonly spawnOrder: number;
+}
+
 export interface CombatFeedbackSnapshot {
     readonly tracers: readonly TracerFeedback[];
     readonly impacts: readonly TimedFeedback[];
-    readonly deaths: readonly TimedFeedback[];
+    readonly deaths: readonly DeathFeedback[];
     readonly rewards: readonly RewardFeedback[];
     readonly coreHits: readonly TimedFeedback[];
 }
@@ -46,7 +52,7 @@ export function countCombatFeedback(snapshot: CombatFeedbackSnapshot): number {
 export class CombatFeedbackRuntime {
     private activeTracers: TracerFeedback[] = [];
     private activeImpacts: TimedFeedback[] = [];
-    private activeDeaths: TimedFeedback[] = [];
+    private activeDeaths: DeathFeedback[] = [];
     private activeRewards: RewardFeedback[] = [];
     private activeCoreHits: TimedFeedback[] = [];
 
@@ -63,7 +69,11 @@ export class CombatFeedbackRuntime {
     public consume(result: CombatTickResult): void {
         this.activeTracers.push(...result.shots.map((shot) => this.tracerFor(shot)));
         this.activeImpacts.push(...result.shots.map((shot) => this.timed(shot.targetPoint, IMPACT_SECONDS)));
-        this.activeDeaths.push(...result.killed.map((enemy) => this.timed(this.enemyPoint(enemy), DEATH_SECONDS)));
+        this.activeDeaths.push(...result.killed.map((enemy) => ({
+            ...this.timed(this.enemyPoint(enemy), DEATH_SECONDS),
+            enemyId: enemy.id,
+            spawnOrder: enemy.spawnOrder,
+        })));
         this.activeRewards.push(...result.killed.map((enemy) => ({
             ...this.timed(this.enemyPoint(enemy), REWARD_SECONDS),
             amount: enemy.archetype.killReward,
@@ -93,6 +103,7 @@ export class CombatFeedbackRuntime {
         return {
             ...this.timed(shot.targetPoint, TRACER_SECONDS),
             origin: { column: shot.towerCell.column, row: shot.towerCell.row },
+            targetId: shot.targetId,
             damage: shot.damage,
             lethal: shot.lethal,
             towerId: shot.towerId,
