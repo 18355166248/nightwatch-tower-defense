@@ -1,0 +1,59 @@
+docs/validation.md
+  s_57db2c01e7cdde::t_237937ce48c7a5 63-70
+assets/scripts/presentation/PhaseBCanvasRenderer.ts
+  s_57db2c01e7cdde::t_b874c1ec8f2278 109-114,133,146-147,151,188-216
+  s_57db2c01e7cdde::t_8453e68c72f75b 56,134-135
+  s_57db2c01e7cdde::t_146c9f5744db57 19,25,60-61,76,90-104,156-157,217-257,352-357
+  s_57db2c01e7cdde::t_4335a9c583364b 59,67-75
+  s_57db2c01e7cdde::t_1cbc9cae71da4b 77
+  s_57db2c01e7cdde::t_1011e28ebb3d84 158
+assets/scripts/presentation/PhaseBBackdropView.ts
+  s_57db2c01e7cdde::t_8453e68c72f75b 1-20
+docs/poc/phase-b-first-level-art-regression.md
+  s_57db2c01e7cdde::t_237937ce48c7a5 1-18
+tests/core-rules.test.cjs
+  s_57db2c01e7cdde::t_ff99e6fba5fcce 21,33-42
+  s_57db2c01e7cdde::t_7132cab94f34f1 43
+assets/resources/level-one/backdrop.jpg.meta
+  s_57db2c01e7cdde::t_1a94791118ae18 1-134
+tsconfig.test.json
+  s_57db2c01e7cdde::t_fd00e1f375b8ed 19
+assets/scripts/presentation/PhaseBHudView.ts
+  s_57db2c01e7cdde::t_b874c1ec8f2278 47,49-51,100,110,117
+  s_57db2c01e7cdde::t_db5e762d9df8b6 13-14,34-35,63,73-74,85,87-88,98-99
+README.md
+  s_57db2c01e7cdde::t_237937ce48c7a5 3
+  s_57db2c01e7cdde::t_b6fef674e87ce3 17,21,23,26
+docs/first-level-art.md
+  s_57db2c01e7cdde::t_b6fef674e87ce3 1-37
+assets/scripts/presentation/FirstLevelGuidance.ts
+  s_57db2c01e7cdde::t_146c9f5744db57 1-20
+assets/scripts/presentation/FirstLevelGuidance.ts.meta
+  s_57db2c01e7cdde::t_146c9f5744db57 1-9
+assets/scripts/presentation/PhaseBBackdropView.ts.meta
+  s_57db2c01e7cdde::t_8453e68c72f75b 1-9
+assets/scripts/runtime/NightwatchPocBootstrap.ts
+  s_57db2c01e7cdde::t_8453e68c72f75b 22,90,96-97
+  s_57db2c01e7cdde::t_4335a9c583364b 346-348,381
+  s_57db2c01e7cdde::t_db5e762d9df8b6 25,78,106-107,207,215,219,496,516-523
+assets/resources.meta
+  s_57db2c01e7cdde::t_5fd85ce45c769a 1-14
+assets/resources/level-one.meta
+  s_57db2c01e7cdde::t_3a4acc475b3957 1-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "f7c192d5bd73d57f79679c5335057dafa66853c1",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
