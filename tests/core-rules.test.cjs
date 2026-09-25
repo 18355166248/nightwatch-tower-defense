@@ -281,6 +281,19 @@ test('模拟时钟统一限制长帧并在 1x 与 2x 间循环', () => {
     assert.equal(clock.cycleScale(), 1);
     assert.throws(() => clock.gameDeltaSeconds(-1), /不能为负数/);
     assert.throws(() => new SimulationClock({ supportedScales: [] }), /正数倍率/);
+    assert.throws(() => new SimulationClock({ fixedStepSeconds: 0 }), /正数/);
+    const stepped = new SimulationClock();
+    let total = 0;
+    assert.equal(stepped.advance(1 / 30, (delta) => { total += delta; }), 2);
+    assert.ok(Math.abs(total - 1 / 30) < 1e-9);
+    assert.equal(stepped.advance(1 / 120, (delta) => { total += delta; }), 0);
+    assert.equal(stepped.advance(1 / 120, (delta) => { total += delta; }), 1);
+    stepped.reset();
+    assert.equal(stepped.advance(1 / 120, () => {}), 0);
+    stepped.cycleScale();
+    assert.equal(stepped.advance(1 / 30, () => {}), 4);
+    stepped.reset();
+    assert.equal(stepped.advance(3, () => {}), 6, '后台恢复的长帧最多只补 0.05 秒真实时间');
 });
 
 test('三种候选网格的初始、短折线和长蛇形 fixture 与冻结值一致', () => {
@@ -670,12 +683,14 @@ test('冷凝前置混合塔组在 20/30/60 FPS 下守住教学波并出现减速
     }
 });
 
-function replayFirstLevel(buildPlan) {
+function replayFirstLevel(buildPlan, frameDeltaSeconds = 1 / 30, speedScale = 1) {
     const grid = PHASE_A_GRIDS['grid-9x13'];
     const shortCells = toCells(fixtures.fixtures.find((item) => item.gridId === 'grid-9x13').shortFold.towerCells);
     const economy = new EconomyLedger(FIRST_LEVEL_STARTING_GOLD);
     const model = new PlacementModel(grid, economy, PHASE_B_TOWERS);
     const combat = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
+    const clock = new SimulationClock();
+    if (speedScale === 2) clock.cycleScale();
     const rewards = new WaveRewardRuntime();
     shortCells.forEach((cell) => {
         const towerId = FIRST_LEVEL_OPENING.find((item) => cellKey(item.cell) === cellKey(cell)).towerId;
@@ -689,11 +704,14 @@ function replayFirstLevel(buildPlan) {
         combat.start(wave);
         let killed = 0;
         let leaked = 0;
-        for (let elapsed = 0; elapsed < 120 && (!combat.isSpawningComplete || combat.enemies.length > 0); elapsed += 1 / 30) {
-            const result = combat.tick(1 / 30, model.flowField, model.deployments);
-            killed += result.killed.length;
-            leaked += result.leaked.length;
-            result.killed.forEach((enemy) => economy.credit(enemy.archetype.killReward));
+        for (let elapsed = 0; elapsed < 120 && (!combat.isSpawningComplete || combat.enemies.length > 0); elapsed += frameDeltaSeconds) {
+            clock.advance(frameDeltaSeconds, (deltaSeconds) => {
+                if (combat.isSpawningComplete && combat.enemies.length === 0) return;
+                const result = combat.tick(deltaSeconds, model.flowField, model.deployments);
+                killed += result.killed.length;
+                leaked += result.leaked.length;
+                result.killed.forEach((enemy) => economy.credit(enemy.archetype.killReward));
+            });
         }
         combat.completeWave();
         coreHealth -= leaked;
@@ -726,4 +744,13 @@ test('首关推荐构筑教学波零漏，后期自由加固有明确收益', ()
     assert.equal(fortified.coreHealth, 8);
     assert.equal(fortified.towers, 12);
     assert.deepEqual(fortified.totals, { spawned: 86, killed: 84, leaked: 2 });
+});
+
+test('推荐构筑在常见帧步长下保持相同的逐波结果', () => {
+    const reference = replayFirstLevel(FIRST_LEVEL_REINFORCEMENTS);
+    for (const deltaSeconds of [1 / 60, 1 / 20]) {
+        const replay = replayFirstLevel(FIRST_LEVEL_REINFORCEMENTS, deltaSeconds);
+        assert.deepEqual(replay.waveResults, reference.waveResults, `${deltaSeconds} 秒帧步长逐波结果不同`);
+    }
+    assert.deepEqual(replayFirstLevel(FIRST_LEVEL_REINFORCEMENTS, 1 / 60, 2).waveResults, reference.waveResults);
 });

@@ -145,10 +145,14 @@ export class NightwatchPocBootstrap extends Component {
     }
 
     protected override update(deltaTime: number): void {
-        const step = this.simulationClock.gameDeltaSeconds(deltaTime);
-        this.feedback.advance(step);
+        this.simulationClock.advance(deltaTime, (step) => this.advanceGameStep(step));
         // 布塔反馈走真实时间，暂停和 2× 战斗都不会改变玩家读到提示的时长。
         this.routeChange.advance(deltaTime);
+        this.redraw();
+    }
+
+    private advanceGameStep(step: number): void {
+        this.feedback.advance(step);
         const phaseBeforeAdvance = this.battle.snapshot.phase;
         if (phaseBeforeAdvance === 'countdown') {
             this.battle.advance(step);
@@ -156,7 +160,6 @@ export class NightwatchPocBootstrap extends Component {
         }
         const phase = this.battle.snapshot.phase;
         if (phase === 'spawning' || phase === 'clearing') this.advanceCombat(step);
-        this.redraw();
     }
 
     private findCanvas(): Node | null {
@@ -478,6 +481,7 @@ export class NightwatchPocBootstrap extends Component {
         this.battle = new BattleStateMachine(this.waves.totalWaves, coreHealth);
         this.combat = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
         this.waveRewards = new WaveRewardRuntime();
+        this.simulationClock.reset();
         this.initialCoreHealth = coreHealth;
         this.runCheckpoint = null;
         this.preparing = true;
@@ -541,6 +545,7 @@ export class NightwatchPocBootstrap extends Component {
         this.battle = new BattleStateMachine(this.waves.totalWaves, this.initialCoreHealth);
         this.combat = new WaveCombatRuntime(restored.model.grid, PHASE_B_TOWERS);
         this.waveRewards = new WaveRewardRuntime();
+        this.simulationClock.reset();
         this.feedback.clear();
         this.routeChange.clear();
         this.preparing = true;
