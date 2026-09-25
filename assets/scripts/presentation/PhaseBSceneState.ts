@@ -13,6 +13,7 @@ export interface PhaseBSceneState {
     readonly towerIdsByCell: ReadonlyMap<string, TowerId>;
     readonly activePath: readonly GridCell[] | null;
     readonly preview: { readonly accepted: boolean; readonly cell: GridCell; readonly towerId: TowerId } | null;
+    readonly inspectedTower: { readonly cell: GridCell; readonly towerId: TowerId } | null;
     readonly enemies: readonly {
         readonly id: string;
         readonly spawnOrder: number;

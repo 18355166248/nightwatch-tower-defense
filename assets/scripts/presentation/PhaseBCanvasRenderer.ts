@@ -130,6 +130,7 @@ export class PhaseBCanvasRenderer {
         }
 
         this.drawRouteArrows(state, metrics.cellSize);
+        this.drawInspectedTowerRange(state, metrics.cellSize);
         this.drawPlacementRange(state, metrics.cellSize);
 
         for (const enemy of state.enemies) {
@@ -222,17 +223,38 @@ export class PhaseBCanvasRenderer {
     private drawPlacementRange(state: PhaseBSceneState, cellSize: number): void {
         const preview = state.preview;
         if (!preview) return;
-        const graphics = this.graphics;
         const center = this.center(preview.cell, state.grid);
         const tower = preview.towerId === 'frost-coil' ? FROST_COIL : RIVET_GUN;
         const color = preview.accepted ? new Color(141, 243, 205, 200) : new Color(255, 129, 129, 205);
-        graphics.strokeColor = color;
-        graphics.lineWidth = 4;
-        graphics.circle(center.x, center.y, cellSize * tower.rangeCells);
-        graphics.stroke();
+        this.drawRangeRing(center, cellSize, tower.rangeCells, color);
+        const graphics = this.graphics;
         graphics.fillColor = color;
         graphics.circle(center.x, center.y, cellSize * 0.25);
         graphics.fill();
+    }
+
+    private drawInspectedTowerRange(state: PhaseBSceneState, cellSize: number): void {
+        const inspected = state.inspectedTower;
+        if (!inspected) return;
+        const center = this.center(inspected.cell, state.grid);
+        const tower = inspected.towerId === 'frost-coil' ? FROST_COIL : RIVET_GUN;
+        const color = inspected.towerId === 'frost-coil'
+            ? new Color(139, 232, 244, 205)
+            : new Color(255, 218, 139, 205);
+        this.drawRangeRing(center, cellSize, tower.rangeCells, color);
+        const graphics = this.graphics;
+        graphics.strokeColor = color;
+        graphics.lineWidth = 6;
+        graphics.circle(center.x, center.y, cellSize * 0.43);
+        graphics.stroke();
+    }
+
+    private drawRangeRing(center: PhaseBPoint, cellSize: number, rangeCells: number, color: Color): void {
+        const graphics = this.graphics;
+        graphics.strokeColor = color;
+        graphics.lineWidth = 4;
+        graphics.circle(center.x, center.y, cellSize * rangeCells);
+        graphics.stroke();
     }
 
     private drawCombatFeedback(state: PhaseBSceneState, cellSize: number): void {

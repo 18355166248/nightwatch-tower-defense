@@ -19,6 +19,7 @@ import { FIRST_LEVEL_STARTING_GOLD } from '../config/FirstLevelOpening';
 import { PHASE_B_TOWERS, PHASE_B_WAVES, type TowerId } from '../config/PhaseBCombatConfig';
 import { cellKey, sameCell, type EnemyRouteState, type GridCell, type GridId } from '../core/GridTypes';
 import { PhaseBDebugInput, type PhaseBDebugAction } from '../input/PhaseBDebugInput';
+import { TowerInspection } from '../input/TowerInspection';
 import { buildBattleResultViewModel } from '../presentation/BattleResultViewModel';
 import { BrowserBattleDiagnostics } from '../presentation/BrowserBattleDiagnostics';
 import { countCombatFeedback, CombatFeedbackRuntime } from '../presentation/CombatFeedbackRuntime';
@@ -76,6 +77,7 @@ export class NightwatchPocBootstrap extends Component {
     private waveRewards = new WaveRewardRuntime();
     private readonly feedback = new CombatFeedbackRuntime();
     private readonly sound = new FirstLevelSoundDirector(new BrowserSynthAudio());
+    private readonly towerInspection = new TowerInspection();
     private readonly simulationClock = new SimulationClock();
     private selectedGridId: GridId = DEFAULT_GRID_ID;
     private selectedTowerId: TowerId = 'rivet-gun';
@@ -210,6 +212,7 @@ export class NightwatchPocBootstrap extends Component {
     }
 
     private beginTowerInput(): void {
+        this.towerInspection.clear();
         this.inputMode = 'tower-pressed';
         this.preview = null;
         this.statusText = `${this.selectedTowerLabel()}：拖到网格落塔；轻点则进入点击建塔`;
@@ -375,10 +378,24 @@ export class NightwatchPocBootstrap extends Component {
             }
             return;
         }
-        if (this.inputMode === 'idle' && this.model.towers.has(cellKey(cell))) {
-            const sold = this.model.sell(cell, this.preparing && !this.pausedByLifecycle);
-            this.statusText = sold ? '准备态全额撤销成功' : '运行中不可出售；切回准备态再撤销';
-            this.playSound(sold ? 'ui' : 'reject');
+        if (this.inputMode !== 'idle') return;
+        const towerId = this.model.deployments.find(({ cell: towerCell }) => sameCell(towerCell, cell))?.towerId;
+        if (towerId) {
+            const canSell = this.preparing && !this.pausedByLifecycle;
+            const action = this.towerInspection.tap(cell, canSell);
+            if (action === 'sell') {
+                const sold = this.model.sell(cell, true);
+                this.statusText = sold ? '炮塔已全额撤销 · 可重新规划路线' : '撤销失败，请重新选择炮塔';
+                this.playSound(sold ? 'ui' : 'reject');
+            } else if (action === 'inspect') {
+                this.statusText = this.towerInspectionText(towerId, canSell);
+                this.playSound('ui');
+            } else this.statusText = '已关闭炮塔射程查看';
+            return;
+        }
+        if (this.towerInspection.cell) {
+            this.towerInspection.clear();
+            this.statusText = '已关闭炮塔射程查看';
         }
     }
 
@@ -406,6 +423,7 @@ export class NightwatchPocBootstrap extends Component {
                 : `${this.selectedTowerLabel()}已建造 · 剩余金币 ${result.gold}`
             : this.rejectText(result.reason);
         this.playSound(result.accepted ? 'place' : 'reject');
+        this.towerInspection.clear();
         this.preview = null;
         this.inputMode = 'idle';
     }
@@ -437,6 +455,7 @@ export class NightwatchPocBootstrap extends Component {
         this.preparing = true;
         this.pausedByLifecycle = false;
         this.guidedIntermissionHeld = false;
+        this.towerInspection.clear();
         this.feedback.clear();
         this.cancelInput(this.qaMode ? '已重置为空网格' : '已重新布防，可以调整路线');
     }
@@ -476,6 +495,13 @@ export class NightwatchPocBootstrap extends Component {
         return this.selectedTowerId === 'frost-coil' ? '冷凝塔' : '机枪塔';
     }
 
+    private towerInspectionText(towerId: TowerId, canSell: boolean): string {
+        const tower = PHASE_B_TOWERS.find(({ id }) => id === towerId)!;
+        return tower.effect
+            ? `${tower.label} · 射程 ${tower.rangeCells} 格 · 减速 45% · ${canSell ? '再点撤销' : '战斗中不可撤销'}`
+            : `${tower.label} · 射程 ${tower.rangeCells} 格 · 伤害 ${tower.damage} · ${canSell ? '再点撤销' : '战斗中不可撤销'}`;
+    }
+
     private restartFromCheckpoint(): void {
         const checkpoint = this.runCheckpoint;
         if (!checkpoint || !this.resultViewModel()) return;
@@ -490,6 +516,7 @@ export class NightwatchPocBootstrap extends Component {
         this.preparing = true;
         this.pausedByLifecycle = false;
         this.guidedIntermissionHeld = false;
+        this.towerInspection.clear();
         this.cancelInput('已恢复开战前部署，可调整后再次开波');
         this.runCheckpoint = checkpoint;
         this.playSound('ui');
@@ -589,6 +616,19 @@ export class NightwatchPocBootstrap extends Component {
         const activePath = this.preview?.accepted && this.preview.path
             ? this.preview.path
             : this.model.flowField.pathFrom(this.model.grid.entry);
+        const inspectedCell = this.towerInspection.cell;
+        const inspectedTowerId = inspectedCell
+            ? this.model.deployments.find(({ cell }) => sameCell(cell, inspectedCell))?.towerId
+            : undefined;
+        const guidanceText = inspectedTowerId
+            ? this.towerInspectionText(inspectedTowerId, this.preparing && !this.pausedByLifecycle)
+            : experience.guidanceText ?? firstLevelGuidance({
+                preparing: this.preparing,
+                towerCount: this.model.towers.size,
+                pathDelta: this.currentPathDelta(),
+                previewAccepted: this.preview?.accepted ?? null,
+                selectedTowerId: this.selectedTowerId,
+            });
         const sceneState: PhaseBSceneState = {
             qaMode: this.qaMode,
             useUnitSprites: this.unitSprites?.ready ?? false,
@@ -598,6 +638,7 @@ export class NightwatchPocBootstrap extends Component {
             towerIdsByCell: new Map(this.model.deployments.map(({ cell, towerId }) => [cellKey(cell), towerId])),
             activePath,
             preview: this.preview,
+            inspectedTower: inspectedCell && inspectedTowerId ? { cell: inspectedCell, towerId: inspectedTowerId } : null,
             enemies: this.combat.enemies,
             feedback: this.feedback.snapshot,
             gold: this.model.gold,
@@ -616,13 +657,7 @@ export class NightwatchPocBootstrap extends Component {
             : this.model.flowField.distanceAt(this.model.grid.entry);
         this.hud?.render({
             qaMode: this.qaMode,
-            guidanceText: experience.guidanceText ?? firstLevelGuidance({
-                preparing: this.preparing,
-                towerCount: this.model.towers.size,
-                pathDelta: this.currentPathDelta(),
-                previewAccepted: this.preview?.accepted ?? null,
-                selectedTowerId: this.selectedTowerId,
-            }),
+            guidanceText,
             statusText: this.statusText,
             gold: this.model.gold,
             pathLength,
@@ -638,7 +673,7 @@ export class NightwatchPocBootstrap extends Component {
             selectedTowerId: this.selectedTowerId,
             result,
         });
-        this.publishBrowserDiagnostics(experience.guidanceText);
+        this.publishBrowserDiagnostics(guidanceText);
     }
 
     private publishBrowserDiagnostics(guidanceText: string | null): void {
@@ -661,6 +696,7 @@ export class NightwatchPocBootstrap extends Component {
             rivetTowerCount,
             frostTowerCount,
             selectedTowerId: this.selectedTowerId,
+            inspectedTowerCell: this.towerInspection.cell ? cellKey(this.towerInspection.cell) : null,
             slowedEnemyCount,
             waveRewardTotal: this.waveRewards.totalAwarded,
             pathLength,

@@ -104,7 +104,9 @@ export class PhaseBHudView {
             this.frostLabel.color = new Color(state.selectedTowerId === 'frost-coil' ? '#101827' : '#DDFBFF');
             this.helpLabel.string = state.qaMode
                 ? '先建 2 塔且路径 +2｜Q/W选塔 J混合样例｜X切速 N提前开波｜F/G/H样例 R重置'
-                : '拖塔到格子，或点塔后双击格子 · 准备时点已建塔可撤销';
+                : state.phaseText === '准备态'
+                    ? '点已建塔看射程，再点撤销 · 拖塔或选塔后双击格子'
+                    : '点已建塔看射程 · 战斗中不可撤销';
             return;
         }
         this.resultTitleLabel.string = result.title;

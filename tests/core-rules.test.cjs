@@ -14,6 +14,7 @@ const { BattleStateMachine } = require('../.test-dist/systems/BattleStateMachine
 const { EconomyLedger } = require('../.test-dist/systems/EconomyLedger.js');
 const { BattleRunCheckpoint } = require('../.test-dist/systems/BattleRunCheckpoint.js');
 const { FirstLevelSoundDirector } = require('../.test-dist/audio/FirstLevelSoundDirector.js');
+const { TowerInspection } = require('../.test-dist/input/TowerInspection.js');
 const { WaveCombatRuntime } = require('../.test-dist/systems/WaveCombatRuntime.js');
 const { WaveCatalog } = require('../.test-dist/systems/WaveCatalog.js');
 const { WaveRewardRuntime } = require('../.test-dist/systems/WaveRewardRuntime.js');
@@ -128,6 +129,24 @@ test('首关音效对连续攻击限频，静音与恢复只影响声音不影�
     sound.close();
     assert.deepEqual(played, ['rivet-shot', 'rivet-shot', 'frost-shot', 'core-hit']);
     assert.deepEqual(calls, ['unlock', 'muted:true', 'muted:false', 'unlock', 'suspend', 'close']);
+});
+
+test('已建塔先查看射程，准备态二次点击才撤销；战斗中只关闭查看', () => {
+    const inspection = new TowerInspection();
+    const first = { column: 3, row: 2 };
+    const second = { column: 4, row: 2 };
+    assert.equal(inspection.tap(first, true), 'inspect');
+    assert.deepEqual(inspection.cell, first);
+    assert.equal(inspection.tap(second, true), 'inspect');
+    assert.deepEqual(inspection.cell, second);
+    assert.equal(inspection.tap(second, true), 'sell');
+    assert.equal(inspection.cell, null);
+    assert.equal(inspection.tap(first, false), 'inspect');
+    assert.equal(inspection.tap(first, false), 'dismiss');
+    assert.equal(inspection.cell, null);
+    inspection.tap(first, true);
+    inspection.clear();
+    assert.equal(inspection.cell, null);
 });
 
 function toCells(pairs) {
