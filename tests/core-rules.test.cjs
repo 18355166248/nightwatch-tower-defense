@@ -24,7 +24,7 @@ const { countCombatFeedback, CombatFeedbackRuntime } = require('../.test-dist/pr
 const { buildCoreObjectiveState } = require('../.test-dist/presentation/CoreObjectiveState.js');
 const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGuidance.js');
 const { FirstLevelExperience } = require('../.test-dist/presentation/FirstLevelExperience.js');
-const { enemyVisualOffset } = require('../.test-dist/presentation/UnitVisualMotion.js');
+const { enemyStridePose, enemyVisualOffset, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
 const { RouteChangeFeedback, routeChangeText, routeLengthDelta } = require('../.test-dist/presentation/RouteChangeFeedback.js');
 const { waveLineup, waveThreatHint } = require('../.test-dist/presentation/WaveBriefing.js');
 const {
@@ -224,6 +224,26 @@ test('步兵视觉错位稳定且不超过单格范围，循环后不会累计�
         assert.ok(Math.abs(offset.x) < 85 / 4);
         assert.ok(Math.abs(offset.y) < 85 / 4);
     }
+});
+
+test('敌人步伐在格间交接和暂停快照中连续，疾行机节奏更快', () => {
+    for (const archetype of ['clockwork-infantry', 'clockwork-runner']) {
+        const before = enemyStridePose(archetype, 1, 3);
+        const after = enemyStridePose(archetype, 0, 3);
+        assert.ok(Math.abs(before.y - after.y) < 1e-10);
+        assert.ok(Math.abs(before.scaleX - after.scaleX) < 1e-10);
+        assert.deepEqual(enemyStridePose(archetype, 0.375, 3), enemyStridePose(archetype, 0.375, 3));
+    }
+    assert.ok(enemyStridePose('clockwork-runner', 1 / 12, 4).y > enemyStridePose('clockwork-infantry', 1 / 12, 4).y);
+});
+
+test('炮塔开火后坐力随事件衰减并回到原位，方向只影响视觉偏移', () => {
+    const direction = { x: 1, y: 0 };
+    const fresh = towerRecoilPose('rivet-gun', 0.1, 0.1, direction);
+    const fading = towerRecoilPose('rivet-gun', 0.05, 0.1, direction);
+    assert.ok(fresh.x < fading.x && fading.x < 0);
+    assert.deepEqual(towerRecoilPose('rivet-gun', 0, 0.1, direction), { x: 0, y: 0, scaleX: 1, scaleY: 1, angle: 0 });
+    assert.ok(towerRecoilPose('frost-coil', 0.1, 0.1, direction).x > fresh.x);
 });
 
 test('八波目录连续可索引且保留第一波冻结配置', () => {

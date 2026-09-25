@@ -2,7 +2,7 @@ import { Color, Graphics, isValid, Node, resources, Sprite, SpriteFrame, UIOpaci
 import type { GridCell } from '../core/GridTypes';
 import { PHASE_B_DESIGN_HEIGHT, PHASE_B_DESIGN_WIDTH, PhaseBLayout } from './PhaseBLayout';
 import type { PhaseBSceneState } from './PhaseBSceneState';
-import { enemyVisualOffset } from './UnitVisualMotion';
+import { enemyStridePose, enemyVisualOffset, towerRecoilPose } from './UnitVisualMotion';
 
 const UNIT_ASSETS = {
     'rivet-gun': 'level-one/units/rivet-gun/spriteFrame',
@@ -68,6 +68,12 @@ export class PhaseBUnitSpriteView {
     private renderTowers(state: PhaseBSceneState): void {
         const visible = new Set<string>();
         const towerSize = Math.min(82, this.layout.boardMetrics(state.grid).cellSize * 0.9);
+        const recentShots = new Map<string, typeof state.feedback.tracers[number]>();
+        for (const tracer of state.feedback.tracers) {
+            const key = `${tracer.origin.column},${tracer.origin.row}`;
+            // 反馈按产生时间追加；同塔短时间连发时保留最新一发的后坐力方向。
+            recentShots.set(key, tracer);
+        }
         // Creator 的发布转译对 iterable 展开存在差异，Map 在表现层显式转数组后迭代。
         for (const [key, towerId] of Array.from(state.towerIdsByCell.entries())) {
             const cell = this.cellFromKey(key);
@@ -76,7 +82,13 @@ export class PhaseBUnitSpriteView {
             // 战场单位不得大于格子，否则横墙会互相遮挡，也会盖住敌人与路径。
             const node = this.ensureNode(this.towers, key, this.towerLayer, frame, towerSize);
             const point = this.layout.gridPointCenter(cell, state.grid);
-            node.setPosition(point.x, point.y + 3, 0);
+            const shot = recentShots.get(key);
+            const recoil = shot ? towerRecoilPose(towerId, shot.remainingSeconds, shot.durationSeconds, {
+                x: shot.point.column - shot.origin.column,
+                y: shot.origin.row - shot.point.row,
+            }) : null;
+            node.setPosition(point.x + (recoil?.x ?? 0), point.y + 3 + (recoil?.y ?? 0), 0);
+            node.setScale(recoil?.scaleX ?? 1, recoil?.scaleY ?? 1, 1);
             visible.add(key);
         }
         this.removeMissing(this.towers, visible);
@@ -88,7 +100,7 @@ export class PhaseBUnitSpriteView {
         for (const enemy of state.enemies) {
             const frame = this.frames.get(enemy.archetype.id);
             if (!frame) continue;
-            const node = this.ensureNode(this.enemies, enemy.id, this.enemyLayer, frame, 78);
+            const node = this.ensureEnemyNode(enemy.id, frame);
             this.renderEnemyIndicators(node, enemy);
             const from = this.layout.gridPointCenter(enemy.fromCell, state.grid);
             const to = this.layout.gridPointCenter(enemy.toCell, state.grid);
@@ -98,8 +110,13 @@ export class PhaseBUnitSpriteView {
             node.setPosition(x + offset.x, y + offset.y, 0);
             const hit = state.feedback.tracers.find((tracer) => tracer.targetId === enemy.id);
             const life = hit ? hit.remainingSeconds / hit.durationSeconds : 0;
-            node.setScale(1 + life * 0.11, 1 - life * 0.07, 1);
-            const sprite = node.getComponent(Sprite);
+            const stride = enemyStridePose(enemy.archetype.id, enemy.progress, enemy.spawnOrder);
+            // 身体运动与血条分层：步伐/命中只影响 Sprite，不让血条和减速圈跟着抖动。
+            const body = node.getChildByName('Body');
+            body?.setPosition(stride.x, stride.y, 0);
+            body?.setScale(stride.scaleX * (1 + life * 0.11), stride.scaleY * (1 - life * 0.07), 1);
+            if (body) body.angle = stride.angle;
+            const sprite = body?.getComponent(Sprite);
             if (sprite) sprite.color = hit
                 ? new Color(hit.towerId === 'frost-coil' ? '#C8F5FF' : '#FFE4B1')
                 : Color.WHITE;
@@ -191,6 +208,24 @@ export class PhaseBUnitSpriteView {
         transform.setContentSize(size, size);
         layer.addChild(node);
         nodes.set(key, node);
+        return node;
+    }
+
+    private ensureEnemyNode(key: string, frame: SpriteFrame): Node {
+        const existing = this.enemies.get(key);
+        if (existing) return existing;
+        const node = new Node(key);
+        node.layer = this.root.layer;
+        node.addComponent(UITransform).setContentSize(78, 78);
+        const body = new Node('Body');
+        body.layer = this.root.layer;
+        body.addComponent(UITransform).setContentSize(78, 78);
+        const sprite = body.addComponent(Sprite);
+        sprite.spriteFrame = frame;
+        sprite.sizeMode = Sprite.SizeMode.CUSTOM;
+        node.addChild(body);
+        this.enemyLayer.addChild(node);
+        this.enemies.set(key, node);
         return node;
     }
 
