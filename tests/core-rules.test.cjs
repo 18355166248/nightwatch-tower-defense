@@ -283,6 +283,19 @@ test('四张单位图均导入为 SpriteFrame，避免新增纹理让整层切�
     }
 });
 
+test('机枪塔两张分层切图以 SpriteFrame 导入且保留 128 方形透明画布', () => {
+    for (const id of ['rivet-gun-base-v2', 'rivet-gun-head-v2']) {
+        const asset = resolve(__dirname, `../assets/resources/level-one/units/${id}.png`);
+        const png = readFileSync(asset);
+        const meta = JSON.parse(readFileSync(`${asset}.meta`, 'utf8'));
+        assert.equal(png.readUInt32BE(16), 128, id);
+        assert.equal(png.readUInt32BE(20), 128, id);
+        assert.equal(png[25], 6, `${id} 应为 RGBA PNG`);
+        assert.equal(meta.userData.type, 'sprite-frame', id);
+        assert.ok(meta.subMetas.f9941, id);
+    }
+});
+
 test('疾行机移动更快但接受冷凝减速，移动与外观提示不依赖波次编号', () => {
     const grid = PHASE_A_GRIDS['grid-9x13'];
     const flow = new FlowField(grid, new Set());

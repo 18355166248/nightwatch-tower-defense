@@ -2,6 +2,7 @@ import { Color, Graphics, isValid, Node, resources, Sprite, SpriteFrame, UIOpaci
 import type { GridCell } from '../core/GridTypes';
 import { PHASE_B_DESIGN_HEIGHT, PHASE_B_DESIGN_WIDTH, PhaseBLayout } from './PhaseBLayout';
 import type { PhaseBSceneState } from './PhaseBSceneState';
+import { RivetGunLayerRig } from './RivetGunLayerRig';
 import { enemyStridePose, enemyVisualOffset, towerRecoilPose } from './UnitVisualMotion';
 
 const UNIT_ASSETS = {
@@ -11,6 +12,11 @@ const UNIT_ASSETS = {
     'clockwork-runner': 'level-one/units/clockwork-runner/spriteFrame',
 } as const;
 type UnitArtId = keyof typeof UNIT_ASSETS;
+const RIVET_LAYER_ASSETS = {
+    base: 'level-one/units/rivet-gun-base-v2/spriteFrame',
+    head: 'level-one/units/rivet-gun-head-v2/spriteFrame',
+} as const;
+type RivetLayerId = keyof typeof RIVET_LAYER_ASSETS;
 
 /** 单位切图层只同步视觉节点；全部资源就绪前由 Graphics 保留灰盒兜底。 */
 export class PhaseBUnitSpriteView {
@@ -20,6 +26,7 @@ export class PhaseBUnitSpriteView {
     private readonly deathLayer = new Node('DeathSprites');
     private readonly shopLayer = new Node('ShopSprites');
     private readonly frames = new Map<UnitArtId, SpriteFrame>();
+    private readonly rivetLayers = new Map<RivetLayerId, SpriteFrame>();
     private readonly towers = new Map<string, Node>();
     private readonly enemies = new Map<string, Node>();
     private readonly deaths = new Map<string, Node>();
@@ -47,6 +54,12 @@ export class PhaseBUnitSpriteView {
             resources.load(resourcePath, SpriteFrame, (error, frame) => {
                 if (error || !frame || !isValid(this.root)) return;
                 this.frames.set(id, frame);
+            });
+        }
+        for (const [id, resourcePath] of Object.entries(RIVET_LAYER_ASSETS) as [RivetLayerId, string][]) {
+            resources.load(resourcePath, SpriteFrame, (error, frame) => {
+                if (error || !frame || !isValid(this.root)) return;
+                this.rivetLayers.set(id, frame);
             });
         }
     }
@@ -80,15 +93,20 @@ export class PhaseBUnitSpriteView {
             const frame = this.frames.get(towerId);
             if (!frame) continue;
             // 战场单位不得大于格子，否则横墙会互相遮挡，也会盖住敌人与路径。
-            const node = this.ensureNode(this.towers, key, this.towerLayer, frame, towerSize);
             const point = this.layout.gridPointCenter(cell, state.grid);
             const shot = recentShots.get(key);
             const recoil = shot ? towerRecoilPose(towerId, shot.remainingSeconds, shot.durationSeconds, {
                 x: shot.point.column - shot.origin.column,
                 y: shot.origin.row - shot.point.row,
             }) : null;
-            node.setPosition(point.x + (recoil?.x ?? 0), point.y + 3 + (recoil?.y ?? 0), 0);
-            node.setScale(recoil?.scaleX ?? 1, recoil?.scaleY ?? 1, 1);
+            if (towerId === 'rivet-gun' && this.rivetLayers.size === 2) {
+                const node = this.ensureRivetRig(key, towerSize);
+                RivetGunLayerRig.pose(node, point, towerSize, recoil);
+            } else {
+                const node = this.ensureNode(this.towers, key, this.towerLayer, frame, towerSize);
+                node.setPosition(point.x + (recoil?.x ?? 0), point.y + 3 + (recoil?.y ?? 0), 0);
+                node.setScale(recoil?.scaleX ?? 1, recoil?.scaleY ?? 1, 1);
+            }
             visible.add(key);
         }
         this.removeMissing(this.towers, visible);
@@ -193,6 +211,11 @@ export class PhaseBUnitSpriteView {
     }
 
     private ensureNode(nodes: Map<string, Node>, key: string, layer: Node, frame: SpriteFrame, size: number): Node {
+        const current = nodes.get(key);
+        if (current?.getChildByName('RivetHead')) {
+            current.destroy();
+            nodes.delete(key);
+        }
         const existing = nodes.get(key);
         if (existing) {
             const transform = existing.getComponent(UITransform);
@@ -208,6 +231,21 @@ export class PhaseBUnitSpriteView {
         transform.setContentSize(size, size);
         layer.addChild(node);
         nodes.set(key, node);
+        return node;
+    }
+
+    private ensureRivetRig(key: string, size: number): Node {
+        const existing = this.towers.get(key);
+        if (existing?.getChildByName('RivetHead')) {
+            RivetGunLayerRig.resize(existing, size);
+            return existing;
+        }
+        if (existing) existing.destroy();
+        const base = this.rivetLayers.get('base');
+        const head = this.rivetLayers.get('head');
+        if (!base || !head) throw new Error('分层机枪资源未就绪');
+        const node = RivetGunLayerRig.create(key, this.towerLayer, base, head, size);
+        this.towers.set(key, node);
         return node;
     }
 

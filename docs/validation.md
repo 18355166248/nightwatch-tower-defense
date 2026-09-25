@@ -130,3 +130,9 @@ Phase B 灰盒已接入浏览器运行时：发条步兵与第三波起出现的
 - 已接入：独立地表层让屋顶底图透出，连续道路随真实路径重绘；敌人身体由格内进度产生步伐起伏，炮塔开火事件产生短暂后坐力，血条和减速圈不跟随身体变形。
 - 已验证：右侧浏览器从四塔教学开局走到第三波清场，改路、单位切图和清场正常，0 error / 0 warning；42 条规则测试和 Web Mobile 发布构建通过。详见 `docs/poc/phase-b-battlefield-surface-regression.md`、`docs/poc/phase-b-unit-motion-regression.md`。
 - 未验证：正式动作切图、炮塔分层、真人在游戏尺寸下对动态节奏和敌人密集画面的评价；没有 Android 真机测试。
+
+## 18. 机枪塔分层切图候选（2026-09-26）
+
+- 已接入：以原机枪塔图编辑生成的铜金底座和深蓝双炮管炮身分别导入 SpriteFrame；战场里底座固定、炮身单独消费开火后坐力，商店/预览与缺图回退保持原静态图。
+- 已验证：两张运行时图 128×128 RGBA 和原生导入契约，43 条规则测试、Web Mobile 发布构建；右侧浏览器单塔、四塔横墙、第一波刷怪可继续，日志 0 error / 0 warning。见 `docs/poc/phase-b-rivet-layer-regression.md` 和 `docs/first-level-art.md`。
+- 未验证：玩家主观美术评价、枪口/瞄准动作、冷凝塔分层与敌人正式动作帧；本轮没有 Android 真机测试。
