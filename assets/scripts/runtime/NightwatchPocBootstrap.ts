@@ -24,6 +24,13 @@ import { PhaseBCanvasRenderer } from '../presentation/PhaseBCanvasRenderer';
 import { PhaseBHudView } from '../presentation/PhaseBHudView';
 import { PhaseBUnitSpriteView } from '../presentation/PhaseBUnitSpriteView';
 import type { PhaseBSceneState } from '../presentation/PhaseBSceneState';
+import {
+    FIRST_LEVEL_SKIP_COACH_BUTTON,
+    FIRST_LEVEL_SKIP_INTRO_BUTTON,
+    FIRST_LEVEL_START_BUTTON,
+    FirstLevelExperience,
+} from '../presentation/FirstLevelExperience';
+import { FirstLevelExperienceView } from '../presentation/FirstLevelExperienceView';
 import { firstLevelGuidance } from '../presentation/FirstLevelGuidance';
 import {
     PHASE_B_DESIGN_HEIGHT,
@@ -55,6 +62,7 @@ export class NightwatchPocBootstrap extends Component {
     private renderer: PhaseBCanvasRenderer | null = null;
     private hud: PhaseBHudView | null = null;
     private unitSprites: PhaseBUnitSpriteView | null = null;
+    private experienceView: FirstLevelExperienceView | null = null;
     private readonly waves = new WaveCatalog(PHASE_B_WAVES);
     private economy = new EconomyLedger(PHASE_A_INITIAL_GOLD);
     private model = new PlacementModel(PHASE_A_GRIDS[DEFAULT_GRID_ID], this.economy, PHASE_B_TOWERS);
@@ -79,6 +87,7 @@ export class NightwatchPocBootstrap extends Component {
     private readonly browserDiagnostics = new BrowserBattleDiagnostics();
     private readonly debugInput = new PhaseBDebugInput((action) => this.handleDebugAction(action));
     private readonly qaMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('qa') === '1';
+    private readonly experience = new FirstLevelExperience(this.qaMode);
 
     protected override onLoad(): void {
         view.setDesignResolutionSize(PHASE_B_DESIGN_WIDTH, PHASE_B_DESIGN_HEIGHT, ResolutionPolicy.FIXED_HEIGHT);
@@ -101,6 +110,7 @@ export class NightwatchPocBootstrap extends Component {
         graphicsNode.setSiblingIndex(1);
         const graphics = graphicsNode.addComponent(Graphics);
         this.renderer = new PhaseBCanvasRenderer(graphics, this.layout);
+        this.experienceView = new FirstLevelExperienceView(layer, this.layout);
 
         this.canvas.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
         this.canvas.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
@@ -148,7 +158,19 @@ export class NightwatchPocBootstrap extends Component {
         const point = this.localPoint(event);
         this.pressStart.set(point);
 
+        // 入场卡独占输入；玩家未开始前不能误触底下的塔和战斗按钮。
+        if (this.experience.entryMode === 'home') {
+            if (this.layout.insideRect(point, FIRST_LEVEL_START_BUTTON)) this.experience.begin();
+            else if (this.layout.insideRect(point, FIRST_LEVEL_SKIP_INTRO_BUTTON)) this.experience.skip();
+            this.primaryTouchId = null;
+            return;
+        }
         if (this.handleResultTouch(point)) {
+            this.primaryTouchId = null;
+            return;
+        }
+        if (this.experience.entryMode === 'guided' && this.layout.insideRect(point, FIRST_LEVEL_SKIP_COACH_BUTTON)) {
+            this.experience.skip();
             this.primaryTouchId = null;
             return;
         }
@@ -493,6 +515,13 @@ export class NightwatchPocBootstrap extends Component {
     private redraw(): void {
         const result = this.resultViewModel();
         const battle = this.battle.snapshot;
+        const experience = this.experience.snapshot({
+            preparing: this.preparing,
+            towerCount: this.model.towers.size,
+            pathDelta: this.currentPathDelta(),
+            previewAccepted: this.preview?.accepted ?? null,
+            inputMode: this.inputMode,
+        });
         const activePath = this.preview?.accepted && this.preview.path
             ? this.preview.path
             : this.model.flowField.pathFrom(this.model.grid.entry);
@@ -516,12 +545,13 @@ export class NightwatchPocBootstrap extends Component {
         };
         this.renderer?.render(sceneState);
         this.unitSprites?.render(sceneState);
+        this.experienceView?.render(experience, this.model.grid, Boolean(result), this.preview?.cell ?? null);
         const pathLength = this.preview?.path?.length
             ? this.preview.path.length - 1
             : this.model.flowField.distanceAt(this.model.grid.entry);
         this.hud?.render({
             qaMode: this.qaMode,
-            guidanceText: firstLevelGuidance({
+            guidanceText: experience.guidanceText ?? firstLevelGuidance({
                 preparing: this.preparing,
                 towerCount: this.model.towers.size,
                 pathDelta: this.currentPathDelta(),
@@ -541,10 +571,10 @@ export class NightwatchPocBootstrap extends Component {
             selectedTowerId: this.selectedTowerId,
             result,
         });
-        this.publishBrowserDiagnostics();
+        this.publishBrowserDiagnostics(experience.guidanceText);
     }
 
-    private publishBrowserDiagnostics(): void {
+    private publishBrowserDiagnostics(guidanceText: string | null): void {
         const pathLength = this.preview?.accepted && this.preview.path
             ? this.preview.path.length - 1
             : this.model.flowField.distanceAt(this.model.grid.entry);
@@ -554,6 +584,7 @@ export class NightwatchPocBootstrap extends Component {
         const frostTowerCount = deployments.filter(({ towerId }) => towerId === 'frost-coil').length;
         const slowedEnemyCount = this.combat.enemies.filter(({ slowRemainingSeconds }) => slowRemainingSeconds > 0).length;
         this.browserDiagnostics.publish({
+            entryMode: this.experience.entryMode,
             gridId: this.selectedGridId,
             columns: this.model.grid.columns,
             rows: this.model.grid.rows,
@@ -586,9 +617,11 @@ export class NightwatchPocBootstrap extends Component {
             previewAccepted: this.preview?.accepted ?? null,
             status: this.statusText,
         },
-            result
+            this.experience.entryMode === 'home'
+                ? '夜城防线第一关：守住夜城入口。开始布防，或直接开始并跳过引导'
+                : result
                 ? `${result.title}，${result.summary.replace('\n', '，')}，${result.actionLabel}`
-                : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，机枪${rivetTowerCount}座，冷凝${frostTowerCount}座，减速中${slowedEnemyCount}名，已选${this.selectedTowerLabel()}，速度${this.simulationClock.scale}倍，${this.battle.snapshot.phase === 'countdown' ? '可提前开波' : '提前开波未激活'}，${this.statusText}`,
+                : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，机枪${rivetTowerCount}座，冷凝${frostTowerCount}座，减速中${slowedEnemyCount}名，已选${this.selectedTowerLabel()}，速度${this.simulationClock.scale}倍，${this.battle.snapshot.phase === 'countdown' ? '可提前开波' : '提前开波未激活'}，${guidanceText ? `${guidanceText}，` : ''}${this.statusText}`,
         );
     }
 

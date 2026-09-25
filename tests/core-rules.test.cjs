@@ -19,6 +19,7 @@ const { SimulationClock } = require('../.test-dist/systems/SimulationClock.js');
 const { buildBattleResultViewModel } = require('../.test-dist/presentation/BattleResultViewModel.js');
 const { countCombatFeedback, CombatFeedbackRuntime } = require('../.test-dist/presentation/CombatFeedbackRuntime.js');
 const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGuidance.js');
+const { FirstLevelExperience } = require('../.test-dist/presentation/FirstLevelExperience.js');
 const { enemyVisualOffset } = require('../.test-dist/presentation/UnitVisualMotion.js');
 const {
     PHASE_B_EARLY_WAVE_BUTTON,
@@ -40,6 +41,26 @@ test('首关提示跟随真实布塔门槛，预览与战斗阶段优先级明�
     assert.match(firstLevelGuidance({ ...base, previewAccepted: false }), /不能建造/);
     assert.match(firstLevelGuidance({ ...base, previewAccepted: true }), /再点一次确认/);
     assert.match(firstLevelGuidance({ ...base, preparing: false }), /战斗中仍可布塔/);
+});
+
+test('首关入场卡独立于战斗，教学随真实布塔状态推进且可跳过', () => {
+    const flow = new FirstLevelExperience(false);
+    const context = { preparing: true, towerCount: 0, pathDelta: 0, previewAccepted: null, inputMode: 'idle' };
+    assert.equal(flow.snapshot(context).mode, 'home');
+    flow.begin();
+    assert.equal(flow.snapshot(context).step, 'select');
+    assert.equal(flow.snapshot({ ...context, inputMode: 'armed' }).step, 'place');
+    assert.match(flow.snapshot({ ...context, inputMode: 'click-preview', previewAccepted: false }).guidanceText, /红色/);
+    assert.match(flow.snapshot({ ...context, towerCount: 1, previewAccepted: true }).guidanceText, /第 2 步/);
+    assert.equal(flow.snapshot({ ...context, towerCount: 1, pathDelta: 2 }).step, 'shape');
+    assert.equal(flow.snapshot({ ...context, towerCount: 1, inputMode: 'armed' }).step, 'place');
+    assert.equal(flow.snapshot({ ...context, towerCount: 2, pathDelta: 1 }).step, 'route');
+    assert.equal(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2 }).step, 'ready');
+    assert.equal(flow.snapshot({ ...context, preparing: false }).step, 'combat');
+    flow.skip();
+    assert.equal(flow.snapshot(context).mode, 'free');
+    assert.equal(flow.snapshot(context).guidanceText, null);
+    assert.equal(new FirstLevelExperience(true).snapshot(context).mode, 'free');
 });
 
 function toCells(pairs) {

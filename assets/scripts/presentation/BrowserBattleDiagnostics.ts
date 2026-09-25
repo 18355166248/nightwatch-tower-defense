@@ -1,4 +1,5 @@
 export interface BrowserBattleDiagnosticsState {
+    readonly entryMode: string;
     readonly gridId: string;
     readonly columns: number;
     readonly rows: number;
