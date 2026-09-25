@@ -24,6 +24,7 @@ const { countCombatFeedback, CombatFeedbackRuntime } = require('../.test-dist/pr
 const { buildCoreObjectiveState } = require('../.test-dist/presentation/CoreObjectiveState.js');
 const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGuidance.js');
 const { FirstLevelExperience } = require('../.test-dist/presentation/FirstLevelExperience.js');
+const { hudEventText } = require('../.test-dist/presentation/PhaseBHudText.js');
 const { enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
 const { RouteChangeFeedback, routeChangeText, routeLengthDelta } = require('../.test-dist/presentation/RouteChangeFeedback.js');
 const { waveLineup, waveThreatHint } = require('../.test-dist/presentation/WaveBriefing.js');
@@ -38,6 +39,12 @@ const {
 } = require('../.test-dist/presentation/PhaseBLayout.js');
 
 const fixtures = JSON.parse(readFileSync(resolve(__dirname, '../docs/poc/phase-a-fixtures.json'), 'utf8'));
+
+test('首关 HUD 将重复金币移到独立数值卡，保留建塔与波次事件', () => {
+    assert.equal(hudEventText('机枪塔已建造 · 路线 +2 格 · 金币 10'), '机枪塔已建造 · 路线 +2 格');
+    assert.equal(hudEventText('第 1 波清场！清场 +20 · 剩余金币 54'), '第 1 波清场！清场 +20');
+    assert.equal(hudEventText('核心已失守'), '核心已失守');
+});
 
 test('出口核心标识按真实生命显示完整、受损和危急状态', () => {
     assert.deepEqual(buildCoreObjectiveState(10, 10), { health: 10, maxHealth: 10, ratio: 1, tone: 'steady' });

@@ -8,6 +8,7 @@ import {
 } from 'cc';
 import type { BattleResultViewModel } from './BattleResultViewModel';
 import type { TowerId } from '../config/PhaseBCombatConfig';
+import { hudEventText } from './PhaseBHudText';
 
 export interface PhaseBHudState {
     readonly qaMode: boolean;
@@ -33,6 +34,10 @@ export class PhaseBHudView {
     private renderedSignature = '';
     private readonly titleLabel: Label;
     private readonly statusLabel: Label;
+    private readonly goldLabel: Label;
+    private readonly pathLabel: Label;
+    private readonly waveLabel: Label;
+    private readonly coreLabel: Label;
     private readonly levelLabel: Label;
     private readonly guidanceLabel: Label;
     private readonly helpLabel: Label;
@@ -46,9 +51,16 @@ export class PhaseBHudView {
     private readonly resultActionLabel: Label;
 
     public constructor(parent: Node) {
-        this.titleLabel = this.createLabel(parent, 46, new Color('#F4D58D'), 850);
-        this.statusLabel = this.createLabel(parent, 31, new Color('#D7E6F5'), 755);
-        this.statusLabel.node.getComponent(UITransform)?.setContentSize(920, 125);
+        this.titleLabel = this.createLabel(parent, 46, new Color('#F4D58D'), 875);
+        this.statusLabel = this.createLabel(parent, 34, new Color('#D7E6F5'), 805);
+        this.statusLabel.node.getComponent(UITransform)?.setContentSize(755, 82);
+        this.statusLabel.horizontalAlign = HorizontalTextAlignment.LEFT;
+        this.statusLabel.overflow = Label.Overflow.CLAMP;
+        this.statusLabel.enableWrapText = true;
+        this.goldLabel = this.createHudValueLabel(parent, -358, new Color('#F4D58D'));
+        this.pathLabel = this.createHudValueLabel(parent, -120, new Color('#D7E6F5'));
+        this.waveLabel = this.createHudValueLabel(parent, 120, new Color('#D7E6F5'));
+        this.coreLabel = this.createHudValueLabel(parent, 358, new Color('#79E0AD'));
         this.levelLabel = this.createCenteredLabel(parent, 35, new Color('#F4D58D'), 655, 760, 80);
         this.guidanceLabel = this.createCenteredLabel(parent, 34, new Color('#D7E6F5'), -655, 920, 125);
         this.helpLabel = this.createLabel(parent, 30, new Color('#A9C4DB'), -930);
@@ -75,6 +87,10 @@ export class PhaseBHudView {
         const result = state.result;
         this.titleLabel.node.active = !result;
         this.statusLabel.node.active = !result;
+        this.goldLabel.node.active = !result;
+        this.pathLabel.node.active = !result;
+        this.waveLabel.node.active = !result;
+        this.coreLabel.node.active = !result;
         this.levelLabel.node.active = !result && !state.qaMode;
         this.guidanceLabel.node.active = !result && !state.qaMode;
         this.helpLabel.node.active = !result;
@@ -89,7 +105,12 @@ export class PhaseBHudView {
 
         if (!result) {
             this.titleLabel.string = state.qaMode ? '夜城防线 · Phase B 八波灰盒' : '夜城防线';
-            this.statusLabel.string = `${state.statusText}\n金币 ${state.gold} · 路径 ${state.pathLength} 格 · 波次 ${state.wave}/${state.totalWaves} · 核心 ${state.coreHealth} · ${state.phaseText}`;
+            this.statusLabel.string = hudEventText(state.statusText);
+            this.goldLabel.string = `金币 ${state.gold}`;
+            this.pathLabel.string = `路径 ${state.pathLength}`;
+            this.waveLabel.string = `波 ${state.wave}/${state.totalWaves}`;
+            this.coreLabel.string = `核心 ${state.coreHealth}`;
+            this.coreLabel.color = new Color(state.coreHealth <= 3 ? '#FF8580' : '#79E0AD');
             this.levelLabel.string = '第一关 · 守住夜城入口';
             this.guidanceLabel.string = state.guidanceText;
             this.speedLabel.string = `速度\n${state.speedMultiplier}×`;
@@ -118,6 +139,13 @@ export class PhaseBHudView {
     private createTowerLabel(parent: Node, x: number, y: number): Label {
         const label = this.createCenteredLabel(parent, 30, new Color('#F2E4BF'), y, 145, 76);
         label.node.setPosition(x, y, 0);
+        label.node.active = true;
+        return label;
+    }
+
+    private createHudValueLabel(parent: Node, x: number, color: Color): Label {
+        const label = this.createCenteredLabel(parent, 38, color, 741, 222, 64);
+        label.node.setPosition(x, 741, 0);
         label.node.active = true;
         return label;
     }

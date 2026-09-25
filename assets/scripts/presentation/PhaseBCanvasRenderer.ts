@@ -54,6 +54,12 @@ export class PhaseBCanvasRenderer {
         graphics.fillColor = new Color(13, 24, 38, 190);
         graphics.roundRect(-485, 712, 970, 215, 25);
         graphics.fill();
+        // 四项常驻资源各占固定视觉槽，长事件文案不再把关键数字挤成一行小字。
+        for (const left of [-469, -231, 9, 247]) {
+            graphics.fillColor = new Color(35, 55, 73, 228);
+            graphics.roundRect(left, 710, 222, 64, 14);
+            graphics.fill();
+        }
         graphics.fillColor = new Color(13, 24, 38, 168);
         graphics.roundRect(-500, -950, 1000, 465, 25);
         graphics.fill();
