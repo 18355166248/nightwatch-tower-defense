@@ -1,0 +1,34 @@
+tests/core-rules.test.cjs
+  s_57db2c01e7cdde::t_f4aecc6da09ae1 7,102,223,239,635,649,653,669
+  s_57db2c01e7cdde::t_e7d83018342c71 77
+  s_57db2c01e7cdde::t_a854cd4a8aa902 673,711-719,721-728
+assets/scripts/presentation/FirstLevelExperience.ts
+  s_57db2c01e7cdde::t_e7d83018342c71 72
+assets/scripts/config/PhaseBCombatConfig.ts
+  s_57db2c01e7cdde::t_3e524536dee662 78-81
+assets/scripts/config/FirstLevelOpening.ts
+  s_57db2c01e7cdde::t_3e524536dee662 17,26-29
+docs/poc/phase-b-first-level-pacing-regression.md
+  s_57db2c01e7cdde::t_98c4f737f65414 1-34,37-40
+  s_57db2c01e7cdde::t_f128f4ad10b42e 35-36
+docs/validation.md
+  s_57db2c01e7cdde::t_97d1b8112dd5fc 89
+  s_57db2c01e7cdde::t_63839c5d65230e 29,52-53,60-61,88,100-101,109-112
+  s_57db2c01e7cdde::t_f128f4ad10b42e 113-114
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "a13c8156a96c66b8c833725ba3d5807e1edadcfb",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
