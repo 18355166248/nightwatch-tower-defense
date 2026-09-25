@@ -14,7 +14,7 @@ export const FIRST_LEVEL_OPENING: readonly { readonly cell: GridCell; readonly t
 
 export const FIRST_LEVEL_FIRST_REINFORCEMENT: GridCell = { column: 1, row: 2 };
 
-/** 推荐补塔次序来自完整八波规则回放；只用于提示，实际布塔仍由玩家决定。 */
+/** 推荐布防保留末波压力；只用于提示，玩家仍可自由加固。 */
 export const FIRST_LEVEL_REINFORCEMENTS: readonly { readonly cell: GridCell; readonly towerId: TowerId }[] = [
     { cell: FIRST_LEVEL_FIRST_REINFORCEMENT, towerId: 'rivet-gun' },
     { cell: { column: 0, row: 2 }, towerId: 'rivet-gun' },
@@ -23,6 +23,10 @@ export const FIRST_LEVEL_REINFORCEMENTS: readonly { readonly cell: GridCell; rea
     { cell: { column: 4, row: 8 }, towerId: 'frost-coil' },
     { cell: { column: 5, row: 8 }, towerId: 'rivet-gun' },
     { cell: { column: 6, row: 8 }, towerId: 'rivet-gun' },
+];
+
+/** 末段可选加固：多花金币能显著减少最后两波漏怪，但教学不代替玩家做决定。 */
+export const FIRST_LEVEL_OPTIONAL_FORTIFICATIONS: readonly { readonly cell: GridCell; readonly towerId: TowerId }[] = [
     { cell: { column: 7, row: 8 }, towerId: 'rivet-gun' },
     { cell: { column: 8, row: 8 }, towerId: 'rivet-gun' },
 ];

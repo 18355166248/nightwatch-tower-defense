@@ -69,7 +69,7 @@ export class FirstLevelExperience {
                 const next = FIRST_LEVEL_REINFORCEMENTS.find(({ cell }) => !context.occupiedCells.has(cellKey(cell)));
                 if (!next) {
                     return context.guidedIntermissionHeld
-                        ? { mode: this.mode, step: 'ready', guidanceText: '推荐横墙已完成 · 可自由布塔或点 ▶ 继续' }
+                        ? { mode: this.mode, step: 'ready', guidanceText: '推荐完成 · 下排可补机枪，或点 ▶ 继续' }
                         : { mode: this.mode, step: 'combat', guidanceText: '下一波即将到来，留意敌人和核心' };
                 }
                 const cost = next.towerId === 'frost-coil' ? 40 : 30;
