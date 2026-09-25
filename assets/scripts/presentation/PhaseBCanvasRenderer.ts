@@ -1,8 +1,8 @@
 import { Color, Graphics } from 'cc';
-import { FROST_COIL, RIVET_GUN, type TowerId } from '../config/PhaseBCombatConfig';
-import { cellKey, sameCell, type GridCell, type GridDefinition, type GridId } from '../core/GridTypes';
+import { FROST_COIL, RIVET_GUN } from '../config/PhaseBCombatConfig';
+import { cellKey, sameCell, type GridDefinition } from '../core/GridTypes';
 import type { BattleResultViewModel } from './BattleResultViewModel';
-import type { CombatFeedbackSnapshot } from './CombatFeedbackRuntime';
+import type { PhaseBSceneState } from './PhaseBSceneState';
 import {
     PHASE_B_GRID_TABS,
     PHASE_B_FROST_BUTTON,
@@ -15,31 +15,6 @@ import {
     PhaseBLayout,
 } from './PhaseBLayout';
 
-export interface PhaseBCanvasRenderState {
-    readonly qaMode: boolean;
-    readonly selectedGridId: GridId;
-    readonly grid: GridDefinition;
-    readonly towers: ReadonlySet<string>;
-    readonly towerIdsByCell: ReadonlyMap<string, TowerId>;
-    readonly activePath: readonly GridCell[] | null;
-    readonly preview: { readonly accepted: boolean; readonly cell: GridCell; readonly towerId: TowerId } | null;
-    readonly enemies: readonly {
-        readonly health: number;
-        readonly archetype: { readonly maxHealth: number };
-        readonly fromCell: GridCell;
-        readonly toCell: GridCell;
-        readonly progress: number;
-        readonly slowRemainingSeconds: number;
-    }[];
-    readonly feedback: CombatFeedbackSnapshot;
-    readonly gold: number;
-    readonly speedMultiplier: number;
-    readonly selectedTowerId: TowerId;
-    readonly canStartNextWaveEarly: boolean;
-    readonly showPlayControl: boolean;
-    readonly result: BattleResultViewModel | null;
-}
-
 /**
  * 程序化灰盒渲染器只读取玩法快照，不持有经济、状态机或输入状态。
  * 后续替换 Sprite/Prefab 时可以整体替换此类，而不改动战斗编排。
@@ -50,7 +25,7 @@ export class PhaseBCanvasRenderer {
         private readonly layout: PhaseBLayout,
     ) {}
 
-    public render(state: PhaseBCanvasRenderState): void {
+    public render(state: PhaseBSceneState): void {
         const graphics = this.graphics;
         graphics.clear();
         graphics.fillColor = new Color(9, 15, 26, 65);
@@ -75,7 +50,7 @@ export class PhaseBCanvasRenderer {
         graphics.fill();
     }
 
-    private drawTabs(state: PhaseBCanvasRenderState): void {
+    private drawTabs(state: PhaseBSceneState): void {
         const graphics = this.graphics;
         for (const tab of PHASE_B_GRID_TABS) {
             graphics.fillColor = tab.id === state.selectedGridId ? new Color('#C68A35') : new Color('#263A55');
@@ -102,7 +77,7 @@ export class PhaseBCanvasRenderer {
         graphics.stroke();
     }
 
-    private drawBoard(state: PhaseBCanvasRenderState): void {
+    private drawBoard(state: PhaseBSceneState): void {
         const graphics = this.graphics;
         const metrics = this.layout.boardMetrics(state.grid);
         const activePath = state.activePath;
@@ -147,7 +122,7 @@ export class PhaseBCanvasRenderer {
                 graphics.lineWidth = 1;
                 graphics.rect(center.x - half, center.y - half, metrics.cellSize, metrics.cellSize);
                 graphics.stroke();
-                if (state.towers.has(cellKey(cell))) {
+                if (!state.useUnitSprites && state.towers.has(cellKey(cell))) {
                     this.drawTower(center, metrics.cellSize, state.towerIdsByCell.get(cellKey(cell)) === 'frost-coil');
                 }
             }
@@ -161,26 +136,30 @@ export class PhaseBCanvasRenderer {
             const to = this.center(enemy.toCell, state.grid);
             const x = from.x + (to.x - from.x) * enemy.progress;
             const y = from.y + (to.y - from.y) * enemy.progress;
-            graphics.fillColor = new Color('#F06A63');
-            graphics.circle(x, y, metrics.cellSize * 0.25);
-            graphics.fill();
-            graphics.strokeColor = new Color('#FFF1CF');
-            graphics.lineWidth = 4;
-            graphics.circle(x, y, metrics.cellSize * 0.25);
-            graphics.stroke();
-            if (enemy.slowRemainingSeconds > 0) {
+            if (!state.useUnitSprites) {
+                graphics.fillColor = new Color('#F06A63');
+                graphics.circle(x, y, metrics.cellSize * 0.25);
+                graphics.fill();
+                graphics.strokeColor = new Color('#FFF1CF');
+                graphics.lineWidth = 4;
+                graphics.circle(x, y, metrics.cellSize * 0.25);
+                graphics.stroke();
+            }
+            if (!state.useUnitSprites && enemy.slowRemainingSeconds > 0) {
                 graphics.strokeColor = new Color('#8BE8F4');
                 graphics.lineWidth = 5;
                 graphics.circle(x, y, metrics.cellSize * 0.31);
                 graphics.stroke();
             }
-            const healthWidth = metrics.cellSize * 0.62;
-            graphics.fillColor = new Color('#35262C');
-            graphics.rect(x - healthWidth / 2, y + metrics.cellSize * 0.31, healthWidth, 7);
-            graphics.fill();
-            graphics.fillColor = new Color('#69D391');
-            graphics.rect(x - healthWidth / 2, y + metrics.cellSize * 0.31, healthWidth * Math.max(0, enemy.health / enemy.archetype.maxHealth), 7);
-            graphics.fill();
+            if (!state.useUnitSprites) {
+                const healthWidth = metrics.cellSize * 0.62;
+                graphics.fillColor = new Color('#35262C');
+                graphics.rect(x - healthWidth / 2, y + metrics.cellSize * 0.42, healthWidth, 7);
+                graphics.fill();
+                graphics.fillColor = new Color('#69D391');
+                graphics.rect(x - healthWidth / 2, y + metrics.cellSize * 0.42, healthWidth * Math.max(0, enemy.health / enemy.archetype.maxHealth), 7);
+                graphics.fill();
+            }
         }
         this.drawCombatFeedback(state, metrics.cellSize);
     }
@@ -216,7 +195,7 @@ export class PhaseBCanvasRenderer {
         graphics.fill();
     }
 
-    private drawRouteArrows(state: PhaseBCanvasRenderState, cellSize: number): void {
+    private drawRouteArrows(state: PhaseBSceneState, cellSize: number): void {
         const path = state.activePath;
         if (!path || path.length < 2) return;
         const graphics = this.graphics;
@@ -239,7 +218,7 @@ export class PhaseBCanvasRenderer {
         }
     }
 
-    private drawPlacementRange(state: PhaseBCanvasRenderState, cellSize: number): void {
+    private drawPlacementRange(state: PhaseBSceneState, cellSize: number): void {
         const preview = state.preview;
         if (!preview) return;
         const graphics = this.graphics;
@@ -255,7 +234,7 @@ export class PhaseBCanvasRenderer {
         graphics.fill();
     }
 
-    private drawCombatFeedback(state: PhaseBCanvasRenderState, cellSize: number): void {
+    private drawCombatFeedback(state: PhaseBSceneState, cellSize: number): void {
         const graphics = this.graphics;
         for (const tracer of state.feedback.tracers) {
             const origin = this.center(tracer.origin, state.grid);
@@ -345,7 +324,7 @@ export class PhaseBCanvasRenderer {
         graphics.fill();
     }
 
-    private drawControls(state: PhaseBCanvasRenderState): void {
+    private drawControls(state: PhaseBSceneState): void {
         const graphics = this.graphics;
         this.drawButton(-440, -600, 340, 85);
         this.drawButton(100, -600, 340, 85);

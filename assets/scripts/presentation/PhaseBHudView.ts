@@ -51,8 +51,8 @@ export class PhaseBHudView {
         this.helpLabel = this.createLabel(parent, 30, new Color('#A9C4DB'), -930);
         this.speedLabel = this.createControlLabel(parent, -340, -812);
         this.earlyWaveLabel = this.createControlLabel(parent, 340, -812);
-        this.rivetLabel = this.createTowerLabel(parent, -89, -812);
-        this.frostLabel = this.createTowerLabel(parent, 89, -812);
+        this.rivetLabel = this.createTowerLabel(parent, -89, -854);
+        this.frostLabel = this.createTowerLabel(parent, 89, -854);
         this.resultTitleLabel = this.createCenteredLabel(parent, 64, new Color('#F4D58D'), 230, 760, 100);
         this.resultSummaryLabel = this.createCenteredLabel(parent, 34, new Color('#D7E6F5'), 25, 760, 190);
         this.resultActionLabel = this.createCenteredLabel(parent, 38, new Color('#101827'), -218, 600, 120);
@@ -107,7 +107,7 @@ export class PhaseBHudView {
     }
 
     private createTowerLabel(parent: Node, x: number, y: number): Label {
-        const label = this.createCenteredLabel(parent, 34, new Color('#F2E4BF'), y, 145, 110);
+        const label = this.createCenteredLabel(parent, 30, new Color('#F2E4BF'), y, 145, 76);
         label.node.setPosition(x, y, 0);
         label.node.active = true;
         return label;

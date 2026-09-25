@@ -22,6 +22,8 @@ import { countCombatFeedback, CombatFeedbackRuntime } from '../presentation/Comb
 import { PhaseBBackdropView } from '../presentation/PhaseBBackdropView';
 import { PhaseBCanvasRenderer } from '../presentation/PhaseBCanvasRenderer';
 import { PhaseBHudView } from '../presentation/PhaseBHudView';
+import { PhaseBUnitSpriteView } from '../presentation/PhaseBUnitSpriteView';
+import type { PhaseBSceneState } from '../presentation/PhaseBSceneState';
 import { firstLevelGuidance } from '../presentation/FirstLevelGuidance';
 import {
     PHASE_B_DESIGN_HEIGHT,
@@ -52,6 +54,7 @@ export class NightwatchPocBootstrap extends Component {
     private canvas: Node | null = null;
     private renderer: PhaseBCanvasRenderer | null = null;
     private hud: PhaseBHudView | null = null;
+    private unitSprites: PhaseBUnitSpriteView | null = null;
     private readonly waves = new WaveCatalog(PHASE_B_WAVES);
     private economy = new EconomyLedger(PHASE_A_INITIAL_GOLD);
     private model = new PlacementModel(PHASE_A_GRIDS[DEFAULT_GRID_ID], this.economy, PHASE_B_TOWERS);
@@ -88,12 +91,13 @@ export class NightwatchPocBootstrap extends Component {
         transform.setContentSize(PHASE_B_DESIGN_WIDTH, PHASE_B_DESIGN_HEIGHT);
         this.canvas.addChild(layer);
         new PhaseBBackdropView(layer);
+        this.unitSprites = new PhaseBUnitSpriteView(layer, this.layout);
         this.hud = new PhaseBHudView(layer);
         const graphicsNode = new Node('PhaseAGraphics');
         graphicsNode.layer = layer.layer;
         graphicsNode.addComponent(UITransform).setContentSize(PHASE_B_DESIGN_WIDTH, PHASE_B_DESIGN_HEIGHT);
         layer.addChild(graphicsNode);
-        // 底图、动态战场、HUD 依次分层；图片加载失败时中间层仍可独立显示战斗。
+        // 底图、动态战场、单位切图、HUD 依次分层；图片加载失败时 Graphics 保留灰盒战斗。
         graphicsNode.setSiblingIndex(1);
         const graphics = graphicsNode.addComponent(Graphics);
         this.renderer = new PhaseBCanvasRenderer(graphics, this.layout);
@@ -492,8 +496,9 @@ export class NightwatchPocBootstrap extends Component {
         const activePath = this.preview?.accepted && this.preview.path
             ? this.preview.path
             : this.model.flowField.pathFrom(this.model.grid.entry);
-        this.renderer?.render({
+        const sceneState: PhaseBSceneState = {
             qaMode: this.qaMode,
+            useUnitSprites: this.unitSprites?.ready ?? false,
             selectedGridId: this.selectedGridId,
             grid: this.model.grid,
             towers: this.model.towers,
@@ -508,7 +513,9 @@ export class NightwatchPocBootstrap extends Component {
             canStartNextWaveEarly: battle.phase === 'countdown',
             showPlayControl: this.preparing || this.battle.snapshot.phase === 'paused',
             result,
-        });
+        };
+        this.renderer?.render(sceneState);
+        this.unitSprites?.render(sceneState);
         const pathLength = this.preview?.path?.length
             ? this.preview.path.length - 1
             : this.model.flowField.distanceAt(this.model.grid.entry);
