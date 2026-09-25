@@ -1,0 +1,42 @@
+assets/scripts/presentation/PhaseBCanvasRenderer.ts
+  s_57db2c01e7cdde::t_7b8cbdd68d344c 8-9,131-132
+assets/scripts/presentation/EnemySlowIndicatorView.ts
+  s_57db2c01e7cdde::t_7b8cbdd68d344c 1-2,5-15,17-24
+  s_57db2c01e7cdde::t_735883ee6ffbdc 3-4,16
+assets/scripts/presentation/UnitVisualMotion.ts
+  s_57db2c01e7cdde::t_7b8cbdd68d344c 71-73,75-76
+  s_57db2c01e7cdde::t_735883ee6ffbdc 74
+docs/validation.md
+  s_57db2c01e7cdde::t_3b36f69552ee39 151-156
+assets/scripts/presentation/PhaseBUnitSpriteView.ts
+  s_57db2c01e7cdde::t_7b8cbdd68d344c 2,7-8,154,157-159,199-200
+docs/poc/phase-b-slow-readability-regression.md
+  s_57db2c01e7cdde::t_8e280f4ca23dcb 14
+  s_57db2c01e7cdde::t_3b36f69552ee39 1-13,15-19
+tests/core-rules.test.cjs
+  s_57db2c01e7cdde::t_f69ec75c8aac87 28,264-269
+  s_57db2c01e7cdde::t_735883ee6ffbdc 270
+  s_57db2c01e7cdde::t_1d38289efe37a8 271-272
+docs/first-level-art.md
+  s_57db2c01e7cdde::t_3b36f69552ee39 13-14
+tsconfig.test.json
+  s_57db2c01e7cdde::t_bce17f7597730b 26
+assets/scripts/presentation/EnemySlowIndicatorView.ts.meta
+  s_57db2c01e7cdde::t_4eaac0fcaba7b8 1-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "aaa91a75163f970b82a97834a1682868fec7e386",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
