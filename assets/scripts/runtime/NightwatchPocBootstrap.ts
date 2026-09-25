@@ -19,8 +19,10 @@ import { PhaseBDebugInput, type PhaseBDebugAction } from '../input/PhaseBDebugIn
 import { buildBattleResultViewModel } from '../presentation/BattleResultViewModel';
 import { BrowserBattleDiagnostics } from '../presentation/BrowserBattleDiagnostics';
 import { countCombatFeedback, CombatFeedbackRuntime } from '../presentation/CombatFeedbackRuntime';
+import { PhaseBBackdropView } from '../presentation/PhaseBBackdropView';
 import { PhaseBCanvasRenderer } from '../presentation/PhaseBCanvasRenderer';
 import { PhaseBHudView } from '../presentation/PhaseBHudView';
+import { firstLevelGuidance } from '../presentation/FirstLevelGuidance';
 import {
     PHASE_B_DESIGN_HEIGHT,
     PHASE_B_DESIGN_WIDTH,
@@ -73,6 +75,7 @@ export class NightwatchPocBootstrap extends Component {
     private readonly layout = new PhaseBLayout();
     private readonly browserDiagnostics = new BrowserBattleDiagnostics();
     private readonly debugInput = new PhaseBDebugInput((action) => this.handleDebugAction(action));
+    private readonly qaMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('qa') === '1';
 
     protected override onLoad(): void {
         view.setDesignResolutionSize(PHASE_B_DESIGN_WIDTH, PHASE_B_DESIGN_HEIGHT, ResolutionPolicy.FIXED_HEIGHT);
@@ -84,13 +87,14 @@ export class NightwatchPocBootstrap extends Component {
         const transform = layer.addComponent(UITransform);
         transform.setContentSize(PHASE_B_DESIGN_WIDTH, PHASE_B_DESIGN_HEIGHT);
         this.canvas.addChild(layer);
+        new PhaseBBackdropView(layer);
         this.hud = new PhaseBHudView(layer);
         const graphicsNode = new Node('PhaseAGraphics');
         graphicsNode.layer = layer.layer;
         graphicsNode.addComponent(UITransform).setContentSize(PHASE_B_DESIGN_WIDTH, PHASE_B_DESIGN_HEIGHT);
         layer.addChild(graphicsNode);
-        // Graphics 承担所有底板与战场绘制，固定到首个 sibling，避免结算遮罩盖住 Label。
-        graphicsNode.setSiblingIndex(0);
+        // 底图、动态战场、HUD 依次分层；图片加载失败时中间层仍可独立显示战斗。
+        graphicsNode.setSiblingIndex(1);
         const graphics = graphicsNode.addComponent(Graphics);
         this.renderer = new PhaseBCanvasRenderer(graphics, this.layout);
 
@@ -99,7 +103,8 @@ export class NightwatchPocBootstrap extends Component {
         this.canvas.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
         this.canvas.on(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
         game.on(Game.EVENT_HIDE, this.onLifecycleHide, this);
-        this.debugInput.attach();
+        // QA 夹具仅在显式 qa=1 时注册，首关默认画面不暴露测试捷径。
+        if (this.qaMode) this.debugInput.attach();
         this.redraw();
     }
 
@@ -199,7 +204,7 @@ export class NightwatchPocBootstrap extends Component {
     }
 
     private handleTopControls(point: Vec3): boolean {
-        if (point.y >= 610 && point.y <= 700) {
+        if (this.qaMode && point.y >= 610 && point.y <= 700) {
             for (const tab of PHASE_B_GRID_TABS) {
                 if (point.x >= tab.left && point.x <= tab.right) {
                     this.switchGrid(tab.id);
@@ -207,11 +212,11 @@ export class NightwatchPocBootstrap extends Component {
                 }
             }
         }
-        if (point.y >= -700 && point.y <= -610 && point.x >= -440 && point.x <= -160) {
+        if (this.qaMode && point.y >= -700 && point.y <= -610 && point.x >= -440 && point.x <= -160) {
             this.applyFixture('shortFold');
             return true;
         }
-        if (point.y >= -700 && point.y <= -610 && point.x >= 160 && point.x <= 440) {
+        if (this.qaMode && point.y >= -700 && point.y <= -610 && point.x >= 160 && point.x <= 440) {
             this.applyFixture('longSnake');
             return true;
         }
@@ -338,7 +343,9 @@ export class NightwatchPocBootstrap extends Component {
         }
         const result = this.model.commit(this.preview, this.enemyStates());
         this.statusText = result.accepted
-            ? `${this.selectedTowerLabel()}建造成功 · 金币 ${result.gold} · 地图版本 ${result.mapVersion}`
+            ? this.qaMode
+                ? `${this.selectedTowerLabel()}建造成功 · 金币 ${result.gold} · 地图版本 ${result.mapVersion}`
+                : `${this.selectedTowerLabel()}已建造 · 剩余金币 ${result.gold}`
             : this.rejectText(result.reason);
         this.preview = null;
         this.inputMode = 'idle';
@@ -371,7 +378,7 @@ export class NightwatchPocBootstrap extends Component {
         this.preparing = true;
         this.pausedByLifecycle = false;
         this.feedback.clear();
-        this.cancelInput('已重置为空网格');
+        this.cancelInput(this.qaMode ? '已重置为空网格' : '已重新布防，可以调整路线');
     }
 
     private applyFixture(kind: 'shortFold' | 'longSnake', coreHealth = 10): void {
@@ -486,6 +493,7 @@ export class NightwatchPocBootstrap extends Component {
             ? this.preview.path
             : this.model.flowField.pathFrom(this.model.grid.entry);
         this.renderer?.render({
+            qaMode: this.qaMode,
             selectedGridId: this.selectedGridId,
             grid: this.model.grid,
             towers: this.model.towers,
@@ -505,6 +513,14 @@ export class NightwatchPocBootstrap extends Component {
             ? this.preview.path.length - 1
             : this.model.flowField.distanceAt(this.model.grid.entry);
         this.hud?.render({
+            qaMode: this.qaMode,
+            guidanceText: firstLevelGuidance({
+                preparing: this.preparing,
+                towerCount: this.model.towers.size,
+                pathDelta: this.currentPathDelta(),
+                previewAccepted: this.preview?.accepted ?? null,
+                selectedTowerId: this.selectedTowerId,
+            }),
             statusText: this.statusText,
             gold: this.model.gold,
             pathLength,

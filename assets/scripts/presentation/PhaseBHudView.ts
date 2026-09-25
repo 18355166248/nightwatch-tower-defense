@@ -10,6 +10,8 @@ import type { BattleResultViewModel } from './BattleResultViewModel';
 import type { TowerId } from '../config/PhaseBCombatConfig';
 
 export interface PhaseBHudState {
+    readonly qaMode: boolean;
+    readonly guidanceText: string;
     readonly statusText: string;
     readonly gold: number;
     readonly pathLength: number;
@@ -29,6 +31,8 @@ export class PhaseBHudView {
     private renderedSignature = '';
     private readonly titleLabel: Label;
     private readonly statusLabel: Label;
+    private readonly levelLabel: Label;
+    private readonly guidanceLabel: Label;
     private readonly helpLabel: Label;
     private readonly speedLabel: Label;
     private readonly earlyWaveLabel: Label;
@@ -40,9 +44,11 @@ export class PhaseBHudView {
 
     public constructor(parent: Node) {
         this.titleLabel = this.createLabel(parent, 46, new Color('#F4D58D'), 850);
-        this.statusLabel = this.createLabel(parent, 27, new Color('#D7E6F5'), 755);
+        this.statusLabel = this.createLabel(parent, 31, new Color('#D7E6F5'), 755);
         this.statusLabel.node.getComponent(UITransform)?.setContentSize(920, 125);
-        this.helpLabel = this.createLabel(parent, 25, new Color('#8FA9C4'), -945);
+        this.levelLabel = this.createCenteredLabel(parent, 35, new Color('#F4D58D'), 655, 760, 80);
+        this.guidanceLabel = this.createCenteredLabel(parent, 34, new Color('#D7E6F5'), -655, 920, 125);
+        this.helpLabel = this.createLabel(parent, 30, new Color('#A9C4DB'), -930);
         this.speedLabel = this.createControlLabel(parent, -340, -812);
         this.earlyWaveLabel = this.createControlLabel(parent, 340, -812);
         this.rivetLabel = this.createTowerLabel(parent, -89, -812);
@@ -54,7 +60,7 @@ export class PhaseBHudView {
 
     public render(state: PhaseBHudState): void {
         const signature = [
-            state.statusText, state.gold, state.pathLength, state.wave, state.totalWaves,
+            state.qaMode, state.guidanceText, state.statusText, state.gold, state.pathLength, state.wave, state.totalWaves,
             state.coreHealth, state.phaseText, state.speedMultiplier, state.canStartNextWaveEarly,
             Math.ceil(state.countdownSeconds), state.selectedTowerId, state.result?.kind ?? '', state.result?.summary ?? '',
         ].join('|');
@@ -64,6 +70,8 @@ export class PhaseBHudView {
         const result = state.result;
         this.titleLabel.node.active = !result;
         this.statusLabel.node.active = !result;
+        this.levelLabel.node.active = !result && !state.qaMode;
+        this.guidanceLabel.node.active = !result && !state.qaMode;
         this.helpLabel.node.active = !result;
         this.speedLabel.node.active = !result;
         this.earlyWaveLabel.node.active = !result;
@@ -74,8 +82,10 @@ export class PhaseBHudView {
         this.resultActionLabel.node.active = Boolean(result);
 
         if (!result) {
-            this.titleLabel.string = '夜城防线 · Phase B 八波灰盒';
+            this.titleLabel.string = state.qaMode ? '夜城防线 · Phase B 八波灰盒' : '夜城防线';
             this.statusLabel.string = `${state.statusText}\n金币 ${state.gold} · 路径 ${state.pathLength} 格 · 波次 ${state.wave}/${state.totalWaves} · 核心 ${state.coreHealth} · ${state.phaseText}`;
+            this.levelLabel.string = '第一关 · 守住夜城入口';
+            this.guidanceLabel.string = state.guidanceText;
             this.speedLabel.string = `速度\n${state.speedMultiplier}×`;
             this.earlyWaveLabel.string = state.canStartNextWaveEarly
                 ? `提前开波\n${Math.ceil(state.countdownSeconds)} 秒`
@@ -85,7 +95,9 @@ export class PhaseBHudView {
             this.frostLabel.string = '冷凝\n40';
             this.rivetLabel.color = new Color(state.selectedTowerId === 'rivet-gun' ? '#101827' : '#F2E4BF');
             this.frostLabel.color = new Color(state.selectedTowerId === 'frost-coil' ? '#101827' : '#DDFBFF');
-            this.helpLabel.string = '先建 2 塔且路径 +2｜Q/W选塔 J混合样例｜X切速 N提前开波｜F/G/H样例 R重置';
+            this.helpLabel.string = state.qaMode
+                ? '先建 2 塔且路径 +2｜Q/W选塔 J混合样例｜X切速 N提前开波｜F/G/H样例 R重置'
+                : '拖塔到格子，或点塔后双击格子 · 准备时点已建塔可撤销';
             return;
         }
         this.resultTitleLabel.string = result.title;
@@ -95,14 +107,14 @@ export class PhaseBHudView {
     }
 
     private createTowerLabel(parent: Node, x: number, y: number): Label {
-        const label = this.createCenteredLabel(parent, 24, new Color('#F2E4BF'), y, 145, 110);
+        const label = this.createCenteredLabel(parent, 34, new Color('#F2E4BF'), y, 145, 110);
         label.node.setPosition(x, y, 0);
         label.node.active = true;
         return label;
     }
 
     private createControlLabel(parent: Node, x: number, y: number): Label {
-        const label = this.createCenteredLabel(parent, 30, new Color('#F2E4BF'), y, 250, 120);
+        const label = this.createCenteredLabel(parent, 34, new Color('#F2E4BF'), y, 250, 120);
         label.node.setPosition(x, y, 0);
         label.node.active = true;
         return label;

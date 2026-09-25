@@ -16,12 +16,13 @@ import {
 } from './PhaseBLayout';
 
 export interface PhaseBCanvasRenderState {
+    readonly qaMode: boolean;
     readonly selectedGridId: GridId;
     readonly grid: GridDefinition;
     readonly towers: ReadonlySet<string>;
     readonly towerIdsByCell: ReadonlyMap<string, TowerId>;
     readonly activePath: readonly GridCell[] | null;
-    readonly preview: { readonly accepted: boolean; readonly cell: GridCell } | null;
+    readonly preview: { readonly accepted: boolean; readonly cell: GridCell; readonly towerId: TowerId } | null;
     readonly enemies: readonly {
         readonly health: number;
         readonly archetype: { readonly maxHealth: number };
@@ -52,13 +53,26 @@ export class PhaseBCanvasRenderer {
     public render(state: PhaseBCanvasRenderState): void {
         const graphics = this.graphics;
         graphics.clear();
-        graphics.fillColor = new Color('#101827');
+        graphics.fillColor = new Color(9, 15, 26, 65);
         graphics.rect(-540, -960, 1080, 1920);
         graphics.fill();
-        this.drawTabs(state);
+        this.drawInterfacePanels();
+        if (state.qaMode) this.drawTabs(state);
+        else this.drawLevelBanner();
         this.drawBoard(state);
         this.drawControls(state);
         this.drawResultOverlay(state.result);
+    }
+
+    private drawInterfacePanels(): void {
+        const graphics = this.graphics;
+        // 文字永远压在低对比面板上，避免底图时钟和屋檐抢掉状态信息。
+        graphics.fillColor = new Color(13, 24, 38, 190);
+        graphics.roundRect(-485, 712, 970, 215, 25);
+        graphics.fill();
+        graphics.fillColor = new Color(13, 24, 38, 168);
+        graphics.roundRect(-500, -950, 1000, 465, 25);
+        graphics.fill();
     }
 
     private drawTabs(state: PhaseBCanvasRenderState): void {
@@ -73,10 +87,31 @@ export class PhaseBCanvasRenderer {
         this.drawGridCode(292, 655, [8, 1, 3]);
     }
 
+    private drawLevelBanner(): void {
+        const graphics = this.graphics;
+        graphics.fillColor = new Color('#263A55');
+        graphics.roundRect(-430, 615, 860, 85, 18);
+        graphics.fill();
+        graphics.fillColor = new Color('#F4D58D');
+        graphics.circle(-375, 657, 15);
+        graphics.fill();
+        graphics.strokeColor = new Color('#7ED9B0');
+        graphics.lineWidth = 8;
+        graphics.moveTo(-350, 657);
+        graphics.lineTo(-295, 657);
+        graphics.stroke();
+    }
+
     private drawBoard(state: PhaseBCanvasRenderState): void {
         const graphics = this.graphics;
         const metrics = this.layout.boardMetrics(state.grid);
         const activePath = state.activePath;
+        const pathCells = new Set(activePath?.map(cellKey) ?? []);
+
+        // 战场边框与道路使用同一格子坐标；正式素材接入前先保证路径在手机尺寸下可辨认。
+        graphics.fillColor = new Color('#495663');
+        graphics.roundRect(metrics.left - 14, metrics.bottom - 14, metrics.width + 28, metrics.height + 28, 13);
+        graphics.fill();
 
         if (activePath && activePath.length > 1) {
             graphics.strokeColor = state.preview?.accepted ? new Color('#5FE1A2') : new Color('#5E8FC6');
@@ -95,7 +130,9 @@ export class PhaseBCanvasRenderer {
                 const cell = { column, row };
                 const center = this.center(cell, state.grid);
                 const half = metrics.cellSize / 2;
-                let fill = new Color(31, 47, 67, 160);
+                let fill = pathCells.has(cellKey(cell))
+                    ? new Color(150, 166, 151, 195)
+                    : new Color(55, 84, 105, 120);
                 if (sameCell(cell, state.grid.entry)) fill = new Color('#5678D4');
                 else if (sameCell(cell, state.grid.exit)) fill = new Color('#D65F5F');
                 else if (state.towerIdsByCell.get(cellKey(cell)) === 'frost-coil') fill = new Color('#62BCD0');
@@ -106,23 +143,18 @@ export class PhaseBCanvasRenderer {
                 graphics.fillColor = fill;
                 graphics.rect(center.x - half + 3, center.y - half + 3, metrics.cellSize - 6, metrics.cellSize - 6);
                 graphics.fill();
-                graphics.strokeColor = new Color(111, 143, 169, 130);
-                graphics.lineWidth = 2;
+                graphics.strokeColor = new Color(16, 30, 43, 85);
+                graphics.lineWidth = 1;
                 graphics.rect(center.x - half, center.y - half, metrics.cellSize, metrics.cellSize);
                 graphics.stroke();
                 if (state.towers.has(cellKey(cell))) {
-                    graphics.fillColor = new Color(state.towerIdsByCell.get(cellKey(cell)) === 'frost-coil' ? '#E3FAFF' : '#172235');
-                    graphics.circle(center.x, center.y, metrics.cellSize * 0.22);
-                    graphics.fill();
-                    if (state.towerIdsByCell.get(cellKey(cell)) === 'frost-coil') {
-                        graphics.strokeColor = new Color('#28758A');
-                        graphics.lineWidth = 5;
-                        graphics.circle(center.x, center.y, metrics.cellSize * 0.13);
-                        graphics.stroke();
-                    }
+                    this.drawTower(center, metrics.cellSize, state.towerIdsByCell.get(cellKey(cell)) === 'frost-coil');
                 }
             }
         }
+
+        this.drawRouteArrows(state, metrics.cellSize);
+        this.drawPlacementRange(state, metrics.cellSize);
 
         for (const enemy of state.enemies) {
             const from = this.center(enemy.fromCell, state.grid);
@@ -151,6 +183,76 @@ export class PhaseBCanvasRenderer {
             graphics.fill();
         }
         this.drawCombatFeedback(state, metrics.cellSize);
+    }
+
+    private drawTower(center: PhaseBPoint, cellSize: number, frost: boolean): void {
+        const graphics = this.graphics;
+        graphics.fillColor = new Color('#172235');
+        graphics.circle(center.x, center.y - cellSize * 0.04, cellSize * 0.3);
+        graphics.fill();
+        graphics.strokeColor = new Color(frost ? '#DDFBFF' : '#FFF0BB');
+        graphics.lineWidth = 4;
+        graphics.circle(center.x, center.y, cellSize * 0.24);
+        graphics.stroke();
+        if (frost) {
+            graphics.strokeColor = new Color('#8BE8F4');
+            graphics.lineWidth = 5;
+            for (let spoke = 0; spoke < 4; spoke += 1) {
+                const angle = spoke * Math.PI / 2;
+                graphics.moveTo(center.x, center.y);
+                graphics.lineTo(center.x + Math.cos(angle) * cellSize * 0.2, center.y + Math.sin(angle) * cellSize * 0.2);
+            }
+            graphics.stroke();
+            graphics.fillColor = new Color('#E3FAFF');
+            graphics.circle(center.x, center.y, cellSize * 0.09);
+            graphics.fill();
+            return;
+        }
+        graphics.fillColor = new Color('#F4C66A');
+        graphics.rect(center.x - cellSize * 0.08, center.y + cellSize * 0.02, cellSize * 0.16, cellSize * 0.31);
+        graphics.fill();
+        graphics.fillColor = new Color('#E8D5A3');
+        graphics.circle(center.x, center.y, cellSize * 0.15);
+        graphics.fill();
+    }
+
+    private drawRouteArrows(state: PhaseBCanvasRenderState, cellSize: number): void {
+        const path = state.activePath;
+        if (!path || path.length < 2) return;
+        const graphics = this.graphics;
+        graphics.fillColor = state.preview?.accepted ? new Color('#90FFD0') : new Color('#B8DDF5');
+        // 每隔一格画一个方向标，既标明动态改路结果，又避免箭头盖满敌人与塔。
+        for (let index = 0; index < path.length - 1; index += 2) {
+            const from = this.center(path[index], state.grid);
+            const to = this.center(path[index + 1], state.grid);
+            const dx = (to.x - from.x) / cellSize;
+            const dy = (to.y - from.y) / cellSize;
+            const x = (from.x + to.x) / 2;
+            const y = (from.y + to.y) / 2;
+            const length = cellSize * 0.19;
+            const width = cellSize * 0.12;
+            graphics.moveTo(x + dx * length, y + dy * length);
+            graphics.lineTo(x - dx * length - dy * width, y - dy * length + dx * width);
+            graphics.lineTo(x - dx * length + dy * width, y - dy * length - dx * width);
+            graphics.close();
+            graphics.fill();
+        }
+    }
+
+    private drawPlacementRange(state: PhaseBCanvasRenderState, cellSize: number): void {
+        const preview = state.preview;
+        if (!preview) return;
+        const graphics = this.graphics;
+        const center = this.center(preview.cell, state.grid);
+        const tower = preview.towerId === 'frost-coil' ? FROST_COIL : RIVET_GUN;
+        const color = preview.accepted ? new Color(141, 243, 205, 200) : new Color(255, 129, 129, 205);
+        graphics.strokeColor = color;
+        graphics.lineWidth = 4;
+        graphics.circle(center.x, center.y, cellSize * tower.rangeCells);
+        graphics.stroke();
+        graphics.fillColor = color;
+        graphics.circle(center.x, center.y, cellSize * 0.25);
+        graphics.fill();
     }
 
     private drawCombatFeedback(state: PhaseBCanvasRenderState, cellSize: number): void {
@@ -247,12 +349,14 @@ export class PhaseBCanvasRenderer {
         const graphics = this.graphics;
         this.drawButton(-440, -600, 340, 85);
         this.drawButton(100, -600, 340, 85);
-        this.drawButton(-440, -700, 280, 90);
-        this.drawButton(160, -700, 280, 90);
+        if (state.qaMode) {
+            this.drawButton(-440, -700, 280, 90);
+            this.drawButton(160, -700, 280, 90);
+            this.drawRouteIcon(-300, -655, false);
+            this.drawRouteIcon(300, -655, true);
+        }
         this.drawResetIcon(-270, -558);
         this.drawPhaseIcon(270, -558, state.showPlayControl);
-        this.drawRouteIcon(-300, -655, false);
-        this.drawRouteIcon(300, -655, true);
         graphics.fillColor = new Color('#29405C');
         graphics.roundRect(
             PHASE_B_SPEED_BUTTON.left,

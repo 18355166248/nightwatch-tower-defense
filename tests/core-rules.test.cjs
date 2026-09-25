@@ -18,6 +18,7 @@ const { WaveRewardRuntime } = require('../.test-dist/systems/WaveRewardRuntime.j
 const { SimulationClock } = require('../.test-dist/systems/SimulationClock.js');
 const { buildBattleResultViewModel } = require('../.test-dist/presentation/BattleResultViewModel.js');
 const { countCombatFeedback, CombatFeedbackRuntime } = require('../.test-dist/presentation/CombatFeedbackRuntime.js');
+const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGuidance.js');
 const {
     PHASE_B_EARLY_WAVE_BUTTON,
     PHASE_B_SPEED_BUTTON,
@@ -28,6 +29,17 @@ const {
 } = require('../.test-dist/presentation/PhaseBLayout.js');
 
 const fixtures = JSON.parse(readFileSync(resolve(__dirname, '../docs/poc/phase-a-fixtures.json'), 'utf8'));
+
+test('首关提示跟随真实布塔门槛，预览与战斗阶段优先级明确', () => {
+    const base = { preparing: true, towerCount: 0, pathDelta: 0, previewAccepted: null, selectedTowerId: 'rivet-gun' };
+    assert.match(firstLevelGuidance(base), /拖动机枪塔/);
+    assert.match(firstLevelGuidance({ ...base, towerCount: 1 }), /再建一座塔/);
+    assert.match(firstLevelGuidance({ ...base, towerCount: 2, pathDelta: 1 }), /延长 1 格/);
+    assert.match(firstLevelGuidance({ ...base, towerCount: 2, pathDelta: 2 }), /点开始迎敌/);
+    assert.match(firstLevelGuidance({ ...base, previewAccepted: false }), /不能建造/);
+    assert.match(firstLevelGuidance({ ...base, previewAccepted: true }), /再点一次确认/);
+    assert.match(firstLevelGuidance({ ...base, preparing: false }), /战斗中仍可布塔/);
+});
 
 function toCells(pairs) {
     return pairs.map(([column, row]) => ({ column, row }));

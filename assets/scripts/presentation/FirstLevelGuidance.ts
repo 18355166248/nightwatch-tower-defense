@@ -1,0 +1,20 @@
+export interface FirstLevelGuidanceState {
+    readonly preparing: boolean;
+    readonly towerCount: number;
+    readonly pathDelta: number;
+    readonly previewAccepted: boolean | null;
+    readonly selectedTowerId: 'rivet-gun' | 'frost-coil';
+}
+
+/** 只根据玩法快照生成首关引导；提示不反向改变布塔或战斗规则。 */
+export function firstLevelGuidance(state: FirstLevelGuidanceState): string {
+    if (!state.preparing) return '战斗中仍可布塔改路；留意敌人的行进方向';
+    if (state.previewAccepted === false) return '这个位置不能建造，请换一个格子';
+    if (state.previewAccepted === true) return '绿色是可建造位置；再点一次确认，或松手落塔';
+    if (state.towerCount === 0) return '拖动机枪塔到敌人路线旁，先试着让路线拐弯';
+    if (state.towerCount < 2) return '再建一座塔；观察箭头怎样绕开塔位';
+    if (state.pathDelta < 2) return `路线还需延长 ${2 - state.pathDelta} 格，才能开始第一波`;
+    return state.selectedTowerId === 'frost-coil'
+        ? '冷凝塔减速敌人；准备好后点开始迎敌'
+        : '已满足开波条件；点开始迎敌，也可继续调整塔位';
+}
