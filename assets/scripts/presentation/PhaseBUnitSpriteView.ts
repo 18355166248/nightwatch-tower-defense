@@ -1,9 +1,11 @@
 import { Color, Graphics, isValid, Node, resources, Sprite, SpriteFrame, UIOpacity, UITransform } from 'cc';
+import { FROST_COIL } from '../config/PhaseBCombatConfig';
 import type { GridCell } from '../core/GridTypes';
 import { PHASE_B_DESIGN_HEIGHT, PHASE_B_DESIGN_WIDTH, PhaseBLayout } from './PhaseBLayout';
 import type { PhaseBSceneState } from './PhaseBSceneState';
 import { FROST_COIL_LAYER_SPEC, LayeredTowerRig, RIVET_GUN_LAYER_SPEC, type LayeredTowerSpec } from './LayeredTowerRig';
-import { enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } from './UnitVisualMotion';
+import { EnemySlowIndicatorView } from './EnemySlowIndicatorView';
+import { enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } from './UnitVisualMotion';
 
 const UNIT_ASSETS = {
     'rivet-gun': 'level-one/units/rivet-gun/spriteFrame',
@@ -149,9 +151,12 @@ export class PhaseBUnitSpriteView {
             body?.setScale(stride.scaleX * (1 + life * 0.11), stride.scaleY * (1 - life * 0.07), 1);
             if (body) body.angle = stride.angle;
             const sprite = body?.getComponent(Sprite);
+            const slowStrength = enemySlowVisualStrength(enemy.slowRemainingSeconds, FROST_COIL.effect?.durationSeconds ?? 0);
             if (sprite) sprite.color = hit
                 ? new Color(hit.towerId === 'frost-coil' ? '#C8F5FF' : '#FFE4B1')
-                : Color.WHITE;
+                : slowStrength > 0
+                    ? new Color(255 - Math.round(55 * slowStrength), 255 - Math.round(17 * slowStrength), 255)
+                    : Color.WHITE;
             visible.add(enemy.id);
         }
         this.removeMissing(this.enemies, visible);
@@ -191,10 +196,8 @@ export class PhaseBUnitSpriteView {
         indicators.clear();
         // 切图在战场 Graphics 之上，血量和减速提示也必须跟随敌人节点绘制在切图之上。
         if (enemy.slowRemainingSeconds > 0) {
-            indicators.strokeColor = new Color('#8BE8F4');
-            indicators.lineWidth = 5;
-            indicators.circle(0, 0, 34);
-            indicators.stroke();
+            const strength = enemySlowVisualStrength(enemy.slowRemainingSeconds, FROST_COIL.effect?.durationSeconds ?? 0);
+            EnemySlowIndicatorView.draw(indicators, 0, 0, 37, strength);
         }
         const width = 52;
         indicators.fillColor = new Color('#35262C');

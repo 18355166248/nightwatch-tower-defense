@@ -5,6 +5,8 @@ import type { BattleResultViewModel } from './BattleResultViewModel';
 import type { PhaseBSceneState } from './PhaseBSceneState';
 import { CoreObjectiveView } from './CoreObjectiveView';
 import { BattlefieldSurfaceView } from './BattlefieldSurfaceView';
+import { EnemySlowIndicatorView } from './EnemySlowIndicatorView';
+import { enemySlowVisualStrength } from './UnitVisualMotion';
 import {
     PHASE_B_GRID_TABS,
     PHASE_B_FROST_BUTTON,
@@ -126,10 +128,8 @@ export class PhaseBCanvasRenderer {
                 graphics.stroke();
             }
             if (!state.useUnitSprites && enemy.slowRemainingSeconds > 0) {
-                graphics.strokeColor = new Color('#8BE8F4');
-                graphics.lineWidth = 5;
-                graphics.circle(x, y, metrics.cellSize * 0.31);
-                graphics.stroke();
+                const strength = enemySlowVisualStrength(enemy.slowRemainingSeconds, FROST_COIL.effect?.durationSeconds ?? 0);
+                EnemySlowIndicatorView.draw(graphics, x, y, metrics.cellSize * 0.31, strength);
             }
             if (!state.useUnitSprites) {
                 const healthWidth = metrics.cellSize * 0.62;

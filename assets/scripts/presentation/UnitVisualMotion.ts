@@ -68,3 +68,9 @@ export function frostCorePulsePose(remainingSeconds: number, durationSeconds: nu
     const pulse = life * life;
     return { x: 0, y: 0, scaleX: 1 + pulse * 0.16, scaleY: 1 + pulse * 0.1, angle: 0 };
 }
+
+/** 减速光效读取战斗快照的剩余时间，既能随暂停冻结，也不会额外保留表现状态。 */
+export function enemySlowVisualStrength(remainingSeconds: number, durationSeconds: number): number {
+    if (!Number.isFinite(remainingSeconds) || !Number.isFinite(durationSeconds) || durationSeconds <= 0 || remainingSeconds <= 0) return 0;
+    return Math.max(0, Math.min(1, remainingSeconds / durationSeconds));
+}

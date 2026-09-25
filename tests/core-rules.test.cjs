@@ -25,7 +25,7 @@ const { buildCoreObjectiveState } = require('../.test-dist/presentation/CoreObje
 const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGuidance.js');
 const { FirstLevelExperience } = require('../.test-dist/presentation/FirstLevelExperience.js');
 const { hudEventText } = require('../.test-dist/presentation/PhaseBHudText.js');
-const { enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
+const { enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
 const { RouteChangeFeedback, routeChangeText, routeLengthDelta } = require('../.test-dist/presentation/RouteChangeFeedback.js');
 const { waveLineup, waveThreatHint } = require('../.test-dist/presentation/WaveBriefing.js');
 const {
@@ -259,6 +259,15 @@ test('冷凝能量芯脉冲只影响视觉比例并在事件消失后回到原�
     assert.ok(fresh.scaleX > fading.scaleX && fading.scaleX > 1);
     assert.ok(fresh.scaleY > fading.scaleY && fading.scaleY > 1);
     assert.deepEqual(frostCorePulsePose(0, 0.1), { x: 0, y: 0, scaleX: 1, scaleY: 1, angle: 0 });
+});
+
+test('敌人减速外观随真实剩余时间衰减，过期与异常时长归零', () => {
+    assert.equal(enemySlowVisualStrength(1.2, 1.2), 1);
+    assert.equal(enemySlowVisualStrength(0.6, 1.2), 0.5);
+    assert.equal(enemySlowVisualStrength(2, 1.2), 1);
+    assert.equal(enemySlowVisualStrength(0, 1.2), 0);
+    assert.equal(enemySlowVisualStrength(0.5, 0), 0);
+    assert.equal(enemySlowVisualStrength(Number.NaN, 1.2), 0);
 });
 
 test('八波目录连续可索引且保留第一波冻结配置', () => {
