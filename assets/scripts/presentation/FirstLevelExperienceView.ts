@@ -40,7 +40,7 @@ export class FirstLevelExperienceView {
     }
 
     public render(snapshot: FirstLevelExperienceSnapshot, grid: GridDefinition, resultVisible: boolean, previewCell: GridCell | null): void {
-        const signature = `${snapshot.mode}|${snapshot.step}|${grid.id}|${resultVisible}|${previewCell?.column ?? ''},${previewCell?.row ?? ''}`;
+        const signature = `${snapshot.mode}|${snapshot.step}|${snapshot.suggestedTowerId ?? ''}|${snapshot.suggestedCell?.column ?? ''},${snapshot.suggestedCell?.row ?? ''}|${grid.id}|${resultVisible}|${previewCell?.column ?? ''},${previewCell?.row ?? ''}`;
         if (signature === this.signature) return;
         this.signature = signature;
         this.graphics.clear();
@@ -52,7 +52,7 @@ export class FirstLevelExperienceView {
         this.skip.node.active = home;
         this.coachSkip.node.active = guided;
         if (home) this.drawHome();
-        if (guided) this.drawCoach(snapshot.step, grid, previewCell);
+        if (guided) this.drawCoach(snapshot, grid, previewCell);
     }
 
     private drawHome(): void {
@@ -72,31 +72,35 @@ export class FirstLevelExperienceView {
         graphics.stroke();
         this.button(FIRST_LEVEL_START_BUTTON, '#83D2AD');
         this.title.string = '夜城防线';
-        this.body.string = '第一关 · 守住夜城入口\n\n摆塔让敌人绕远路\n机枪负责输出，冷凝负责减速\n守住核心，迎接八波进攻';
+        this.body.string = '第一关 · 守住夜城入口\n\n摆塔让敌人绕远路\n机枪负责输出，冷凝负责减速\n用 140 金完成第一道横墙，守住八波';
         this.action.string = '开始布防';
         this.skip.string = '直接开始 · 跳过引导';
     }
 
-    private drawCoach(step: FirstLevelExperienceSnapshot['step'], grid: GridDefinition, previewCell: GridCell | null): void {
+    private drawCoach(snapshot: FirstLevelExperienceSnapshot, grid: GridDefinition, previewCell: GridCell | null): void {
         this.button(FIRST_LEVEL_SKIP_COACH_BUTTON, '#30465B');
         this.coachSkip.string = '跳过';
         const graphics = this.graphics;
         graphics.strokeColor = new Color('#FFE09C');
         graphics.lineWidth = 7;
-        if (step === 'select' || step === 'shape') {
-            this.outline(PHASE_B_RIVET_BUTTON);
-            if (step === 'shape') this.outline(PHASE_B_FROST_BUTTON);
-        } else if (step === 'place') {
-            const center = this.layout.gridPointCenter(previewCell ?? { column: 4, row: 3 }, grid);
-            const size = this.layout.boardMetrics(grid).cellSize;
-            graphics.roundRect(center.x - size / 2, center.y - size / 2, size, size, 12);
-            graphics.stroke();
-        } else if (step === 'route') {
+        if (snapshot.step === 'select' || snapshot.step === 'shape' || snapshot.step === 'reinforce') {
+            this.outline(snapshot.suggestedTowerId === 'frost-coil' ? PHASE_B_FROST_BUTTON : PHASE_B_RIVET_BUTTON);
+            if (snapshot.suggestedCell) this.outlineCell(snapshot.suggestedCell, grid);
+        } else if (snapshot.step === 'place') {
+            if (previewCell ?? snapshot.suggestedCell) this.outlineCell(previewCell ?? snapshot.suggestedCell!, grid);
+        } else if (snapshot.step === 'route') {
             const board = this.layout.boardMetrics(grid);
             this.outline({ left: board.left, right: board.left + board.width, bottom: board.bottom, top: board.bottom + board.height });
-        } else if (step === 'ready') {
+        } else if (snapshot.step === 'ready') {
             this.outline({ left: 100, right: 440, bottom: -600, top: -515 });
         }
+    }
+
+    private outlineCell(cell: GridCell, grid: GridDefinition): void {
+        const center = this.layout.gridPointCenter(cell, grid);
+        const size = this.layout.boardMetrics(grid).cellSize;
+        this.graphics.roundRect(center.x - size / 2, center.y - size / 2, size, size, 12);
+        this.graphics.stroke();
     }
 
     private outline(rect: PhaseBRect): void {

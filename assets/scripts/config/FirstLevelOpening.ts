@@ -1,0 +1,28 @@
+import type { GridCell } from '../core/GridTypes';
+import type { TowerId } from './PhaseBCombatConfig';
+
+/** 首关教学推荐开局：冷凝在横墙外侧，三座机枪承担输出；仅作引导，不限制自由构筑。 */
+export const FIRST_LEVEL_STARTING_GOLD = 140;
+export const FIRST_LEVEL_SUGGESTED_TOWER_COUNT = 4;
+export const FIRST_LEVEL_SUGGESTED_PATH_DELTA = 4;
+export const FIRST_LEVEL_OPENING: readonly { readonly cell: GridCell; readonly towerId: TowerId }[] = [
+    { cell: { column: 3, row: 2 }, towerId: 'rivet-gun' },
+    { cell: { column: 2, row: 2 }, towerId: 'frost-coil' },
+    { cell: { column: 4, row: 2 }, towerId: 'rivet-gun' },
+    { cell: { column: 5, row: 2 }, towerId: 'rivet-gun' },
+];
+
+export const FIRST_LEVEL_FIRST_REINFORCEMENT: GridCell = { column: 1, row: 2 };
+
+/** 推荐补塔次序来自完整八波规则回放；只用于提示，实际布塔仍由玩家决定。 */
+export const FIRST_LEVEL_REINFORCEMENTS: readonly { readonly cell: GridCell; readonly towerId: TowerId }[] = [
+    { cell: FIRST_LEVEL_FIRST_REINFORCEMENT, towerId: 'rivet-gun' },
+    { cell: { column: 0, row: 2 }, towerId: 'rivet-gun' },
+    { cell: { column: 6, row: 2 }, towerId: 'rivet-gun' },
+    { cell: { column: 7, row: 2 }, towerId: 'rivet-gun' },
+    { cell: { column: 4, row: 8 }, towerId: 'frost-coil' },
+    { cell: { column: 5, row: 8 }, towerId: 'rivet-gun' },
+    { cell: { column: 6, row: 8 }, towerId: 'rivet-gun' },
+    { cell: { column: 7, row: 8 }, towerId: 'rivet-gun' },
+    { cell: { column: 8, row: 8 }, towerId: 'rivet-gun' },
+];

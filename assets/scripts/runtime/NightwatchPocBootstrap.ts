@@ -15,6 +15,7 @@ import { BrowserSynthAudio } from '../audio/BrowserSynthAudio';
 import { FirstLevelSoundDirector, type FirstLevelSoundCue } from '../audio/FirstLevelSoundDirector';
 import { PHASE_A_FIXTURES } from '../config/PhaseAFixtures';
 import { DEFAULT_GRID_ID, PHASE_A_GRIDS, PHASE_A_INITIAL_GOLD } from '../config/PhaseAGrids';
+import { FIRST_LEVEL_STARTING_GOLD } from '../config/FirstLevelOpening';
 import { PHASE_B_TOWERS, PHASE_B_WAVES, type TowerId } from '../config/PhaseBCombatConfig';
 import { cellKey, sameCell, type EnemyRouteState, type GridCell, type GridId } from '../core/GridTypes';
 import { PhaseBDebugInput, type PhaseBDebugAction } from '../input/PhaseBDebugInput';
@@ -61,13 +62,14 @@ type InputMode = 'idle' | 'tower-pressed' | 'armed' | 'dragging' | 'click-previe
 
 @ccclass('NightwatchPocBootstrap')
 export class NightwatchPocBootstrap extends Component {
+    private readonly qaMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('qa') === '1';
     private canvas: Node | null = null;
     private renderer: PhaseBCanvasRenderer | null = null;
     private hud: PhaseBHudView | null = null;
     private unitSprites: PhaseBUnitSpriteView | null = null;
     private experienceView: FirstLevelExperienceView | null = null;
     private readonly waves = new WaveCatalog(PHASE_B_WAVES);
-    private economy = new EconomyLedger(PHASE_A_INITIAL_GOLD);
+    private economy = new EconomyLedger(this.qaMode ? PHASE_A_INITIAL_GOLD : FIRST_LEVEL_STARTING_GOLD);
     private model = new PlacementModel(PHASE_A_GRIDS[DEFAULT_GRID_ID], this.economy, PHASE_B_TOWERS);
     private battle = new BattleStateMachine(this.waves.totalWaves);
     private combat = new WaveCombatRuntime(PHASE_A_GRIDS[DEFAULT_GRID_ID], PHASE_B_TOWERS);
@@ -83,6 +85,7 @@ export class NightwatchPocBootstrap extends Component {
     private pressStart = new Vec3();
     private preparing = true;
     private pausedByLifecycle = false;
+    private guidedIntermissionHeld = false;
     private initialCoreHealth = 10;
     private initialPathLength = this.model.flowField.distanceAt(this.model.grid.entry);
     private runCheckpoint: BattleRunCheckpoint | null = null;
@@ -90,7 +93,6 @@ export class NightwatchPocBootstrap extends Component {
     private readonly layout = new PhaseBLayout();
     private readonly browserDiagnostics = new BrowserBattleDiagnostics();
     private readonly debugInput = new PhaseBDebugInput((action) => this.handleDebugAction(action));
-    private readonly qaMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('qa') === '1';
     private readonly experience = new FirstLevelExperience(this.qaMode);
 
     protected override onLoad(): void {
@@ -182,6 +184,10 @@ export class NightwatchPocBootstrap extends Component {
         }
         if (this.experience.entryMode === 'guided' && this.layout.insideRect(point, FIRST_LEVEL_SKIP_COACH_BUTTON)) {
             this.experience.skip();
+            if (this.guidedIntermissionHeld) {
+                this.guidedIntermissionHeld = false;
+                this.battle.resume();
+            }
             this.playSound('ui');
             this.primaryTouchId = null;
             return;
@@ -309,6 +315,7 @@ export class NightwatchPocBootstrap extends Component {
         const phase = this.battle.snapshot.phase;
         if (phase === 'paused') {
             this.pausedByLifecycle = false;
+            this.guidedIntermissionHeld = false;
             this.battle.resume();
             this.statusText = `已继续第 ${this.battle.snapshot.wave} 波`;
             this.playSound('ui');
@@ -429,6 +436,7 @@ export class NightwatchPocBootstrap extends Component {
         this.runCheckpoint = null;
         this.preparing = true;
         this.pausedByLifecycle = false;
+        this.guidedIntermissionHeld = false;
         this.feedback.clear();
         this.cancelInput(this.qaMode ? '已重置为空网格' : '已重新布防，可以调整路线');
     }
@@ -481,6 +489,7 @@ export class NightwatchPocBootstrap extends Component {
         this.feedback.clear();
         this.preparing = true;
         this.pausedByLifecycle = false;
+        this.guidedIntermissionHeld = false;
         this.cancelInput('已恢复开战前部署，可调整后再次开波');
         this.runCheckpoint = checkpoint;
         this.playSound('ui');
@@ -525,7 +534,15 @@ export class NightwatchPocBootstrap extends Component {
             this.statusText = `第 ${this.battle.snapshot.wave} 波清场！清场 +${clearReward} · 剩余金币 ${this.model.gold}`;
             this.playSound('victory');
         } else if (phase === 'countdown') {
-            this.statusText = `第 ${this.battle.snapshot.wave} 波清场 +${clearReward} 金币，下一波 8 秒后到达`;
+            // 教学波间在奖励结算后暂停，让玩家按“击杀→回款→补塔→继续”掌握整局节奏。
+            const holdForCoach = this.experience.shouldHoldIntermission(this.battle.snapshot.wave, this.waves.totalWaves);
+            if (holdForCoach) {
+                this.battle.pause();
+                this.guidedIntermissionHeld = true;
+            }
+            this.statusText = holdForCoach
+                ? `第 ${this.battle.snapshot.wave} 波清场 +${clearReward} 金币 · 可补塔，点 ▶ 继续`
+                : `第 ${this.battle.snapshot.wave} 波清场 +${clearReward} 金币，下一波 8 秒后到达`;
             this.playSound('wave-clear');
         } else if (phase === 'defeat') {
             this.statusText = '核心已失守';
@@ -563,6 +580,11 @@ export class NightwatchPocBootstrap extends Component {
             pathDelta: this.currentPathDelta(),
             previewAccepted: this.preview?.accepted ?? null,
             inputMode: this.inputMode,
+            gold: this.model.gold,
+            phase: battle.phase,
+            wave: battle.wave,
+            occupiedCells: this.model.towers,
+            guidedIntermissionHeld: this.guidedIntermissionHeld,
         });
         const activePath = this.preview?.accepted && this.preview.path
             ? this.preview.path

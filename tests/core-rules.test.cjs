@@ -4,6 +4,7 @@ const { readFileSync } = require('node:fs');
 const { resolve } = require('node:path');
 
 const { PHASE_A_GRIDS, PHASE_A_TOWER_COST } = require('../.test-dist/config/PhaseAGrids.js');
+const { FIRST_LEVEL_OPENING, FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_STARTING_GOLD, FIRST_LEVEL_SUGGESTED_PATH_DELTA } = require('../.test-dist/config/FirstLevelOpening.js');
 const { FROST_COIL, PHASE_B_TOWERS, PHASE_B_WAVES, PHASE_B_WAVE_ONE, RIVET_GUN } = require('../.test-dist/config/PhaseBCombatConfig.js');
 const { cellKey } = require('../.test-dist/core/GridTypes.js');
 const { FlowField } = require('../.test-dist/systems/FlowField.js');
@@ -47,22 +48,58 @@ test('首关提示跟随真实布塔门槛，预览与战斗阶段优先级明�
 
 test('首关入场卡独立于战斗，教学随真实布塔状态推进且可跳过', () => {
     const flow = new FirstLevelExperience(false);
-    const context = { preparing: true, towerCount: 0, pathDelta: 0, previewAccepted: null, inputMode: 'idle' };
+    const context = { preparing: true, towerCount: 0, pathDelta: 0, previewAccepted: null, inputMode: 'idle', gold: 140, phase: 'preparing', wave: 0, occupiedCells: new Set(), guidedIntermissionHeld: false };
     assert.equal(flow.snapshot(context).mode, 'home');
     flow.begin();
+    assert.equal(flow.shouldHoldIntermission(1, 8), true);
+    assert.equal(flow.shouldHoldIntermission(7, 8), true);
+    assert.equal(flow.shouldHoldIntermission(8, 8), false);
     assert.equal(flow.snapshot(context).step, 'select');
+    assert.deepEqual(flow.snapshot(context).suggestedCell, { column: 3, row: 2 });
     assert.equal(flow.snapshot({ ...context, inputMode: 'armed' }).step, 'place');
     assert.match(flow.snapshot({ ...context, inputMode: 'click-preview', previewAccepted: false }).guidanceText, /红色/);
     assert.match(flow.snapshot({ ...context, towerCount: 1, previewAccepted: true }).guidanceText, /第 2 步/);
-    assert.equal(flow.snapshot({ ...context, towerCount: 1, pathDelta: 2 }).step, 'shape');
+    assert.equal(flow.snapshot({ ...context, towerCount: 1, pathDelta: 2 }).suggestedTowerId, 'frost-coil');
+    assert.deepEqual(flow.snapshot({ ...context, towerCount: 1, occupiedCells: new Set(['3,2']) }).suggestedCell, { column: 2, row: 2 });
     assert.equal(flow.snapshot({ ...context, towerCount: 1, inputMode: 'armed' }).step, 'place');
-    assert.equal(flow.snapshot({ ...context, towerCount: 2, pathDelta: 1 }).step, 'route');
-    assert.equal(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2 }).step, 'ready');
+    assert.equal(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2 }).step, 'shape');
+    assert.equal(flow.snapshot({ ...context, towerCount: 4, pathDelta: 2 }).step, 'route');
+    assert.equal(flow.snapshot({ ...context, towerCount: 4, pathDelta: 4 }).step, 'ready');
+    assert.equal(flow.snapshot({ ...context, towerCount: 3, gold: 10 }).step, 'route');
+    assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'countdown', wave: 1, gold: 54 }).step, 'reinforce');
+    assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 1, gold: 54, guidedIntermissionHeld: true }).guidanceText, /再点 ▶ 继续/);
+    assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 1, gold: 24, guidedIntermissionHeld: true }).step, 'ready');
+    assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 4, gold: 44, guidedIntermissionHeld: true, occupiedCells: new Set(FIRST_LEVEL_REINFORCEMENTS.slice(0, 4).map(({ cell }) => cellKey(cell))) }).suggestedTowerId, 'frost-coil');
+    assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 4, gold: 38, guidedIntermissionHeld: true, occupiedCells: new Set(FIRST_LEVEL_REINFORCEMENTS.slice(0, 4).map(({ cell }) => cellKey(cell))) }).guidanceText, /暂缺金币/);
+    assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 6, gold: 82, guidedIntermissionHeld: true, occupiedCells: new Set(FIRST_LEVEL_REINFORCEMENTS.map(({ cell }) => cellKey(cell))) }).guidanceText, /推荐横墙已完成/);
+    assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 1, gold: 54 }).step, 'combat');
     assert.equal(flow.snapshot({ ...context, preparing: false }).step, 'combat');
     flow.skip();
+    assert.equal(flow.shouldHoldIntermission(1, 8), false);
     assert.equal(flow.snapshot(context).mode, 'free');
     assert.equal(flow.snapshot(context).guidanceText, null);
     assert.equal(new FirstLevelExperience(true).snapshot(context).mode, 'free');
+});
+
+test('首关教学推荐横墙可由起始金币建成，并为第一波与波间补塔留下空间', () => {
+    const grid = PHASE_A_GRIDS['grid-9x13'];
+    const economy = new EconomyLedger(FIRST_LEVEL_STARTING_GOLD);
+    const model = new PlacementModel(grid, economy, PHASE_B_TOWERS);
+    for (const { cell, towerId } of FIRST_LEVEL_OPENING) {
+        assert.equal(model.commit(model.preview(cell, [], towerId), []).accepted, true);
+    }
+    assert.equal(model.gold, 10);
+    assert.equal(model.flowField.distanceAt(grid.entry) - 12, FIRST_LEVEL_SUGGESTED_PATH_DELTA);
+    const combat = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
+    combat.start(PHASE_B_WAVE_ONE);
+    for (let elapsed = 0; elapsed < 40 && (!combat.isSpawningComplete || combat.enemies.length > 0); elapsed += 1 / 30) {
+        const result = combat.tick(1 / 30, model.flowField, model.deployments);
+        result.killed.forEach((enemy) => economy.credit(enemy.archetype.killReward));
+    }
+    assert.deepEqual(combat.totals, { spawned: 8, killed: 6, leaked: 2 });
+    const rewards = new WaveRewardRuntime();
+    assert.equal(rewards.settle(PHASE_B_WAVE_ONE, economy).gold, 54);
+    assert.equal(model.preview({ column: 1, row: 2 }, [], 'rivet-gun').accepted, true);
 });
 
 test('首关音效对连续攻击限频，静音与恢复只影响声音不影响事件', () => {
@@ -549,17 +586,13 @@ test('冷凝前置混合塔组在 20/30/60 FPS 下保持 6 杀 2 漏并出现减
 test('首关推荐构筑可用实战收益逐步扩建并通过完整八波', () => {
     const grid = PHASE_A_GRIDS['grid-9x13'];
     const shortCells = toCells(fixtures.fixtures.find((item) => item.gridId === 'grid-9x13').shortFold.towerCells);
-    const buildPlan = [
-        [[1, 2], 'rivet-gun'], [[0, 2], 'rivet-gun'], [[6, 2], 'rivet-gun'], [[7, 2], 'rivet-gun'],
-        [[4, 8], 'frost-coil'], [[5, 8], 'rivet-gun'], [[6, 8], 'rivet-gun'],
-        [[7, 8], 'rivet-gun'], [[8, 8], 'rivet-gun'],
-    ].map(([[column, row], towerId]) => ({ cell: { column, row }, towerId }));
-    const economy = new EconomyLedger(140);
+    const buildPlan = FIRST_LEVEL_REINFORCEMENTS;
+    const economy = new EconomyLedger(FIRST_LEVEL_STARTING_GOLD);
     const model = new PlacementModel(grid, economy, PHASE_B_TOWERS);
     const combat = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
     const rewards = new WaveRewardRuntime();
-    shortCells.forEach((cell, index) => {
-        const towerId = index === 0 ? 'frost-coil' : 'rivet-gun';
+    shortCells.forEach((cell) => {
+        const towerId = FIRST_LEVEL_OPENING.find((item) => cellKey(item.cell) === cellKey(cell)).towerId;
         assert.equal(model.commit(model.preview(cell, [], towerId), []).accepted, true);
     });
 
