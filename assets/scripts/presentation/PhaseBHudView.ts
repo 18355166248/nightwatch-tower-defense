@@ -20,6 +20,8 @@ export interface PhaseBHudState {
     readonly coreHealth: number;
     readonly phaseText: string;
     readonly speedMultiplier: number;
+    readonly soundEnabled: boolean;
+    readonly soundReady: boolean;
     readonly canStartNextWaveEarly: boolean;
     readonly countdownSeconds: number;
     readonly selectedTowerId: TowerId;
@@ -35,6 +37,7 @@ export class PhaseBHudView {
     private readonly guidanceLabel: Label;
     private readonly helpLabel: Label;
     private readonly speedLabel: Label;
+    private readonly soundLabel: Label;
     private readonly earlyWaveLabel: Label;
     private readonly rivetLabel: Label;
     private readonly frostLabel: Label;
@@ -50,6 +53,8 @@ export class PhaseBHudView {
         this.guidanceLabel = this.createCenteredLabel(parent, 34, new Color('#D7E6F5'), -655, 920, 125);
         this.helpLabel = this.createLabel(parent, 30, new Color('#A9C4DB'), -930);
         this.speedLabel = this.createControlLabel(parent, -340, -812);
+        this.soundLabel = this.createCenteredLabel(parent, 27, new Color('#E9FFF4'), 845, 170, 105);
+        this.soundLabel.node.setPosition(395, 845, 0);
         this.earlyWaveLabel = this.createControlLabel(parent, 340, -812);
         this.rivetLabel = this.createTowerLabel(parent, -89, -854);
         this.frostLabel = this.createTowerLabel(parent, 89, -854);
@@ -61,7 +66,7 @@ export class PhaseBHudView {
     public render(state: PhaseBHudState): void {
         const signature = [
             state.qaMode, state.guidanceText, state.statusText, state.gold, state.pathLength, state.wave, state.totalWaves,
-            state.coreHealth, state.phaseText, state.speedMultiplier, state.canStartNextWaveEarly,
+            state.coreHealth, state.phaseText, state.speedMultiplier, state.soundEnabled, state.soundReady, state.canStartNextWaveEarly,
             Math.ceil(state.countdownSeconds), state.selectedTowerId, state.result?.kind ?? '', state.result?.summary ?? '',
         ].join('|');
         // Bootstrap 仍可提交每帧快照，但 Label 只在展示字段变化时写入，避免 UI 跟随战斗帧率刷新。
@@ -74,6 +79,7 @@ export class PhaseBHudView {
         this.guidanceLabel.node.active = !result && !state.qaMode;
         this.helpLabel.node.active = !result;
         this.speedLabel.node.active = !result;
+        this.soundLabel.node.active = !result;
         this.earlyWaveLabel.node.active = !result;
         this.rivetLabel.node.active = !result;
         this.frostLabel.node.active = !result;
@@ -87,6 +93,7 @@ export class PhaseBHudView {
             this.levelLabel.string = '第一关 · 守住夜城入口';
             this.guidanceLabel.string = state.guidanceText;
             this.speedLabel.string = `速度\n${state.speedMultiplier}×`;
+            this.soundLabel.string = state.soundEnabled ? `音效\n${state.soundReady ? '开' : '待启用'}` : '音效\n关';
             this.earlyWaveLabel.string = state.canStartNextWaveEarly
                 ? `提前开波\n${Math.ceil(state.countdownSeconds)} 秒`
                 : '提前开波\n等待中';

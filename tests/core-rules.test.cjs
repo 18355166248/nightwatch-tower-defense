@@ -12,6 +12,7 @@ const { simulateNoDamageRoute } = require('../.test-dist/systems/RouteSimulation
 const { BattleStateMachine } = require('../.test-dist/systems/BattleStateMachine.js');
 const { EconomyLedger } = require('../.test-dist/systems/EconomyLedger.js');
 const { BattleRunCheckpoint } = require('../.test-dist/systems/BattleRunCheckpoint.js');
+const { FirstLevelSoundDirector } = require('../.test-dist/audio/FirstLevelSoundDirector.js');
 const { WaveCombatRuntime } = require('../.test-dist/systems/WaveCombatRuntime.js');
 const { WaveCatalog } = require('../.test-dist/systems/WaveCatalog.js');
 const { WaveRewardRuntime } = require('../.test-dist/systems/WaveRewardRuntime.js');
@@ -27,6 +28,7 @@ const {
     PHASE_B_RIVET_BUTTON,
     PHASE_B_FROST_BUTTON,
     PHASE_B_TOWER_BUTTON,
+    PHASE_B_SOUND_BUTTON,
     PhaseBLayout,
 } = require('../.test-dist/presentation/PhaseBLayout.js');
 
@@ -63,6 +65,34 @@ test('首关入场卡独立于战斗，教学随真实布塔状态推进且可�
     assert.equal(new FirstLevelExperience(true).snapshot(context).mode, 'free');
 });
 
+test('首关音效对连续攻击限频，静音与恢复只影响声音不影响事件', () => {
+    const played = [];
+    const calls = [];
+    const sink = {
+        ready: true,
+        unlock: () => calls.push('unlock'),
+        play: (cue) => played.push(cue),
+        setMuted: (muted) => calls.push(`muted:${muted}`),
+        suspend: () => calls.push('suspend'),
+        close: () => calls.push('close'),
+    };
+    const sound = new FirstLevelSoundDirector(sink);
+    sound.unlockFromGesture();
+    assert.equal(sound.play('rivet-shot', 1000), true);
+    assert.equal(sound.play('rivet-shot', 1050), false);
+    assert.equal(sound.play('rivet-shot', 1095), true);
+    assert.equal(sound.play('frost-shot', 1100), true);
+    assert.equal(sound.toggle(), false);
+    assert.equal(sound.isReady, false);
+    assert.equal(sound.play('core-hit', 1200), false);
+    assert.equal(sound.toggle(), true);
+    assert.equal(sound.play('core-hit', 1200), true);
+    sound.suspend();
+    sound.close();
+    assert.deepEqual(played, ['rivet-shot', 'rivet-shot', 'frost-shot', 'core-hit']);
+    assert.deepEqual(calls, ['unlock', 'muted:true', 'muted:false', 'unlock', 'suspend', 'close']);
+});
+
 function toCells(pairs) {
     return pairs.map(([column, row]) => ({ column, row }));
 }
@@ -84,6 +114,7 @@ test('战场布局让绘制中心点与输入命中使用同一套网格换算',
     assert.equal(layout.insideRect({ x: 340, y: -812 }, PHASE_B_EARLY_WAVE_BUTTON), true);
     assert.equal(layout.insideRect({ x: 0, y: -812 }, PHASE_B_TOWER_BUTTON), true);
     assert.equal(layout.insideRect({ x: -89, y: -812 }, PHASE_B_RIVET_BUTTON), true);
+    assert.equal(layout.insideRect({ x: 395, y: 845 }, PHASE_B_SOUND_BUTTON), true);
     assert.equal(layout.insideRect({ x: 89, y: -812 }, PHASE_B_FROST_BUTTON), true);
     assert.equal(layout.insideRect({ x: 0, y: -812 }, PHASE_B_SPEED_BUTTON), false);
     assert.equal(layout.insideRect({ x: 0, y: -812 }, PHASE_B_EARLY_WAVE_BUTTON), false);

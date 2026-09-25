@@ -26,6 +26,7 @@ export interface PhaseBSceneState {
     readonly feedback: CombatFeedbackSnapshot;
     readonly gold: number;
     readonly speedMultiplier: number;
+    readonly soundEnabled: boolean;
     readonly selectedTowerId: TowerId;
     readonly canStartNextWaveEarly: boolean;
     readonly showPlayControl: boolean;

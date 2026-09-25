@@ -8,6 +8,7 @@ import {
     PHASE_B_FROST_BUTTON,
     PHASE_B_EARLY_WAVE_BUTTON,
     PHASE_B_RESULT_RESTART_BUTTON,
+    PHASE_B_SOUND_BUTTON,
     PHASE_B_SPEED_BUTTON,
     PHASE_B_RIVET_BUTTON,
     type PhaseBGridPoint,
@@ -326,6 +327,15 @@ export class PhaseBCanvasRenderer {
 
     private drawControls(state: PhaseBSceneState): void {
         const graphics = this.graphics;
+        graphics.fillColor = new Color(state.soundEnabled ? '#2C605E' : '#354355');
+        graphics.roundRect(
+            PHASE_B_SOUND_BUTTON.left,
+            PHASE_B_SOUND_BUTTON.bottom,
+            PHASE_B_SOUND_BUTTON.right - PHASE_B_SOUND_BUTTON.left,
+            PHASE_B_SOUND_BUTTON.top - PHASE_B_SOUND_BUTTON.bottom,
+            17,
+        );
+        graphics.fill();
         this.drawButton(-440, -600, 340, 85);
         this.drawButton(100, -600, 340, 85);
         if (state.qaMode) {

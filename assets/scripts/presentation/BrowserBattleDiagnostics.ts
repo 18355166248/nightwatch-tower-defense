@@ -18,6 +18,8 @@ export interface BrowserBattleDiagnosticsState {
     readonly totalWaves: number;
     readonly countdownSeconds: number;
     readonly speedMultiplier: number;
+    readonly soundEnabled: boolean;
+    readonly soundReady: boolean;
     readonly canStartNextWaveEarly: boolean;
     readonly coreHealth: number;
     readonly activeEnemyCount: number;
