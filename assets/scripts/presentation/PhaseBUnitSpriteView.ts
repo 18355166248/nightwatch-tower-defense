@@ -8,6 +8,7 @@ const UNIT_ASSETS = {
     'rivet-gun': 'level-one/units/rivet-gun/spriteFrame',
     'frost-coil': 'level-one/units/frost-coil/spriteFrame',
     'clockwork-infantry': 'level-one/units/clockwork-infantry/spriteFrame',
+    'clockwork-runner': 'level-one/units/clockwork-runner/spriteFrame',
 } as const;
 type UnitArtId = keyof typeof UNIT_ASSETS;
 
@@ -66,12 +67,14 @@ export class PhaseBUnitSpriteView {
 
     private renderTowers(state: PhaseBSceneState): void {
         const visible = new Set<string>();
+        const towerSize = Math.min(82, this.layout.boardMetrics(state.grid).cellSize * 0.9);
         // Creator 的发布转译对 iterable 展开存在差异，Map 在表现层显式转数组后迭代。
         for (const [key, towerId] of Array.from(state.towerIdsByCell.entries())) {
             const cell = this.cellFromKey(key);
             const frame = this.frames.get(towerId);
             if (!frame) continue;
-            const node = this.ensureNode(this.towers, key, this.towerLayer, frame, 108);
+            // 战场单位不得大于格子，否则横墙会互相遮挡，也会盖住敌人与路径。
+            const node = this.ensureNode(this.towers, key, this.towerLayer, frame, towerSize);
             const point = this.layout.gridPointCenter(cell, state.grid);
             node.setPosition(point.x, point.y + 3, 0);
             visible.add(key);
@@ -81,10 +84,10 @@ export class PhaseBUnitSpriteView {
 
     private renderEnemies(state: PhaseBSceneState): void {
         const visible = new Set<string>();
-        const frame = this.frames.get('clockwork-infantry');
-        if (!frame) return;
         const cellSize = this.layout.boardMetrics(state.grid).cellSize;
         for (const enemy of state.enemies) {
+            const frame = this.frames.get(enemy.archetype.id);
+            if (!frame) continue;
             const node = this.ensureNode(this.enemies, enemy.id, this.enemyLayer, frame, 78);
             this.renderEnemyIndicators(node, enemy);
             const from = this.layout.gridPointCenter(enemy.fromCell, state.grid);
@@ -106,11 +109,11 @@ export class PhaseBUnitSpriteView {
     }
 
     private renderDeaths(state: PhaseBSceneState): void {
-        const frame = this.frames.get('clockwork-infantry');
-        if (!frame) return;
         const cellSize = this.layout.boardMetrics(state.grid).cellSize;
         const visible = new Set<string>();
         for (const death of state.feedback.deaths) {
+            const frame = this.frames.get(death.archetypeId);
+            if (!frame) continue;
             const node = this.ensureNode(this.deaths, death.enemyId, this.deathLayer, frame, 78);
             const point = this.layout.gridPointCenter(death.point, state.grid);
             const offset = enemyVisualOffset(death.spawnOrder, cellSize);
@@ -174,7 +177,11 @@ export class PhaseBUnitSpriteView {
 
     private ensureNode(nodes: Map<string, Node>, key: string, layer: Node, frame: SpriteFrame, size: number): Node {
         const existing = nodes.get(key);
-        if (existing) return existing;
+        if (existing) {
+            const transform = existing.getComponent(UITransform);
+            if (transform && transform.contentSize.width !== size) transform.setContentSize(size, size);
+            return existing;
+        }
         const node = new Node(key);
         node.layer = this.root.layer;
         const transform = node.addComponent(UITransform);

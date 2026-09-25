@@ -22,6 +22,7 @@ export interface RewardFeedback extends TimedFeedback {
 
 export interface DeathFeedback extends TimedFeedback {
     readonly enemyId: string;
+    readonly archetypeId: CombatEnemy['archetype']['id'];
     readonly spawnOrder: number;
 }
 
@@ -72,6 +73,7 @@ export class CombatFeedbackRuntime {
         this.activeDeaths.push(...result.killed.map((enemy) => ({
             ...this.timed(this.enemyPoint(enemy), DEATH_SECONDS),
             enemyId: enemy.id,
+            archetypeId: enemy.archetype.id,
             spawnOrder: enemy.spawnOrder,
         })));
         this.activeRewards.push(...result.killed.map((enemy) => ({

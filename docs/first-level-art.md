@@ -30,11 +30,14 @@
 | `rivet-gun` | `art-source/first-level-units/rivet-gun.png` | `assets/resources/level-one/units/rivet-gun.png` | 机枪塔、商店图标和布塔预览 |
 | `frost-coil` | `art-source/first-level-units/frost-coil.png` | `assets/resources/level-one/units/frost-coil.png` | 冷凝塔、商店图标和布塔预览 |
 | `clockwork-infantry` | `art-source/first-level-units/clockwork-infantry.png` | `assets/resources/level-one/units/clockwork-infantry.png` | 第一种敌人 |
+| `clockwork-runner` | `art-source/first-level-units/clockwork-runner.png` | `assets/resources/level-one/units/clockwork-runner.png` | 第三波起出现的疾行机 |
 
 - 来源：2026-09-26 使用 OpenAI 内置 image_gen 原创生成；源 PNG 均为 1254×1254 透明图。机枪塔提示词为铜金色、双炮管、俯视 3/4 角度的玩具机械炮塔；冷凝塔为铜色底座、青蓝发光能量芯的同视角机械装置；步兵为铜色发条、青蓝配件的小型机械敌人。均要求单体、透明背景、无文字和场景。
 - 规格：使用仓库 `ai-asset-pipeline/src/resize.py --size 128 --square` 缩到 128×128 RGBA；每张运行时约 20 KiB。`art-source/first-level-units-source-contact.png` 和 `art-source/first-level-units-runtime-contact.png` 分别保存源图与缩小后对照。
 - 显示：塔在战场使用 108×108 设计坐标、敌人使用 78×78，中心锚点；商店图标 86×86。步兵按生成序号固定分到四个轻微错位的视觉位置，逻辑位置、寻路和索敌不变。无碰撞。Cocos 资源类型固定为 SpriteFrame，启动异步加载；任一单位图未就绪时由原 Graphics 灰盒整体兜底。
 - 状态：右侧 Web Mobile 浏览器已确认两塔商店图标、布塔预览、战场塔和移动步兵可见；密集队列的静态图现在可稍微分开。命中短闪和死亡淡出由只读战斗事件驱动，不阻塞模拟；仍需正式分层炮身、待机/移动/受击/死亡动作，以及真人对密集画面的阅读性评审。
+- 疾行机源图于 2026-09-26 用 OpenAI 内置 image_gen 以步兵源图作风格参考生成：铜金/海军蓝玩具机械材质、俯视 3/4 角度，改为低伏头部、双后掠鳍、青蓝眼缝和脚部涡轮；保留独立轮廓，不复制步兵造型。源图 1254×1254 透明 PNG，运行时经 `sips -Z 128` 归一为 128×128 RGBA、约 14 KiB；原图与运行时图均已入库，`art-source/first-level-enemy-variants-contact.png` 是游戏尺寸对照。两种敌人的身体轮廓可分，但密集战斗中辨识仍待真人验证。
+- 新图片必须将 Cocos `.png.meta` 的 `userData.type` 设为 `sprite-frame` 并生成 `f9941` 子资源；默认导入成 `texture` 时，`resources.load(.../spriteFrame)` 会失败，整层单位图退回 Graphics。现有规则测试覆盖四张图的导入契约。战场塔图显示不超过格宽 90%，商店图标不跟随缩小。
 
 ## 后续切图契约
 
@@ -43,6 +46,7 @@
 | 机枪塔 | 静态样板已接入；正式版底座/炮身/枪口至少分层 | 底部中心 | 分层待制作 |
 | 冷凝塔 | 静态样板已接入；正式版底座/能量芯分层 | 底部中心 | 分层待制作 |
 | 发条步兵 | 静态样板已接入；正式版至少待机/移动/受击/死亡 | 底部中心 | 动作待制作 |
+| 疾行机 | 静态透明切图已接入；正式版至少跑动/受击/死亡与速度尾迹 | 底部中心 | 动作待制作 |
 | 路线标记 | 32×32 可着色箭头，不烘焙到地图 | 中心 | 目前程序绘制 |
 | HUD 图标 | 金币、核心、波次、速度；各态独立 | 中心 | 待制作 |
 | 命中/减速/漏怪 | 独立帧或粒子参数，不能烘焙进角色 | 效果中心 | 目前程序绘制 |

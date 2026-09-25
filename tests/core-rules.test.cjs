@@ -5,7 +5,7 @@ const { resolve } = require('node:path');
 
 const { PHASE_A_GRIDS, PHASE_A_TOWER_COST } = require('../.test-dist/config/PhaseAGrids.js');
 const { FIRST_LEVEL_OPENING, FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_STARTING_GOLD, FIRST_LEVEL_SUGGESTED_PATH_DELTA } = require('../.test-dist/config/FirstLevelOpening.js');
-const { FROST_COIL, PHASE_B_TOWERS, PHASE_B_WAVES, PHASE_B_WAVE_ONE, RIVET_GUN } = require('../.test-dist/config/PhaseBCombatConfig.js');
+const { CLOCKWORK_INFANTRY, CLOCKWORK_RUNNER, FROST_COIL, PHASE_B_TOWERS, PHASE_B_WAVES, PHASE_B_WAVE_ONE, RIVET_GUN } = require('../.test-dist/config/PhaseBCombatConfig.js');
 const { cellKey } = require('../.test-dist/core/GridTypes.js');
 const { FlowField } = require('../.test-dist/systems/FlowField.js');
 const { PlacementModel } = require('../.test-dist/systems/PlacementModel.js');
@@ -24,6 +24,7 @@ const { countCombatFeedback, CombatFeedbackRuntime } = require('../.test-dist/pr
 const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGuidance.js');
 const { FirstLevelExperience } = require('../.test-dist/presentation/FirstLevelExperience.js');
 const { enemyVisualOffset } = require('../.test-dist/presentation/UnitVisualMotion.js');
+const { waveLineup, waveThreatHint } = require('../.test-dist/presentation/WaveBriefing.js');
 const {
     PHASE_B_EARLY_WAVE_BUTTON,
     PHASE_B_SPEED_BUTTON,
@@ -201,6 +202,46 @@ test('八波目录连续可索引且保留第一波冻结配置', () => {
         /清场奖励必须为非负整数/,
     );
     assert.throws(() => catalog.get(9), /不存在第 9 波/);
+});
+
+test('疾行机由第三波少量出现，波前预告和总敌数都跟随配置', () => {
+    assert.equal(PHASE_B_WAVES.slice(0, 2).every(({ groups }) => groups.every(({ enemy }) => enemy.id === CLOCKWORK_INFANTRY.id)), true);
+    assert.deepEqual(PHASE_B_WAVES[2].groups.map(({ enemy, count }) => [enemy.id, count]), [
+        ['clockwork-infantry', 8], ['clockwork-runner', 2],
+    ]);
+    assert.equal(PHASE_B_WAVES.flatMap(({ groups }) => groups).reduce((total, group) => total + group.count, 0), 90);
+    assert.equal(waveLineup(PHASE_B_WAVES[2]), '发条步兵×8 · 疾行机×2');
+    assert.equal(waveThreatHint(PHASE_B_WAVES[1]), null);
+    assert.match(waveThreatHint(PHASE_B_WAVES[2]), /疾行机×2.*冷凝塔/);
+});
+
+test('四张单位图均导入为 SpriteFrame，避免新增纹理让整层切图降级', () => {
+    for (const id of ['rivet-gun', 'frost-coil', 'clockwork-infantry', 'clockwork-runner']) {
+        const asset = resolve(__dirname, `../assets/resources/level-one/units/${id}.png`);
+        const meta = JSON.parse(readFileSync(`${asset}.meta`, 'utf8'));
+        assert.equal(meta.userData.type, 'sprite-frame', id);
+        assert.equal(meta.subMetas.f9941.importer, 'sprite-frame', id);
+        assert.ok(readFileSync(asset).length < 32 * 1024, `${id} 的运行时图片超过 32 KiB`);
+    }
+});
+
+test('疾行机移动更快但接受冷凝减速，移动与外观提示不依赖波次编号', () => {
+    const grid = PHASE_A_GRIDS['grid-9x13'];
+    const flow = new FlowField(grid, new Set());
+    const distanceAfterHalfSecond = (archetype) => {
+        const runtime = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
+        runtime.start({ wave: 1, clearReward: 0, groups: [{ enemy: archetype, count: 1, spawnIntervalSeconds: 1 }] });
+        runtime.tick(0.5, flow, []);
+        return runtime.enemies[0].progress;
+    };
+    assert.ok(distanceAfterHalfSecond(CLOCKWORK_RUNNER) > distanceAfterHalfSecond(CLOCKWORK_INFANTRY));
+    const frostCell = { column: 3, row: 1 };
+    const slowedFlow = new FlowField(grid, new Set([cellKey(frostCell)]));
+    const slowedRuntime = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
+    slowedRuntime.start({ wave: 1, clearReward: 0, groups: [{ enemy: CLOCKWORK_RUNNER, count: 1, spawnIntervalSeconds: 1 }] });
+    const firstTick = slowedRuntime.tick(1 / 30, slowedFlow, [{ cell: frostCell, towerId: 'frost-coil' }]);
+    assert.equal(firstTick.shots[0].appliedSlow, true);
+    assert.equal(slowedRuntime.enemies[0].slowMultiplier, FROST_COIL.effect.speedMultiplier);
 });
 
 test('模拟时钟统一限制长帧并在 1x 与 2x 间循环', () => {
@@ -644,10 +685,10 @@ test('首关推荐构筑可用实战收益逐步扩建并通过完整八波', ()
     assert.deepEqual(waveResults.slice(0, 3), [
         { wave: 1, killed: 6, leaked: 2, coreHealth: 8, towers: 5 },
         { wave: 2, killed: 6, leaked: 2, coreHealth: 6, towers: 7 },
-        { wave: 3, killed: 10, leaked: 0, coreHealth: 6, towers: 8 },
+        { wave: 3, killed: 9, leaked: 1, coreHealth: 5, towers: 8 },
     ]);
-    assert.equal(waveResults.at(-1).coreHealth, 6);
+    assert.equal(waveResults.at(-1).coreHealth, 5);
     assert.equal(model.towers.size, 13);
     assert.equal(combat.totals.spawned, 90);
-    assert.deepEqual(combat.totals, { spawned: 90, killed: 86, leaked: 4 });
+    assert.deepEqual(combat.totals, { spawned: 90, killed: 85, leaked: 5 });
 });

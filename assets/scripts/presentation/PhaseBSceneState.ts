@@ -18,7 +18,7 @@ export interface PhaseBSceneState {
         readonly id: string;
         readonly spawnOrder: number;
         readonly health: number;
-        readonly archetype: { readonly maxHealth: number };
+        readonly archetype: { readonly id: 'clockwork-infantry' | 'clockwork-runner'; readonly maxHealth: number };
         readonly fromCell: GridCell;
         readonly toCell: GridCell;
         readonly progress: number;

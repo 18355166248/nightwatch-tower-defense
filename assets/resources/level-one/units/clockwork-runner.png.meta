@@ -1,0 +1,134 @@
+{
+  "ver": "1.0.27",
+  "importer": "image",
+  "imported": true,
+  "uuid": "115fd738-2591-40c2-8257-32588d485ab5",
+  "files": [
+    ".json",
+    ".png"
+  ],
+  "subMetas": {
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+      "displayName": "clockwork-runner",
+      "id": "6c48a",
+      "name": "texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "115fd738-2591-40c2-8257-32588d485ab5",
+        "visible": false
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f9941": {
+      "importer": "sprite-frame",
+      "uuid": "115fd738-2591-40c2-8257-32588d485ab5@f9941",
+      "displayName": "clockwork-runner",
+      "id": "f9941",
+      "name": "spriteFrame",
+      "userData": {
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 4.5,
+        "offsetY": 0,
+        "trimX": 30,
+        "trimY": 11,
+        "width": 77,
+        "height": 106,
+        "rawWidth": 128,
+        "rawHeight": 128,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0,
+        "vertices": {
+          "rawPosition": [
+            -38.5,
+            -53,
+            0,
+            38.5,
+            -53,
+            0,
+            -38.5,
+            53,
+            0,
+            38.5,
+            53,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            30,
+            117,
+            107,
+            117,
+            30,
+            11,
+            107,
+            11
+          ],
+          "nuv": [
+            0.234375,
+            0.0859375,
+            0.8359375,
+            0.0859375,
+            0.234375,
+            0.9140625,
+            0.8359375,
+            0.9140625
+          ],
+          "minPos": [
+            -38.5,
+            -53,
+            0
+          ],
+          "maxPos": [
+            38.5,
+            53,
+            0
+          ]
+        },
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+        "atlasUuid": "",
+        "trimType": "auto"
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "type": "sprite-frame",
+    "fixAlphaTransparencyArtifacts": false,
+    "hasAlpha": true,
+    "redirect": "115fd738-2591-40c2-8257-32588d485ab5@6c48a"
+  }
+}

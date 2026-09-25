@@ -139,10 +139,11 @@ export class PhaseBCanvasRenderer {
             const x = from.x + (to.x - from.x) * enemy.progress;
             const y = from.y + (to.y - from.y) * enemy.progress;
             if (!state.useUnitSprites) {
-                graphics.fillColor = new Color('#F06A63');
+                const runner = enemy.archetype.id === 'clockwork-runner';
+                graphics.fillColor = new Color(runner ? '#33D7E7' : '#F06A63');
                 graphics.circle(x, y, metrics.cellSize * 0.25);
                 graphics.fill();
-                graphics.strokeColor = new Color('#FFF1CF');
+                graphics.strokeColor = new Color(runner ? '#D1FCFF' : '#FFF1CF');
                 graphics.lineWidth = 4;
                 graphics.circle(x, y, metrics.cellSize * 0.25);
                 graphics.stroke();

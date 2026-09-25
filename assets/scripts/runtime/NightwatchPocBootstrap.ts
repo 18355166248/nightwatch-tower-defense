@@ -27,6 +27,7 @@ import { PhaseBBackdropView } from '../presentation/PhaseBBackdropView';
 import { PhaseBCanvasRenderer } from '../presentation/PhaseBCanvasRenderer';
 import { PhaseBHudView } from '../presentation/PhaseBHudView';
 import { PhaseBUnitSpriteView } from '../presentation/PhaseBUnitSpriteView';
+import { waveLineup, waveThreatHint } from '../presentation/WaveBriefing';
 import type { PhaseBSceneState } from '../presentation/PhaseBSceneState';
 import {
     FIRST_LEVEL_SKIP_COACH_BUTTON,
@@ -530,8 +531,7 @@ export class NightwatchPocBootstrap extends Component {
         // 自动倒计时和玩家提前开波都汇入这里，避免生成器出现两套初始化顺序。
         const wave = this.waves.get(this.battle.snapshot.wave);
         this.combat.start(wave);
-        const enemyCount = wave.groups.reduce((sum, group) => sum + group.count, 0);
-        this.statusText = `第 ${wave.wave} 波：${enemyCount} 名发条步兵进场`;
+        this.statusText = `第 ${wave.wave} 波：${waveLineup(wave)}进场`;
         this.playSound('wave-start');
     }
 
@@ -620,7 +620,7 @@ export class NightwatchPocBootstrap extends Component {
         const inspectedTowerId = inspectedCell
             ? this.model.deployments.find(({ cell }) => sameCell(cell, inspectedCell))?.towerId
             : undefined;
-        const guidanceText = inspectedTowerId
+        const baseGuidanceText = inspectedTowerId
             ? this.towerInspectionText(inspectedTowerId, this.preparing && !this.pausedByLifecycle)
             : experience.guidanceText ?? firstLevelGuidance({
                 preparing: this.preparing,
@@ -629,6 +629,12 @@ export class NightwatchPocBootstrap extends Component {
                 previewAccepted: this.preview?.accepted ?? null,
                 selectedTowerId: this.selectedTowerId,
             });
+        const nextThreat = this.guidedIntermissionHeld && battle.wave < this.waves.totalWaves
+            ? waveThreatHint(this.waves.get(battle.wave + 1))
+            : null;
+        const guidanceText = nextThreat && !inspectedTowerId
+            ? `${baseGuidanceText}\n${nextThreat}`
+            : baseGuidanceText;
         const sceneState: PhaseBSceneState = {
             qaMode: this.qaMode,
             useUnitSprites: this.unitSprites?.ready ?? false,
