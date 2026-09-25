@@ -1,0 +1,50 @@
+assets/scripts/audio/FirstLevelSoundDirector.ts
+  s_57db2c01e7cdde::t_254dc3609758d4 7,48-49
+  s_57db2c01e7cdde::t_4e716989077c36 1-6,8-47,50-69
+assets/scripts/runtime/NightwatchPocBootstrap.ts
+  s_57db2c01e7cdde::t_2aacc63b135295 14-15,44,76,137,163,169-175,185,237,246-251,314,320,329,331,342,348,374,401,464,486,499,505-507,524-532,553-556,583,612-613,651-652
+  s_57db2c01e7cdde::t_81f63dc8d9849c 533
+assets/scripts/audio/FirstLevelSoundDirector.ts.meta
+  s_57db2c01e7cdde::t_4e716989077c36 1-9
+docs/validation.md
+  s_57db2c01e7cdde::t_683a7d7bd13935 62,71,79-84
+tsconfig.test.json
+  s_57db2c01e7cdde::t_81f63dc8d9849c 13
+assets/scripts/presentation/PhaseBLayout.ts
+  s_57db2c01e7cdde::t_254dc3609758d4 11
+assets/scripts/presentation/BrowserBattleDiagnostics.ts
+  s_57db2c01e7cdde::t_254dc3609758d4 21-22
+assets/scripts/presentation/PhaseBCanvasRenderer.ts
+  s_57db2c01e7cdde::t_254dc3609758d4 11,330-338
+tests/core-rules.test.cjs
+  s_57db2c01e7cdde::t_81f63dc8d9849c 15,31,68-95,117
+assets/scripts/audio/BrowserSynthAudio.ts.meta
+  s_57db2c01e7cdde::t_4e716989077c36 1-9
+assets/scripts/presentation/PhaseBHudView.ts
+  s_57db2c01e7cdde::t_254dc3609758d4 23-24,40,56-57,69,82,96
+assets/scripts/audio.meta
+  s_57db2c01e7cdde::t_4e716989077c36 1-9
+assets/scripts/presentation/PhaseBSceneState.ts
+  s_57db2c01e7cdde::t_254dc3609758d4 29
+assets/scripts/audio/BrowserSynthAudio.ts
+  s_57db2c01e7cdde::t_4e716989077c36 1-49,51,53-79,87-93,95-101,103-110,112-138
+  s_57db2c01e7cdde::t_254dc3609758d4 50,52,80-86,94,102,111
+docs/poc/phase-b-first-level-audio-regression.md
+  s_57db2c01e7cdde::t_683a7d7bd13935 1-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "07cac9f095a2d6d0f3585936596bad030df98b22",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
