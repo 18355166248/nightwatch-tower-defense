@@ -28,6 +28,8 @@ export interface PhaseBSceneState {
     readonly feedback: CombatFeedbackSnapshot;
     readonly routeChange: RouteChangeSnapshot | null;
     readonly gold: number;
+    readonly coreHealth: number;
+    readonly maxCoreHealth: number;
     readonly speedMultiplier: number;
     readonly soundEnabled: boolean;
     readonly selectedTowerId: TowerId;

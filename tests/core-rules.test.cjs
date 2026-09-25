@@ -21,6 +21,7 @@ const { WaveRewardRuntime } = require('../.test-dist/systems/WaveRewardRuntime.j
 const { SimulationClock } = require('../.test-dist/systems/SimulationClock.js');
 const { buildBattleResultViewModel } = require('../.test-dist/presentation/BattleResultViewModel.js');
 const { countCombatFeedback, CombatFeedbackRuntime } = require('../.test-dist/presentation/CombatFeedbackRuntime.js');
+const { buildCoreObjectiveState } = require('../.test-dist/presentation/CoreObjectiveState.js');
 const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGuidance.js');
 const { FirstLevelExperience } = require('../.test-dist/presentation/FirstLevelExperience.js');
 const { enemyVisualOffset } = require('../.test-dist/presentation/UnitVisualMotion.js');
@@ -37,6 +38,16 @@ const {
 } = require('../.test-dist/presentation/PhaseBLayout.js');
 
 const fixtures = JSON.parse(readFileSync(resolve(__dirname, '../docs/poc/phase-a-fixtures.json'), 'utf8'));
+
+test('出口核心标识按真实生命显示完整、受损和危急状态', () => {
+    assert.deepEqual(buildCoreObjectiveState(10, 10), { health: 10, maxHealth: 10, ratio: 1, tone: 'steady' });
+    assert.deepEqual(buildCoreObjectiveState(8, 10), { health: 8, maxHealth: 10, ratio: 0.8, tone: 'steady' });
+    assert.deepEqual(buildCoreObjectiveState(4, 10), { health: 4, maxHealth: 10, ratio: 0.4, tone: 'strained' });
+    assert.deepEqual(buildCoreObjectiveState(2, 10), { health: 2, maxHealth: 10, ratio: 0.2, tone: 'critical' });
+    assert.deepEqual(buildCoreObjectiveState(0, 10), { health: 0, maxHealth: 10, ratio: 0, tone: 'empty' });
+    assert.deepEqual(buildCoreObjectiveState(2, 2), { health: 2, maxHealth: 2, ratio: 1, tone: 'steady' });
+    assert.throws(() => buildCoreObjectiveState(2, 0), /上限为正数/);
+});
 
 test('首关提示跟随真实布塔门槛，预览与战斗阶段优先级明确', () => {
     const base = { preparing: true, towerCount: 0, pathDelta: 0, previewAccepted: null, selectedTowerId: 'rivet-gun' };

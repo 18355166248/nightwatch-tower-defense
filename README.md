@@ -34,10 +34,10 @@ npm start
 - 自动化规则与 100 次动态改路回放已通过。
 - Cocos Web Mobile 发布构建和 390×844 浏览器核心交互走查已通过，控制台 0 error / 0 warning；按钮可读性与统计层遮挡已复验关闭。
 - Phase A 自动化与右侧浏览器工程门禁已通过，可继续第一关灰盒开发；首次玩家评审仍需收集。
-- Phase B 第一波运行时已接入：8 个敌人依次生成，塔按接近出口优先索敌；弹道、命中、死亡、奖励与核心受损反馈均由独立表现层消费事件。短折线当前冻结为 6 杀 2 漏、核心剩余 8。
-- Phase B 八波框架已接入：波次由连续编号配置表驱动，波间等待 8 秒，等待期间可提前开波；第一波进入倒计时并提前开启第二波已完成浏览器回归。当前数值只用于验证编排，不代表八波已完成通关平衡。
-- Phase B 时间与波间控制已独立：底部速度按钮循环切换 1×/2×，提前开波按钮只在倒计时激活；统一模拟时钟同时驱动敌人、炮塔、战斗反馈和倒计时，长帧先截断再乘倍率。
+- Phase B 教学前两波各生成 6 个敌人；推荐开局两波均零漏。第三波起出现疾行机与首次漏怪压力。塔按接近出口优先索敌；弹道、命中、死亡、奖励与核心受损反馈由独立表现层消费事件。
+- Phase B 八波由连续编号配置表驱动，波间可补塔并主动继续；跳过教学后恢复 8 秒自动倒计时。推荐 11 塔构筑已在右侧浏览器通关（80/86、核心 4/10），下排自选再补 1 座机枪的浏览器通关结果为 84/86、核心 8/10。数值仍待首次玩家试玩判断。
+- 底部速度按钮循环切换 1×/2×；统一模拟时钟以固定 60 Hz 步进驱动敌人、炮塔、战斗反馈和倒计时，长帧先限制再乘倍率。完整八波回放在 20/30/60 FPS 输入与 2× 下逐波一致。
 - Phase B 终局闭环已接入：胜败结算层独占输入，重新部署恢复开战检查点，不继承本轮击杀收益；失败样例以核心 2 验证 2 次漏怪后立即终止。
-- Phase B 表现边界已拆分：`PhaseBLayout` 统一输入与绘制坐标，`PhaseBCanvasRenderer` 只消费只读绘制快照，`PhaseBHudView` 管理 HUD/结算节点，`BrowserBattleDiagnostics` 隔离浏览器 QA 快照；战斗规则不依赖这些适配层。
+- Phase B 表现边界已拆分：`PhaseBLayout` 统一输入与绘制坐标，`PhaseBCanvasRenderer` 只消费只读绘制快照，`PhaseBHudView` 管理 HUD/结算节点，`CoreObjectiveView` 显示出口核心状态，`BrowserBattleDiagnostics` 隔离浏览器 QA 快照；战斗规则不依赖这些适配层。
 - Android/iOS 真机测试延后到移动端发布前，不得把“未阻断开发”表述为“真机已通过”。
-- 详细证据见 `docs/poc/phase-a-report.md`、`docs/poc/phase-a-browser-regression.md`、`docs/poc/phase-b-wave-one-regression.md`、`docs/poc/phase-b-eight-wave-transition-regression.md`、`docs/poc/phase-b-speed-controls-regression.md`、`docs/poc/phase-b-result-loop-regression.md` 与 `docs/validation.md`；交叉评审按 `docs/poc/phase-a-review-checklist.md` 执行。
+- 当前证据先看 `docs/validation.md`、`docs/poc/phase-b-fixed-step-regression.md` 与 `docs/poc/phase-b-core-objective-regression.md`；历史阶段记录仍保留在 `docs/poc/`。Phase A 交叉评审按 `docs/poc/phase-a-review-checklist.md` 执行。

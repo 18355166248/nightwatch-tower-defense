@@ -683,6 +683,8 @@ export class NightwatchPocBootstrap extends Component {
             feedback: this.feedback.snapshot,
             routeChange: this.routeChange.snapshot,
             gold: this.model.gold,
+            coreHealth: battle.coreHealth,
+            maxCoreHealth: this.initialCoreHealth,
             speedMultiplier: this.simulationClock.scale,
             soundEnabled: this.sound.isEnabled,
             selectedTowerId: this.selectedTowerId,

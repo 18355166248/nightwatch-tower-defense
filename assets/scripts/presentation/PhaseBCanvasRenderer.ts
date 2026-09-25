@@ -3,6 +3,7 @@ import { FROST_COIL, RIVET_GUN } from '../config/PhaseBCombatConfig';
 import { cellKey, sameCell, type GridDefinition } from '../core/GridTypes';
 import type { BattleResultViewModel } from './BattleResultViewModel';
 import type { PhaseBSceneState } from './PhaseBSceneState';
+import { CoreObjectiveView } from './CoreObjectiveView';
 import {
     PHASE_B_GRID_TABS,
     PHASE_B_FROST_BUTTON,
@@ -21,10 +22,14 @@ import {
  * 后续替换 Sprite/Prefab 时可以整体替换此类，而不改动战斗编排。
  */
 export class PhaseBCanvasRenderer {
+    private readonly coreObjective: CoreObjectiveView;
+
     public constructor(
         private readonly graphics: Graphics,
         private readonly layout: PhaseBLayout,
-    ) {}
+    ) {
+        this.coreObjective = new CoreObjectiveView(graphics, layout);
+    }
 
     public render(state: PhaseBSceneState): void {
         const graphics = this.graphics;
@@ -133,6 +138,7 @@ export class PhaseBCanvasRenderer {
         this.drawRouteArrows(state, metrics.cellSize);
         this.drawInspectedTowerRange(state, metrics.cellSize);
         this.drawPlacementRange(state, metrics.cellSize);
+        this.coreObjective.draw(state.grid, state.coreHealth, state.maxCoreHealth);
 
         for (const enemy of state.enemies) {
             const from = this.center(enemy.fromCell, state.grid);
