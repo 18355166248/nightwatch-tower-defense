@@ -1,0 +1,41 @@
+assets/resources/level-one/units/frost-coil-base-v2.png.meta
+  s_57db2c01e7cdde::t_1c52c33d47c564 1-134
+docs/poc/phase-b-frost-layer-regression.md
+  s_57db2c01e7cdde::t_0e021fcf24bdb9 1-20
+assets/resources/level-one/units/frost-coil-core-v2.png.meta
+  s_57db2c01e7cdde::t_1c52c33d47c564 1-134
+tests/core-rules.test.cjs
+  s_57db2c01e7cdde::t_e992b4f947eec8 27,249-256,299-308
+  s_57db2c01e7cdde::t_0ae8a22f3f35ef 309-311
+docs/first-level-art.md
+  s_57db2c01e7cdde::t_bd4a71ac16ef23 7,50,63-79,85
+tsconfig.test.json
+  s_57db2c01e7cdde::t_9a6569d29614d8 26
+assets/scripts/presentation/LayeredTowerRig.ts
+  s_57db2c01e7cdde::t_00071c48fb4012 4-27,31-32,37-47,50,52-57,60,63,67,72,74-76
+docs/validation.md
+  s_57db2c01e7cdde::t_0e021fcf24bdb9 139-144
+assets/scripts/presentation/PhaseBUnitSpriteView.ts
+  s_57db2c01e7cdde::t_9a6569d29614d8 5-6,15-23,25,35,65-71,110-118,229,251,253-254,258,263-264
+  s_57db2c01e7cdde::t_4cc751d04c16bf 265-266
+assets/scripts/presentation/UnitVisualMotion.ts
+  s_57db2c01e7cdde::t_9a6569d29614d8 63-70
+art-source/first-level-units/frost-coil-layers-v2-manifest.json
+  s_57db2c01e7cdde::t_0e021fcf24bdb9 1-68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "a29c1781b2be4c8268371a18c2fa626823a1fbbf",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
