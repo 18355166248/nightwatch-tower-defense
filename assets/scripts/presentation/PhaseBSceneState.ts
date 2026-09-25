@@ -2,6 +2,7 @@ import type { TowerId } from '../config/PhaseBCombatConfig';
 import type { GridCell, GridDefinition, GridId } from '../core/GridTypes';
 import type { BattleResultViewModel } from './BattleResultViewModel';
 import type { CombatFeedbackSnapshot } from './CombatFeedbackRuntime';
+import type { RouteChangeSnapshot } from './RouteChangeFeedback';
 
 /** 各表现层共享只读快照，渲染实现不反向持有战斗或经济对象。 */
 export interface PhaseBSceneState {
@@ -25,6 +26,7 @@ export interface PhaseBSceneState {
         readonly slowRemainingSeconds: number;
     }[];
     readonly feedback: CombatFeedbackSnapshot;
+    readonly routeChange: RouteChangeSnapshot | null;
     readonly gold: number;
     readonly speedMultiplier: number;
     readonly soundEnabled: boolean;

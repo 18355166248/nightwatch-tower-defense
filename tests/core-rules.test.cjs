@@ -24,6 +24,7 @@ const { countCombatFeedback, CombatFeedbackRuntime } = require('../.test-dist/pr
 const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGuidance.js');
 const { FirstLevelExperience } = require('../.test-dist/presentation/FirstLevelExperience.js');
 const { enemyVisualOffset } = require('../.test-dist/presentation/UnitVisualMotion.js');
+const { RouteChangeFeedback, routeChangeText, routeLengthDelta } = require('../.test-dist/presentation/RouteChangeFeedback.js');
 const { waveLineup, waveThreatHint } = require('../.test-dist/presentation/WaveBriefing.js');
 const {
     PHASE_B_EARLY_WAVE_BUTTON,
@@ -102,6 +103,32 @@ test('首关教学推荐横墙可由起始金币建成，并为第一波与波�
     const rewards = new WaveRewardRuntime();
     assert.equal(rewards.settle(PHASE_B_WAVE_ONE, economy).gold, 54);
     assert.equal(model.preview({ column: 1, row: 2 }, [], 'rivet-gun').accepted, true);
+});
+
+test('布塔预览、提交与撤销使用同一流场计算路线变化，提示按真实时间衰减', () => {
+    const grid = PHASE_A_GRIDS['grid-9x13'];
+    const model = new PlacementModel(grid, FIRST_LEVEL_STARTING_GOLD, PHASE_B_TOWERS);
+    const routeFeedback = new RouteChangeFeedback();
+    const cell = { column: 4, row: 2 };
+    const before = model.flowField.distanceAt(grid.entry);
+    const preview = model.preview(cell, [], 'rivet-gun');
+    assert.equal(preview.accepted, true);
+    const previewDelta = routeLengthDelta(before, preview.path.length - 1);
+    assert.ok(previewDelta > 0);
+    assert.match(routeChangeText(previewDelta), /路线 \+\d+ 格/);
+    assert.equal(model.commit(preview, []).accepted, true);
+    const placed = routeFeedback.record(cell, before, model.flowField.distanceAt(grid.entry));
+    assert.equal(placed.delta, previewDelta);
+    routeFeedback.advance(0.45);
+    assert.ok(routeFeedback.snapshot.remainingSeconds > 0);
+    const beforeSell = model.flowField.distanceAt(grid.entry);
+    assert.equal(model.sell(cell, true), true);
+    const removed = routeFeedback.record(cell, beforeSell, model.flowField.distanceAt(grid.entry));
+    assert.equal(removed.delta, -previewDelta);
+    assert.match(routeChangeText(removed.delta), /路线缩短/);
+    routeFeedback.advance(1);
+    assert.equal(routeFeedback.snapshot, null);
+    assert.throws(() => routeLengthDelta(-1, 2), /非负整数/);
 });
 
 test('首关音效对连续攻击限频，静音与恢复只影响声音不影响事件', () => {

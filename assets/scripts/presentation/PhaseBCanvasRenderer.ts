@@ -129,6 +129,7 @@ export class PhaseBCanvasRenderer {
             }
         }
 
+        this.drawRouteChange(state, metrics.cellSize);
         this.drawRouteArrows(state, metrics.cellSize);
         this.drawInspectedTowerRange(state, metrics.cellSize);
         this.drawPlacementRange(state, metrics.cellSize);
@@ -218,6 +219,26 @@ export class PhaseBCanvasRenderer {
             graphics.lineTo(x - dx * length + dy * width, y - dy * length - dx * width);
             graphics.close();
             graphics.fill();
+        }
+    }
+
+    private drawRouteChange(state: PhaseBSceneState, cellSize: number): void {
+        const change = state.routeChange;
+        const path = state.activePath;
+        if (!change || change.delta === 0 || !path || state.preview) return;
+        const progress = change.remainingSeconds / change.durationSeconds;
+        const alpha = Math.round(190 * progress);
+        const graphics = this.graphics;
+        graphics.strokeColor = change.delta < 0
+            ? new Color(255, 186, 114, alpha)
+            : new Color(108, 245, 183, alpha);
+        graphics.lineWidth = 3 + 4 * progress;
+        // 只描当前真实路径外框，不改逻辑格；动画结束后自动恢复安静的战场层级。
+        for (const cell of path) {
+            const center = this.center(cell, state.grid);
+            const half = cellSize * 0.43;
+            graphics.rect(center.x - half, center.y - half, half * 2, half * 2);
+            graphics.stroke();
         }
     }
 

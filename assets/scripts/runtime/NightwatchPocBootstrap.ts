@@ -27,6 +27,7 @@ import { PhaseBBackdropView } from '../presentation/PhaseBBackdropView';
 import { PhaseBCanvasRenderer } from '../presentation/PhaseBCanvasRenderer';
 import { PhaseBHudView } from '../presentation/PhaseBHudView';
 import { PhaseBUnitSpriteView } from '../presentation/PhaseBUnitSpriteView';
+import { RouteChangeFeedback, routeChangeText, routeLengthDelta } from '../presentation/RouteChangeFeedback';
 import { waveLineup, waveThreatHint } from '../presentation/WaveBriefing';
 import type { PhaseBSceneState } from '../presentation/PhaseBSceneState';
 import {
@@ -77,6 +78,7 @@ export class NightwatchPocBootstrap extends Component {
     private combat = new WaveCombatRuntime(PHASE_A_GRIDS[DEFAULT_GRID_ID], PHASE_B_TOWERS);
     private waveRewards = new WaveRewardRuntime();
     private readonly feedback = new CombatFeedbackRuntime();
+    private readonly routeChange = new RouteChangeFeedback();
     private readonly sound = new FirstLevelSoundDirector(new BrowserSynthAudio());
     private readonly towerInspection = new TowerInspection();
     private readonly simulationClock = new SimulationClock();
@@ -145,6 +147,8 @@ export class NightwatchPocBootstrap extends Component {
     protected override update(deltaTime: number): void {
         const step = this.simulationClock.gameDeltaSeconds(deltaTime);
         this.feedback.advance(step);
+        // 布塔反馈走真实时间，暂停和 2× 战斗都不会改变玩家读到提示的时长。
+        this.routeChange.advance(deltaTime);
         const phaseBeforeAdvance = this.battle.snapshot.phase;
         if (phaseBeforeAdvance === 'countdown') {
             this.battle.advance(step);
@@ -368,14 +372,18 @@ export class NightwatchPocBootstrap extends Component {
         if (this.inputMode === 'armed') {
             this.preview = this.model.preview(cell, this.enemyStates(), this.selectedTowerId);
             this.inputMode = 'click-preview';
-            this.statusText = this.preview.accepted ? '预览合法：再点同一格提交' : this.rejectText(this.preview.reason);
+            this.statusText = this.preview.accepted
+                ? `可建造 · ${this.previewRouteText(this.preview)} · 再点确认`
+                : this.rejectText(this.preview.reason);
             return;
         }
         if (this.inputMode === 'click-preview') {
             if (this.preview && sameCell(this.preview.cell, cell)) this.commitCurrentPreview();
             else {
                 this.preview = this.model.preview(cell, this.enemyStates(), this.selectedTowerId);
-                this.statusText = this.preview.accepted ? '已更换预览格：再点同一格提交' : this.rejectText(this.preview.reason);
+                this.statusText = this.preview.accepted
+                    ? `可建造 · ${this.previewRouteText(this.preview)} · 再点确认`
+                    : this.rejectText(this.preview.reason);
             }
             return;
         }
@@ -385,8 +393,12 @@ export class NightwatchPocBootstrap extends Component {
             const canSell = this.preparing && !this.pausedByLifecycle;
             const action = this.towerInspection.tap(cell, canSell);
             if (action === 'sell') {
+                const before = this.model.flowField.distanceAt(this.model.grid.entry);
                 const sold = this.model.sell(cell, true);
-                this.statusText = sold ? '炮塔已全额撤销 · 可重新规划路线' : '撤销失败，请重新选择炮塔';
+                const delta = sold
+                    ? this.routeChange.record(cell, before, this.model.flowField.distanceAt(this.model.grid.entry)).delta
+                    : 0;
+                this.statusText = sold ? `炮塔已全额撤销 · ${routeChangeText(delta)}` : '撤销失败，请重新选择炮塔';
                 this.playSound(sold ? 'ui' : 'reject');
             } else if (action === 'inspect') {
                 this.statusText = this.towerInspectionText(towerId, canSell);
@@ -409,7 +421,17 @@ export class NightwatchPocBootstrap extends Component {
         }
         if (this.preview && sameCell(this.preview.cell, cell)) return;
         this.preview = this.model.preview(cell, this.enemyStates(), this.selectedTowerId);
-        this.statusText = this.preview.accepted ? `合法落点 (${cell.column},${cell.row})` : this.rejectText(this.preview.reason);
+        this.statusText = this.preview.accepted
+            ? `可落塔 · ${this.previewRouteText(this.preview)}`
+            : this.rejectText(this.preview.reason);
+    }
+
+    private previewRouteText(preview: PlacementPreview): string {
+        if (!preview.accepted || !preview.path) throw new Error('仅合法预览可计算路线变化');
+        return routeChangeText(routeLengthDelta(
+            this.model.flowField.distanceAt(this.model.grid.entry),
+            preview.path.length - 1,
+        ));
     }
 
     private commitCurrentPreview(): void {
@@ -417,11 +439,16 @@ export class NightwatchPocBootstrap extends Component {
             this.cancelInput('没有有效落点，未扣费');
             return;
         }
+        const before = this.model.flowField.distanceAt(this.model.grid.entry);
+        const placedCell = this.preview.cell;
         const result = this.model.commit(this.preview, this.enemyStates());
+        const routeText = result.accepted
+            ? routeChangeText(this.routeChange.record(placedCell, before, this.model.flowField.distanceAt(this.model.grid.entry)).delta)
+            : null;
         this.statusText = result.accepted
             ? this.qaMode
-                ? `${this.selectedTowerLabel()}建造成功 · 金币 ${result.gold} · 地图版本 ${result.mapVersion}`
-                : `${this.selectedTowerLabel()}已建造 · 剩余金币 ${result.gold}`
+                ? `${this.selectedTowerLabel()}建造成功 · ${routeText} · 金币 ${result.gold} · 地图版本 ${result.mapVersion}`
+                : `${this.selectedTowerLabel()}已建造 · ${routeText} · 金币 ${result.gold}`
             : this.rejectText(result.reason);
         this.playSound(result.accepted ? 'place' : 'reject');
         this.towerInspection.clear();
@@ -458,6 +485,7 @@ export class NightwatchPocBootstrap extends Component {
         this.guidedIntermissionHeld = false;
         this.towerInspection.clear();
         this.feedback.clear();
+        this.routeChange.clear();
         this.cancelInput(this.qaMode ? '已重置为空网格' : '已重新布防，可以调整路线');
     }
 
@@ -514,6 +542,7 @@ export class NightwatchPocBootstrap extends Component {
         this.combat = new WaveCombatRuntime(restored.model.grid, PHASE_B_TOWERS);
         this.waveRewards = new WaveRewardRuntime();
         this.feedback.clear();
+        this.routeChange.clear();
         this.preparing = true;
         this.pausedByLifecycle = false;
         this.guidedIntermissionHeld = false;
@@ -647,6 +676,7 @@ export class NightwatchPocBootstrap extends Component {
             inspectedTower: inspectedCell && inspectedTowerId ? { cell: inspectedCell, towerId: inspectedTowerId } : null,
             enemies: this.combat.enemies,
             feedback: this.feedback.snapshot,
+            routeChange: this.routeChange.snapshot,
             gold: this.model.gold,
             speedMultiplier: this.simulationClock.scale,
             soundEnabled: this.sound.isEnabled,
