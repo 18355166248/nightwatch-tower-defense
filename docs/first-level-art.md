@@ -4,7 +4,7 @@
 
 夜城屋顶防线：俯视的玩具质感建筑、铜色机械件、青蓝屋顶和暖黄窗光。中央战场保持低对比，路线、敌人、塔与射程由运行时独立叠加。参考《Fieldrunners 2》的信息层级和布塔改路体验，不沿用其美术资产。
 
-当前完成底图、第一组静态单位切图和机枪塔底座/炮身分层候选。路线、特效和 HUD 仍是程序化表现；敌人尚无动作帧、冷凝塔尚未分层，不能称作完整美术落地。
+当前完成底图、第一组静态单位切图，以及机枪塔和冷凝塔的分层候选。路线、特效和 HUD 仍是程序化表现；敌人尚无正式动作帧，不能称作完整美术落地。
 
 2026-09-26 地表视觉迭代：战场不再用高不透明度灰蓝格子覆盖底图。`BattlefieldSurfaceView` 从真实路径快照绘制连续的铜边石路，空格仅保留低对比细线，已建塔和布塔预览保持独立色块。因为路线随布塔动态改变，这里选择无贴图接缝的程序化地表，而不是生成固定路线切图；输入命中仍复用 `PhaseBLayout`。右侧浏览器已验证默认画面、布塔预览和落塔，正式路线材质/动效与单位动作资产仍待制作。
 
@@ -47,7 +47,7 @@
 
 - 2026-09-26 使用 OpenAI 内置 image_gen，以仓库原始 `art-source/first-level-units/rivet-gun.png` 为**编辑目标**分别生成 `rivet-gun-base-v2.png` 与 `rivet-gun-head-v2.png`；没有改写原图。底座提示词保留铜金铆钉圆盘和深蓝转轴座、移除上部双炮管；炮身提示词保留双炮管、齿轮面板和侧轴，移除大型落地圆盘，底部留转轴插销。两张均要求原有 3/4 俯视、左上光、深蓝/铜金玩具机械材质与透明背景，无文字、场景或新物件。
 - 源文件均为 1254×1254 RGBA；运行时分别为 `assets/resources/level-one/units/rivet-gun-base-v2.png`（128×128，约 12 KiB）和 `rivet-gun-head-v2.png`（128×128，约 20 KiB）。`art-source/first-level-units/rivet-gun-layers-v2-contact.png` 是 128 像素对照，完整来源和检查字段见同目录 `rivet-gun-layers-v2-manifest.json`。
-- Cocos 通过 SpriteFrame 导入，两个部件以完整透明画布配准并关闭 Sprite 自动裁边；`RivetGunLayerRig` 将画布扩大 1.4 倍恢复原塔格内轮廓，炮身相对画布缩至 0.68 倍并略微右移、上移。底座固定在真实塔位，只有炮身消费开火后坐力。商店图标和预览仍沿用原静态图；任一分层图加载失败时，战场塔也退回原静态图，玩法照常运行。
+- Cocos 通过 SpriteFrame 导入，两个部件以完整透明画布配准并关闭 Sprite 自动裁边；通用 `LayeredTowerRig` 将画布扩大 1.4 倍恢复原塔格内轮廓，机枪炮身相对画布缩至 0.68 倍并略微右移、上移。底座固定在真实塔位，只有炮身消费开火后坐力。商店图标和预览仍沿用原静态图；任一分层图加载失败时，战场塔也退回原静态图，玩法照常运行。
 - 右侧 Web Mobile 浏览器在约 377×600 视窗已检查单塔、四塔横墙和第一波；视觉尺寸和遮挡作为候选通过，尚待用户主观评审。头图 alpha 边界含极少透明边缘噪点、旋转炮身及独立枪口帧未制作，因此不标记为最终制作资产。
 
 生成方式：OpenAI 内置 image_gen 的图片编辑模式，输入图均为 `art-source/first-level-units/rivet-gun.png`。最终提示词：
@@ -60,12 +60,29 @@ Use case: precise-object-edit. Asset type: production transparent component spri
 Use case: precise-object-edit. Asset type: production transparent UPPER ROTATING TURRET component sprite paired with a separately extracted stationary base for Nightwatch Tower Defense. The supplied original rivet-gun is the EDIT TARGET. Keep ONLY the upper twin-barrel gun assembly: both navy barrels with brass muzzles, the central angular navy housing with gold gear face, side cylinders and the narrow lower swivel collar. Remove the entire large circular copper/brass riveted floor base ring and any ground shadow. Preserve the upper assembly's exact identity, proportions, original location and apparent scale within the 1254x1254 square, 3/4 top-down camera, painterly toy-mechanical details, upper-left lighting and copper/navy palette. At the bottom, make a clean dark metal swivel peg that can sit over the stationary base's socket; do not add a replacement floor base. Fully transparent RGBA background with clean alpha, no scenery, UI, text, border, watermark, duplicate guns, or cropped edges.
 ```
 
+## 冷凝塔分层候选
+
+- 2026-09-26 使用 OpenAI 内置 image_gen 图片编辑模式，以仓库原始 `art-source/first-level-units/frost-coil.png` 为编辑目标分别生成固定机架 `frost-coil-base-v2.png` 与青蓝能量芯 `frost-coil-core-v2.png`；原静态塔未改写，继续用于商店、预览及缺图回退。
+- 两张源图均为 1254×1254 透明 PNG，运行时用 `sips -Z 128` 归一到 128×128 RGBA，分别约 20 KiB 与 5 KiB。`art-source/first-level-units/frost-coil-layers-v2-contact.png` 是游戏尺寸对照，`frost-coil-layers-v2-manifest.json` 记录来源与验收字段；商业权利复核和玩家主观确认仍待完成。
+- `LayeredTowerRig` 复用机枪塔的节点生命周期、SpriteFrame 加载失败回退和完整透明画布配准。冷凝塔机架画布为格内尺寸的 1.4 倍，能量芯宽高为其 0.65 倍并略微上移；命中事件只驱动核心短暂外扩，固定机架、射程和伤害逻辑不变。当前只在战场塔上启用分层，其他入口保留原图。
+- 右侧 Web Mobile 浏览器约 377×600 视窗已检查两塔并排、四塔横墙及第一波 6/6 击杀、核心 10/10；控制台 0 error / 0 warning。分层遮挡和小尺寸辨识作为候选通过，脉冲时长与玩家手感仍待主观评审，不能视作最终资产。
+
+生成方式：OpenAI 内置 image_gen 图片编辑模式，输入图均为 `art-source/first-level-units/frost-coil.png`。最终提示词：
+
+```text
+Use case: precise-object-edit. Asset type: transparent stationary BASE component sprite for Nightwatch Tower Defense's existing frost-coil defense tower. The supplied frost-coil image is the EDIT TARGET. Preserve the original copper/brass riveted circular floor base, four blue-and-copper support arms, bolts, top golden cap and all exterior mechanical housing in the same composition, exact proportions, same 3/4 top-down viewpoint, original upper-left lighting, painterly toy-mechanical finish. Change ONLY the glowing cyan energy cylinder in the center: remove its cyan glow, bright rings, snowflake pattern and energetic contents, leaving a dark navy transparent-looking EMPTY central chamber/socket behind the support arms, with subdued metal/glass edges so a separate cyan energy-core sprite can be overlaid there. Do not move or redesign any exterior piece. Keep a square 1254x1254 composition, genuinely transparent RGBA background, clean alpha. No floor/scenery, text, UI, border, duplicate tower, or cropped edges.
+```
+
+```text
+Use case: precise-object-edit. Asset type: transparent ANIMATABLE CYAN ENERGY-CORE insert for the existing frost-coil tower in Nightwatch Tower Defense. The supplied frost-coil image is the EDIT TARGET. Extract ONLY the bright inner cyan glass-energy cylinder with its two glowing horizontal ice rings, soft blue magical light and subtle snowflake patterns from the exact center of the original tower. Remove ALL copper/brass floor base, bolts, four outer support arms, dark blue outer frame, top golden cap, and any scenery; do not include those parts in this sprite. Preserve the core's original narrow cylindrical silhouette, original 3/4 top-down perspective, cyan color and upper-left lighting. Keep it in the SAME position and approximate size inside the original 1254x1254 square canvas (central inner chamber, not an enlarged hero icon), so it can overlay a separate empty-chamber frame sprite. Clean genuinely transparent RGBA outside the core, no floor shadow, text, UI, border, watermark, duplicate cores or cropped glow.
+```
+
 ## 后续切图契约
 
 | 类型 | 运行时目标 | 锚点 | 状态 |
 |---|---|---|---|
 | 机枪塔 | 底座/炮身分层候选已接入；枪口、瞄准转向与最终修边仍待制作 | 共用透明画布中心，运行时配准 | 浏览器候选 |
-| 冷凝塔 | 静态样板已接入；正式版底座/能量芯分层 | 底部中心 | 分层待制作 |
+| 冷凝塔 | 固定机架/能量芯分层候选已接入；脉冲时长与最终修边待评审 | 共用透明画布中心，运行时配准 | 浏览器候选 |
 | 发条步兵 | 静态样板已接入；正式版至少待机/移动/受击/死亡 | 底部中心 | 动作待制作 |
 | 疾行机 | 静态透明切图已接入；正式版至少跑动/受击/死亡与速度尾迹 | 底部中心 | 动作待制作 |
 | 路线标记 | 32×32 可着色箭头，不烘焙到地图 | 中心 | 目前程序绘制 |

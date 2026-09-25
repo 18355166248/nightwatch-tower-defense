@@ -60,3 +60,11 @@ export function towerRecoilPose(
         angle: 0,
     };
 }
+
+/** 冷凝命中时只让舱内能量芯短暂外扩；固定机架和逻辑射程都不随之变化。 */
+export function frostCorePulsePose(remainingSeconds: number, durationSeconds: number): UnitVisualPose {
+    if (durationSeconds <= 0 || remainingSeconds <= 0) return REST_POSE;
+    const life = Math.max(0, Math.min(1, remainingSeconds / durationSeconds));
+    const pulse = life * life;
+    return { x: 0, y: 0, scaleX: 1 + pulse * 0.16, scaleY: 1 + pulse * 0.1, angle: 0 };
+}

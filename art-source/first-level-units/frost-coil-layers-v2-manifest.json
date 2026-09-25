@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "art_direction_brief": "docs/first-level-art.md",
+  "assets": [
+    {
+      "id": "frost-coil-base-v2",
+      "role": "stationary copper and navy chassis with an empty energy chamber",
+      "path": "assets/resources/level-one/units/frost-coil-base-v2.png",
+      "source_path": "art-source/first-level-units/frost-coil-base-v2.png",
+      "status": "browser-candidate",
+      "technical": {
+        "dimensions": "128x128",
+        "alpha": true,
+        "anchor": "center, shared full transparent canvas",
+        "frames": 1,
+        "filtering": "linear",
+        "collision_role": "none"
+      },
+      "visual_locks": ["copper riveted base", "four navy support arms", "upper-left lighting", "three-quarter top-down view"],
+      "source": {
+        "kind": "AI-assisted edit of project-owned original",
+        "url_or_tool": "OpenAI built-in image_gen",
+        "creator": "OpenAI built-in image_gen",
+        "created_at": "2026-09-26",
+        "license": "AI-generated candidate; commercial rights review pending",
+        "attribution": "source and generation record retained in repository",
+        "prompt_or_source_record": "docs/first-level-art.md#冷凝塔分层候选"
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "approved_by": ""
+      }
+    },
+    {
+      "id": "frost-coil-core-v2",
+      "role": "pulsing cyan energy insert inside the frost-coil chamber",
+      "path": "assets/resources/level-one/units/frost-coil-core-v2.png",
+      "source_path": "art-source/first-level-units/frost-coil-core-v2.png",
+      "status": "browser-candidate",
+      "technical": {
+        "dimensions": "128x128",
+        "alpha": true,
+        "anchor": "center, shared full transparent canvas",
+        "frames": 1,
+        "filtering": "linear",
+        "collision_role": "none"
+      },
+      "visual_locks": ["cyan helix", "two ice rings", "upper-left lighting", "three-quarter top-down view"],
+      "source": {
+        "kind": "AI-assisted edit of project-owned original",
+        "url_or_tool": "OpenAI built-in image_gen",
+        "creator": "OpenAI built-in image_gen",
+        "created_at": "2026-09-26",
+        "license": "AI-generated candidate; commercial rights review pending",
+        "attribution": "source and generation record retained in repository",
+        "prompt_or_source_record": "docs/first-level-art.md#冷凝塔分层候选"
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "approved_by": ""
+      }
+    }
+  ]
+}

@@ -136,3 +136,9 @@ Phase B 灰盒已接入浏览器运行时：发条步兵与第三波起出现的
 - 已接入：以原机枪塔图编辑生成的铜金底座和深蓝双炮管炮身分别导入 SpriteFrame；战场里底座固定、炮身单独消费开火后坐力，商店/预览与缺图回退保持原静态图。
 - 已验证：两张运行时图 128×128 RGBA 和原生导入契约，43 条规则测试、Web Mobile 发布构建；右侧浏览器单塔、四塔横墙、第一波刷怪可继续，日志 0 error / 0 warning。见 `docs/poc/phase-b-rivet-layer-regression.md` 和 `docs/first-level-art.md`。
 - 未验证：玩家主观美术评价、枪口/瞄准动作、冷凝塔分层与敌人正式动作帧；本轮没有 Android 真机测试。
+
+## 19. 冷凝塔分层切图候选（2026-09-26）
+
+- 已接入：以原冷凝塔图编辑提取固定机架和青蓝能量芯；共用 `LayeredTowerRig` 管理两塔分层，冷凝命中时仅核心短脉冲，底座和战斗逻辑不受影响。商店、预览与缺图回退继续使用原静态塔。
+- 已验证：两张 128×128 RGBA SpriteFrame 导入契约、45 条规则测试、Web Mobile 发布构建；右侧浏览器四塔横墙与第一波 6/6 击杀、核心 10/10，日志 0 error / 0 warning。见 `docs/poc/phase-b-frost-layer-regression.md` 与 `docs/first-level-art.md`。
+- 未验证：玩家对瞬时脉冲、塔间辨识和整体节奏的主观评价，缺图分支浏览器故障注入，正式敌人动作帧；未进行 Android 真机测试。

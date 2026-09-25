@@ -2,8 +2,8 @@ import { Color, Graphics, isValid, Node, resources, Sprite, SpriteFrame, UIOpaci
 import type { GridCell } from '../core/GridTypes';
 import { PHASE_B_DESIGN_HEIGHT, PHASE_B_DESIGN_WIDTH, PhaseBLayout } from './PhaseBLayout';
 import type { PhaseBSceneState } from './PhaseBSceneState';
-import { RivetGunLayerRig } from './RivetGunLayerRig';
-import { enemyStridePose, enemyVisualOffset, towerRecoilPose } from './UnitVisualMotion';
+import { FROST_COIL_LAYER_SPEC, LayeredTowerRig, RIVET_GUN_LAYER_SPEC, type LayeredTowerSpec } from './LayeredTowerRig';
+import { enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } from './UnitVisualMotion';
 
 const UNIT_ASSETS = {
     'rivet-gun': 'level-one/units/rivet-gun/spriteFrame',
@@ -12,11 +12,17 @@ const UNIT_ASSETS = {
     'clockwork-runner': 'level-one/units/clockwork-runner/spriteFrame',
 } as const;
 type UnitArtId = keyof typeof UNIT_ASSETS;
-const RIVET_LAYER_ASSETS = {
-    base: 'level-one/units/rivet-gun-base-v2/spriteFrame',
-    head: 'level-one/units/rivet-gun-head-v2/spriteFrame',
+const TOWER_LAYER_ASSETS = {
+    'rivet-gun': {
+        base: 'level-one/units/rivet-gun-base-v2/spriteFrame',
+        active: 'level-one/units/rivet-gun-head-v2/spriteFrame',
+    },
+    'frost-coil': {
+        base: 'level-one/units/frost-coil-base-v2/spriteFrame',
+        active: 'level-one/units/frost-coil-core-v2/spriteFrame',
+    },
 } as const;
-type RivetLayerId = keyof typeof RIVET_LAYER_ASSETS;
+type LayeredTowerId = keyof typeof TOWER_LAYER_ASSETS;
 
 /** 单位切图层只同步视觉节点；全部资源就绪前由 Graphics 保留灰盒兜底。 */
 export class PhaseBUnitSpriteView {
@@ -26,7 +32,7 @@ export class PhaseBUnitSpriteView {
     private readonly deathLayer = new Node('DeathSprites');
     private readonly shopLayer = new Node('ShopSprites');
     private readonly frames = new Map<UnitArtId, SpriteFrame>();
-    private readonly rivetLayers = new Map<RivetLayerId, SpriteFrame>();
+    private readonly towerLayers = new Map<string, SpriteFrame>();
     private readonly towers = new Map<string, Node>();
     private readonly enemies = new Map<string, Node>();
     private readonly deaths = new Map<string, Node>();
@@ -56,11 +62,13 @@ export class PhaseBUnitSpriteView {
                 this.frames.set(id, frame);
             });
         }
-        for (const [id, resourcePath] of Object.entries(RIVET_LAYER_ASSETS) as [RivetLayerId, string][]) {
-            resources.load(resourcePath, SpriteFrame, (error, frame) => {
-                if (error || !frame || !isValid(this.root)) return;
-                this.rivetLayers.set(id, frame);
-            });
+        for (const [towerId, paths] of Object.entries(TOWER_LAYER_ASSETS) as [LayeredTowerId, { base: string; active: string }][]) {
+            for (const [part, resourcePath] of Object.entries(paths) as ['base' | 'active', string][]) {
+                resources.load(resourcePath, SpriteFrame, (error, frame) => {
+                    if (error || !frame || !isValid(this.root)) return;
+                    this.towerLayers.set(`${towerId}:${part}`, frame);
+                });
+            }
         }
     }
 
@@ -99,9 +107,15 @@ export class PhaseBUnitSpriteView {
                 x: shot.point.column - shot.origin.column,
                 y: shot.origin.row - shot.point.row,
             }) : null;
-            if (towerId === 'rivet-gun' && this.rivetLayers.size === 2) {
-                const node = this.ensureRivetRig(key, towerSize);
-                RivetGunLayerRig.pose(node, point, towerSize, recoil);
+            const base = this.towerLayers.get(`${towerId}:base`);
+            const active = this.towerLayers.get(`${towerId}:active`);
+            if (base && active) {
+                const spec = this.specFor(towerId);
+                const node = this.ensureLayerRig(key, towerSize, base, active, spec);
+                const motion = towerId === 'frost-coil'
+                    ? frostCorePulsePose(shot?.remainingSeconds ?? 0, shot?.durationSeconds ?? 0)
+                    : recoil;
+                LayeredTowerRig.pose(node, point, towerSize, motion, spec);
             } else {
                 const node = this.ensureNode(this.towers, key, this.towerLayer, frame, towerSize);
                 node.setPosition(point.x + (recoil?.x ?? 0), point.y + 3 + (recoil?.y ?? 0), 0);
@@ -212,7 +226,7 @@ export class PhaseBUnitSpriteView {
 
     private ensureNode(nodes: Map<string, Node>, key: string, layer: Node, frame: SpriteFrame, size: number): Node {
         const current = nodes.get(key);
-        if (current?.getChildByName('RivetHead')) {
+        if (current && (LayeredTowerRig.hasParts(current, RIVET_GUN_LAYER_SPEC) || LayeredTowerRig.hasParts(current, FROST_COIL_LAYER_SPEC))) {
             current.destroy();
             nodes.delete(key);
         }
@@ -234,19 +248,20 @@ export class PhaseBUnitSpriteView {
         return node;
     }
 
-    private ensureRivetRig(key: string, size: number): Node {
+    private ensureLayerRig(key: string, size: number, base: SpriteFrame, active: SpriteFrame, spec: LayeredTowerSpec): Node {
         const existing = this.towers.get(key);
-        if (existing?.getChildByName('RivetHead')) {
-            RivetGunLayerRig.resize(existing, size);
+        if (existing && LayeredTowerRig.hasParts(existing, spec)) {
+            LayeredTowerRig.resize(existing, size, spec);
             return existing;
         }
         if (existing) existing.destroy();
-        const base = this.rivetLayers.get('base');
-        const head = this.rivetLayers.get('head');
-        if (!base || !head) throw new Error('分层机枪资源未就绪');
-        const node = RivetGunLayerRig.create(key, this.towerLayer, base, head, size);
+        const node = LayeredTowerRig.create(key, this.towerLayer, base, active, size, spec);
         this.towers.set(key, node);
         return node;
+    }
+
+    private specFor(towerId: LayeredTowerId): LayeredTowerSpec {
+        return towerId === 'frost-coil' ? FROST_COIL_LAYER_SPEC : RIVET_GUN_LAYER_SPEC;
     }
 
     private ensureEnemyNode(key: string, frame: SpriteFrame): Node {

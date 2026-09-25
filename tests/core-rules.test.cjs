@@ -24,7 +24,7 @@ const { countCombatFeedback, CombatFeedbackRuntime } = require('../.test-dist/pr
 const { buildCoreObjectiveState } = require('../.test-dist/presentation/CoreObjectiveState.js');
 const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGuidance.js');
 const { FirstLevelExperience } = require('../.test-dist/presentation/FirstLevelExperience.js');
-const { enemyStridePose, enemyVisualOffset, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
+const { enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
 const { RouteChangeFeedback, routeChangeText, routeLengthDelta } = require('../.test-dist/presentation/RouteChangeFeedback.js');
 const { waveLineup, waveThreatHint } = require('../.test-dist/presentation/WaveBriefing.js');
 const {
@@ -246,6 +246,14 @@ test('炮塔开火后坐力随事件衰减并回到原位，方向只影响视�
     assert.ok(towerRecoilPose('frost-coil', 0.1, 0.1, direction).x > fresh.x);
 });
 
+test('冷凝能量芯脉冲只影响视觉比例并在事件消失后回到原位', () => {
+    const fresh = frostCorePulsePose(0.1, 0.1);
+    const fading = frostCorePulsePose(0.05, 0.1);
+    assert.ok(fresh.scaleX > fading.scaleX && fading.scaleX > 1);
+    assert.ok(fresh.scaleY > fading.scaleY && fading.scaleY > 1);
+    assert.deepEqual(frostCorePulsePose(0, 0.1), { x: 0, y: 0, scaleX: 1, scaleY: 1, angle: 0 });
+});
+
 test('八波目录连续可索引且保留第一波冻结配置', () => {
     const catalog = new WaveCatalog(PHASE_B_WAVES);
     assert.equal(catalog.totalWaves, 8);
@@ -285,6 +293,19 @@ test('四张单位图均导入为 SpriteFrame，避免新增纹理让整层切�
 
 test('机枪塔两张分层切图以 SpriteFrame 导入且保留 128 方形透明画布', () => {
     for (const id of ['rivet-gun-base-v2', 'rivet-gun-head-v2']) {
+        const asset = resolve(__dirname, `../assets/resources/level-one/units/${id}.png`);
+        const png = readFileSync(asset);
+        const meta = JSON.parse(readFileSync(`${asset}.meta`, 'utf8'));
+        assert.equal(png.readUInt32BE(16), 128, id);
+        assert.equal(png.readUInt32BE(20), 128, id);
+        assert.equal(png[25], 6, `${id} 应为 RGBA PNG`);
+        assert.equal(meta.userData.type, 'sprite-frame', id);
+        assert.ok(meta.subMetas.f9941, id);
+    }
+});
+
+test('冷凝塔两张分层切图以 SpriteFrame 导入且保留 128 方形透明画布', () => {
+    for (const id of ['frost-coil-base-v2', 'frost-coil-core-v2']) {
         const asset = resolve(__dirname, `../assets/resources/level-one/units/${id}.png`);
         const png = readFileSync(asset);
         const meta = JSON.parse(readFileSync(`${asset}.meta`, 'utf8'));
