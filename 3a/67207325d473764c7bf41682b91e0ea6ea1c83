@@ -1,0 +1,30 @@
+tests/core-rules.test.cjs
+  s_57db2c01e7cdde::t_51f5d2b39c54ca 295-296
+  s_57db2c01e7cdde::t_59669b6fbd8cf3 284-294,686,692-693,707-714,755
+  s_57db2c01e7cdde::t_6c88ca95fb8cd0 748-754
+  s_57db2c01e7cdde::t_1ba38d22d883a4 756
+assets/scripts/runtime/NightwatchPocBootstrap.ts
+  s_57db2c01e7cdde::t_99eee0c81c90c1 148,151-155,484,548
+docs/validation.md
+  s_57db2c01e7cdde::t_51f5d2b39c54ca 29,114-120
+docs/poc/phase-b-fixed-step-regression.md
+  s_57db2c01e7cdde::t_51f5d2b39c54ca 1-21
+assets/scripts/systems/SimulationClock.ts
+  s_57db2c01e7cdde::t_99eee0c81c90c1 4,11-13,19,26-28,31-32,51-66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "3a67207325d473764c7bf41682b91e0ea6ea1c83",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
