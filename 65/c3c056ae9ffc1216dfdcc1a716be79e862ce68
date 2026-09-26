@@ -1,0 +1,61 @@
+assets/scripts/presentation/UnitVisualMotion.ts
+  s_57db2c01e7cdde::t_2a9a38c80b6a1a 2,28,33-34,37,40,45,51,55-56
+docs/poc/phase-b-duration-baseline.md
+  s_57db2c01e7cdde::t_e3d10069f9bef6 3-4
+tests/support/first-level-replay.cjs
+  s_57db2c01e7cdde::t_15836b3505dd79 13,86-89,100-103
+  s_57db2c01e7cdde::t_50d4dfd0ed0bf3 5,22
+docs/poc/phase-b-hauler-regression.md
+  s_57db2c01e7cdde::t_e3d10069f9bef6 1-21,23-32
+  s_57db2c01e7cdde::t_a6d616155f72ab 22
+assets/scripts/presentation/PhaseBUnitSpriteView.ts
+  s_57db2c01e7cdde::t_8ba0ad742cd15e 15,155-157,193-194,210,223,225,227,230,293,298,301
+scripts/compare-first-level-strategies.cjs
+  s_57db2c01e7cdde::t_50d4dfd0ed0bf3 21-28
+docs/first-level-art.md
+  s_57db2c01e7cdde::t_183acbbf1a3468 7,47
+  s_57db2c01e7cdde::t_48bf6f312fde34 40,48-53
+assets/scripts/presentation/PhaseBCanvasRenderer.ts
+  s_57db2c01e7cdde::t_8ba0ad742cd15e 134-138,142-144
+assets/scripts/runtime/NightwatchPocBootstrap.ts
+  s_57db2c01e7cdde::t_60aacfa745abf3 32,596
+assets/scripts/presentation/PhaseBSceneState.ts
+  s_57db2c01e7cdde::t_2a9a38c80b6a1a 1,23
+assets/resources/level-one/units/iron-canister-hauler.png.meta
+  s_57db2c01e7cdde::t_71691c9e8968fb 1-134
+assets/scripts/presentation/WaveBriefing.ts
+  s_57db2c01e7cdde::t_2a9a38c80b6a1a 24-26
+  s_57db2c01e7cdde::t_fb69e14ae76857 27-28
+  s_57db2c01e7cdde::t_60aacfa745abf3 12-19
+tests/core-rules.test.cjs
+  s_57db2c01e7cdde::t_fb69e14ae76857 8-9,338,344-347,350-351,976-977,987,990,992-993,1000-1005
+  s_57db2c01e7cdde::t_60aacfa745abf3 33,340-341
+  s_57db2c01e7cdde::t_5fbadf68138357 360-367,427-439
+  s_57db2c01e7cdde::t_92ddf3d356ad0b 440
+assets/scripts/config/FirstLevelOpening.ts
+  s_57db2c01e7cdde::t_50d4dfd0ed0bf3 15-19
+assets/scripts/presentation/FirstLevelExperience.ts
+  s_57db2c01e7cdde::t_50d4dfd0ed0bf3 3,9,73-74
+art-source/first-level-units/iron-canister-hauler-manifest.json
+  s_57db2c01e7cdde::t_48bf6f312fde34 1-38
+docs/validation.md
+  s_57db2c01e7cdde::t_e3d10069f9bef6 4,187-192
+assets/scripts/config/PhaseBCombatConfig.ts
+  s_57db2c01e7cdde::t_2a9a38c80b6a1a 1-2,4,66-74,106-110
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "65c3c056ae9ffc1216dfdcc1a716be79e862ce68",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
