@@ -1,0 +1,58 @@
+assets/scripts/config/PhaseBCombatConfig.ts
+  s_57db2c01e7cdde::t_8a893248eb0358 17-18
+  s_57db2c01e7cdde::t_1348cdfcdfdf9f 68,71,75,77,99-101,114-118
+docs/poc/phase-b-pulse-balance-regression.md
+  s_57db2c01e7cdde::t_bf8fb30016ac2e 1-32
+  s_57db2c01e7cdde::t_502b3ecfcead7a 33
+tests/core-rules.test.cjs
+  s_57db2c01e7cdde::t_63750b2eb3fe25 6,953-996
+  s_57db2c01e7cdde::t_11b64eba4d2624 56-57,106,126,129,136-148,358,360,365-366,448,455-456,458,752,948-949,1074-1075,1090-1095,1116
+  s_57db2c01e7cdde::t_65c0d692bec421 997
+assets/scripts/config/FirstLevelOpening.ts
+  s_57db2c01e7cdde::t_2e43462a86ba99 15-26
+docs/validation.md
+  s_57db2c01e7cdde::t_502b3ecfcead7a 210
+  s_57db2c01e7cdde::t_bf8fb30016ac2e 205-209,211
+assets/scripts/systems/WaveCombatRuntime.ts
+  s_57db2c01e7cdde::t_8a893248eb0358 32-33,268-273,278,281-283,300-315
+  s_57db2c01e7cdde::t_288a0c2803cca2 316-317
+scripts/compare-first-level-strategies.cjs
+  s_57db2c01e7cdde::t_5e5d80279606d4 65
+assets/scripts/presentation/FirstLevelExperience.ts
+  s_57db2c01e7cdde::t_11b64eba4d2624 83
+  s_57db2c01e7cdde::t_2e43462a86ba99 12,27,72-74
+assets/scripts/runtime/NightwatchPocBootstrap.ts
+  s_57db2c01e7cdde::t_2e43462a86ba99 673
+scripts/probe-first-level-pacing.cjs
+  s_57db2c01e7cdde::t_113c4f2c0dcc6c 3,5-6,8-14,17-22,24,27,34-35
+assets/scripts/presentation/PhaseBCanvasRenderer.ts
+  s_57db2c01e7cdde::t_8a893248eb0358 301-307
+tests/support/first-level-replay.cjs
+  s_57db2c01e7cdde::t_d6d0e7da3a1ce7 19,28
+  s_57db2c01e7cdde::t_8a893248eb0358 71
+  s_57db2c01e7cdde::t_2e43462a86ba99 92-94
+tests/support/first-level-strategies.cjs
+  s_57db2c01e7cdde::t_113c4f2c0dcc6c 1-28
+assets/scripts/presentation/CombatFeedbackRuntime.ts
+  s_57db2c01e7cdde::t_8a893248eb0358 17,114
+assets/scripts/presentation/FirstLevelUpgradeCoach.ts
+  s_57db2c01e7cdde::t_2e43462a86ba99 1-33
+assets/scripts/presentation/FirstLevelUpgradeCoach.ts.meta
+  s_57db2c01e7cdde::t_e469ef97a699d4 1-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "7cdab2a9f2143cc6da4e133f7542804534fd4fc8",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
