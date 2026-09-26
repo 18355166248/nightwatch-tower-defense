@@ -1,0 +1,51 @@
+docs/poc/phase-b-enemy-gait-regression.md
+  s_57db2c01e7cdde::t_6607a3b65f1ac0 15
+  s_57db2c01e7cdde::t_90acab97c31f80 19
+  s_57db2c01e7cdde::t_6984fd31eb4bff 1-14,16-18,20
+art-source/first-level-units/clockwork-gait-v2-manifest.json
+  s_57db2c01e7cdde::t_845e4e4c3aa9ba 1-68
+docs/first-level-art.md
+  s_57db2c01e7cdde::t_2a1b0d7c86b372 7,82-86,88-98,105-106
+  s_57db2c01e7cdde::t_90acab97c31f80 87
+tests/core-rules.test.cjs
+  s_57db2c01e7cdde::t_960e8f2ba1570c 28
+  s_57db2c01e7cdde::t_0e809abcae9125 249-251
+  s_57db2c01e7cdde::t_827ffb5821a15c 247-248,252-257
+  s_57db2c01e7cdde::t_c43bb111c57625 347-360
+assets/resources/level-one/units/clockwork-runner-step-b-v2.png.meta
+  s_57db2c01e7cdde::t_eb4ad52fa9a9ee 1-134
+docs/validation.md
+  s_57db2c01e7cdde::t_90acab97c31f80 161
+  s_57db2c01e7cdde::t_6984fd31eb4bff 157-160,162
+assets/scripts/presentation/BrowserBattleDiagnostics.ts
+  s_57db2c01e7cdde::t_43b57fd5a0bc72 27-28
+assets/resources/level-one/units/clockwork-infantry-step-b-v2.png.meta
+  s_57db2c01e7cdde::t_eb4ad52fa9a9ee 1-134
+assets/scripts/presentation/PhaseBUnitSpriteView.ts
+  s_57db2c01e7cdde::t_43b57fd5a0bc72 94-97
+  s_57db2c01e7cdde::t_960e8f2ba1570c 8,17-21,42,73-77,171-173
+  s_57db2c01e7cdde::t_2701a1c97b5d74 302-303
+  s_57db2c01e7cdde::t_d27cfc318575d2 78-79
+assets/scripts/presentation/UnitVisualMotion.ts
+  s_57db2c01e7cdde::t_0e809abcae9125 44-46,50-53,55-56
+  s_57db2c01e7cdde::t_960e8f2ba1570c 29,42-43,47-49,54
+  s_57db2c01e7cdde::t_dcc16666c73779 57
+assets/scripts/runtime/NightwatchPocBootstrap.ts
+  s_57db2c01e7cdde::t_43b57fd5a0bc72 757-758
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "5a3f263cdf1aa68f1f25f6505292f0a74c5a4760",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
