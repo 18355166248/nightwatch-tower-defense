@@ -7,7 +7,7 @@ import {
     VerticalTextAlignment,
 } from 'cc';
 import type { BattleResultViewModel } from './BattleResultViewModel';
-import type { TowerId } from '../config/PhaseBCombatConfig';
+import { FROST_COIL, RIVET_GUN, type TowerId } from '../config/PhaseBCombatConfig';
 import type { BattlePhase } from '../systems/BattleStateMachine';
 import { firstLevelWaveBanner } from './FirstLevelWaveBanner';
 import { hudEventText } from './PhaseBHudText';
@@ -62,10 +62,11 @@ export class PhaseBHudView {
     public constructor(parent: Node) {
         this.titleLabel = this.createLabel(parent, 46, new Color('#F4D58D'), 875);
         this.statusLabel = this.createLabel(parent, 34, new Color('#D7E6F5'), 805);
-        this.statusLabel.node.getComponent(UITransform)?.setContentSize(755, 82);
+        // 事件行只占一行；超长文案截在自身槽内，不能挤进下方金币等关键资源卡。
+        this.statusLabel.node.getComponent(UITransform)?.setContentSize(755, 52);
         this.statusLabel.horizontalAlign = HorizontalTextAlignment.LEFT;
         this.statusLabel.overflow = Label.Overflow.CLAMP;
-        this.statusLabel.enableWrapText = true;
+        this.statusLabel.enableWrapText = false;
         this.goldLabel = this.createHudValueLabel(parent, -358, new Color('#F4D58D'));
         this.pathLabel = this.createHudValueLabel(parent, -120, new Color('#D7E6F5'));
         this.waveLabel = this.createHudValueLabel(parent, 120, new Color('#D7E6F5'));
@@ -105,7 +106,7 @@ export class PhaseBHudView {
         this.waveLabel.node.active = !result;
         this.coreLabel.node.active = !result;
         this.levelLabel.node.active = !result && !state.qaMode;
-        // 点选炮塔后，升级按钮接管引导区；塔属性继续留在上方事件行，避免两层文字压在一起。
+        // 点选炮塔后，升级按钮接管引导区；塔属性缩成上方单行事件，不遮挡资源。
         this.guidanceLabel.node.active = !result && !state.qaMode && !state.inspectedUpgrade;
         this.helpLabel.node.active = !result;
         this.speedLabel.node.active = !result;
@@ -140,8 +141,8 @@ export class PhaseBHudView {
                 ? `提前开波\n${Math.ceil(state.countdownSeconds)} 秒`
                 : '提前开波\n等待中';
             this.earlyWaveLabel.color = new Color(state.canStartNextWaveEarly ? '#E9FFF4' : '#718197');
-            this.rivetLabel.string = '机枪\n30';
-            this.frostLabel.string = '冷凝\n40';
+            this.rivetLabel.string = `机枪\n${RIVET_GUN.cost}`;
+            this.frostLabel.string = `冷凝\n${FROST_COIL.cost}`;
             this.rivetLabel.color = new Color(state.selectedTowerId === 'rivet-gun' ? '#101827' : '#F2E4BF');
             this.frostLabel.color = new Color(state.selectedTowerId === 'frost-coil' ? '#101827' : '#DDFBFF');
             this.upgradeLabel.string = state.inspectedUpgrade?.cost === null

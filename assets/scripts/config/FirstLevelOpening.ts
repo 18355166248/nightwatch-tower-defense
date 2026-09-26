@@ -17,21 +17,24 @@ export const FIRST_LEVEL_GUIDED_UPGRADES: readonly { readonly wave: number; read
     { wave: 1, cell: FIRST_LEVEL_OPENING[0].cell },
 ];
 
-export const FIRST_LEVEL_FIRST_REINFORCEMENT: GridCell = { column: 1, row: 2 };
+export const FIRST_LEVEL_FIRST_REINFORCEMENT: GridCell = { column: 6, row: 2 };
 
-/** 推荐布防保留末波压力；只用于提示，玩家仍可自由加固。 */
-export const FIRST_LEVEL_REINFORCEMENTS: readonly { readonly cell: GridCell; readonly towerId: TowerId }[] = [
-    { cell: FIRST_LEVEL_FIRST_REINFORCEMENT, towerId: 'rivet-gun' },
-    { cell: { column: 0, row: 2 }, towerId: 'rivet-gun' },
-    { cell: { column: 6, row: 2 }, towerId: 'rivet-gun' },
-    { cell: { column: 7, row: 2 }, towerId: 'rivet-gun' },
-    // 末段冷凝必须贴近实际绕行路线；旧塔位 (4,8) 在默认路径外，几乎不会开火。
-    { cell: { column: 7, row: 8 }, towerId: 'frost-coil' },
-    { cell: { column: 5, row: 8 }, towerId: 'rivet-gun' },
-    { cell: { column: 6, row: 8 }, towerId: 'rivet-gun' },
+/** 每波只强调一个布防目的；左侧封路塔虽不开火，却使第三波后敌人转入右侧火力区。玩家仍可自由提前建塔。 */
+export const FIRST_LEVEL_REINFORCEMENTS: readonly {
+    readonly afterWave: number;
+    readonly cell: GridCell;
+    readonly towerId: TowerId;
+    readonly coachHint: string;
+}[] = [
+    { afterWave: 1, cell: FIRST_LEVEL_FIRST_REINFORCEMENT, towerId: 'rivet-gun', coachHint: '补机枪延长路线' },
+    { afterWave: 2, cell: { column: 1, row: 2 }, towerId: 'rivet-gun', coachHint: '封左支路，为下波改道准备' },
+    { afterWave: 3, cell: { column: 7, row: 2 }, towerId: 'rivet-gun', coachHint: '引敌转向右侧' },
+    { afterWave: 4, cell: { column: 7, row: 8 }, towerId: 'frost-coil', coachHint: '下排冷凝拖慢重甲' },
+    { afterWave: 5, cell: { column: 6, row: 8 }, towerId: 'rivet-gun', coachHint: '下排机枪集中火力' },
+    { afterWave: 6, cell: { column: 7, row: 10 }, towerId: 'rivet-gun', coachHint: '出口前补最后火力' },
 ];
 
-/** 末段可选加固：多花金币能显著减少最后两波漏怪，但教学不代替玩家做决定。 */
+/** 末段可选加固用于缩短清场；推荐路径已可守住，教学不代替玩家做额外花费。 */
 export const FIRST_LEVEL_OPTIONAL_FORTIFICATIONS: readonly { readonly cell: GridCell; readonly towerId: TowerId }[] = [
     { cell: { column: 7, row: 9 }, towerId: 'rivet-gun' },
     { cell: { column: 8, row: 8 }, towerId: 'rivet-gun' },

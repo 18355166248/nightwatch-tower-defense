@@ -99,9 +99,10 @@ export const PHASE_B_TOWERS: readonly TowerArchetype[] = [RIVET_GUN, FROST_COIL]
 export const PHASE_B_WAVES: readonly WaveDefinition[] = [
     // 前三波保持推荐构筑零漏时的总回款不变：把部分清场金移到更多击杀里，延长有敌人在场的教学段。
     { wave: 1, clearReward: 8, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 9, spawnIntervalSeconds: 0.8 }] },
-    { wave: 2, clearReward: 6, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 9, spawnIntervalSeconds: 0.78 }] },
+    // 第一波后多一座上路机枪；第二、三波压紧生成间隔，保持双敌同屏而不靠空场等待拖时长。
+    { wave: 2, clearReward: 6, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 9, spawnIntervalSeconds: 0.65 }] },
     // 第三波仍在步兵之后首次放出 2 只疾行机，形成不依赖空等的速度考核。
-    { wave: 3, clearReward: 10, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 11, spawnIntervalSeconds: 0.78 }, { enemy: CLOCKWORK_RUNNER, count: 2, spawnIntervalSeconds: 0.78 }] },
+    { wave: 3, clearReward: 10, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 11, spawnIntervalSeconds: 0.65 }, { enemy: CLOCKWORK_RUNNER, count: 2, spawnIntervalSeconds: 0.65 }] },
     { wave: 4, clearReward: 20, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 6, spawnIntervalSeconds: 0.54 }, { enemy: CLOCKWORK_RUNNER, count: 4, spawnIntervalSeconds: 0.56 }] },
     // 第五波先单独教学重装的高血量与低速；后三波再与疾行机混编，避免初见即要求同时解两种威胁。
     { wave: 5, clearReward: 24, groups: [{ enemy: IRON_CANISTER_HAULER, count: 6, spawnIntervalSeconds: 1.15 }] },

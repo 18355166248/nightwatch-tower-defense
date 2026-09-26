@@ -26,7 +26,7 @@ import { countCombatFeedback, CombatFeedbackRuntime } from '../presentation/Comb
 import { PhaseBBackdropView } from '../presentation/PhaseBBackdropView';
 import { PhaseBCanvasRenderer } from '../presentation/PhaseBCanvasRenderer';
 import { PhaseBHudView } from '../presentation/PhaseBHudView';
-import { waveClearIncomeText } from '../presentation/PhaseBHudText';
+import { towerInspectionSummary, waveClearIncomeText } from '../presentation/PhaseBHudText';
 import { PhaseBUnitSpriteView } from '../presentation/PhaseBUnitSpriteView';
 import { RouteChangeFeedback, routeChangeText, routeLengthDelta } from '../presentation/RouteChangeFeedback';
 import { waveStartStatus, waveThreatHint } from '../presentation/WaveBriefing';
@@ -60,7 +60,7 @@ import { SimulationClock } from '../systems/SimulationClock';
 import { WaveCombatRuntime } from '../systems/WaveCombatRuntime';
 import { WaveCatalog } from '../systems/WaveCatalog';
 import { WaveRewardRuntime } from '../systems/WaveRewardRuntime';
-import { nextUpgradeCost, towerAtLevel } from '../systems/TowerLevelRules';
+import { nextUpgradeCost } from '../systems/TowerLevelRules';
 
 const { ccclass } = _decorator;
 
@@ -428,7 +428,7 @@ export class NightwatchPocBootstrap extends Component {
                 this.statusText = sold ? `炮塔已全额撤销 · ${routeChangeText(delta)}` : '撤销失败，请重新选择炮塔';
                 this.playSound(sold ? 'ui' : 'reject');
             } else if (action === 'inspect') {
-                this.statusText = this.towerInspectionText(towerId, canSell, deployment?.level ?? 1);
+                this.statusText = this.towerInspectionText(towerId, deployment?.level ?? 1);
                 this.playSound('ui');
             } else this.statusText = '已关闭炮塔射程查看';
             return;
@@ -553,11 +553,8 @@ export class NightwatchPocBootstrap extends Component {
         return this.selectedTowerId === 'frost-coil' ? '冷凝塔' : '机枪塔';
     }
 
-    private towerInspectionText(towerId: TowerId, canSell: boolean, level = 1): string {
-        const tower = towerAtLevel(PHASE_B_TOWERS.find(({ id }) => id === towerId)!, level);
-        return tower.effect
-            ? `${tower.label} Lv${level} · 射程 ${tower.rangeCells} 格 · 减速 ${Math.round((1 - tower.effect.speedMultiplier) * 100)}% · ${canSell ? '再点撤销' : '战斗中不可撤销'}`
-            : `${tower.label} Lv${level} · 射程 ${tower.rangeCells} 格 · 伤害 ${tower.damage} · ${canSell ? '再点撤销' : '战斗中不可撤销'}`;
+    private towerInspectionText(towerId: TowerId, level = 1): string {
+        return towerInspectionSummary(PHASE_B_TOWERS.find(({ id }) => id === towerId)!, level);
     }
 
     private restartFromCheckpoint(): void {
@@ -690,7 +687,7 @@ export class NightwatchPocBootstrap extends Component {
             ? nextUpgradeCost(PHASE_B_TOWERS.find(({ id }) => id === inspectedTowerId)!, inspectedLevel)
             : null;
         const baseGuidanceText = inspectedTowerId
-            ? this.towerInspectionText(inspectedTowerId, this.preparing && !this.pausedByLifecycle, inspectedLevel)
+            ? this.towerInspectionText(inspectedTowerId, inspectedLevel)
             : experience.guidanceText ?? firstLevelGuidance({
                 preparing: this.preparing,
                 towerCount: this.model.towers.size,

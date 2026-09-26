@@ -53,6 +53,7 @@ function replayFirstLevel({
         let multiEnemySeconds = 0;
         let peakActiveEnemies = 0;
         const shotsByTower = { 'rivet-gun': 0, 'frost-coil': 0 };
+        const shotsByCell = {};
         const frostShotsByCell = {};
         let slowApplications = 0;
         for (let elapsed = 0; elapsed < 180 && (!combat.isSpawningComplete || combat.enemies.length > 0); elapsed += frameDeltaSeconds) {
@@ -63,9 +64,10 @@ function replayFirstLevel({
                 const result = combat.tick(deltaSeconds, model.flowField, model.deployments);
                 for (const shot of result.shots) {
                     shotsByTower[shot.towerId] += 1;
+                    const key = cellKey(shot.towerCell);
+                    shotsByCell[key] = (shotsByCell[key] ?? 0) + 1;
                     if (shot.appliedSlow) {
                         slowApplications += 1;
-                        const key = cellKey(shot.towerCell);
                         frostShotsByCell[key] = (frostShotsByCell[key] ?? 0) + 1;
                     }
                 }
@@ -89,6 +91,7 @@ function replayFirstLevel({
             }
             while (nextBuild < reinforcements.length) {
                 const candidate = reinforcements[nextBuild];
+                if ((candidate.afterWave ?? 0) > wave.wave) break;
                 const preview = model.preview(candidate.cell, [], candidate.towerId);
                 if (!preview.accepted && preview.reason === 'insufficient-gold') break;
                 if (!preview.accepted || !model.commit(preview, []).accepted) throw new Error(`补塔失败 ${cellKey(candidate.cell)}`);
@@ -96,8 +99,9 @@ function replayFirstLevel({
             }
         }
         waveResults.push({ wave: wave.wave, killed, leaked, coreHealth, towers: model.towers.size });
-        telemetry.push({ wave: wave.wave, spawnSeconds, combatSeconds, emptySpawnSeconds, multiEnemySeconds, peakActiveEnemies, shotsByTower, frostShotsByCell, slowApplications, gold: model.gold,
-            pathLength: model.flowField.distanceAt(grid.entry), towerInvestment: model.deployments.reduce((sum, deployment) => {
+        telemetry.push({ wave: wave.wave, spawnSeconds, combatSeconds, emptySpawnSeconds, multiEnemySeconds, peakActiveEnemies, shotsByTower, shotsByCell, frostShotsByCell, slowApplications, gold: model.gold,
+            pathLength: model.flowField.distanceAt(grid.entry), pathCells: model.flowField.pathFrom(grid.entry).map(cellKey),
+            towerInvestment: model.deployments.reduce((sum, deployment) => {
                 const tower = towers.find((candidate) => candidate.id === deployment.towerId);
                 return sum + tower.cost + ((deployment.level ?? 1) > 1 ? nextUpgradeCost(tower, 1) ?? 0 : 0);
             }, 0) });

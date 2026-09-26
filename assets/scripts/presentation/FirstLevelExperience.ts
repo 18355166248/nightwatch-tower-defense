@@ -6,7 +6,7 @@ import {
     FIRST_LEVEL_SUGGESTED_TOWER_COUNT,
 } from '../config/FirstLevelOpening';
 import type { TowerId } from '../config/PhaseBCombatConfig';
-import { RIVET_GUN } from '../config/PhaseBCombatConfig';
+import { FROST_COIL, RIVET_GUN } from '../config/PhaseBCombatConfig';
 import type { GridCell } from '../core/GridTypes';
 import { cellKey } from '../core/GridTypes';
 import type { BattlePhase } from '../systems/BattleStateMachine';
@@ -74,27 +74,30 @@ export class FirstLevelExperience {
                     && context.gold >= (RIVET_GUN.upgrade?.cost ?? Infinity) && context.firstRivetCell) {
                     return { mode: this.mode, step: 'upgrade', guidanceText: '第 1 波回款 · 点已建机枪，再点「升级」强化火力', suggestedCell: context.firstRivetCell };
                 }
-                const next = FIRST_LEVEL_REINFORCEMENTS.find(({ cell }) => !context.occupiedCells.has(cellKey(cell)));
+                const next = FIRST_LEVEL_REINFORCEMENTS.find(({ afterWave, cell }) =>
+                    afterWave <= context.wave && !context.occupiedCells.has(cellKey(cell)));
                 if (!next) {
+                    const hasFuturePlan = FIRST_LEVEL_REINFORCEMENTS.some(({ cell }) => !context.occupiedCells.has(cellKey(cell)));
                     return context.guidedIntermissionHeld
-                        ? { mode: this.mode, step: 'ready', guidanceText: '推荐完成 · 下排可补机枪，或点 ▶ 开下一波' }
+                        ? { mode: this.mode, step: 'ready', guidanceText: hasFuturePlan
+                            ? '本轮布防完成 · 点 ▶ 开下一波'
+                            : '推荐完成 · 可自由加固，或点 ▶ 开下一波' }
                         : { mode: this.mode, step: 'combat', guidanceText: '下一波即将到来，留意敌人和核心' };
                 }
-                const cost = next.towerId === 'frost-coil' ? 40 : 30;
+                const cost = next.towerId === 'frost-coil' ? FROST_COIL.cost : RIVET_GUN.cost;
                 if (context.gold < cost) {
                     return context.guidedIntermissionHeld
-                        ? { mode: this.mode, step: 'ready', guidanceText: context.gold >= 30
+                        ? { mode: this.mode, step: 'ready', guidanceText: context.gold >= RIVET_GUN.cost
                             ? '暂缺金币买推荐塔 · 可自由补塔或点 ▶ 开下一波'
                             : '金币不足补塔 · 点 ▶ 开下一波' }
                         : { mode: this.mode, step: 'combat', guidanceText: '下一波即将到来，留意敌人和核心' };
                 }
-                const towerLabel = next.towerId === 'frost-coil' ? '冷凝' : '机枪';
                 return {
                     mode: this.mode,
                     step: 'reinforce',
                     guidanceText: context.guidedIntermissionHeld
-                        ? `第 ${context.wave} 波清场 · 点${towerLabel}补塔，再点 ▶ 开下一波`
-                        : `第 ${context.wave} 波结束 · 用回款补${towerLabel}塔`,
+                        ? `第 ${context.wave} 波清场 · ${next.coachHint}，再点 ▶`
+                        : `第 ${context.wave} 波结束 · ${next.coachHint}`,
                     suggestedCell: next.cell,
                     suggestedTowerId: next.towerId,
                 };
@@ -119,7 +122,7 @@ export class FirstLevelExperience {
         }
         if (context.towerCount < FIRST_LEVEL_SUGGESTED_TOWER_COUNT) {
             const recommendedTower: TowerId = context.towerCount === 1 ? 'frost-coil' : 'rivet-gun';
-            const cost = recommendedTower === 'frost-coil' ? 40 : 30;
+            const cost = recommendedTower === 'frost-coil' ? FROST_COIL.cost : RIVET_GUN.cost;
             if (context.gold < cost) {
                 return { mode: this.mode, step: 'route', guidanceText: '金币不够补齐横墙；准备时点已建塔可全额撤销调整' };
             }
