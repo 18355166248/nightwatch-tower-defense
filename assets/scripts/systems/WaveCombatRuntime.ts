@@ -43,6 +43,11 @@ export interface CombatTotals {
     readonly leaked: number;
 }
 
+export interface WaveSpawnProgress {
+    readonly spawned: number;
+    readonly total: number;
+}
+
 export class WaveCombatRuntime {
     private activeEnemies: CombatEnemy[] = [];
     private towerCooldowns = new Map<string, number>();
@@ -54,6 +59,8 @@ export class WaveCombatRuntime {
     private nextSpawnOrder = 1;
     private spawningCompleted = false;
     private spawnedCount = 0;
+    private waveSpawnedCount = 0;
+    private waveTotalCount = 0;
     private killedCount = 0;
     private leakedCount = 0;
     private readonly towersById = new Map<TowerId, TowerArchetype>();
@@ -81,6 +88,10 @@ export class WaveCombatRuntime {
         return { spawned: this.spawnedCount, killed: this.killedCount, leaked: this.leakedCount };
     }
 
+    public get waveSpawnProgress(): WaveSpawnProgress {
+        return { spawned: this.waveSpawnedCount, total: this.waveTotalCount };
+    }
+
     public start(wave: WaveDefinition): void {
         if (this.wave || this.spawningCompleted || this.activeEnemies.length > 0) {
             throw new Error('上一波未完成清场交接，不能启动新波次');
@@ -90,6 +101,8 @@ export class WaveCombatRuntime {
         this.groupIndex = 0;
         this.spawnedInGroup = 0;
         this.spawnCountdown = 0;
+        this.waveSpawnedCount = 0;
+        this.waveTotalCount = wave.groups.reduce((count, group) => count + group.count, 0);
         this.spawningCompleted = false;
     }
 
@@ -117,6 +130,8 @@ export class WaveCombatRuntime {
         this.nextSpawnOrder = 1;
         this.spawningCompleted = false;
         this.spawnedCount = 0;
+        this.waveSpawnedCount = 0;
+        this.waveTotalCount = 0;
         this.killedCount = 0;
         this.leakedCount = 0;
     }
@@ -169,6 +184,7 @@ export class WaveCombatRuntime {
                 slowRemainingSeconds: 0,
             });
             this.spawnedCount += 1;
+            this.waveSpawnedCount += 1;
             this.spawnedInGroup += 1;
             this.spawnCountdown += group.spawnIntervalSeconds;
             if (this.spawnedInGroup < group.count) continue;

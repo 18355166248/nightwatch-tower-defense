@@ -8,6 +8,8 @@ import {
 } from 'cc';
 import type { BattleResultViewModel } from './BattleResultViewModel';
 import type { TowerId } from '../config/PhaseBCombatConfig';
+import type { BattlePhase } from '../systems/BattleStateMachine';
+import { firstLevelWaveBanner } from './FirstLevelWaveBanner';
 import { hudEventText } from './PhaseBHudText';
 
 export interface PhaseBHudState {
@@ -20,6 +22,10 @@ export interface PhaseBHudState {
     readonly totalWaves: number;
     readonly coreHealth: number;
     readonly phaseText: string;
+    readonly phase: BattlePhase;
+    readonly waveSpawned: number;
+    readonly waveTotal: number;
+    readonly activeEnemyCount: number;
     readonly speedMultiplier: number;
     readonly soundEnabled: boolean;
     readonly soundReady: boolean;
@@ -78,7 +84,8 @@ export class PhaseBHudView {
     public render(state: PhaseBHudState): void {
         const signature = [
             state.qaMode, state.guidanceText, state.statusText, state.gold, state.pathLength, state.wave, state.totalWaves,
-            state.coreHealth, state.phaseText, state.speedMultiplier, state.soundEnabled, state.soundReady, state.canStartNextWaveEarly,
+            state.coreHealth, state.phaseText, state.phase, state.waveSpawned, state.waveTotal, state.activeEnemyCount,
+            state.speedMultiplier, state.soundEnabled, state.soundReady, state.canStartNextWaveEarly,
             Math.ceil(state.countdownSeconds), state.selectedTowerId, state.result?.kind ?? '', state.result?.summary ?? '',
         ].join('|');
         // Bootstrap 仍可提交每帧快照，但 Label 只在展示字段变化时写入，避免 UI 跟随战斗帧率刷新。
@@ -111,7 +118,13 @@ export class PhaseBHudView {
             this.waveLabel.string = `波 ${state.wave}/${state.totalWaves}`;
             this.coreLabel.string = `核心 ${state.coreHealth}`;
             this.coreLabel.color = new Color(state.coreHealth <= 3 ? '#FF8580' : '#79E0AD');
-            this.levelLabel.string = '第一关 · 守住夜城入口';
+            this.levelLabel.string = firstLevelWaveBanner({
+                wave: state.wave,
+                spawned: state.waveSpawned,
+                total: state.waveTotal,
+                activeEnemies: state.activeEnemyCount,
+                phase: state.phase,
+            });
             this.guidanceLabel.string = state.guidanceText;
             this.speedLabel.string = `速度\n${state.speedMultiplier}×`;
             this.soundLabel.string = state.soundEnabled ? `音效\n${state.soundReady ? '开' : '待启用'}` : '音效\n关';

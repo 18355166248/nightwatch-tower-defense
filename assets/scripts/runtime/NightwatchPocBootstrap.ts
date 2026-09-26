@@ -705,6 +705,7 @@ export class NightwatchPocBootstrap extends Component {
         const pathLength = this.preview?.path?.length
             ? this.preview.path.length - 1
             : this.model.flowField.distanceAt(this.model.grid.entry);
+        const waveSpawnProgress = this.combat.waveSpawnProgress;
         this.hud?.render({
             qaMode: this.qaMode,
             guidanceText,
@@ -715,6 +716,10 @@ export class NightwatchPocBootstrap extends Component {
             totalWaves: this.waves.totalWaves,
             coreHealth: battle.coreHealth,
             phaseText: this.phaseText(),
+            phase: battle.phase,
+            waveSpawned: waveSpawnProgress.spawned,
+            waveTotal: waveSpawnProgress.total,
+            activeEnemyCount: this.combat.enemies.length,
             speedMultiplier: this.simulationClock.scale,
             soundEnabled: this.sound.isEnabled,
             soundReady: this.sound.isReady,
@@ -731,6 +736,7 @@ export class NightwatchPocBootstrap extends Component {
             ? this.preview.path.length - 1
             : this.model.flowField.distanceAt(this.model.grid.entry);
         const result = this.resultViewModel();
+        const waveSpawnProgress = this.combat.waveSpawnProgress;
         const deployments = this.model.deployments;
         const rivetTowerCount = deployments.filter(({ towerId }) => towerId === 'rivet-gun').length;
         const frostTowerCount = deployments.filter(({ towerId }) => towerId === 'frost-coil').length;
@@ -761,6 +767,8 @@ export class NightwatchPocBootstrap extends Component {
             canStartNextWaveEarly: this.battle.snapshot.phase === 'countdown',
             coreHealth: this.battle.snapshot.coreHealth,
             activeEnemyCount: this.combat.enemies.length,
+            waveSpawnedEnemyCount: waveSpawnProgress.spawned,
+            waveTotalEnemyCount: waveSpawnProgress.total,
             infantryGaitFrameLoaded: this.unitSprites?.hasGaitFrame('clockwork-infantry') ?? false,
             runnerGaitFrameLoaded: this.unitSprites?.hasGaitFrame('clockwork-runner') ?? false,
             spawningCompleted: this.combat.isSpawningComplete,

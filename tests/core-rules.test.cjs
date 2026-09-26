@@ -24,6 +24,7 @@ const { countCombatFeedback, CombatFeedbackRuntime } = require('../.test-dist/pr
 const { buildCoreObjectiveState } = require('../.test-dist/presentation/CoreObjectiveState.js');
 const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGuidance.js');
 const { FirstLevelExperience } = require('../.test-dist/presentation/FirstLevelExperience.js');
+const { firstLevelWaveBanner } = require('../.test-dist/presentation/FirstLevelWaveBanner.js');
 const { hudEventText } = require('../.test-dist/presentation/PhaseBHudText.js');
 const { enemyGaitFrame, enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
 const { RouteChangeFeedback, routeChangeText, routeLengthDelta } = require('../.test-dist/presentation/RouteChangeFeedback.js');
@@ -44,6 +45,29 @@ test('首关 HUD 将重复金币移到独立数值卡，保留建塔与波次事
     assert.equal(hudEventText('机枪塔已建造 · 路线 +2 格 · 金币 10'), '机枪塔已建造 · 路线 +2 格');
     assert.equal(hudEventText('第 1 波清场！清场 +20 · 剩余金币 54'), '第 1 波清场！清场 +20');
     assert.equal(hudEventText('核心已失守'), '核心已失守');
+});
+
+test('波内生成进度区分短暂清屏、真正清场和下一波待命', () => {
+    assert.equal(firstLevelWaveBanner({ wave: 0, spawned: 0, total: 0, activeEnemies: 0, phase: 'preparing' }), '第一关 · 守住夜城入口');
+    assert.equal(firstLevelWaveBanner({ wave: 3, spawned: 8, total: 10, activeEnemies: 0, phase: 'spawning' }), '第 3 波 · 已来 8/10 · 场上 0');
+    assert.equal(firstLevelWaveBanner({ wave: 3, spawned: 10, total: 10, activeEnemies: 2, phase: 'clearing' }), '第 3 波 · 已来 10/10 · 场上 2');
+    assert.equal(firstLevelWaveBanner({ wave: 3, spawned: 10, total: 10, activeEnemies: 0, phase: 'paused' }), '第 3 波守住 · 下一波待命');
+});
+
+test('同波分组间暂时无敌人时仍提示后续来袭，不提前显示守住', () => {
+    const grid = { id: 'grid-9x13', columns: 3, rows: 3, entry: { column: 1, row: 0 }, exit: { column: 1, row: 2 } };
+    const enemy = { id: 'clockwork-infantry', maxHealth: 1, speedCellsPerSecond: 1, killReward: 1 };
+    const tower = { id: 'rivet-gun', rangeCells: 3, damage: 1, attackIntervalSeconds: 0.3 };
+    const runtime = new WaveCombatRuntime(grid, tower);
+    const flow = new FlowField(grid, new Set());
+    runtime.start({ wave: 3, groups: [
+        { enemy, count: 1, spawnIntervalSeconds: 0.9 },
+        { enemy, count: 1, spawnIntervalSeconds: 0.9 },
+    ] });
+    runtime.tick(0, flow, new Set(['0,1']));
+    assert.equal(runtime.enemies.length, 0);
+    assert.equal(runtime.isSpawningComplete, false);
+    assert.equal(firstLevelWaveBanner({ wave: 3, ...runtime.waveSpawnProgress, activeEnemies: runtime.enemies.length, phase: 'spawning' }), '第 3 波 · 已来 1/2 · 场上 0');
 });
 
 test('出口核心标识按真实生命显示完整、受损和危急状态', () => {
@@ -691,17 +715,23 @@ test('波次运行时按冻结间隔生成，塔优先攻击接近出口的敌�
     const flow = new FlowField(grid, new Set());
     const towers = new Set([cellKey({ column: 1, row: 1 })]);
     runtime.start(wave);
+    assert.deepEqual(runtime.waveSpawnProgress, { spawned: 0, total: 2 });
     const first = runtime.tick(0, flow, towers);
+    assert.deepEqual(runtime.waveSpawnProgress, { spawned: 1, total: 2 });
     assert.equal(first.killed.length, 1);
     assert.equal(first.spawningCompleted, false);
     const second = runtime.tick(0.9, flow, towers);
     assert.equal(second.killed.length, 1);
     assert.equal(second.spawningCompleted, true);
     assert.equal(runtime.enemies.length, 0);
+    assert.deepEqual(runtime.waveSpawnProgress, { spawned: 2, total: 2 });
     assert.deepEqual(runtime.totals, { spawned: 2, killed: 2, leaked: 0 });
     runtime.completeWave();
+    assert.deepEqual(runtime.waveSpawnProgress, { spawned: 2, total: 2 });
     runtime.start({ wave: 2, groups: [{ enemy, count: 1, spawnIntervalSeconds: 0.9 }] });
+    assert.deepEqual(runtime.waveSpawnProgress, { spawned: 0, total: 1 });
     runtime.tick(0, flow, towers);
+    assert.deepEqual(runtime.waveSpawnProgress, { spawned: 1, total: 1 });
     assert.deepEqual(runtime.totals, { spawned: 3, killed: 3, leaked: 0 });
 });
 
