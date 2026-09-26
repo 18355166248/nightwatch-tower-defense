@@ -754,6 +754,8 @@ export class NightwatchPocBootstrap extends Component {
             canStartNextWaveEarly: this.battle.snapshot.phase === 'countdown',
             coreHealth: this.battle.snapshot.coreHealth,
             activeEnemyCount: this.combat.enemies.length,
+            infantryGaitFrameLoaded: this.unitSprites?.hasGaitFrame('clockwork-infantry') ?? false,
+            runnerGaitFrameLoaded: this.unitSprites?.hasGaitFrame('clockwork-runner') ?? false,
             spawningCompleted: this.combat.isSpawningComplete,
             spawnedEnemyCount: this.combat.totals.spawned,
             defeatedEnemyCount: this.combat.totals.killed,

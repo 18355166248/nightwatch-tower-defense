@@ -24,6 +24,8 @@ export interface BrowserBattleDiagnosticsState {
     readonly canStartNextWaveEarly: boolean;
     readonly coreHealth: number;
     readonly activeEnemyCount: number;
+    readonly infantryGaitFrameLoaded: boolean;
+    readonly runnerGaitFrameLoaded: boolean;
     readonly spawningCompleted: boolean;
     readonly spawnedEnemyCount: number;
     readonly defeatedEnemyCount: number;

@@ -26,8 +26,7 @@ const REST_POSE: UnitVisualPose = { x: 0, y: 0, scaleX: 1, scaleY: 1, angle: 0 }
 /** 每格使用整数个步频周期，拐弯和暂停时都能从位置快照复原姿态，不依赖额外计时器。 */
 export function enemyStridePose(archetypeId: 'clockwork-infantry' | 'clockwork-runner', progress: number, spawnOrder: number): UnitVisualPose {
     const runner = archetypeId === 'clockwork-runner';
-    const cycles = runner ? 3 : 2;
-    const phase = Math.max(0, Math.min(1, progress)) * Math.PI * 2 * cycles + (spawnOrder % 4) * Math.PI / 2;
+    const phase = enemyGaitPhase(archetypeId, progress, spawnOrder);
     const stride = Math.sin(phase);
     const bounce = Math.abs(stride);
     const compression = Math.cos(phase) * (runner ? 0.045 : 0.032);
@@ -38,6 +37,22 @@ export function enemyStridePose(archetypeId: 'clockwork-infantry' | 'clockwork-r
         scaleY: 1 - compression,
         angle: stride * (runner ? 4 : 2.5),
     };
+}
+
+/** 原图为 A 帧；另一帧只从格内进度选取，暂停和格间交接都不依赖额外计时器。 */
+export function enemyGaitFrame(archetypeId: 'clockwork-infantry' | 'clockwork-runner', progress: number, spawnOrder: number): 0 | 1 {
+    const turns = enemyGaitTurns(archetypeId, progress, spawnOrder);
+    const withinTurn = turns - Math.floor(turns);
+    return withinTurn >= 0.25 && withinTurn < 0.75 ? 1 : 0;
+}
+
+function enemyGaitPhase(archetypeId: 'clockwork-infantry' | 'clockwork-runner', progress: number, spawnOrder: number): number {
+    return enemyGaitTurns(archetypeId, progress, spawnOrder) * Math.PI * 2;
+}
+
+function enemyGaitTurns(archetypeId: 'clockwork-infantry' | 'clockwork-runner', progress: number, spawnOrder: number): number {
+    const cycles = archetypeId === 'clockwork-runner' ? 3 : 2;
+    return Math.max(0, Math.min(1, progress)) * cycles + (spawnOrder % 4) / 4;
 }
 
 /** 发射反馈只改变炮塔视觉姿态，归零后严格回到静止态，不移动逻辑塔位。 */

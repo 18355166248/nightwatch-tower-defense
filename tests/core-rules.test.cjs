@@ -25,7 +25,7 @@ const { buildCoreObjectiveState } = require('../.test-dist/presentation/CoreObje
 const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGuidance.js');
 const { FirstLevelExperience } = require('../.test-dist/presentation/FirstLevelExperience.js');
 const { hudEventText } = require('../.test-dist/presentation/PhaseBHudText.js');
-const { enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
+const { enemyGaitFrame, enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
 const { RouteChangeFeedback, routeChangeText, routeLengthDelta } = require('../.test-dist/presentation/RouteChangeFeedback.js');
 const { waveLineup, waveThreatHint } = require('../.test-dist/presentation/WaveBriefing.js');
 const {
@@ -244,6 +244,17 @@ test('敌人步伐在格间交接和暂停快照中连续，疾行机节奏更�
     assert.ok(enemyStridePose('clockwork-runner', 1 / 12, 4).y > enemyStridePose('clockwork-infantry', 1 / 12, 4).y);
 });
 
+test('两种敌人的候选步态帧随格内位置交替，暂停重渲染和格间交接不跳帧', () => {
+    for (const archetype of ['clockwork-infantry', 'clockwork-runner']) {
+        for (let order = 1; order <= 4; order += 1) {
+            assert.equal(enemyGaitFrame(archetype, 1, order), enemyGaitFrame(archetype, 0, order));
+        }
+        assert.equal(enemyGaitFrame(archetype, 0, 4), 0);
+        assert.equal(enemyGaitFrame(archetype, archetype === 'clockwork-runner' ? 1 / 6 : 1 / 4, 4), 1);
+        assert.equal(enemyGaitFrame(archetype, 0.37, 3), enemyGaitFrame(archetype, 0.37, 3));
+    }
+});
+
 test('炮塔开火后坐力随事件衰减并回到原位，方向只影响视觉偏移', () => {
     const direction = { x: 1, y: 0 };
     const fresh = towerRecoilPose('rivet-gun', 0.1, 0.1, direction);
@@ -328,6 +339,20 @@ test('冷凝塔两张分层切图以 SpriteFrame 导入且保留 128 方形透�
         assert.equal(png.readUInt32BE(16), 128, id);
         assert.equal(png.readUInt32BE(20), 128, id);
         assert.equal(png[25], 6, `${id} 应为 RGBA PNG`);
+        assert.equal(meta.userData.type, 'sprite-frame', id);
+        assert.ok(meta.subMetas.f9941, id);
+    }
+});
+
+test('两种敌人的备用步态帧以 SpriteFrame 导入且保持 128 方形透明画布', () => {
+    for (const id of ['clockwork-infantry-step-b-v2', 'clockwork-runner-step-b-v2']) {
+        const asset = resolve(__dirname, `../assets/resources/level-one/units/${id}.png`);
+        const png = readFileSync(asset);
+        const meta = JSON.parse(readFileSync(`${asset}.meta`, 'utf8'));
+        assert.equal(png.readUInt32BE(16), 128, id);
+        assert.equal(png.readUInt32BE(20), 128, id);
+        assert.equal(png[25], 6, `${id} 应为 RGBA PNG`);
+        assert.ok(png.length < 32 * 1024, `${id} 运行时资源超过 32 KiB`);
         assert.equal(meta.userData.type, 'sprite-frame', id);
         assert.ok(meta.subMetas.f9941, id);
     }

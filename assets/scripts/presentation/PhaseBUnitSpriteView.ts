@@ -5,7 +5,7 @@ import { PHASE_B_DESIGN_HEIGHT, PHASE_B_DESIGN_WIDTH, PhaseBLayout } from './Pha
 import type { PhaseBSceneState } from './PhaseBSceneState';
 import { FROST_COIL_LAYER_SPEC, LayeredTowerRig, RIVET_GUN_LAYER_SPEC, type LayeredTowerSpec } from './LayeredTowerRig';
 import { EnemySlowIndicatorView } from './EnemySlowIndicatorView';
-import { enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } from './UnitVisualMotion';
+import { enemyGaitFrame, enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } from './UnitVisualMotion';
 
 const UNIT_ASSETS = {
     'rivet-gun': 'level-one/units/rivet-gun/spriteFrame',
@@ -14,6 +14,11 @@ const UNIT_ASSETS = {
     'clockwork-runner': 'level-one/units/clockwork-runner/spriteFrame',
 } as const;
 type UnitArtId = keyof typeof UNIT_ASSETS;
+const ENEMY_GAIT_ASSETS = {
+    'clockwork-infantry': 'level-one/units/clockwork-infantry-step-b-v2/spriteFrame',
+    'clockwork-runner': 'level-one/units/clockwork-runner-step-b-v2/spriteFrame',
+} as const;
+type EnemyGaitArtId = keyof typeof ENEMY_GAIT_ASSETS;
 const TOWER_LAYER_ASSETS = {
     'rivet-gun': {
         base: 'level-one/units/rivet-gun-base-v2/spriteFrame',
@@ -34,6 +39,7 @@ export class PhaseBUnitSpriteView {
     private readonly deathLayer = new Node('DeathSprites');
     private readonly shopLayer = new Node('ShopSprites');
     private readonly frames = new Map<UnitArtId, SpriteFrame>();
+    private readonly gaitFrames = new Map<EnemyGaitArtId, SpriteFrame>();
     private readonly towerLayers = new Map<string, SpriteFrame>();
     private readonly towers = new Map<string, Node>();
     private readonly enemies = new Map<string, Node>();
@@ -64,6 +70,13 @@ export class PhaseBUnitSpriteView {
                 this.frames.set(id, frame);
             });
         }
+        for (const [id, resourcePath] of Object.entries(ENEMY_GAIT_ASSETS) as [EnemyGaitArtId, string][]) {
+            resources.load(resourcePath, SpriteFrame, (error, frame) => {
+                // 动作帧是可选增强；缺图时敌人始终保留原静态 SpriteFrame。
+                if (error || !frame || !isValid(this.root)) return;
+                this.gaitFrames.set(id, frame);
+            });
+        }
         for (const [towerId, paths] of Object.entries(TOWER_LAYER_ASSETS) as [LayeredTowerId, { base: string; active: string }][]) {
             for (const [part, resourcePath] of Object.entries(paths) as ['base' | 'active', string][]) {
                 resources.load(resourcePath, SpriteFrame, (error, frame) => {
@@ -76,6 +89,10 @@ export class PhaseBUnitSpriteView {
 
     public get ready(): boolean {
         return this.frames.size === Object.keys(UNIT_ASSETS).length;
+    }
+
+    public hasGaitFrame(id: EnemyGaitArtId): boolean {
+        return this.gaitFrames.has(id);
     }
 
     public render(state: PhaseBSceneState): void {
@@ -151,6 +168,9 @@ export class PhaseBUnitSpriteView {
             body?.setScale(stride.scaleX * (1 + life * 0.11), stride.scaleY * (1 - life * 0.07), 1);
             if (body) body.angle = stride.angle;
             const sprite = body?.getComponent(Sprite);
+            const gaitFrame = enemyGaitFrame(enemy.archetype.id, enemy.progress, enemy.spawnOrder) === 1
+                ? this.gaitFrames.get(enemy.archetype.id) : null;
+            if (sprite && sprite.spriteFrame !== (gaitFrame ?? frame)) sprite.spriteFrame = gaitFrame ?? frame;
             const slowStrength = enemySlowVisualStrength(enemy.slowRemainingSeconds, FROST_COIL.effect?.durationSeconds ?? 0);
             if (sprite) sprite.color = hit
                 ? new Color(hit.towerId === 'frost-coil' ? '#C8F5FF' : '#FFE4B1')
@@ -279,6 +299,8 @@ export class PhaseBUnitSpriteView {
         const sprite = body.addComponent(Sprite);
         sprite.spriteFrame = frame;
         sprite.sizeMode = Sprite.SizeMode.CUSTOM;
+        // A/B 帧必须共用原始 128 方形画布；透明边缘不同也不能触发自动裁边导致脚底抖动。
+        sprite.trim = false;
         node.addChild(body);
         this.enemyLayer.addChild(node);
         this.enemies.set(key, node);

@@ -4,7 +4,7 @@
 
 夜城屋顶防线：俯视的玩具质感建筑、铜色机械件、青蓝屋顶和暖黄窗光。中央战场保持低对比，路线、敌人、塔与射程由运行时独立叠加。参考《Fieldrunners 2》的信息层级和布塔改路体验，不沿用其美术资产。
 
-当前完成底图、第一组静态单位切图，以及机枪塔和冷凝塔的分层候选。路线、特效和 HUD 仍是程序化表现；敌人尚无正式动作帧，不能称作完整美术落地。
+当前完成底图、第一组单位切图、两塔分层，以及两种敌人的第二步态帧候选。路线、特效和 HUD 仍是程序化表现；敌人尚缺完整待机/受击/死亡动作，不能称作完整美术落地。
 
 2026-09-26 地表视觉迭代：战场不再用高不透明度灰蓝格子覆盖底图。`BattlefieldSurfaceView` 从真实路径快照绘制连续的铜边石路，空格仅保留低对比细线，已建塔和布塔预览保持独立色块。因为路线随布塔动态改变，这里选择无贴图接缝的程序化地表，而不是生成固定路线切图；输入命中仍复用 `PhaseBLayout`。右侧浏览器已验证默认画面、布塔预览和落塔，正式路线材质/动效与单位动作资产仍待制作。
 
@@ -79,14 +79,31 @@ Use case: precise-object-edit. Asset type: transparent stationary BASE component
 Use case: precise-object-edit. Asset type: transparent ANIMATABLE CYAN ENERGY-CORE insert for the existing frost-coil tower in Nightwatch Tower Defense. The supplied frost-coil image is the EDIT TARGET. Extract ONLY the bright inner cyan glass-energy cylinder with its two glowing horizontal ice rings, soft blue magical light and subtle snowflake patterns from the exact center of the original tower. Remove ALL copper/brass floor base, bolts, four outer support arms, dark blue outer frame, top golden cap, and any scenery; do not include those parts in this sprite. Preserve the core's original narrow cylindrical silhouette, original 3/4 top-down perspective, cyan color and upper-left lighting. Keep it in the SAME position and approximate size inside the original 1254x1254 square canvas (central inner chamber, not an enlarged hero icon), so it can overlay a separate empty-chamber frame sprite. Clean genuinely transparent RGBA outside the core, no floor shadow, text, UI, border, watermark, duplicate cores or cropped glow.
 ```
 
+## 敌人步态候选
+
+- 2026-09-26 使用 OpenAI 内置 image_gen 图片编辑模式，分别以 `clockwork-infantry.png` 和 `clockwork-runner.png` 原图为编辑目标，制作左右脚交替的 `clockwork-infantry-step-b-v2.png` 与 `clockwork-runner-step-b-v2.png`。原图不变，继续作为 A 帧；疾行机第一次候选腿位几乎未变，因此弃用，入库的是第二次定向编辑的版本。
+- 两张源图都是 1254×1254 透明 PNG，运行时以 `sips -Z 128` 归一为 128×128 RGBA，分别约 18 KiB 和 14 KiB。`art-source/first-level-units/clockwork-gait-v2-contact.png` 对照两种敌人的 A/B 帧，`clockwork-gait-v2-manifest.json` 记录来源与审批字段。以 alpha>16 的有效像素检查，上下边界与各自原帧一致；步兵 B 帧外围存在极淡 alpha 噪点，正式资产前仍需修边。
+- Cocos 按 SpriteFrame 导入；敌人 Sprite 关闭自动裁边，A/B 共用完整 128 方形画布。`enemyGaitFrame` 从格内进度和生成序号选帧，步兵每格两次步态周期、疾行机三次；暂停、减速与格间交接不引入独立动画时钟。B 帧可选加载，任一 B 帧失败只回退对应敌人的原图，不影响战斗或其他单位切图。
+- 浏览器已确认第一至第五波可继续；只读诊断确认两张备用帧均实际加载，第四/五波捕到疾行机同屏画面。但 377×600 单帧截图不能证明玩家实际看到的切帧节奏无抖动，疾行机 `in_engine_reviewed` 暂保留 `false`；两帧步态也不等于正式跑动/受击/死亡全套动作。
+
+生成方式：OpenAI 内置 image_gen 图片编辑模式。最终入库的两张 B 帧提示词：
+
+```text
+Use case: precise-object-edit. Asset type: alternate WALK CYCLE sprite frame for the existing Nightwatch Tower Defense clockwork-infantry. The supplied image is the EDIT TARGET, not just style inspiration. Keep exactly the same single small copper-and-navy clockwork robot identity: round brass head, two large glowing amber eye lenses, brass winding key behind the upper-right shoulder, navy chest armor with central brass gear, thick riveted arms and boots. Preserve its 3/4 top-down camera, forward facing, painterly toy-mechanical finish, copper/navy palette, upper-left lighting, outer silhouette scale and center position inside the original square canvas. Change ONLY the walking pose: exchange which boot is planted forward and which boot steps back, with a natural small opposite arm swing; keep torso/head/key design and viewpoint unchanged. This should be the complementary next step to the input pose, not a new robot, not a running leap. Exactly one full-body character, same apparent size, same baseline for feet and centered registration as the input, no crop. Genuinely transparent RGBA square background with clean alpha. No floor, environment, shadow outside original, motion trails, text, UI, border, duplicate frames, or watermark.
+```
+
+```text
+Use case: precise-object-edit. Asset type: SECOND FRAME of a two-frame sprint animation, same clockwork-runner robot as the input. The supplied image is the EDIT TARGET. IMPORTANT required pose change: in the input, the long forward turbine boot extends diagonally DOWN-LEFT toward the lower-left edge while the other turbine leg is folded back on the RIGHT. For this alternate frame, make the RIGHT turbine leg extend diagonally DOWN-RIGHT to be the new foreground leading boot, and bend the LEFT leg up and back behind the torso; visibly exchange the front/back legs. Swing the arms opposite to the leg exchange. Keep the same body and head location, identical brass swept helmet, narrow cyan eye slit, two swept-back fins, navy chest with gold gear, cyan wheel-turbine details, painterly copper/navy materials, original 3/4 top-down view, direction and upper-left light. Same full-body scale, same transparent square canvas center and same ground baseline as the input, no jump or camera rotation. One robot only. Genuinely transparent RGBA outside the robot. No scenery, floor, floor shadow, trails, effects, text, UI, border, duplicate frame or watermark.
+```
+
 ## 后续切图契约
 
 | 类型 | 运行时目标 | 锚点 | 状态 |
 |---|---|---|---|
 | 机枪塔 | 底座/炮身分层候选已接入；枪口、瞄准转向与最终修边仍待制作 | 共用透明画布中心，运行时配准 | 浏览器候选 |
 | 冷凝塔 | 固定机架/能量芯分层候选已接入；脉冲时长与最终修边待评审 | 共用透明画布中心，运行时配准 | 浏览器候选 |
-| 发条步兵 | 静态样板已接入；正式版至少待机/移动/受击/死亡 | 底部中心 | 动作待制作 |
-| 疾行机 | 静态透明切图已接入；正式版至少跑动/受击/死亡与速度尾迹 | 底部中心 | 动作待制作 |
+| 发条步兵 | A/B 两步态候选已接入；正式版仍需待机/受击/死亡及平滑运动评审 | 共用透明画布中心 | 浏览器候选 |
+| 疾行机 | A/B 两步态候选已接入；正式版仍需跑动多帧/受击/死亡及速度尾迹 | 共用透明画布中心 | 浏览器候选，动态节奏待验 |
 | 路线标记 | 32×32 可着色箭头，不烘焙到地图 | 中心 | 目前程序绘制 |
 | HUD 图标 | 金币、核心、波次、速度；各态独立 | 中心 | 核心生命数字/分格条和出口圆环已程序化接入，正式切图仍待制作 |
 | 命中/减速/漏怪 | 独立帧或粒子参数，不能烘焙进角色 | 效果中心 | 目前程序绘制 |
