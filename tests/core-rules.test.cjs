@@ -825,19 +825,27 @@ function replayFirstLevel(buildPlan, frameDeltaSeconds = 1 / 30, speedScale = 1)
     let coreHealth = 10;
     let nextBuild = 0;
     const waveResults = [];
+    const spawnSecondsByWave = [];
+    const combatSecondsByWave = [];
     for (const wave of PHASE_B_WAVES) {
         combat.start(wave);
         let killed = 0;
         let leaked = 0;
+        let spawnSeconds = 0;
+        let combatSeconds = 0;
         for (let elapsed = 0; elapsed < 120 && (!combat.isSpawningComplete || combat.enemies.length > 0); elapsed += frameDeltaSeconds) {
             clock.advance(frameDeltaSeconds, (deltaSeconds) => {
                 if (combat.isSpawningComplete && combat.enemies.length === 0) return;
+                combatSeconds += deltaSeconds;
+                if (!combat.isSpawningComplete) spawnSeconds += deltaSeconds;
                 const result = combat.tick(deltaSeconds, model.flowField, model.deployments);
                 killed += result.killed.length;
                 leaked += result.leaked.length;
                 result.killed.forEach((enemy) => economy.credit(enemy.archetype.killReward));
             });
         }
+        spawnSecondsByWave.push(spawnSeconds);
+        combatSecondsByWave.push(combatSeconds);
         combat.completeWave();
         coreHealth -= leaked;
         rewards.settle(wave, economy);
@@ -851,11 +859,22 @@ function replayFirstLevel(buildPlan, frameDeltaSeconds = 1 / 30, speedScale = 1)
         waveResults.push({ wave: wave.wave, killed, leaked, coreHealth, towers: model.towers.size });
     }
 
-    return { waveResults, coreHealth, towers: model.towers.size, totals: combat.totals };
+    return { waveResults, spawnSecondsByWave, combatSecondsByWave, coreHealth, towers: model.towers.size, totals: combat.totals };
 }
 
 test('首关推荐构筑教学波零漏，后期自由加固有明确收益', () => {
     const guided = replayFirstLevel(FIRST_LEVEL_REINFORCEMENTS);
+    assert.equal(guided.combatSecondsByWave.length, PHASE_B_WAVES.length);
+    guided.spawnSecondsByWave.forEach((seconds, index) => {
+        assert.ok(seconds > 0 && seconds <= guided.combatSecondsByWave[index]);
+    });
+    // 只在显式请求时输出逐波基线；现阶段不把未获真人验证的 6–8 分钟目标写成自动放行门槛。
+    if (process.env.REPORT_FIRST_LEVEL_PACING === '1') {
+        console.log('FIRST_LEVEL_PACING', JSON.stringify({
+            spawnSecondsByWave: guided.spawnSecondsByWave.map((seconds) => Number(seconds.toFixed(1))),
+            combatSecondsByWave: guided.combatSecondsByWave.map((seconds) => Number(seconds.toFixed(1))),
+        }));
+    }
     assert.deepEqual(guided.waveResults.slice(0, 3), [
         { wave: 1, killed: 6, leaked: 0, coreHealth: 10, towers: 5 },
         { wave: 2, killed: 6, leaked: 0, coreHealth: 10, towers: 7 },
