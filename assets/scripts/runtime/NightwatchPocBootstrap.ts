@@ -26,6 +26,7 @@ import { countCombatFeedback, CombatFeedbackRuntime } from '../presentation/Comb
 import { PhaseBBackdropView } from '../presentation/PhaseBBackdropView';
 import { PhaseBCanvasRenderer } from '../presentation/PhaseBCanvasRenderer';
 import { PhaseBHudView } from '../presentation/PhaseBHudView';
+import { waveClearIncomeText } from '../presentation/PhaseBHudText';
 import { PhaseBUnitSpriteView } from '../presentation/PhaseBUnitSpriteView';
 import { RouteChangeFeedback, routeChangeText, routeLengthDelta } from '../presentation/RouteChangeFeedback';
 import { waveLineup, waveThreatHint } from '../presentation/WaveBriefing';
@@ -91,6 +92,7 @@ export class NightwatchPocBootstrap extends Component {
     private preparing = true;
     private pausedByLifecycle = false;
     private guidedIntermissionHeld = false;
+    private waveKillGold = 0;
     private initialCoreHealth = 10;
     private initialPathLength = this.model.flowField.distanceAt(this.model.grid.entry);
     private runCheckpoint: BattleRunCheckpoint | null = null;
@@ -494,6 +496,7 @@ export class NightwatchPocBootstrap extends Component {
         this.preparing = true;
         this.pausedByLifecycle = false;
         this.guidedIntermissionHeld = false;
+        this.waveKillGold = 0;
         this.towerInspection.clear();
         this.feedback.clear();
         this.routeChange.clear();
@@ -558,6 +561,7 @@ export class NightwatchPocBootstrap extends Component {
         this.preparing = true;
         this.pausedByLifecycle = false;
         this.guidedIntermissionHeld = false;
+        this.waveKillGold = 0;
         this.towerInspection.clear();
         this.cancelInput('已恢复开战前部署，可调整后再次开波');
         this.runCheckpoint = checkpoint;
@@ -572,6 +576,7 @@ export class NightwatchPocBootstrap extends Component {
         // 自动倒计时和玩家提前开波都汇入这里，避免生成器出现两套初始化顺序。
         const wave = this.waves.get(this.battle.snapshot.wave);
         this.combat.start(wave);
+        this.waveKillGold = 0;
         this.statusText = `第 ${wave.wave} 波：${waveLineup(wave)}进场`;
         this.playSound('wave-start');
     }
@@ -584,6 +589,7 @@ export class NightwatchPocBootstrap extends Component {
         if (result.leaked.length > 0) this.playSound('core-hit');
         for (const killed of result.killed) {
             this.economy.credit(killed.archetype.killReward);
+            this.waveKillGold += killed.archetype.killReward;
         }
         if (result.killed.length > 0 || result.leaked.length > 0) {
             this.battle.resolveCombatOutcome(result.leaked.length, this.combat.enemies.length);
@@ -599,7 +605,7 @@ export class NightwatchPocBootstrap extends Component {
             clearReward = this.waveRewards.settle(this.waves.get(this.battle.snapshot.wave), this.economy).amount;
         }
         if (phase === 'victory') {
-            this.statusText = `第 ${this.battle.snapshot.wave} 波清场！清场 +${clearReward} · 剩余金币 ${this.model.gold}`;
+            this.statusText = waveClearIncomeText(this.battle.snapshot.wave, this.waveKillGold, clearReward);
             this.playSound('victory');
         } else if (phase === 'countdown') {
             // 教学波间在奖励结算后暂停，让玩家按“击杀→回款→补塔→继续”掌握整局节奏。
@@ -608,9 +614,8 @@ export class NightwatchPocBootstrap extends Component {
                 this.battle.pause();
                 this.guidedIntermissionHeld = true;
             }
-            this.statusText = holdForCoach
-                ? `第 ${this.battle.snapshot.wave} 波清场 +${clearReward} 金币 · 可补塔，点 ▶ 开下一波`
-                : `第 ${this.battle.snapshot.wave} 波清场 +${clearReward} 金币，下一波 8 秒后到达`;
+            // 下一步操作由教学/波次横幅负责提示，这里只呈现真实收入，避免短屏事件行拥挤。
+            this.statusText = waveClearIncomeText(this.battle.snapshot.wave, this.waveKillGold, clearReward);
             this.playSound('wave-clear');
         } else if (phase === 'defeat') {
             this.statusText = '核心已失守';

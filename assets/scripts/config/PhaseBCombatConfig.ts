@@ -77,11 +77,11 @@ export const FROST_COIL: TowerArchetype = {
 export const PHASE_B_TOWERS: readonly TowerArchetype[] = [RIVET_GUN, FROST_COIL];
 
 export const PHASE_B_WAVES: readonly WaveDefinition[] = [
-    // 前两波只教部署与回款；推荐开局恰好守住 6 只，击杀收入与旧 8 只波次相同。
-    { wave: 1, clearReward: 20, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 6, spawnIntervalSeconds: 0.6 }] },
-    { wave: 2, clearReward: 18, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 6, spawnIntervalSeconds: 0.58 }] },
-    // 第三波首次在步兵后放出少量疾行机；此后逐渐加量，开始考验改路和减速。
-    { wave: 3, clearReward: 22, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 8, spawnIntervalSeconds: 0.56 }, { enemy: CLOCKWORK_RUNNER, count: 2, spawnIntervalSeconds: 0.58 }] },
+    // 前三波保持推荐构筑零漏时的总回款不变：把部分清场金移到更多击杀里，延长有敌人在场的教学段。
+    { wave: 1, clearReward: 8, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 9, spawnIntervalSeconds: 0.8 }] },
+    { wave: 2, clearReward: 6, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 9, spawnIntervalSeconds: 0.78 }] },
+    // 第三波仍在步兵之后首次放出 2 只疾行机，形成不依赖空等的速度考核。
+    { wave: 3, clearReward: 10, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 11, spawnIntervalSeconds: 0.78 }, { enemy: CLOCKWORK_RUNNER, count: 2, spawnIntervalSeconds: 0.78 }] },
     { wave: 4, clearReward: 20, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 6, spawnIntervalSeconds: 0.54 }, { enemy: CLOCKWORK_RUNNER, count: 4, spawnIntervalSeconds: 0.56 }] },
     { wave: 5, clearReward: 24, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 8, spawnIntervalSeconds: 0.52 }, { enemy: CLOCKWORK_RUNNER, count: 4, spawnIntervalSeconds: 0.54 }] },
     { wave: 6, clearReward: 24, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 7, spawnIntervalSeconds: 0.5 }, { enemy: CLOCKWORK_RUNNER, count: 5, spawnIntervalSeconds: 0.52 }] },

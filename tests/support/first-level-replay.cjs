@@ -47,6 +47,8 @@ function replayFirstLevel({
         let leaked = 0;
         let spawnSeconds = 0;
         let combatSeconds = 0;
+        let emptySpawnSeconds = 0;
+        let multiEnemySeconds = 0;
         let peakActiveEnemies = 0;
         const shotsByTower = { 'rivet-gun': 0, 'frost-coil': 0 };
         const frostShotsByCell = {};
@@ -67,6 +69,9 @@ function replayFirstLevel({
                 }
                 killed += result.killed.length;
                 leaked += result.leaked.length;
+                // 分别记录刷怪未完时的空场等待和多敌同屏，局长变长不等于玩家有事可做。
+                if (!combat.isSpawningComplete && combat.enemies.length === 0) emptySpawnSeconds += deltaSeconds;
+                if (combat.enemies.length >= 2) multiEnemySeconds += deltaSeconds;
                 peakActiveEnemies = Math.max(peakActiveEnemies, combat.enemies.length);
                 result.killed.forEach((enemy) => economy.credit(enemy.archetype.killReward));
             });
@@ -85,7 +90,7 @@ function replayFirstLevel({
             }
         }
         waveResults.push({ wave: wave.wave, killed, leaked, coreHealth, towers: model.towers.size });
-        telemetry.push({ wave: wave.wave, spawnSeconds, combatSeconds, peakActiveEnemies, shotsByTower, frostShotsByCell, slowApplications, gold: model.gold,
+        telemetry.push({ wave: wave.wave, spawnSeconds, combatSeconds, emptySpawnSeconds, multiEnemySeconds, peakActiveEnemies, shotsByTower, frostShotsByCell, slowApplications, gold: model.gold,
             pathLength: model.flowField.distanceAt(grid.entry), towerInvestment: model.deployments.reduce((sum, deployment) =>
                 sum + towers.find((tower) => tower.id === deployment.towerId).cost, 0) });
         if (coreHealth === 0) break;

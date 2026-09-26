@@ -26,7 +26,7 @@ const { buildCoreObjectiveState } = require('../.test-dist/presentation/CoreObje
 const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGuidance.js');
 const { FirstLevelExperience } = require('../.test-dist/presentation/FirstLevelExperience.js');
 const { firstLevelWaveBanner } = require('../.test-dist/presentation/FirstLevelWaveBanner.js');
-const { hudEventText } = require('../.test-dist/presentation/PhaseBHudText.js');
+const { hudEventText, waveClearIncomeText } = require('../.test-dist/presentation/PhaseBHudText.js');
 const { enemyGaitFrame, enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
 const { RouteChangeFeedback, routeChangeText, routeLengthDelta } = require('../.test-dist/presentation/RouteChangeFeedback.js');
 const { waveLineup, waveThreatHint } = require('../.test-dist/presentation/WaveBriefing.js');
@@ -46,6 +46,8 @@ test('首关 HUD 将重复金币移到独立数值卡，保留建塔与波次事
     assert.equal(hudEventText('机枪塔已建造 · 路线 +2 格 · 金币 10'), '机枪塔已建造 · 路线 +2 格');
     assert.equal(hudEventText('第 1 波清场！清场 +20 · 剩余金币 54'), '第 1 波清场！清场 +20');
     assert.equal(hudEventText('核心已失守'), '核心已失守');
+    assert.equal(waveClearIncomeText(1, 36, 8), '第 1 波守住 · 本波 +44（清场 +8）');
+    assert.equal(waveClearIncomeText(8, 56, 40), '第 8 波守住 · 本波 +96（清场 +40）');
 });
 
 test('波内生成进度区分短暂清屏、真正清场和下一波待命', () => {
@@ -142,7 +144,7 @@ test('首关教学推荐横墙可由起始金币建成，并为第一波与波�
         const result = combat.tick(1 / 30, model.flowField, model.deployments);
         result.killed.forEach((enemy) => economy.credit(enemy.archetype.killReward));
     }
-    assert.deepEqual(combat.totals, { spawned: 6, killed: 6, leaked: 0 });
+    assert.deepEqual(combat.totals, { spawned: 9, killed: 9, leaked: 0 });
     const rewards = new WaveRewardRuntime();
     assert.equal(rewards.settle(PHASE_B_WAVE_ONE, economy).gold, 54);
     assert.equal(model.preview({ column: 1, row: 2 }, [], 'rivet-gun').accepted, true);
@@ -311,9 +313,9 @@ test('八波目录连续可索引且保留第一波冻结配置', () => {
     assert.equal(catalog.totalWaves, 8);
     assert.equal(catalog.get(1), PHASE_B_WAVE_ONE);
     assert.deepEqual(PHASE_B_WAVE_ONE.groups.map(({ count, spawnIntervalSeconds }) => ({ count, spawnIntervalSeconds })), [
-        { count: 6, spawnIntervalSeconds: 0.6 },
+        { count: 9, spawnIntervalSeconds: 0.8 },
     ]);
-    assert.deepEqual(PHASE_B_WAVES.map(({ clearReward }) => clearReward), [20, 18, 22, 20, 24, 24, 28, 40]);
+    assert.deepEqual(PHASE_B_WAVES.map(({ clearReward }) => clearReward), [8, 6, 10, 20, 24, 24, 28, 40]);
     assert.throws(() => new WaveCatalog([PHASE_B_WAVES[1]]), /连续编号/);
     assert.throws(
         () => new WaveCatalog([{ wave: 1, clearReward: -1, groups: PHASE_B_WAVE_ONE.groups }]),
@@ -325,10 +327,10 @@ test('八波目录连续可索引且保留第一波冻结配置', () => {
 test('疾行机由第三波少量出现，波前预告和总敌数都跟随配置', () => {
     assert.equal(PHASE_B_WAVES.slice(0, 2).every(({ groups }) => groups.every(({ enemy }) => enemy.id === CLOCKWORK_INFANTRY.id)), true);
     assert.deepEqual(PHASE_B_WAVES[2].groups.map(({ enemy, count }) => [enemy.id, count]), [
-        ['clockwork-infantry', 8], ['clockwork-runner', 2],
+        ['clockwork-infantry', 11], ['clockwork-runner', 2],
     ]);
-    assert.equal(PHASE_B_WAVES.flatMap(({ groups }) => groups).reduce((total, group) => total + group.count, 0), 86);
-    assert.equal(waveLineup(PHASE_B_WAVES[2]), '发条步兵×8 · 疾行机×2');
+    assert.equal(PHASE_B_WAVES.flatMap(({ groups }) => groups).reduce((total, group) => total + group.count, 0), 95);
+    assert.equal(waveLineup(PHASE_B_WAVES[2]), '发条步兵×11 · 疾行机×2');
     assert.equal(waveThreatHint(PHASE_B_WAVES[1]), null);
     assert.match(waveThreatHint(PHASE_B_WAVES[2]), /疾行机×2.*冷凝塔/);
 });
@@ -645,12 +647,12 @@ test('清场奖励连续且幂等，不会因重复清场帧重复发钱', () =>
     const economy = new EconomyLedger(10);
     const rewards = new WaveRewardRuntime();
     const first = rewards.settle(PHASE_B_WAVES[0], economy);
-    assert.deepEqual(first, { credited: true, wave: 1, amount: 20, totalAwarded: 20, gold: 30 });
+    assert.deepEqual(first, { credited: true, wave: 1, amount: 8, totalAwarded: 8, gold: 18 });
     assert.deepEqual(rewards.settle(PHASE_B_WAVES[0], economy), {
-        credited: false, wave: 1, amount: 0, totalAwarded: 20, gold: 30,
+        credited: false, wave: 1, amount: 0, totalAwarded: 8, gold: 18,
     });
     assert.throws(() => rewards.settle(PHASE_B_WAVES[2], economy), /必须连续结算/);
-    assert.equal(rewards.settle(PHASE_B_WAVES[1], economy).gold, 48);
+    assert.equal(rewards.settle(PHASE_B_WAVES[1], economy).gold, 24);
 });
 
 test('塔种价格绑定在预览事务中，出售按各自造价全额返还', () => {
@@ -856,7 +858,7 @@ test('第一波短折线在 20/30/60 FPS 下保持至少双敌同屏并全部守
             maxActiveEnemies = Math.max(maxActiveEnemies, runtime.enemies.length);
         }
         assert.ok(maxActiveEnemies >= 2, `${deltaSeconds} 秒步长的同屏峰值只有 ${maxActiveEnemies}`);
-        assert.deepEqual(runtime.totals, { spawned: 6, killed: 6, leaked: 0 });
+        assert.deepEqual(runtime.totals, { spawned: 9, killed: 9, leaked: 0 });
     }
 });
 
@@ -876,7 +878,7 @@ test('冷凝前置混合塔组在 20/30/60 FPS 下守住教学波并出现减速
             maxSlowedEnemies = Math.max(maxSlowedEnemies, runtime.enemies.filter(({ slowRemainingSeconds }) => slowRemainingSeconds > 0).length);
         }
         assert.ok(maxSlowedEnemies >= 2, `${deltaSeconds} 秒步长未形成可读减速同屏`);
-        assert.deepEqual(runtime.totals, { spawned: 6, killed: 6, leaked: 0 });
+        assert.deepEqual(runtime.totals, { spawned: 9, killed: 9, leaked: 0 });
     }
 });
 
@@ -886,6 +888,11 @@ test('首关推荐构筑教学波零漏，后期自由加固有明确收益', ()
     guided.spawnSecondsByWave.forEach((seconds, index) => {
         assert.ok(seconds > 0 && seconds <= guided.combatSecondsByWave[index]);
     });
+    for (const wave of guided.telemetry.slice(0, 3)) {
+        assert.ok(wave.emptySpawnSeconds < 0.5, `第 ${wave.wave} 波不应靠空场等待拉长局长`);
+        assert.ok(wave.multiEnemySeconds / wave.combatSeconds >= 0.6, `第 ${wave.wave} 波缺少持续的多敌同屏压力`);
+    }
+    assert.deepEqual(guided.telemetry.slice(0, 3).map(({ gold }) => gold), [24, 6, 38]);
     // 只在显式请求时输出逐波基线；现阶段不把未获真人验证的 6–8 分钟目标写成自动放行门槛。
     if (process.env.REPORT_FIRST_LEVEL_PACING === '1') {
         console.log('FIRST_LEVEL_PACING', JSON.stringify({
@@ -894,20 +901,20 @@ test('首关推荐构筑教学波零漏，后期自由加固有明确收益', ()
         }));
     }
     assert.deepEqual(guided.waveResults.slice(0, 3), [
-        { wave: 1, killed: 6, leaked: 0, coreHealth: 10, towers: 5 },
-        { wave: 2, killed: 6, leaked: 0, coreHealth: 10, towers: 7 },
-        { wave: 3, killed: 10, leaked: 0, coreHealth: 10, towers: 8 },
+        { wave: 1, killed: 9, leaked: 0, coreHealth: 10, towers: 5 },
+        { wave: 2, killed: 9, leaked: 0, coreHealth: 10, towers: 7 },
+        { wave: 3, killed: 13, leaked: 0, coreHealth: 10, towers: 8 },
     ]);
     assert.equal(guided.coreHealth, 8);
     assert.equal(guided.towers, 11);
-    assert.deepEqual(guided.totals, { spawned: 86, killed: 84, leaked: 2 });
+    assert.deepEqual(guided.totals, { spawned: 95, killed: 93, leaked: 2 });
     assert.ok(guided.telemetry.slice(4).reduce((sum, wave) => sum + (wave.frostShotsByCell['7,8'] ?? 0), 0) >= 10,
         '末段冷凝塔应实际参与战斗，不能再次放到射程外');
 
     const fortified = replayFirstLevel({ reinforcements: [...FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_OPTIONAL_FORTIFICATIONS[0]] });
     assert.equal(fortified.coreHealth, 10);
     assert.equal(fortified.towers, 12);
-    assert.deepEqual(fortified.totals, { spawned: 86, killed: 86, leaked: 0 });
+    assert.deepEqual(fortified.totals, { spawned: 95, killed: 95, leaked: 0 });
 });
 
 test('推荐构筑在常见帧步长下保持相同的逐波结果', () => {
