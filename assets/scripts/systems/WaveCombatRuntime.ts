@@ -29,6 +29,8 @@ export interface ShotEvent {
     readonly damage: number;
     readonly lethal: boolean;
     readonly appliedSlow: boolean;
+    readonly slowedEnemyIds?: readonly string[];
+    readonly slowRadiusCells?: number;
 }
 
 export interface CombatTickResult {
@@ -263,20 +265,22 @@ export class WaveCombatRuntime {
             }
             const damage = Math.min(target.health, tower.damage);
             target.health -= damage;
-            const appliedSlow = target.health > 0 && tower.effect?.kind === 'slow';
-            if (appliedSlow && tower.effect) {
-                // 多座减速塔只刷新时长并取更强倍率，禁止效果相乘把敌人永久钉死。
-                target.slowMultiplier = Math.min(target.slowMultiplier, tower.effect.speedMultiplier);
-                target.slowRemainingSeconds = Math.max(target.slowRemainingSeconds, tower.effect.durationSeconds);
-            }
+            const targetPoint = this.enemyPoint(target);
+            // 冷凝仍只对主目标造成伤害；短脉冲给同一小群敌人施加控制，避免纯机枪在密集波次始终更优。
+            const slowedEnemyIds = tower.effect?.kind === 'slow'
+                ? this.applySlowPulse(targetPoint, tower.effect.speedMultiplier, tower.effect.durationSeconds,
+                    tower.effect.pulseRadiusCells ?? 0, target)
+                : [];
             shots.push({
                 towerCell,
                 towerId: tower.id,
                 targetId: target.id,
-                targetPoint: this.enemyPoint(target),
+                targetPoint,
                 damage,
                 lethal: target.health <= 0,
-                appliedSlow,
+                appliedSlow: slowedEnemyIds.length > 0,
+                slowedEnemyIds,
+                slowRadiusCells: tower.effect?.pulseRadiusCells,
             });
             // 保留本帧越过冷却零点的余量，避免 20/30/60 FPS 下累计射速不同。
             this.towerCooldowns.set(key, tower.attackIntervalSeconds + cooldown);
@@ -291,6 +295,24 @@ export class WaveCombatRuntime {
             if (!activeTowerKeys.has(key)) this.towerCooldowns.delete(key);
         }
         return { shots, killed };
+    }
+
+    private applySlowPulse(point: GridPoint, multiplier: number, durationSeconds: number,
+        radiusCells: number, primary: CombatEnemy): string[] {
+        const affected: string[] = [];
+        for (const enemy of this.activeEnemies) {
+            if (enemy.health <= 0) continue;
+            if (enemy !== primary) {
+                if (radiusCells <= 0) continue;
+                const other = this.enemyPoint(enemy);
+                if (Math.hypot(other.column - point.column, other.row - point.row) > radiusCells) continue;
+            }
+            // 重复命中只取更强的减速并刷新持续时间，不能叠乘成永久冻结。
+            enemy.slowMultiplier = Math.min(enemy.slowMultiplier, multiplier);
+            enemy.slowRemainingSeconds = Math.max(enemy.slowRemainingSeconds, durationSeconds);
+            affected.push(enemy.id);
+        }
+        return affected;
     }
 
     private pickTarget(towerCell: GridCell, tower: TowerArchetype, flowField: FlowField): CombatEnemy | null {

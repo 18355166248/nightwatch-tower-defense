@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const { readFileSync } = require('node:fs');
 const { resolve } = require('node:path');
 const { replayFirstLevel } = require('./support/first-level-replay.cjs');
+const { standardLayout } = require('./support/first-level-strategies.cjs');
 
 const { PHASE_A_GRIDS, PHASE_A_TOWER_COST } = require('../.test-dist/config/PhaseAGrids.js');
 const { FIRST_LEVEL_GUIDED_UPGRADES, FIRST_LEVEL_OPENING, FIRST_LEVEL_OPTIONAL_FORTIFICATIONS, FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_STARTING_GOLD, FIRST_LEVEL_SUGGESTED_PATH_DELTA } = require('../.test-dist/config/FirstLevelOpening.js');
@@ -52,8 +53,8 @@ test('首关 HUD 将重复金币移到独立数值卡，保留建塔与波次事
     assert.equal(towerInspectionSummary(RIVET_GUN, 1), '机枪塔 Lv1 · 2.6格 · 伤害7');
     assert.equal(towerInspectionSummary(RIVET_GUN, 2), '机枪塔 Lv2 · 2.8格 · 伤害11');
     assert.equal(towerInspectionSummary(RIVET_GUN, 3), '机枪塔 Lv3 · 3.2格 · 伤害18');
-    assert.equal(towerInspectionSummary(FROST_COIL, 1), '冷凝塔 Lv1 · 3格 · 减速45%');
-    assert.equal(towerInspectionSummary(FROST_COIL, 3), '冷凝塔 Lv3 · 3.5格 · 减速65%');
+    assert.equal(towerInspectionSummary(FROST_COIL, 1), '冷凝塔 Lv1 · 3格 · 减速75%');
+    assert.equal(towerInspectionSummary(FROST_COIL, 3), '冷凝塔 Lv3 · 3.5格 · 减速89%');
 });
 
 test('波内生成进度区分短暂清屏、真正清场和下一波待命', () => {
@@ -102,7 +103,7 @@ test('首关提示跟随真实布塔门槛，预览与战斗阶段优先级明�
 
 test('首关入场卡独立于战斗，教学随真实布塔状态推进且可跳过', () => {
     const flow = new FirstLevelExperience(false);
-    const context = { preparing: true, towerCount: 0, pathDelta: 0, previewAccepted: null, inputMode: 'idle', gold: 140, phase: 'preparing', wave: 0, occupiedCells: new Set(), guidedIntermissionHeld: false };
+    const context = { preparing: true, towerCount: 0, pathDelta: 0, previewAccepted: null, inputMode: 'idle', gold: 140, phase: 'preparing', wave: 0, occupiedCells: new Set(), towerLevelsByCell: new Map(), guidedIntermissionHeld: false };
     assert.equal(flow.snapshot(context).mode, 'home');
     flow.begin();
     assert.equal(flow.shouldHoldIntermission(1, 8), true);
@@ -122,17 +123,29 @@ test('首关入场卡独立于战斗，教学随真实布塔状态推进且可�
     assert.equal(flow.snapshot({ ...context, towerCount: 3, gold: 10 }).step, 'route');
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'countdown', wave: 1, gold: 54 }).step, 'reinforce');
     const upgradeCoach = { ...context, preparing: false, phase: 'paused', wave: 1, gold: 54,
-        guidedIntermissionHeld: true, firstRivetCell: { column: 3, row: 2 }, upgradedTowerCount: 0 };
+        guidedIntermissionHeld: true, occupiedCells: new Set(['3,2']), towerLevelsByCell: new Map([['3,2', 1]]) };
     assert.equal(flow.snapshot(upgradeCoach).step, 'upgrade');
     assert.deepEqual(flow.snapshot(upgradeCoach).suggestedCell, { column: 3, row: 2 });
-    assert.equal(flow.snapshot({ ...upgradeCoach, gold: 30, upgradedTowerCount: 1 }).step, 'reinforce');
+    assert.equal(flow.snapshot({ ...upgradeCoach, gold: 30, towerLevelsByCell: new Map([['3,2', 2]]) }).step, 'reinforce');
     assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 1, gold: 54, guidedIntermissionHeld: true }).guidanceText, /补机枪延长路线，再点 ▶/);
     assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 1, gold: 24, guidedIntermissionHeld: true,
         occupiedCells: new Set([cellKey(FIRST_LEVEL_REINFORCEMENTS[0].cell)]) }).guidanceText, /本轮布防完成/);
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 1, gold: 24, guidedIntermissionHeld: true }).step, 'ready');
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 4, gold: 44, guidedIntermissionHeld: true, occupiedCells: new Set(FIRST_LEVEL_REINFORCEMENTS.slice(0, 3).map(({ cell }) => cellKey(cell))) }).suggestedTowerId, 'frost-coil');
     assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 4, gold: 38, guidedIntermissionHeld: true, occupiedCells: new Set(FIRST_LEVEL_REINFORCEMENTS.slice(0, 3).map(({ cell }) => cellKey(cell))) }).guidanceText, /暂缺金币/);
-    assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 6, gold: 82, guidedIntermissionHeld: true, occupiedCells: new Set(FIRST_LEVEL_REINFORCEMENTS.map(({ cell }) => cellKey(cell))) }).guidanceText, /升关键塔至 Lv3/);
+    const lateOccupied = new Set([...FIRST_LEVEL_OPENING, ...FIRST_LEVEL_REINFORCEMENTS].map(({ cell }) => cellKey(cell)));
+    const levelTwo = new Map([['3,2', 2], ['7,8', 2]]);
+    assert.deepEqual(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 5, gold: 80,
+        guidedIntermissionHeld: true, occupiedCells: lateOccupied,
+        towerLevelsByCell: new Map([['3,2', 2], ['7,8', 1]]) }).suggestedCell, { column: 7, row: 8 });
+    assert.deepEqual(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 6, gold: 82,
+        guidedIntermissionHeld: true, occupiedCells: lateOccupied, towerLevelsByCell: levelTwo }).suggestedCell, { column: 3, row: 2 });
+    assert.deepEqual(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 7, gold: 82,
+        guidedIntermissionHeld: true, occupiedCells: lateOccupied,
+        towerLevelsByCell: new Map([['3,2', 3], ['7,8', 2]]) }).suggestedCell, { column: 7, row: 8 });
+    assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 7, gold: 82,
+        guidedIntermissionHeld: true, occupiedCells: lateOccupied,
+        towerLevelsByCell: new Map([['3,2', 3], ['7,8', 3]]) }).guidanceText, /可自由加固/);
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 1, gold: 54 }).step, 'combat');
     assert.equal(flow.snapshot({ ...context, preparing: false }).step, 'combat');
     flow.skip();
@@ -342,15 +355,15 @@ test('疾行机由第三波少量出现，波前预告和总敌数都跟随配�
     assert.deepEqual(PHASE_B_WAVES[2].groups.map(({ enemy, count }) => [enemy.id, count]), [
         ['clockwork-infantry', 11], ['clockwork-runner', 2],
     ]);
-    assert.equal(PHASE_B_WAVES.flatMap(({ groups }) => groups).reduce((total, group) => total + group.count, 0), 123);
+    assert.equal(PHASE_B_WAVES.flatMap(({ groups }) => groups).reduce((total, group) => total + group.count, 0), 213);
     assert.equal(waveLineup(PHASE_B_WAVES[2]), '发条步兵×11 · 疾行机×2');
-    assert.equal(waveStartStatus(PHASE_B_WAVES[4]), '第 5 波 · 铁罐搬运者×6进场');
+    assert.equal(waveStartStatus(PHASE_B_WAVES[4]), '第 5 波 · 铁罐搬运者×9进场');
     assert.equal(waveStartStatus(PHASE_B_WAVES[7]), '第 8 波 · 发条步兵先行，后续混编来袭');
     assert.equal(waveThreatHint(PHASE_B_WAVES[1]), null);
     assert.match(waveThreatHint(PHASE_B_WAVES[2]), /疾行机×2.*冷凝塔/);
     assert.equal(PHASE_B_WAVES.slice(0, 4).every(({ groups }) => groups.every(({ enemy }) => enemy.id !== IRON_CANISTER_HAULER.id)), true);
-    assert.deepEqual(PHASE_B_WAVES[4].groups.map(({ enemy, count }) => [enemy.id, count]), [['iron-canister-hauler', 6]]);
-    assert.match(waveThreatHint(PHASE_B_WAVES[4]), /铁罐×6.*集火/);
+    assert.deepEqual(PHASE_B_WAVES[4].groups.map(({ enemy, count }) => [enemy.id, count]), [['iron-canister-hauler', 9]]);
+    assert.match(waveThreatHint(PHASE_B_WAVES[4]), /铁罐×9.*集火/);
     assert.match(waveThreatHint(PHASE_B_WAVES[6]), /疾行.*铁罐.*控快/);
 });
 
@@ -432,17 +445,17 @@ test('疾行机移动更快但接受冷凝减速，移动与外观提示不依�
 });
 
 test('铁罐搬运者复用流场与减速规则，保持高生命低速度', () => {
-    assert.equal(IRON_CANISTER_HAULER.maxHealth, 230);
+    assert.equal(IRON_CANISTER_HAULER.maxHealth, 320);
     assert.equal(IRON_CANISTER_HAULER.speedCellsPerSecond, 0.62);
     const grid = PHASE_A_GRIDS['grid-9x13'];
     const runtime = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
     runtime.start({ wave: 5, clearReward: 0, groups: [{ enemy: IRON_CANISTER_HAULER, count: 1, spawnIntervalSeconds: 1 }] });
     const result = runtime.tick(0, new FlowField(grid, new Set()), [{ cell: grid.entry, towerId: 'frost-coil' }]);
     assert.equal(result.shots[0].appliedSlow, true);
-    assert.equal(runtime.enemies[0].health, 226);
-    assert.equal(runtime.enemies[0].slowMultiplier, 0.55);
+    assert.equal(runtime.enemies[0].health, 316);
+    assert.equal(runtime.enemies[0].slowMultiplier, 0.25);
     assert.ok(runtime.enemies[0].slowRemainingSeconds > 0);
-    assert.equal(runtime.enemies[0].archetype.killReward, 10);
+    assert.equal(runtime.enemies[0].archetype.killReward, 5);
 });
 
 test('模拟时钟统一限制长帧并在 1x 与 2x 间循环', () => {
@@ -736,7 +749,7 @@ test('升级扣费原子化，满级与金币不足不改变等级，准备态�
     assert.equal(towerAtLevel(RIVET_GUN, 3).damage, 18);
     assert.equal(towerInvestment(RIVET_GUN, 3), 96);
     assert.equal(nextUpgradeCost(FROST_COIL, 1), 32);
-    assert.equal(towerAtLevel(FROST_COIL, 2).effect.speedMultiplier, 0.5);
+    assert.equal(towerAtLevel(FROST_COIL, 2).effect.speedMultiplier, 0.18);
     assert.equal(towerInvestment(FROST_COIL, 3), 120);
 });
 
@@ -932,9 +945,54 @@ test('冷凝塔命中后按持续时间减速，重复命中刷新而不叠乘',
     assert.equal(first.shots[0].appliedSlow, true);
     assert.equal(runtime.enemies[0].slowMultiplier, FROST_COIL.effect.speedMultiplier);
     runtime.tick(1, flow, towers);
-    assert.ok(Math.abs(runtime.enemies[0].progress - 0.55) < 1e-9);
-    assert.equal(runtime.enemies[0].slowMultiplier, 0.55);
+    assert.ok(Math.abs(runtime.enemies[0].progress - 0.25) < 1e-9);
+    assert.equal(runtime.enemies[0].slowMultiplier, 0.25);
     assert.equal(runtime.enemies[0].slowRemainingSeconds, 1.2);
+});
+
+test('冷凝脉冲只伤主目标，并控制半径内其他存活敌人', () => {
+    const grid = { id: 'pulse', columns: 3, rows: 6,
+        entry: { column: 1, row: 0 }, exit: { column: 1, row: 5 } };
+    const enemy = { id: 'clockwork-infantry', maxHealth: 100, speedCellsPerSecond: 0, killReward: 4 };
+    const flow = new FlowField(grid, new Set());
+    const wave = { wave: 1, groups: [{ enemy, count: 3, spawnIntervalSeconds: 0.1 }] };
+    const fire = (radius) => {
+        const frost = { ...FROST_COIL, effect: { ...FROST_COIL.effect, pulseRadiusCells: radius } };
+        const runtime = new WaveCombatRuntime(grid, frost);
+        runtime.start(wave);
+        runtime.tick(0.21, flow, []);
+        // 第三只放在脉冲外，验证同帧存活目标才会被减速。
+        runtime.enemies[2].fromCell = { column: 1, row: 4 };
+        runtime.enemies[2].toCell = { column: 1, row: 5 };
+        const shot = runtime.tick(0, flow, [{ cell: { column: 0, row: 0 }, towerId: 'frost-coil' }]).shots[0];
+        return { shot, enemies: runtime.enemies };
+    };
+    const pulse = fire(1.5);
+    assert.deepEqual(pulse.shot.slowedEnemyIds, ['enemy-1', 'enemy-2']);
+    assert.deepEqual(pulse.enemies.map(({ health }) => health), [96, 100, 100]);
+    assert.deepEqual(pulse.enemies.map(({ slowMultiplier }) => slowMultiplier), [0.25, 0.25, 1]);
+    const single = fire(0);
+    assert.deepEqual(single.shot.slowedEnemyIds, ['enemy-1']);
+    assert.deepEqual(single.enemies.map(({ slowMultiplier }) => slowMultiplier), [0.25, 1, 1]);
+});
+
+test('两套不同路线的标准布局中，冷凝近等预算下均减少后四波漏怪', () => {
+    const routes = [];
+    for (const row of [2, 3]) {
+        const layout = standardLayout(row);
+        const mixed = replayFirstLevel(layout.mixed);
+        const pure = replayFirstLevel(layout.pure);
+        const mixedLeaks = mixed.waveResults.slice(4).reduce((sum, wave) => sum + wave.leaked, 0);
+        const pureLeaks = pure.waveResults.slice(4).reduce((sum, wave) => sum + wave.leaked, 0);
+        assert.equal(mixed.waveResults.at(-1).wave, 8);
+        assert.equal(pure.waveResults.at(-1).wave, 8);
+        assert.ok(Math.abs(mixed.telemetry.at(-1).towerInvestment - pure.telemetry.at(-1).towerInvestment) <= 4);
+        assert.ok(pureLeaks >= 5, `第 ${row} 行纯机枪对照未形成有效压力`);
+        assert.ok(mixedLeaks <= pureLeaks * 0.8, `第 ${row} 行冷凝收益不足 20%`);
+        assert.equal(mixed.coreHealth, 10);
+        routes.push(mixed.pathCells);
+    }
+    assert.notDeepEqual(routes[0], routes[1], '两套布局不能只是改塔名，必须真的改路');
 });
 
 test('战斗反馈消费只读事件，并在独立时间轴上自动回收', () => {
@@ -1013,8 +1071,8 @@ test('首关分波推荐构筑零漏，末段可选加固缩短清场', () => {
         assert.ok(wave.emptySpawnSeconds < 0.5, `第 ${wave.wave} 波不应靠空场等待拉长局长`);
         assert.ok(wave.multiEnemySeconds / wave.combatSeconds >= 0.6, `第 ${wave.wave} 波缺少持续的多敌同屏压力`);
     }
-    assert.deepEqual(FIRST_LEVEL_GUIDED_UPGRADES, [{ wave: 1, cell: FIRST_LEVEL_OPENING[0].cell }]);
-    assert.deepEqual(guided.telemetry.slice(0, 3).map(({ gold }) => gold), [0, 12, 44]);
+    assert.deepEqual(FIRST_LEVEL_GUIDED_UPGRADES.map(({ wave, targetLevel }) => [wave, targetLevel]), [[1, 2], [5, 2], [6, 3], [7, 3]]);
+    assert.deepEqual(guided.telemetry.slice(0, 3).map(({ gold }) => gold), [0, 12, 40]);
     // 只在显式请求时输出逐波基线；现阶段不把未获真人验证的 6–8 分钟目标写成自动放行门槛。
     if (process.env.REPORT_FIRST_LEVEL_PACING === '1') {
         console.log('FIRST_LEVEL_PACING', JSON.stringify({
@@ -1029,8 +1087,12 @@ test('首关分波推荐构筑零漏，末段可选加固缩短清场', () => {
     ]);
     assert.equal(guided.coreHealth, 10);
     assert.equal(guided.towers, 10);
-    assert.deepEqual(guided.totals, { spawned: 123, killed: 123, leaked: 0 });
-    assert.equal(guided.telemetry.at(-1).towerInvestment, 344);
+    assert.deepEqual(guided.totals, { spawned: 213, killed: 213, leaked: 0 });
+    assert.equal(guided.telemetry.at(-1).towerInvestment, 466);
+    const combatSeconds = guided.telemetry.reduce((sum, wave) => sum + wave.combatSeconds, 0);
+    assert.ok(combatSeconds >= 360 && combatSeconds <= 480, '推荐构筑 1× 纯战斗应落在 6–8 分钟区间');
+    assert.ok(guided.telemetry.reduce((sum, wave) => sum + wave.emptySpawnSeconds, 0) < 1,
+        '不能靠刷怪期空场等待凑局长');
     assert.ok(guided.telemetry[0].shotsByCell['3,2'] > 0, '首塔必须实际参与教学波');
     assert.deepEqual(FIRST_LEVEL_REINFORCEMENTS.map(({ afterWave }) => afterWave), [1, 2, 3, 4, 5, 6]);
     assert.deepEqual(guided.telemetry.slice(0, 3).map(({ pathLength }) => pathLength), [18, 18, 20]);
@@ -1051,7 +1113,7 @@ test('首关分波推荐构筑零漏，末段可选加固缩短清场', () => {
     const fortified = replayFirstLevel({ reinforcements: [...FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_OPTIONAL_FORTIFICATIONS[0]] });
     assert.equal(fortified.coreHealth, 10);
     assert.equal(fortified.towers, 11);
-    assert.deepEqual(fortified.totals, { spawned: 123, killed: 123, leaked: 0 });
+    assert.deepEqual(fortified.totals, { spawned: 213, killed: 213, leaked: 0 });
     assert.ok(fortified.telemetry.at(-1).combatSeconds < guided.telemetry.at(-1).combatSeconds);
 
     const noUpgrade = replayFirstLevel({ upgradesAfterWave: [] });

@@ -62,6 +62,7 @@ for (const [name, plan] of variants) {
         waves: result.waveResults.map((wave, index) => ({
             ...wave,
             investment: result.telemetry[index].towerInvestment,
+            gold: result.telemetry[index].gold,
             path: result.telemetry[index].pathLength,
             peak: result.telemetry[index].peakActiveEnemies,
             shots: result.telemetry[index].shotsByTower,

@@ -12,9 +12,18 @@ export const FIRST_LEVEL_OPENING: readonly { readonly cell: GridCell; readonly t
     { cell: { column: 5, row: 2 }, towerId: 'rivet-gun' },
 ];
 
-/** 推荐回放跟随首波波间的真实教学选择；这是建议，不自动替玩家升级。 */
-export const FIRST_LEVEL_GUIDED_UPGRADES: readonly { readonly wave: number; readonly cell: GridCell }[] = [
-    { wave: 1, cell: FIRST_LEVEL_OPENING[0].cell },
+/** 高等级升级是波间建议，玩家可拒绝；规则回放沿同一建议构筑验证后半局压力。 */
+export const FIRST_LEVEL_GUIDED_UPGRADES: readonly {
+    readonly wave: number;
+    readonly cell: GridCell;
+    readonly towerId: TowerId;
+    readonly targetLevel: number;
+    readonly coachHint: string;
+}[] = [
+    { wave: 1, cell: FIRST_LEVEL_OPENING[0].cell, towerId: 'rivet-gun', targetLevel: 2, coachHint: '强化前排机枪' },
+    { wave: 5, cell: { column: 7, row: 8 }, towerId: 'frost-coil', targetLevel: 2, coachHint: '增强重甲减速' },
+    { wave: 6, cell: FIRST_LEVEL_OPENING[0].cell, towerId: 'rivet-gun', targetLevel: 3, coachHint: '提升前排火力' },
+    { wave: 7, cell: { column: 7, row: 8 }, towerId: 'frost-coil', targetLevel: 3, coachHint: '强化终局群控' },
 ];
 
 export const FIRST_LEVEL_FIRST_REINFORCEMENT: GridCell = { column: 6, row: 2 };

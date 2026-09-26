@@ -14,6 +14,7 @@ export interface TracerFeedback extends TimedFeedback {
     readonly lethal: boolean;
     readonly towerId: TowerId;
     readonly appliedSlow: boolean;
+    readonly slowRadiusCells?: number;
 }
 
 export interface RewardFeedback extends TimedFeedback {
@@ -110,6 +111,7 @@ export class CombatFeedbackRuntime {
             lethal: shot.lethal,
             towerId: shot.towerId,
             appliedSlow: shot.appliedSlow,
+            slowRadiusCells: shot.slowRadiusCells,
         };
     }
 

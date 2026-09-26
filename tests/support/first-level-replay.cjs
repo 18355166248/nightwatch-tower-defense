@@ -16,6 +16,7 @@ const fixtures = JSON.parse(readFileSync(resolve(__dirname, '../../docs/poc/phas
 
 function replayFirstLevel({
     opening = FIRST_LEVEL_OPENING,
+    openingCells = null,
     reinforcements = FIRST_LEVEL_REINFORCEMENTS,
     waves = PHASE_B_WAVES,
     towers = PHASE_B_TOWERS,
@@ -24,7 +25,7 @@ function replayFirstLevel({
     speedScale = 1,
 } = {}) {
     const grid = PHASE_A_GRIDS['grid-9x13'];
-    const shortCells = fixtures.fixtures.find((item) => item.gridId === 'grid-9x13').shortFold.towerCells
+    const shortCells = openingCells ?? fixtures.fixtures.find((item) => item.gridId === 'grid-9x13').shortFold.towerCells
         .map(([column, row]) => ({ column, row }));
     const economy = new EconomyLedger(FIRST_LEVEL_STARTING_GOLD);
     const model = new PlacementModel(grid, economy, towers);
@@ -67,7 +68,7 @@ function replayFirstLevel({
                     const key = cellKey(shot.towerCell);
                     shotsByCell[key] = (shotsByCell[key] ?? 0) + 1;
                     if (shot.appliedSlow) {
-                        slowApplications += 1;
+                        slowApplications += shot.slowedEnemyIds?.length ?? 1;
                         frostShotsByCell[key] = (frostShotsByCell[key] ?? 0) + 1;
                     }
                 }
@@ -88,6 +89,9 @@ function replayFirstLevel({
             for (const upgrade of upgradesAfterWave.filter(({ wave: afterWave }) => afterWave === wave.wave)) {
                 const result = model.upgrade(upgrade.cell);
                 if (!result.accepted) throw new Error(`升级失败 ${cellKey(upgrade.cell)}：${result.reason}`);
+                if (upgrade.targetLevel && result.level !== upgrade.targetLevel) {
+                    throw new Error(`升级目标不符 ${cellKey(upgrade.cell)}：Lv${result.level}`);
+                }
             }
             while (nextBuild < reinforcements.length) {
                 const candidate = reinforcements[nextBuild];

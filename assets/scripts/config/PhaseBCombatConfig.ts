@@ -14,6 +14,8 @@ export interface SlowEffect {
     readonly kind: 'slow';
     readonly speedMultiplier: number;
     readonly durationSeconds: number;
+    /** 命中点附近的控制半径；伤害仍只结算主目标。 */
+    readonly pulseRadiusCells?: number;
 }
 
 export interface TowerUpgrade {
@@ -63,16 +65,16 @@ export const CLOCKWORK_RUNNER: EnemyArchetype = {
     label: '疾行机',
     maxHealth: 85,
     speedCellsPerSecond: 1.6,
-    killReward: 4,
+    killReward: 2,
 };
 
-/** 慢速厚甲敌人只复用现有流场和减速状态；压力来自长时间占据火力窗口，而非额外 AI 分支。 */
+/** 厚甲血量让冷凝控制与后期升级成为真实选择；高密度波次降低单体赏金，避免金币无上限膨胀。 */
 export const IRON_CANISTER_HAULER: EnemyArchetype = {
     id: 'iron-canister-hauler',
     label: '铁罐搬运者',
-    maxHealth: 230,
+    maxHealth: 320,
     speedCellsPerSecond: 0.62,
-    killReward: 10,
+    killReward: 5,
 };
 
 export const RIVET_GUN: TowerArchetype = {
@@ -94,9 +96,9 @@ export const FROST_COIL: TowerArchetype = {
     damage: 4,
     attackIntervalSeconds: 0.6,
     targetPriority: 'fast-uncontrolled',
-    effect: { kind: 'slow', speedMultiplier: 0.55, durationSeconds: 1.2 },
-    upgrade: { cost: 32, rangeCells: 3.2, damage: 5, attackIntervalSeconds: 0.55, effect: { kind: 'slow', speedMultiplier: 0.5, durationSeconds: 1.5 } },
-    finalUpgrade: { cost: 48, rangeCells: 3.5, damage: 8, attackIntervalSeconds: 0.48, effect: { kind: 'slow', speedMultiplier: 0.35, durationSeconds: 1.8 } },
+    effect: { kind: 'slow', speedMultiplier: 0.25, durationSeconds: 1.2, pulseRadiusCells: 1.5 },
+    upgrade: { cost: 32, rangeCells: 3.2, damage: 5, attackIntervalSeconds: 0.55, effect: { kind: 'slow', speedMultiplier: 0.18, durationSeconds: 1.5, pulseRadiusCells: 1.7 } },
+    finalUpgrade: { cost: 48, rangeCells: 3.5, damage: 8, attackIntervalSeconds: 0.48, effect: { kind: 'slow', speedMultiplier: 0.11, durationSeconds: 1.8, pulseRadiusCells: 1.9 } },
 };
 
 export const PHASE_B_TOWERS: readonly TowerArchetype[] = [RIVET_GUN, FROST_COIL];
@@ -109,11 +111,11 @@ export const PHASE_B_WAVES: readonly WaveDefinition[] = [
     // 第三波仍在步兵之后首次放出 2 只疾行机，形成不依赖空等的速度考核。
     { wave: 3, clearReward: 10, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 11, spawnIntervalSeconds: 0.65 }, { enemy: CLOCKWORK_RUNNER, count: 2, spawnIntervalSeconds: 0.65 }] },
     { wave: 4, clearReward: 20, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 6, spawnIntervalSeconds: 0.54 }, { enemy: CLOCKWORK_RUNNER, count: 4, spawnIntervalSeconds: 0.56 }] },
-    // 第五波先单独教学重装的高血量与低速；后三波再与疾行机混编，避免初见即要求同时解两种威胁。
-    { wave: 5, clearReward: 24, groups: [{ enemy: IRON_CANISTER_HAULER, count: 6, spawnIntervalSeconds: 1.15 }] },
-    { wave: 6, clearReward: 24, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 10, spawnIntervalSeconds: 0.68 }, { enemy: CLOCKWORK_RUNNER, count: 8, spawnIntervalSeconds: 0.62 }, { enemy: IRON_CANISTER_HAULER, count: 4, spawnIntervalSeconds: 1 }] },
-    { wave: 7, clearReward: 28, groups: [{ enemy: CLOCKWORK_RUNNER, count: 16, spawnIntervalSeconds: 0.55 }, { enemy: IRON_CANISTER_HAULER, count: 6, spawnIntervalSeconds: 0.95 }] },
-    { wave: 8, clearReward: 40, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 14, spawnIntervalSeconds: 0.52 }, { enemy: CLOCKWORK_RUNNER, count: 10, spawnIntervalSeconds: 0.5 }, { enemy: IRON_CANISTER_HAULER, count: 8, spawnIntervalSeconds: 0.85 }] },
+    // 第五波先隔离展示重装；后段再加密三类敌人。冷凝脉冲和升级承担后期压力，不靠拉长空刷怪间隔凑局长。
+    { wave: 5, clearReward: 24, groups: [{ enemy: IRON_CANISTER_HAULER, count: 9, spawnIntervalSeconds: 1.15 }] },
+    { wave: 6, clearReward: 24, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 20, spawnIntervalSeconds: 0.68 }, { enemy: CLOCKWORK_RUNNER, count: 16, spawnIntervalSeconds: 0.62 }, { enemy: IRON_CANISTER_HAULER, count: 8, spawnIntervalSeconds: 1 }] },
+    { wave: 7, clearReward: 28, groups: [{ enemy: CLOCKWORK_RUNNER, count: 35, spawnIntervalSeconds: 0.55 }, { enemy: IRON_CANISTER_HAULER, count: 13, spawnIntervalSeconds: 0.95 }] },
+    { wave: 8, clearReward: 40, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 31, spawnIntervalSeconds: 0.52 }, { enemy: CLOCKWORK_RUNNER, count: 22, spawnIntervalSeconds: 0.5 }, { enemy: IRON_CANISTER_HAULER, count: 18, spawnIntervalSeconds: 0.85 }] },
 ];
 
 export const PHASE_B_WAVE_ONE = PHASE_B_WAVES[0];

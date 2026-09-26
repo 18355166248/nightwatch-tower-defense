@@ -1,6 +1,5 @@
 import {
     FIRST_LEVEL_OPENING,
-    FIRST_LEVEL_GUIDED_UPGRADES,
     FIRST_LEVEL_REINFORCEMENTS,
     FIRST_LEVEL_SUGGESTED_PATH_DELTA,
     FIRST_LEVEL_SUGGESTED_TOWER_COUNT,
@@ -10,6 +9,7 @@ import { FROST_COIL, RIVET_GUN } from '../config/PhaseBCombatConfig';
 import type { GridCell } from '../core/GridTypes';
 import { cellKey } from '../core/GridTypes';
 import type { BattlePhase } from '../systems/BattleStateMachine';
+import { nextGuidedUpgrade } from './FirstLevelUpgradeCoach';
 
 export type FirstLevelEntryMode = 'home' | 'guided' | 'free';
 export type FirstLevelCoachStep = 'select' | 'place' | 'shape' | 'route' | 'ready' | 'reinforce' | 'upgrade' | 'combat';
@@ -24,9 +24,8 @@ export interface FirstLevelCoachContext {
     readonly phase: BattlePhase;
     readonly wave: number;
     readonly occupiedCells: ReadonlySet<string>;
+    readonly towerLevelsByCell: ReadonlyMap<string, number>;
     readonly guidedIntermissionHeld: boolean;
-    readonly upgradedTowerCount?: number;
-    readonly firstRivetCell?: GridCell;
 }
 
 export interface FirstLevelExperienceSnapshot {
@@ -70,9 +69,9 @@ export class FirstLevelExperience {
         if (this.mode !== 'guided') return { mode: this.mode, step: null, guidanceText: null };
         if (!context.preparing) {
             if (context.phase === 'countdown' || context.guidedIntermissionHeld) {
-                if (context.guidedIntermissionHeld && context.wave === FIRST_LEVEL_GUIDED_UPGRADES[0].wave && !context.upgradedTowerCount
-                    && context.gold >= (RIVET_GUN.upgrade?.cost ?? Infinity) && context.firstRivetCell) {
-                    return { mode: this.mode, step: 'upgrade', guidanceText: '第 1 波回款 · 点已建机枪，再点「升级」强化火力', suggestedCell: context.firstRivetCell };
+                const upgrade = context.guidedIntermissionHeld ? nextGuidedUpgrade(context) : null;
+                if (upgrade) {
+                    return { mode: this.mode, step: 'upgrade', guidanceText: upgrade.guidanceText, suggestedCell: upgrade.cell };
                 }
                 const next = FIRST_LEVEL_REINFORCEMENTS.find(({ afterWave, cell }) =>
                     afterWave <= context.wave && !context.occupiedCells.has(cellKey(cell)));
@@ -81,7 +80,7 @@ export class FirstLevelExperience {
                     return context.guidedIntermissionHeld
                         ? { mode: this.mode, step: 'ready', guidanceText: hasFuturePlan
                             ? '本轮布防完成 · 点 ▶ 开下一波'
-                            : '推荐完成 · 余钱可升关键塔至 Lv3，或点 ▶' }
+                            : '推荐完成 · 可自由加固，或点 ▶ 开下一波' }
                         : { mode: this.mode, step: 'combat', guidanceText: '下一波即将到来，留意敌人和核心' };
                 }
                 const cost = next.towerId === 'frost-coil' ? FROST_COIL.cost : RIVET_GUN.cost;

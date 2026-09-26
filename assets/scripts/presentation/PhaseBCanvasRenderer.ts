@@ -298,6 +298,13 @@ export class PhaseBCanvasRenderer {
                 : new Color(255, 239, 169, Math.round(230 * life));
             graphics.circle(origin.x, origin.y, cellSize * (0.08 + 0.07 * life));
             graphics.fill();
+            if (tracer.appliedSlow && tracer.slowRadiusCells) {
+                // 冷凝脉冲的可视半径与规则同源，让玩家能看见“群体减速”真正覆盖了哪里。
+                graphics.strokeColor = new Color(115, 232, 245, Math.round(175 * life));
+                graphics.lineWidth = 4;
+                graphics.circle(target.x, target.y, cellSize * tracer.slowRadiusCells * (1 - 0.25 * life));
+                graphics.stroke();
+            }
         }
         for (const impact of state.feedback.impacts) {
             const point = this.center(impact.point, state.grid);

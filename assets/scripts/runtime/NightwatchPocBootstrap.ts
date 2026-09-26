@@ -670,9 +670,8 @@ export class NightwatchPocBootstrap extends Component {
             phase: battle.phase,
             wave: battle.wave,
             occupiedCells: this.model.towers,
+            towerLevelsByCell: new Map(this.model.deployments.map(({ cell, level }) => [cellKey(cell), level ?? 1])),
             guidedIntermissionHeld: this.guidedIntermissionHeld,
-            upgradedTowerCount: this.model.deployments.filter(({ level }) => (level ?? 1) > 1).length,
-            firstRivetCell: this.model.deployments.find(({ towerId }) => towerId === 'rivet-gun')?.cell,
         });
         const activePath = this.preview?.accepted && this.preview.path
             ? this.preview.path
