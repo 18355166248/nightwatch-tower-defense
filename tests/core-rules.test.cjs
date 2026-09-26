@@ -88,7 +88,7 @@ test('首关入场卡独立于战斗，教学随真实布塔状态推进且可�
     assert.equal(flow.snapshot({ ...context, towerCount: 4, pathDelta: 4 }).step, 'ready');
     assert.equal(flow.snapshot({ ...context, towerCount: 3, gold: 10 }).step, 'route');
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'countdown', wave: 1, gold: 54 }).step, 'reinforce');
-    assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 1, gold: 54, guidedIntermissionHeld: true }).guidanceText, /再点 ▶ 继续/);
+    assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 1, gold: 54, guidedIntermissionHeld: true }).guidanceText, /再点 ▶ 开下一波/);
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 1, gold: 24, guidedIntermissionHeld: true }).step, 'ready');
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 4, gold: 44, guidedIntermissionHeld: true, occupiedCells: new Set(FIRST_LEVEL_REINFORCEMENTS.slice(0, 4).map(({ cell }) => cellKey(cell))) }).suggestedTowerId, 'frost-coil');
     assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 4, gold: 38, guidedIntermissionHeld: true, occupiedCells: new Set(FIRST_LEVEL_REINFORCEMENTS.slice(0, 4).map(({ cell }) => cellKey(cell))) }).guidanceText, /暂缺金币/);
@@ -560,6 +560,25 @@ test('倒计时允许提前开下一波且不能在其他阶段误触发', () =>
     assert.equal(battle.startNextWaveEarly(), true);
     assert.deepEqual(battle.snapshot, { phase: 'spawning', wave: 2, coreHealth: 10, countdownSeconds: 0 });
     assert.equal(battle.startNextWaveEarly(), false);
+});
+
+test('教学波间只需一次继续就开下一波，普通暂停仍保留倒计时', () => {
+    const guided = new BattleStateMachine();
+    assert.equal(guided.startNextWaveFromHeldIntermission(), false);
+    guided.startFirstWave(2, 2);
+    guided.markSpawningComplete(0);
+    assert.equal(guided.pause(), true);
+    guided.advance(20);
+    assert.equal(guided.startNextWaveFromHeldIntermission(), true);
+    assert.deepEqual(guided.snapshot, { phase: 'spawning', wave: 2, coreHealth: 10, countdownSeconds: 0 });
+    assert.equal(guided.startNextWaveFromHeldIntermission(), false);
+
+    const ordinaryPause = new BattleStateMachine();
+    ordinaryPause.startFirstWave(2, 2);
+    assert.equal(ordinaryPause.pause(), true);
+    assert.equal(ordinaryPause.startNextWaveFromHeldIntermission(), false);
+    assert.equal(ordinaryPause.resume(), true);
+    assert.equal(ordinaryPause.snapshot.phase, 'spawning');
 });
 
 test('暂停恢复原阶段和剩余倒计时', () => {

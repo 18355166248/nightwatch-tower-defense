@@ -86,17 +86,28 @@ export class BattleStateMachine {
         if (this.currentPhase !== 'countdown') return;
         this.remainingCountdown = Math.max(0, this.remainingCountdown - deltaSeconds);
         if (this.remainingCountdown > 0) return;
-        this.currentWave += 1;
-        this.currentPhase = 'spawning';
+        this.beginNextWave();
     }
 
     public startNextWaveEarly(): boolean {
         if (this.currentPhase !== 'countdown') return false;
         // 提前开波与自然倒计时使用相同的目标状态，调用方只需走统一的波次启动入口。
+        this.beginNextWave();
+        return true;
+    }
+
+    public startNextWaveFromHeldIntermission(): boolean {
+        if (this.currentPhase !== 'paused' || this.resumePhase !== 'countdown') return false;
+        // 教学清场已经无限时等待玩家布防；按继续即开波，不再让玩家等倒计时或二次点击。
+        this.resumePhase = null;
+        this.beginNextWave();
+        return true;
+    }
+
+    private beginNextWave(): void {
         this.remainingCountdown = 0;
         this.currentWave += 1;
         this.currentPhase = 'spawning';
-        return true;
     }
 
     public pause(): boolean {

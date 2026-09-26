@@ -69,15 +69,15 @@ export class FirstLevelExperience {
                 const next = FIRST_LEVEL_REINFORCEMENTS.find(({ cell }) => !context.occupiedCells.has(cellKey(cell)));
                 if (!next) {
                     return context.guidedIntermissionHeld
-                        ? { mode: this.mode, step: 'ready', guidanceText: '推荐完成 · 下排可补机枪，或点 ▶ 继续' }
+                        ? { mode: this.mode, step: 'ready', guidanceText: '推荐完成 · 下排可补机枪，或点 ▶ 开下一波' }
                         : { mode: this.mode, step: 'combat', guidanceText: '下一波即将到来，留意敌人和核心' };
                 }
                 const cost = next.towerId === 'frost-coil' ? 40 : 30;
                 if (context.gold < cost) {
                     return context.guidedIntermissionHeld
                         ? { mode: this.mode, step: 'ready', guidanceText: context.gold >= 30
-                            ? '暂缺金币买推荐塔 · 可自由补塔或点 ▶ 继续'
-                            : '金币不足补塔 · 点 ▶ 继续迎敌' }
+                            ? '暂缺金币买推荐塔 · 可自由补塔或点 ▶ 开下一波'
+                            : '金币不足补塔 · 点 ▶ 开下一波' }
                         : { mode: this.mode, step: 'combat', guidanceText: '下一波即将到来，留意敌人和核心' };
                 }
                 const towerLabel = next.towerId === 'frost-coil' ? '冷凝' : '机枪';
@@ -85,7 +85,7 @@ export class FirstLevelExperience {
                     mode: this.mode,
                     step: 'reinforce',
                     guidanceText: context.guidedIntermissionHeld
-                        ? `第 ${context.wave} 波清场 · 点${towerLabel}补塔，再点 ▶ 继续`
+                        ? `第 ${context.wave} 波清场 · 点${towerLabel}补塔，再点 ▶ 开下一波`
                         : `第 ${context.wave} 波结束 · 用回款补${towerLabel}塔`,
                     suggestedCell: next.cell,
                     suggestedTowerId: next.towerId,

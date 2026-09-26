@@ -197,6 +197,7 @@ export class NightwatchPocBootstrap extends Component {
             if (this.guidedIntermissionHeld) {
                 this.guidedIntermissionHeld = false;
                 this.battle.resume();
+                this.statusText = '已跳过引导，下一波 8 秒后到达';
             }
             this.playSound('ui');
             this.primaryTouchId = null;
@@ -326,6 +327,12 @@ export class NightwatchPocBootstrap extends Component {
         const phase = this.battle.snapshot.phase;
         if (phase === 'paused') {
             this.pausedByLifecycle = false;
+            if (this.guidedIntermissionHeld) {
+                if (!this.battle.startNextWaveFromHeldIntermission()) return;
+                this.guidedIntermissionHeld = false;
+                this.startCurrentWave();
+                return;
+            }
             this.guidedIntermissionHeld = false;
             this.battle.resume();
             this.statusText = `已继续第 ${this.battle.snapshot.wave} 波`;
@@ -602,7 +609,7 @@ export class NightwatchPocBootstrap extends Component {
                 this.guidedIntermissionHeld = true;
             }
             this.statusText = holdForCoach
-                ? `第 ${this.battle.snapshot.wave} 波清场 +${clearReward} 金币 · 可补塔，点 ▶ 继续`
+                ? `第 ${this.battle.snapshot.wave} 波清场 +${clearReward} 金币 · 可补塔，点 ▶ 开下一波`
                 : `第 ${this.battle.snapshot.wave} 波清场 +${clearReward} 金币，下一波 8 秒后到达`;
             this.playSound('wave-clear');
         } else if (phase === 'defeat') {
