@@ -21,6 +21,7 @@ export interface TowerArchetype {
     readonly rangeCells: number;
     readonly damage: number;
     readonly attackIntervalSeconds: number;
+    readonly targetPriority?: 'nearest-exit' | 'fast-uncontrolled';
     readonly effect?: SlowEffect;
 }
 
@@ -68,7 +69,8 @@ export const FROST_COIL: TowerArchetype = {
     cost: 40,
     rangeCells: 3,
     damage: 4,
-    attackIntervalSeconds: 0.65,
+    attackIntervalSeconds: 0.6,
+    targetPriority: 'fast-uncontrolled',
     effect: { kind: 'slow', speedMultiplier: 0.55, durationSeconds: 1.2 },
 };
 

@@ -147,8 +147,8 @@ export class WaveCombatRuntime {
     ): CombatTickResult {
         if (!Number.isFinite(deltaSeconds) || deltaSeconds < 0) throw new RangeError('deltaSeconds 不能为负数');
         const spawningWasComplete = this.spawningCompleted;
-        this.spawn(deltaSeconds, flowField);
-        const leaked = this.moveEnemies(deltaSeconds, flowField);
+        const spawnedTravelSeconds = this.spawn(deltaSeconds, flowField);
+        const leaked = this.moveEnemies(deltaSeconds, flowField, spawnedTravelSeconds);
         const deployments: readonly TowerDeployment[] = Array.isArray(towerSource)
             ? towerSource as readonly TowerDeployment[]
             : Array.from(towerSource as ReadonlySet<string>, (key) => ({
@@ -164,16 +164,20 @@ export class WaveCombatRuntime {
         };
     }
 
-    private spawn(deltaSeconds: number, flowField: FlowField): void {
-        if (!this.wave || this.spawningCompleted) return;
+    private spawn(deltaSeconds: number, flowField: FlowField): ReadonlyMap<string, number> {
+        const spawnedTravelSeconds = new Map<string, number>();
+        if (!this.wave || this.spawningCompleted) return spawnedTravelSeconds;
         const wave = this.wave;
         this.spawnCountdown -= deltaSeconds;
         while (this.spawnCountdown <= 0 && !this.spawningCompleted) {
             const group = wave.groups[this.groupIndex];
             const next = flowField.nextCell(this.grid.entry);
             if (!next) throw new Error('入口无可用路径，无法生成敌人');
+            const id = `enemy-${this.nextEnemyId++}`;
+            // 倒计时的负余量是本帧刷出后真正经过的时间；不能让新敌人白走整帧。
+            spawnedTravelSeconds.set(id, Math.min(deltaSeconds, Math.max(0, -this.spawnCountdown)));
             this.activeEnemies.push({
-                id: `enemy-${this.nextEnemyId++}`,
+                id,
                 archetype: group.enemy,
                 health: group.enemy.maxHealth,
                 fromCell: this.grid.entry,
@@ -197,16 +201,18 @@ export class WaveCombatRuntime {
                 this.spawnCountdown += 1.5;
             }
         }
+        return spawnedTravelSeconds;
     }
 
-    private moveEnemies(deltaSeconds: number, flowField: FlowField): CombatEnemy[] {
+    private moveEnemies(deltaSeconds: number, flowField: FlowField, spawnedTravelSeconds: ReadonlyMap<string, number>): CombatEnemy[] {
         const leaked: CombatEnemy[] = [];
         for (const enemy of this.activeEnemies) {
+            const travelDeltaSeconds = spawnedTravelSeconds.get(enemy.id) ?? deltaSeconds;
             // 状态恰好在长帧中到期时分段积分，避免整帧都按减速或原速计算造成帧率差异。
-            const slowedSeconds = Math.min(deltaSeconds, enemy.slowRemainingSeconds);
-            const normalSeconds = deltaSeconds - slowedSeconds;
+            const slowedSeconds = Math.min(travelDeltaSeconds, enemy.slowRemainingSeconds);
+            const normalSeconds = travelDeltaSeconds - slowedSeconds;
             const travelSeconds = slowedSeconds * enemy.slowMultiplier + normalSeconds;
-            enemy.slowRemainingSeconds = Math.max(0, enemy.slowRemainingSeconds - deltaSeconds);
+            enemy.slowRemainingSeconds = Math.max(0, enemy.slowRemainingSeconds - travelDeltaSeconds);
             if (enemy.slowRemainingSeconds === 0) enemy.slowMultiplier = 1;
             enemy.progress += travelSeconds * enemy.archetype.speedCellsPerSecond;
             while (enemy.progress >= 1) {
@@ -294,6 +300,13 @@ export class WaveCombatRuntime {
             return Math.hypot(x - towerCell.column, y - towerCell.row) <= tower.rangeCells;
         });
         candidates.sort((left, right) => {
+            if (tower.targetPriority === 'fast-uncontrolled') {
+                // 控制塔优先压制疾行威胁；同速目标优先补未减速者，避免反复刷新一只敌人而放走整队。
+                const speedOrder = right.archetype.speedCellsPerSecond - left.archetype.speedCellsPerSecond;
+                if (speedOrder !== 0) return speedOrder;
+                const controlOrder = Number(left.slowRemainingSeconds > 0) - Number(right.slowRemainingSeconds > 0);
+                if (controlOrder !== 0) return controlOrder;
+            }
             // 先攻击沿当前路线最接近出口的敌人；并列时保留进入战场顺序，避免目标抖动。
             const leftDistance = flowField.distanceAt(left.toCell) + 1 - left.progress;
             const rightDistance = flowField.distanceAt(right.toCell) + 1 - right.progress;

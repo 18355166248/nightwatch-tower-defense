@@ -20,13 +20,14 @@ export const FIRST_LEVEL_REINFORCEMENTS: readonly { readonly cell: GridCell; rea
     { cell: { column: 0, row: 2 }, towerId: 'rivet-gun' },
     { cell: { column: 6, row: 2 }, towerId: 'rivet-gun' },
     { cell: { column: 7, row: 2 }, towerId: 'rivet-gun' },
-    { cell: { column: 4, row: 8 }, towerId: 'frost-coil' },
+    // 末段冷凝必须贴近实际绕行路线；旧塔位 (4,8) 在默认路径外，几乎不会开火。
+    { cell: { column: 7, row: 8 }, towerId: 'frost-coil' },
     { cell: { column: 5, row: 8 }, towerId: 'rivet-gun' },
     { cell: { column: 6, row: 8 }, towerId: 'rivet-gun' },
 ];
 
 /** 末段可选加固：多花金币能显著减少最后两波漏怪，但教学不代替玩家做决定。 */
 export const FIRST_LEVEL_OPTIONAL_FORTIFICATIONS: readonly { readonly cell: GridCell; readonly towerId: TowerId }[] = [
-    { cell: { column: 7, row: 8 }, towerId: 'rivet-gun' },
+    { cell: { column: 7, row: 9 }, towerId: 'rivet-gun' },
     { cell: { column: 8, row: 8 }, towerId: 'rivet-gun' },
 ];

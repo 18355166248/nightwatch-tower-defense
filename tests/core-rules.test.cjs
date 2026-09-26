@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { readFileSync } = require('node:fs');
 const { resolve } = require('node:path');
+const { replayFirstLevel } = require('./support/first-level-replay.cjs');
 
 const { PHASE_A_GRIDS, PHASE_A_TOWER_COST } = require('../.test-dist/config/PhaseAGrids.js');
 const { FIRST_LEVEL_OPENING, FIRST_LEVEL_OPTIONAL_FORTIFICATIONS, FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_STARTING_GOLD, FIRST_LEVEL_SUGGESTED_PATH_DELTA } = require('../.test-dist/config/FirstLevelOpening.js');
@@ -735,6 +736,25 @@ test('波次运行时按冻结间隔生成，塔优先攻击接近出口的敌�
     assert.deepEqual(runtime.totals, { spawned: 3, killed: 3, leaked: 0 });
 });
 
+test('长帧内分批刷出的敌人只移动出生后的剩余时间', () => {
+    const grid = { id: 'spawn-remainder', columns: 3, rows: 10,
+        entry: { column: 1, row: 0 }, exit: { column: 1, row: 9 } };
+    const flow = new FlowField(grid, new Set());
+    const runtime = new WaveCombatRuntime(grid, RIVET_GUN);
+    runtime.start({ wave: 1, groups: [
+        { enemy: CLOCKWORK_INFANTRY, count: 1, spawnIntervalSeconds: 0.5 },
+        { enemy: CLOCKWORK_RUNNER, count: 1, spawnIntervalSeconds: 0.5 },
+    ] });
+    runtime.tick(2.25, flow, []);
+    assert.deepEqual(runtime.waveSpawnProgress, { spawned: 2, total: 2 });
+    const [infantry, runner] = runtime.enemies;
+    assert.equal(infantry.fromCell.row, 2);
+    assert.ok(Math.abs(infantry.progress - 0.25) < 1e-9);
+    // 第二组要等首组间隔和 1.5 秒组间停顿，2 秒时才出生；此帧只应行进 0.25 秒。
+    assert.equal(runner.fromCell.row, 0);
+    assert.ok(Math.abs(runner.progress - 0.4) < 1e-9);
+});
+
 test('敌人到达出口只上报漏怪，不在运行时内直接修改核心生命', () => {
     const grid = {
         id: 'grid-9x13', columns: 3, rows: 2,
@@ -750,6 +770,28 @@ test('敌人到达出口只上报漏怪，不在运行时内直接修改核心�
     assert.equal(result.leaked.length, 1);
     assert.equal(runtime.enemies.length, 0);
     assert.deepEqual(runtime.totals, { spawned: 1, killed: 0, leaked: 1 });
+});
+
+test('冷凝优先压制后到的疾行机，机枪仍优先攻击更接近出口的步兵', () => {
+    const grid = { id: 'target-priority', columns: 3, rows: 5,
+        entry: { column: 1, row: 0 }, exit: { column: 1, row: 4 } };
+    const flow = new FlowField(grid, new Set());
+    const wave = { wave: 1, groups: [
+        { enemy: CLOCKWORK_INFANTRY, count: 1, spawnIntervalSeconds: 0.2 },
+        { enemy: CLOCKWORK_RUNNER, count: 1, spawnIntervalSeconds: 0.2 },
+    ] };
+    const cell = { column: 0, row: 1 };
+    const targetOf = (tower) => {
+        const runtime = new WaveCombatRuntime(grid, [tower]);
+        runtime.start(wave);
+        // 分帧经过分组间隙，让前排步兵走近出口，再放出后到的疾行机。
+        runtime.tick(0, flow, []);
+        for (let frame = 0; frame < 18; frame += 1) runtime.tick(0.1, flow, []);
+        assert.equal(runtime.enemies.length, 2);
+        return runtime.tick(0, flow, [{ cell, towerId: tower.id }]).shots[0].targetId;
+    };
+    assert.equal(targetOf(FROST_COIL), 'enemy-2');
+    assert.equal(targetOf(RIVET_GUN), 'enemy-1');
 });
 
 test('冷凝塔命中后按持续时间减速，重复命中刷新而不叠乘', () => {
@@ -838,62 +880,8 @@ test('冷凝前置混合塔组在 20/30/60 FPS 下守住教学波并出现减速
     }
 });
 
-function replayFirstLevel(buildPlan, frameDeltaSeconds = 1 / 30, speedScale = 1) {
-    const grid = PHASE_A_GRIDS['grid-9x13'];
-    const shortCells = toCells(fixtures.fixtures.find((item) => item.gridId === 'grid-9x13').shortFold.towerCells);
-    const economy = new EconomyLedger(FIRST_LEVEL_STARTING_GOLD);
-    const model = new PlacementModel(grid, economy, PHASE_B_TOWERS);
-    const combat = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
-    const clock = new SimulationClock();
-    if (speedScale === 2) clock.cycleScale();
-    const rewards = new WaveRewardRuntime();
-    shortCells.forEach((cell) => {
-        const towerId = FIRST_LEVEL_OPENING.find((item) => cellKey(item.cell) === cellKey(cell)).towerId;
-        assert.equal(model.commit(model.preview(cell, [], towerId), []).accepted, true);
-    });
-
-    let coreHealth = 10;
-    let nextBuild = 0;
-    const waveResults = [];
-    const spawnSecondsByWave = [];
-    const combatSecondsByWave = [];
-    for (const wave of PHASE_B_WAVES) {
-        combat.start(wave);
-        let killed = 0;
-        let leaked = 0;
-        let spawnSeconds = 0;
-        let combatSeconds = 0;
-        for (let elapsed = 0; elapsed < 120 && (!combat.isSpawningComplete || combat.enemies.length > 0); elapsed += frameDeltaSeconds) {
-            clock.advance(frameDeltaSeconds, (deltaSeconds) => {
-                if (combat.isSpawningComplete && combat.enemies.length === 0) return;
-                combatSeconds += deltaSeconds;
-                if (!combat.isSpawningComplete) spawnSeconds += deltaSeconds;
-                const result = combat.tick(deltaSeconds, model.flowField, model.deployments);
-                killed += result.killed.length;
-                leaked += result.leaked.length;
-                result.killed.forEach((enemy) => economy.credit(enemy.archetype.killReward));
-            });
-        }
-        spawnSecondsByWave.push(spawnSeconds);
-        combatSecondsByWave.push(combatSeconds);
-        combat.completeWave();
-        coreHealth -= leaked;
-        rewards.settle(wave, economy);
-        while (nextBuild < buildPlan.length) {
-            const candidate = buildPlan[nextBuild];
-            const preview = model.preview(candidate.cell, [], candidate.towerId);
-            if (!preview.accepted && preview.reason === 'insufficient-gold') break;
-            assert.equal(model.commit(preview, []).accepted, true);
-            nextBuild += 1;
-        }
-        waveResults.push({ wave: wave.wave, killed, leaked, coreHealth, towers: model.towers.size });
-    }
-
-    return { waveResults, spawnSecondsByWave, combatSecondsByWave, coreHealth, towers: model.towers.size, totals: combat.totals };
-}
-
 test('首关推荐构筑教学波零漏，后期自由加固有明确收益', () => {
-    const guided = replayFirstLevel(FIRST_LEVEL_REINFORCEMENTS);
+    const guided = replayFirstLevel({ reinforcements: FIRST_LEVEL_REINFORCEMENTS });
     assert.equal(guided.combatSecondsByWave.length, PHASE_B_WAVES.length);
     guided.spawnSecondsByWave.forEach((seconds, index) => {
         assert.ok(seconds > 0 && seconds <= guided.combatSecondsByWave[index]);
@@ -908,23 +896,25 @@ test('首关推荐构筑教学波零漏，后期自由加固有明确收益', ()
     assert.deepEqual(guided.waveResults.slice(0, 3), [
         { wave: 1, killed: 6, leaked: 0, coreHealth: 10, towers: 5 },
         { wave: 2, killed: 6, leaked: 0, coreHealth: 10, towers: 7 },
-        { wave: 3, killed: 9, leaked: 1, coreHealth: 9, towers: 8 },
+        { wave: 3, killed: 10, leaked: 0, coreHealth: 10, towers: 8 },
     ]);
-    assert.equal(guided.coreHealth, 4);
+    assert.equal(guided.coreHealth, 8);
     assert.equal(guided.towers, 11);
-    assert.deepEqual(guided.totals, { spawned: 86, killed: 80, leaked: 6 });
+    assert.deepEqual(guided.totals, { spawned: 86, killed: 84, leaked: 2 });
+    assert.ok(guided.telemetry.slice(4).reduce((sum, wave) => sum + (wave.frostShotsByCell['7,8'] ?? 0), 0) >= 10,
+        '末段冷凝塔应实际参与战斗，不能再次放到射程外');
 
-    const fortified = replayFirstLevel([...FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_OPTIONAL_FORTIFICATIONS[0]]);
-    assert.equal(fortified.coreHealth, 8);
+    const fortified = replayFirstLevel({ reinforcements: [...FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_OPTIONAL_FORTIFICATIONS[0]] });
+    assert.equal(fortified.coreHealth, 10);
     assert.equal(fortified.towers, 12);
-    assert.deepEqual(fortified.totals, { spawned: 86, killed: 84, leaked: 2 });
+    assert.deepEqual(fortified.totals, { spawned: 86, killed: 86, leaked: 0 });
 });
 
 test('推荐构筑在常见帧步长下保持相同的逐波结果', () => {
-    const reference = replayFirstLevel(FIRST_LEVEL_REINFORCEMENTS);
+    const reference = replayFirstLevel({ reinforcements: FIRST_LEVEL_REINFORCEMENTS });
     for (const deltaSeconds of [1 / 60, 1 / 20]) {
-        const replay = replayFirstLevel(FIRST_LEVEL_REINFORCEMENTS, deltaSeconds);
+        const replay = replayFirstLevel({ reinforcements: FIRST_LEVEL_REINFORCEMENTS, frameDeltaSeconds: deltaSeconds });
         assert.deepEqual(replay.waveResults, reference.waveResults, `${deltaSeconds} 秒帧步长逐波结果不同`);
     }
-    assert.deepEqual(replayFirstLevel(FIRST_LEVEL_REINFORCEMENTS, 1 / 60, 2).waveResults, reference.waveResults);
+    assert.deepEqual(replayFirstLevel({ reinforcements: FIRST_LEVEL_REINFORCEMENTS, frameDeltaSeconds: 1 / 60, speedScale: 2 }).waveResults, reference.waveResults);
 });
