@@ -10,7 +10,7 @@ const { CLOCKWORK_INFANTRY, CLOCKWORK_RUNNER, FROST_COIL, IRON_CANISTER_HAULER, 
 const { cellKey } = require('../.test-dist/core/GridTypes.js');
 const { FlowField } = require('../.test-dist/systems/FlowField.js');
 const { PlacementModel } = require('../.test-dist/systems/PlacementModel.js');
-const { nextUpgradeCost, towerAtLevel } = require('../.test-dist/systems/TowerLevelRules.js');
+const { nextUpgradeCost, towerAtLevel, towerInvestment } = require('../.test-dist/systems/TowerLevelRules.js');
 const { simulateNoDamageRoute } = require('../.test-dist/systems/RouteSimulation.js');
 const { BattleStateMachine } = require('../.test-dist/systems/BattleStateMachine.js');
 const { EconomyLedger } = require('../.test-dist/systems/EconomyLedger.js');
@@ -51,7 +51,9 @@ test('首关 HUD 将重复金币移到独立数值卡，保留建塔与波次事
     assert.equal(waveClearIncomeText(8, 56, 40), '第 8 波守住 · 本波 +96（清场 +40）');
     assert.equal(towerInspectionSummary(RIVET_GUN, 1), '机枪塔 Lv1 · 2.6格 · 伤害7');
     assert.equal(towerInspectionSummary(RIVET_GUN, 2), '机枪塔 Lv2 · 2.8格 · 伤害11');
+    assert.equal(towerInspectionSummary(RIVET_GUN, 3), '机枪塔 Lv3 · 3.2格 · 伤害18');
     assert.equal(towerInspectionSummary(FROST_COIL, 1), '冷凝塔 Lv1 · 3格 · 减速45%');
+    assert.equal(towerInspectionSummary(FROST_COIL, 3), '冷凝塔 Lv3 · 3.5格 · 减速65%');
 });
 
 test('波内生成进度区分短暂清屏、真正清场和下一波待命', () => {
@@ -130,7 +132,7 @@ test('首关入场卡独立于战斗，教学随真实布塔状态推进且可�
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 1, gold: 24, guidedIntermissionHeld: true }).step, 'ready');
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 4, gold: 44, guidedIntermissionHeld: true, occupiedCells: new Set(FIRST_LEVEL_REINFORCEMENTS.slice(0, 3).map(({ cell }) => cellKey(cell))) }).suggestedTowerId, 'frost-coil');
     assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 4, gold: 38, guidedIntermissionHeld: true, occupiedCells: new Set(FIRST_LEVEL_REINFORCEMENTS.slice(0, 3).map(({ cell }) => cellKey(cell))) }).guidanceText, /暂缺金币/);
-    assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 6, gold: 82, guidedIntermissionHeld: true, occupiedCells: new Set(FIRST_LEVEL_REINFORCEMENTS.map(({ cell }) => cellKey(cell))) }).guidanceText, /可自由加固/);
+    assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 6, gold: 82, guidedIntermissionHeld: true, occupiedCells: new Set(FIRST_LEVEL_REINFORCEMENTS.map(({ cell }) => cellKey(cell))) }).guidanceText, /升关键塔至 Lv3/);
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 1, gold: 54 }).step, 'combat');
     assert.equal(flow.snapshot({ ...context, preparing: false }).step, 'combat');
     flow.skip();
@@ -724,14 +726,47 @@ test('升级扣费原子化，满级与金币不足不改变等级，准备态�
     assert.equal(funded.commit(funded.preview(cell, [], 'rivet-gun'), []).accepted, true);
     assert.deepEqual(funded.upgrade(cell), { accepted: true, level: 2, gold: 6 });
     assert.equal(funded.mapVersion, version);
-    assert.equal(funded.upgrade(cell).reason, 'max-level');
+    assert.equal(funded.upgrade(cell).reason, 'insufficient-gold');
     assert.equal(funded.sell(cell, false), false);
     assert.equal(funded.sell(cell, true), true);
     assert.equal(funded.gold, 60);
-    assert.equal(nextUpgradeCost(RIVET_GUN, 2), null);
+    assert.equal(nextUpgradeCost(RIVET_GUN, 2), 42);
+    assert.equal(nextUpgradeCost(RIVET_GUN, 3), null);
     assert.equal(towerAtLevel(RIVET_GUN, 2).damage, 11);
+    assert.equal(towerAtLevel(RIVET_GUN, 3).damage, 18);
+    assert.equal(towerInvestment(RIVET_GUN, 3), 96);
     assert.equal(nextUpgradeCost(FROST_COIL, 1), 32);
     assert.equal(towerAtLevel(FROST_COIL, 2).effect.speedMultiplier, 0.5);
+    assert.equal(towerInvestment(FROST_COIL, 3), 120);
+});
+
+test('三级塔升级、满级与检查点恢复使用同一累计投入', () => {
+    const cell = { column: 2, row: 2 };
+    for (const tower of [RIVET_GUN, FROST_COIL]) {
+        const model = new PlacementModel(PHASE_A_GRIDS['grid-9x13'], towerInvestment(tower, 3) + 7, PHASE_B_TOWERS);
+        assert.equal(model.commit(model.preview(cell, [], tower.id), []).accepted, true);
+        assert.equal(model.upgrade(cell).level, 2);
+        assert.equal(model.upgrade(cell).level, 3);
+        assert.equal(model.upgrade(cell).reason, 'max-level');
+        assert.equal(model.gold, 7);
+        const restored = BattleRunCheckpoint.capture(model).restore().model;
+        assert.deepEqual(restored.deployments, model.deployments);
+        assert.equal(restored.gold, 7);
+        assert.equal(restored.sell(cell, true), true);
+        assert.equal(restored.gold, towerInvestment(tower, 3) + 7);
+    }
+});
+
+test('三级塔的最终伤害与减速进入真实战斗结算', () => {
+    const grid = PHASE_A_GRIDS['grid-9x13'];
+    const flow = new FlowField(grid, new Set());
+    for (const tower of [RIVET_GUN, FROST_COIL]) {
+        const combat = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
+        combat.start({ wave: 1, clearReward: 0, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 1, spawnIntervalSeconds: 1 }] });
+        const shot = combat.tick(0, flow, [{ cell: grid.entry, towerId: tower.id, level: 3 }]).shots[0];
+        assert.equal(shot.damage, tower.finalUpgrade.damage);
+        assert.equal(shot.appliedSlow, tower.id === 'frost-coil');
+    }
 });
 
 test('检查点保留升级等级与剩余金币，升级后的伤害进入战斗结算', () => {

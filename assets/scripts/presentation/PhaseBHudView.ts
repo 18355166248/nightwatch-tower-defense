@@ -146,8 +146,8 @@ export class PhaseBHudView {
             this.rivetLabel.color = new Color(state.selectedTowerId === 'rivet-gun' ? '#101827' : '#F2E4BF');
             this.frostLabel.color = new Color(state.selectedTowerId === 'frost-coil' ? '#101827' : '#DDFBFF');
             this.upgradeLabel.string = state.inspectedUpgrade?.cost === null
-                ? '已满级 · 当前 Lv2'
-                : `升级至 Lv2 · ${state.inspectedUpgrade?.cost} 金币`;
+                ? `已满级 · 当前 Lv${state.inspectedUpgrade?.level}`
+                : `升级至 Lv${(state.inspectedUpgrade?.level ?? 1) + 1} · ${state.inspectedUpgrade?.cost} 金币`;
             this.upgradeLabel.color = new Color(state.inspectedUpgrade?.cost !== null && state.gold >= (state.inspectedUpgrade?.cost ?? Infinity) ? '#18283A' : '#D9E3E9');
             this.helpLabel.string = state.qaMode
                 ? '先建 2 塔且路径 +2｜Q/W选塔 J混合样例｜X切速 N提前开波｜F/G/H样例 R重置'

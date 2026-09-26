@@ -107,7 +107,7 @@ export class PhaseBCanvasRenderer {
                 this.drawTower(center, metrics.cellSize, state.towerIdsByCell.get(key) === 'frost-coil');
             }
         }
-        // 升级环位于贴图层下方，贴图就绪与灰盒兜底都能读出 Lv2，且不依赖第二套切图。
+        // 升级环位于贴图层下方；Lv3 再加内环，不依赖额外切图也能辨认满级塔。
         for (const [key, level] of Array.from(state.towerLevelsByCell.entries())) {
             if (level < 2) continue;
             const [column, row] = key.split(',').map(Number);
@@ -116,6 +116,12 @@ export class PhaseBCanvasRenderer {
             graphics.lineWidth = 5;
             graphics.circle(center.x, center.y, metrics.cellSize * 0.42);
             graphics.stroke();
+            if (level >= 3) {
+                graphics.strokeColor = new Color('#7DE8EF');
+                graphics.lineWidth = 4;
+                graphics.circle(center.x, center.y, metrics.cellSize * 0.34);
+                graphics.stroke();
+            }
         }
 
         this.drawRouteChange(state, metrics.cellSize);

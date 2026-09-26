@@ -1,7 +1,7 @@
 import type { GridDefinition } from '../core/GridTypes';
 import { EconomyLedger } from './EconomyLedger';
 import { PlacementModel, type TowerDeployment } from './PlacementModel';
-import { nextUpgradeCost, type UpgradeTower } from './TowerLevelRules';
+import { towerInvestment, type UpgradeTower } from './TowerLevelRules';
 
 export interface RestoredPlacement {
     readonly economy: EconomyLedger;
@@ -25,15 +25,17 @@ export class BattleRunCheckpoint {
         const investedGold = this.deployments.reduce((sum, deployment) => {
             const tower = this.towers.find(({ id }) => id === deployment.towerId);
             if (!tower) throw new Error(`检查点缺少塔种配置：${deployment.towerId}`);
-            return sum + tower.cost + (deployment.level && deployment.level > 1 ? nextUpgradeCost(tower, 1) ?? 0 : 0);
+            return sum + towerInvestment(tower, deployment.level ?? 1);
         }, 0);
         const economy = new EconomyLedger(this.remainingGold + investedGold);
         const model = new PlacementModel(this.grid, economy, this.towers);
         for (const deployment of this.deployments) {
             const result = model.commit(model.preview(deployment.cell, [], deployment.towerId), []);
             if (!result.accepted) throw new Error(`无法恢复塔坐标 (${deployment.cell.column},${deployment.cell.row})：${result.reason}`);
-            if (deployment.level && deployment.level > 1 && !model.upgrade(deployment.cell).accepted) {
-                throw new Error(`无法恢复塔等级 (${deployment.cell.column},${deployment.cell.row})`);
+            for (let level = 1; level < (deployment.level ?? 1); level += 1) {
+                if (!model.upgrade(deployment.cell).accepted) {
+                    throw new Error(`无法恢复塔等级 (${deployment.cell.column},${deployment.cell.row})`);
+                }
             }
         }
         return { economy, model };

@@ -10,7 +10,7 @@ const { PlacementModel } = require('../../.test-dist/systems/PlacementModel.js')
 const { SimulationClock } = require('../../.test-dist/systems/SimulationClock.js');
 const { WaveCombatRuntime } = require('../../.test-dist/systems/WaveCombatRuntime.js');
 const { WaveRewardRuntime } = require('../../.test-dist/systems/WaveRewardRuntime.js');
-const { nextUpgradeCost } = require('../../.test-dist/systems/TowerLevelRules.js');
+const { towerInvestment } = require('../../.test-dist/systems/TowerLevelRules.js');
 
 const fixtures = JSON.parse(readFileSync(resolve(__dirname, '../../docs/poc/phase-a-fixtures.json'), 'utf8'));
 
@@ -103,7 +103,7 @@ function replayFirstLevel({
             pathLength: model.flowField.distanceAt(grid.entry), pathCells: model.flowField.pathFrom(grid.entry).map(cellKey),
             towerInvestment: model.deployments.reduce((sum, deployment) => {
                 const tower = towers.find((candidate) => candidate.id === deployment.towerId);
-                return sum + tower.cost + ((deployment.level ?? 1) > 1 ? nextUpgradeCost(tower, 1) ?? 0 : 0);
+                return sum + towerInvestment(tower, deployment.level ?? 1);
             }, 0) });
         if (coreHealth === 0) break;
     }

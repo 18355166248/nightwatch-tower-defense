@@ -10,7 +10,7 @@ import {
 import { FlowField } from './FlowField';
 import { EconomyLedger } from './EconomyLedger';
 import type { TowerId } from '../config/PhaseBCombatConfig';
-import { nextUpgradeCost, type UpgradeTower } from './TowerLevelRules';
+import { nextUpgradeCost, towerInvestment, type UpgradeTower } from './TowerLevelRules';
 
 export interface TowerDeployment {
     readonly cell: GridCell;
@@ -164,7 +164,7 @@ export class PlacementModel {
         const tower = this.requireTower(towerId);
         const level = this.towerLevelsByCell.get(key) ?? 1;
         this.towerLevelsByCell.delete(key);
-        this.economy.credit(tower.cost + (level > 1 ? nextUpgradeCost(tower, 1) ?? 0 : 0));
+        this.economy.credit(towerInvestment(tower, level));
         this.currentMapVersion += 1;
         this.currentFlowField = new FlowField(this.grid, this.towerCells);
         return true;

@@ -16,6 +16,14 @@ export interface SlowEffect {
     readonly durationSeconds: number;
 }
 
+export interface TowerUpgrade {
+    readonly cost: number;
+    readonly rangeCells: number;
+    readonly damage: number;
+    readonly attackIntervalSeconds: number;
+    readonly effect?: SlowEffect;
+}
+
 export interface TowerArchetype {
     readonly id: TowerId;
     readonly label: string;
@@ -25,13 +33,8 @@ export interface TowerArchetype {
     readonly attackIntervalSeconds: number;
     readonly targetPriority?: 'nearest-exit' | 'fast-uncontrolled';
     readonly effect?: SlowEffect;
-    readonly upgrade?: {
-        readonly cost: number;
-        readonly rangeCells: number;
-        readonly damage: number;
-        readonly attackIntervalSeconds: number;
-        readonly effect?: SlowEffect;
-    };
+    readonly upgrade?: TowerUpgrade;
+    readonly finalUpgrade?: TowerUpgrade;
 }
 
 export interface WaveGroup {
@@ -80,6 +83,7 @@ export const RIVET_GUN: TowerArchetype = {
     damage: 7,
     attackIntervalSeconds: 0.35,
     upgrade: { cost: 24, rangeCells: 2.8, damage: 11, attackIntervalSeconds: 0.31 },
+    finalUpgrade: { cost: 42, rangeCells: 3.2, damage: 18, attackIntervalSeconds: 0.27 },
 };
 
 export const FROST_COIL: TowerArchetype = {
@@ -92,6 +96,7 @@ export const FROST_COIL: TowerArchetype = {
     targetPriority: 'fast-uncontrolled',
     effect: { kind: 'slow', speedMultiplier: 0.55, durationSeconds: 1.2 },
     upgrade: { cost: 32, rangeCells: 3.2, damage: 5, attackIntervalSeconds: 0.55, effect: { kind: 'slow', speedMultiplier: 0.5, durationSeconds: 1.5 } },
+    finalUpgrade: { cost: 48, rangeCells: 3.5, damage: 8, attackIntervalSeconds: 0.48, effect: { kind: 'slow', speedMultiplier: 0.35, durationSeconds: 1.8 } },
 };
 
 export const PHASE_B_TOWERS: readonly TowerArchetype[] = [RIVET_GUN, FROST_COIL];

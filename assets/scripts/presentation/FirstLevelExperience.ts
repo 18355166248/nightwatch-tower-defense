@@ -81,7 +81,7 @@ export class FirstLevelExperience {
                     return context.guidedIntermissionHeld
                         ? { mode: this.mode, step: 'ready', guidanceText: hasFuturePlan
                             ? '本轮布防完成 · 点 ▶ 开下一波'
-                            : '推荐完成 · 可自由加固，或点 ▶ 开下一波' }
+                            : '推荐完成 · 余钱可升关键塔至 Lv3，或点 ▶' }
                         : { mode: this.mode, step: 'combat', guidanceText: '下一波即将到来，留意敌人和核心' };
                 }
                 const cost = next.towerId === 'frost-coil' ? FROST_COIL.cost : RIVET_GUN.cost;
