@@ -1,4 +1,4 @@
-import type { TowerId } from '../config/PhaseBCombatConfig';
+import type { EnemyId, TowerId } from '../config/PhaseBCombatConfig';
 import type { GridCell, GridDefinition, GridId } from '../core/GridTypes';
 import type { BattleResultViewModel } from './BattleResultViewModel';
 import type { CombatFeedbackSnapshot } from './CombatFeedbackRuntime';
@@ -20,7 +20,7 @@ export interface PhaseBSceneState {
         readonly id: string;
         readonly spawnOrder: number;
         readonly health: number;
-        readonly archetype: { readonly id: 'clockwork-infantry' | 'clockwork-runner'; readonly maxHealth: number };
+        readonly archetype: { readonly id: EnemyId; readonly maxHealth: number };
         readonly fromCell: GridCell;
         readonly toCell: GridCell;
         readonly progress: number;

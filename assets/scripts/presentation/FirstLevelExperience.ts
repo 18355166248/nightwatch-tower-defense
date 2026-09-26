@@ -1,10 +1,12 @@
 import {
     FIRST_LEVEL_OPENING,
+    FIRST_LEVEL_GUIDED_UPGRADES,
     FIRST_LEVEL_REINFORCEMENTS,
     FIRST_LEVEL_SUGGESTED_PATH_DELTA,
     FIRST_LEVEL_SUGGESTED_TOWER_COUNT,
 } from '../config/FirstLevelOpening';
 import type { TowerId } from '../config/PhaseBCombatConfig';
+import { RIVET_GUN } from '../config/PhaseBCombatConfig';
 import type { GridCell } from '../core/GridTypes';
 import { cellKey } from '../core/GridTypes';
 import type { BattlePhase } from '../systems/BattleStateMachine';
@@ -68,8 +70,8 @@ export class FirstLevelExperience {
         if (this.mode !== 'guided') return { mode: this.mode, step: null, guidanceText: null };
         if (!context.preparing) {
             if (context.phase === 'countdown' || context.guidedIntermissionHeld) {
-                if (context.guidedIntermissionHeld && context.wave === 1 && !context.upgradedTowerCount
-                    && context.gold >= 24 && context.firstRivetCell) {
+                if (context.guidedIntermissionHeld && context.wave === FIRST_LEVEL_GUIDED_UPGRADES[0].wave && !context.upgradedTowerCount
+                    && context.gold >= (RIVET_GUN.upgrade?.cost ?? Infinity) && context.firstRivetCell) {
                     return { mode: this.mode, step: 'upgrade', guidanceText: '第 1 波回款 · 点已建机枪，再点「升级」强化火力', suggestedCell: context.firstRivetCell };
                 }
                 const next = FIRST_LEVEL_REINFORCEMENTS.find(({ cell }) => !context.occupiedCells.has(cellKey(cell)));

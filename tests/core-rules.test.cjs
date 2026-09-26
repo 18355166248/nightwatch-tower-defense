@@ -5,8 +5,8 @@ const { resolve } = require('node:path');
 const { replayFirstLevel } = require('./support/first-level-replay.cjs');
 
 const { PHASE_A_GRIDS, PHASE_A_TOWER_COST } = require('../.test-dist/config/PhaseAGrids.js');
-const { FIRST_LEVEL_OPENING, FIRST_LEVEL_OPTIONAL_FORTIFICATIONS, FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_STARTING_GOLD, FIRST_LEVEL_SUGGESTED_PATH_DELTA } = require('../.test-dist/config/FirstLevelOpening.js');
-const { CLOCKWORK_INFANTRY, CLOCKWORK_RUNNER, FROST_COIL, PHASE_B_TOWERS, PHASE_B_WAVES, PHASE_B_WAVE_ONE, RIVET_GUN } = require('../.test-dist/config/PhaseBCombatConfig.js');
+const { FIRST_LEVEL_GUIDED_UPGRADES, FIRST_LEVEL_OPENING, FIRST_LEVEL_OPTIONAL_FORTIFICATIONS, FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_STARTING_GOLD, FIRST_LEVEL_SUGGESTED_PATH_DELTA } = require('../.test-dist/config/FirstLevelOpening.js');
+const { CLOCKWORK_INFANTRY, CLOCKWORK_RUNNER, FROST_COIL, IRON_CANISTER_HAULER, PHASE_B_TOWERS, PHASE_B_WAVES, PHASE_B_WAVE_ONE, RIVET_GUN } = require('../.test-dist/config/PhaseBCombatConfig.js');
 const { cellKey } = require('../.test-dist/core/GridTypes.js');
 const { FlowField } = require('../.test-dist/systems/FlowField.js');
 const { PlacementModel } = require('../.test-dist/systems/PlacementModel.js');
@@ -30,7 +30,7 @@ const { firstLevelWaveBanner } = require('../.test-dist/presentation/FirstLevelW
 const { hudEventText, waveClearIncomeText } = require('../.test-dist/presentation/PhaseBHudText.js');
 const { enemyGaitFrame, enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
 const { RouteChangeFeedback, routeChangeText, routeLengthDelta } = require('../.test-dist/presentation/RouteChangeFeedback.js');
-const { waveLineup, waveThreatHint } = require('../.test-dist/presentation/WaveBriefing.js');
+const { waveLineup, waveStartStatus, waveThreatHint } = require('../.test-dist/presentation/WaveBriefing.js');
 const {
     PHASE_B_EARLY_WAVE_BUTTON,
     PHASE_B_SPEED_BUTTON,
@@ -335,20 +335,34 @@ test('疾行机由第三波少量出现，波前预告和总敌数都跟随配�
     assert.deepEqual(PHASE_B_WAVES[2].groups.map(({ enemy, count }) => [enemy.id, count]), [
         ['clockwork-infantry', 11], ['clockwork-runner', 2],
     ]);
-    assert.equal(PHASE_B_WAVES.flatMap(({ groups }) => groups).reduce((total, group) => total + group.count, 0), 95);
+    assert.equal(PHASE_B_WAVES.flatMap(({ groups }) => groups).reduce((total, group) => total + group.count, 0), 123);
     assert.equal(waveLineup(PHASE_B_WAVES[2]), '发条步兵×11 · 疾行机×2');
+    assert.equal(waveStartStatus(PHASE_B_WAVES[4]), '第 5 波 · 铁罐搬运者×6进场');
+    assert.equal(waveStartStatus(PHASE_B_WAVES[7]), '第 8 波 · 发条步兵先行，后续混编来袭');
     assert.equal(waveThreatHint(PHASE_B_WAVES[1]), null);
     assert.match(waveThreatHint(PHASE_B_WAVES[2]), /疾行机×2.*冷凝塔/);
+    assert.equal(PHASE_B_WAVES.slice(0, 4).every(({ groups }) => groups.every(({ enemy }) => enemy.id !== IRON_CANISTER_HAULER.id)), true);
+    assert.deepEqual(PHASE_B_WAVES[4].groups.map(({ enemy, count }) => [enemy.id, count]), [['iron-canister-hauler', 6]]);
+    assert.match(waveThreatHint(PHASE_B_WAVES[4]), /铁罐×6.*集火/);
+    assert.match(waveThreatHint(PHASE_B_WAVES[6]), /疾行.*铁罐.*控快/);
 });
 
-test('四张单位图均导入为 SpriteFrame，避免新增纹理让整层切图降级', () => {
-    for (const id of ['rivet-gun', 'frost-coil', 'clockwork-infantry', 'clockwork-runner']) {
+test('五张单位图均导入为 SpriteFrame，避免新增纹理让整层切图降级', () => {
+    for (const id of ['rivet-gun', 'frost-coil', 'clockwork-infantry', 'clockwork-runner', 'iron-canister-hauler']) {
         const asset = resolve(__dirname, `../assets/resources/level-one/units/${id}.png`);
         const meta = JSON.parse(readFileSync(`${asset}.meta`, 'utf8'));
         assert.equal(meta.userData.type, 'sprite-frame', id);
         assert.equal(meta.subMetas.f9941.importer, 'sprite-frame', id);
         assert.ok(readFileSync(asset).length < 32 * 1024, `${id} 的运行时图片超过 32 KiB`);
     }
+});
+
+test('重装敌人切图保持 128 方形透明画布与低体积', () => {
+    const png = readFileSync(resolve(__dirname, '../assets/resources/level-one/units/iron-canister-hauler.png'));
+    assert.equal(png.readUInt32BE(16), 128);
+    assert.equal(png.readUInt32BE(20), 128);
+    assert.equal(png[25], 6, '重装敌人必须是 RGBA PNG');
+    assert.ok(png.length < 32 * 1024);
 });
 
 test('机枪塔两张分层切图以 SpriteFrame 导入且保留 128 方形透明画布', () => {
@@ -408,6 +422,20 @@ test('疾行机移动更快但接受冷凝减速，移动与外观提示不依�
     const firstTick = slowedRuntime.tick(1 / 30, slowedFlow, [{ cell: frostCell, towerId: 'frost-coil' }]);
     assert.equal(firstTick.shots[0].appliedSlow, true);
     assert.equal(slowedRuntime.enemies[0].slowMultiplier, FROST_COIL.effect.speedMultiplier);
+});
+
+test('铁罐搬运者复用流场与减速规则，保持高生命低速度', () => {
+    assert.equal(IRON_CANISTER_HAULER.maxHealth, 230);
+    assert.equal(IRON_CANISTER_HAULER.speedCellsPerSecond, 0.62);
+    const grid = PHASE_A_GRIDS['grid-9x13'];
+    const runtime = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
+    runtime.start({ wave: 5, clearReward: 0, groups: [{ enemy: IRON_CANISTER_HAULER, count: 1, spawnIntervalSeconds: 1 }] });
+    const result = runtime.tick(0, new FlowField(grid, new Set()), [{ cell: grid.entry, towerId: 'frost-coil' }]);
+    assert.equal(result.shots[0].appliedSlow, true);
+    assert.equal(runtime.enemies[0].health, 226);
+    assert.equal(runtime.enemies[0].slowMultiplier, 0.55);
+    assert.ok(runtime.enemies[0].slowRemainingSeconds > 0);
+    assert.equal(runtime.enemies[0].archetype.killReward, 10);
 });
 
 test('模拟时钟统一限制长帧并在 1x 与 2x 间循环', () => {
@@ -945,7 +973,8 @@ test('首关推荐构筑教学波零漏，后期自由加固有明确收益', ()
         assert.ok(wave.emptySpawnSeconds < 0.5, `第 ${wave.wave} 波不应靠空场等待拉长局长`);
         assert.ok(wave.multiEnemySeconds / wave.combatSeconds >= 0.6, `第 ${wave.wave} 波缺少持续的多敌同屏压力`);
     }
-    assert.deepEqual(guided.telemetry.slice(0, 3).map(({ gold }) => gold), [24, 6, 38]);
+    assert.deepEqual(FIRST_LEVEL_GUIDED_UPGRADES, [{ wave: 1, cell: FIRST_LEVEL_OPENING[0].cell }]);
+    assert.deepEqual(guided.telemetry.slice(0, 3).map(({ gold }) => gold), [0, 12, 14]);
     // 只在显式请求时输出逐波基线；现阶段不把未获真人验证的 6–8 分钟目标写成自动放行门槛。
     if (process.env.REPORT_FIRST_LEVEL_PACING === '1') {
         console.log('FIRST_LEVEL_PACING', JSON.stringify({
@@ -955,19 +984,25 @@ test('首关推荐构筑教学波零漏，后期自由加固有明确收益', ()
     }
     assert.deepEqual(guided.waveResults.slice(0, 3), [
         { wave: 1, killed: 9, leaked: 0, coreHealth: 10, towers: 5 },
-        { wave: 2, killed: 9, leaked: 0, coreHealth: 10, towers: 7 },
+        { wave: 2, killed: 9, leaked: 0, coreHealth: 10, towers: 6 },
         { wave: 3, killed: 13, leaked: 0, coreHealth: 10, towers: 8 },
     ]);
-    assert.equal(guided.coreHealth, 8);
+    assert.equal(guided.coreHealth, 10);
     assert.equal(guided.towers, 11);
-    assert.deepEqual(guided.totals, { spawned: 95, killed: 93, leaked: 2 });
+    assert.deepEqual(guided.totals, { spawned: 123, killed: 123, leaked: 0 });
+    assert.equal(guided.telemetry.at(-1).towerInvestment, 374);
     assert.ok(guided.telemetry.slice(4).reduce((sum, wave) => sum + (wave.frostShotsByCell['7,8'] ?? 0), 0) >= 10,
         '末段冷凝塔应实际参与战斗，不能再次放到射程外');
 
     const fortified = replayFirstLevel({ reinforcements: [...FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_OPTIONAL_FORTIFICATIONS[0]] });
     assert.equal(fortified.coreHealth, 10);
     assert.equal(fortified.towers, 12);
-    assert.deepEqual(fortified.totals, { spawned: 95, killed: 95, leaked: 0 });
+    assert.deepEqual(fortified.totals, { spawned: 123, killed: 123, leaked: 0 });
+    assert.ok(fortified.telemetry.at(-1).combatSeconds < guided.telemetry.at(-1).combatSeconds);
+
+    const noUpgrade = replayFirstLevel({ upgradesAfterWave: [] });
+    assert.equal(noUpgrade.coreHealth, 0, '重装混编不应让未升级的推荐构筑自动获胜');
+    assert.equal(noUpgrade.waveResults.at(-1).wave, 8);
 });
 
 test('推荐构筑在常见帧步长下保持相同的逐波结果', () => {

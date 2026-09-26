@@ -2,7 +2,7 @@ const { readFileSync } = require('node:fs');
 const { resolve } = require('node:path');
 
 const { PHASE_A_GRIDS } = require('../../.test-dist/config/PhaseAGrids.js');
-const { FIRST_LEVEL_OPENING, FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_STARTING_GOLD } = require('../../.test-dist/config/FirstLevelOpening.js');
+const { FIRST_LEVEL_GUIDED_UPGRADES, FIRST_LEVEL_OPENING, FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_STARTING_GOLD } = require('../../.test-dist/config/FirstLevelOpening.js');
 const { PHASE_B_TOWERS, PHASE_B_WAVES } = require('../../.test-dist/config/PhaseBCombatConfig.js');
 const { cellKey } = require('../../.test-dist/core/GridTypes.js');
 const { EconomyLedger } = require('../../.test-dist/systems/EconomyLedger.js');
@@ -10,6 +10,7 @@ const { PlacementModel } = require('../../.test-dist/systems/PlacementModel.js')
 const { SimulationClock } = require('../../.test-dist/systems/SimulationClock.js');
 const { WaveCombatRuntime } = require('../../.test-dist/systems/WaveCombatRuntime.js');
 const { WaveRewardRuntime } = require('../../.test-dist/systems/WaveRewardRuntime.js');
+const { nextUpgradeCost } = require('../../.test-dist/systems/TowerLevelRules.js');
 
 const fixtures = JSON.parse(readFileSync(resolve(__dirname, '../../docs/poc/phase-a-fixtures.json'), 'utf8'));
 
@@ -18,6 +19,7 @@ function replayFirstLevel({
     reinforcements = FIRST_LEVEL_REINFORCEMENTS,
     waves = PHASE_B_WAVES,
     towers = PHASE_B_TOWERS,
+    upgradesAfterWave = FIRST_LEVEL_GUIDED_UPGRADES,
     frameDeltaSeconds = 1 / 30,
     speedScale = 1,
 } = {}) {
@@ -81,6 +83,10 @@ function replayFirstLevel({
         coreHealth = Math.max(0, coreHealth - leaked);
         if (coreHealth > 0) {
             rewards.settle(wave, economy);
+            for (const upgrade of upgradesAfterWave.filter(({ wave: afterWave }) => afterWave === wave.wave)) {
+                const result = model.upgrade(upgrade.cell);
+                if (!result.accepted) throw new Error(`升级失败 ${cellKey(upgrade.cell)}：${result.reason}`);
+            }
             while (nextBuild < reinforcements.length) {
                 const candidate = reinforcements[nextBuild];
                 const preview = model.preview(candidate.cell, [], candidate.towerId);
@@ -91,8 +97,10 @@ function replayFirstLevel({
         }
         waveResults.push({ wave: wave.wave, killed, leaked, coreHealth, towers: model.towers.size });
         telemetry.push({ wave: wave.wave, spawnSeconds, combatSeconds, emptySpawnSeconds, multiEnemySeconds, peakActiveEnemies, shotsByTower, frostShotsByCell, slowApplications, gold: model.gold,
-            pathLength: model.flowField.distanceAt(grid.entry), towerInvestment: model.deployments.reduce((sum, deployment) =>
-                sum + towers.find((tower) => tower.id === deployment.towerId).cost, 0) });
+            pathLength: model.flowField.distanceAt(grid.entry), towerInvestment: model.deployments.reduce((sum, deployment) => {
+                const tower = towers.find((candidate) => candidate.id === deployment.towerId);
+                return sum + tower.cost + ((deployment.level ?? 1) > 1 ? nextUpgradeCost(tower, 1) ?? 0 : 0);
+            }, 0) });
         if (coreHealth === 0) break;
     }
     return {

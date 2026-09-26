@@ -29,7 +29,7 @@ import { PhaseBHudView } from '../presentation/PhaseBHudView';
 import { waveClearIncomeText } from '../presentation/PhaseBHudText';
 import { PhaseBUnitSpriteView } from '../presentation/PhaseBUnitSpriteView';
 import { RouteChangeFeedback, routeChangeText, routeLengthDelta } from '../presentation/RouteChangeFeedback';
-import { waveLineup, waveThreatHint } from '../presentation/WaveBriefing';
+import { waveStartStatus, waveThreatHint } from '../presentation/WaveBriefing';
 import type { PhaseBSceneState } from '../presentation/PhaseBSceneState';
 import {
     FIRST_LEVEL_SKIP_COACH_BUTTON,
@@ -593,7 +593,7 @@ export class NightwatchPocBootstrap extends Component {
         const wave = this.waves.get(this.battle.snapshot.wave);
         this.combat.start(wave);
         this.waveKillGold = 0;
-        this.statusText = `第 ${wave.wave} 波：${waveLineup(wave)}进场`;
+        this.statusText = waveStartStatus(wave);
         this.playSound('wave-start');
     }
 

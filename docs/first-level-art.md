@@ -4,7 +4,7 @@
 
 夜城屋顶防线：俯视的玩具质感建筑、铜色机械件、青蓝屋顶和暖黄窗光。中央战场保持低对比，路线、敌人、塔与射程由运行时独立叠加。参考《Fieldrunners 2》的信息层级和布塔改路体验，不沿用其美术资产。
 
-当前完成底图、第一组单位切图、两塔分层，以及两种敌人的第二步态帧候选。路线、特效和 HUD 仍是程序化表现；敌人尚缺完整待机/受击/死亡动作，不能称作完整美术落地。
+当前完成底图、三种敌人和两种塔的单位切图、两塔分层，以及步兵/疾行机的第二步态帧候选。路线、特效和 HUD 仍是程序化表现；敌人尚缺完整待机/受击/死亡动作，不能称作完整美术落地。
 
 2026-09-26 地表视觉迭代：战场不再用高不透明度灰蓝格子覆盖底图。`BattlefieldSurfaceView` 从真实路径快照绘制连续的铜边石路，空格仅保留低对比细线，已建塔和布塔预览保持独立色块。因为路线随布塔动态改变，这里选择无贴图接缝的程序化地表，而不是生成固定路线切图；输入命中仍复用 `PhaseBLayout`。右侧浏览器已验证默认画面、布塔预览和落塔，正式路线材质/动效与单位动作资产仍待制作。
 
@@ -37,13 +37,20 @@
 | `frost-coil` | `art-source/first-level-units/frost-coil.png` | `assets/resources/level-one/units/frost-coil.png` | 冷凝塔、商店图标和布塔预览 |
 | `clockwork-infantry` | `art-source/first-level-units/clockwork-infantry.png` | `assets/resources/level-one/units/clockwork-infantry.png` | 第一种敌人 |
 | `clockwork-runner` | `art-source/first-level-units/clockwork-runner.png` | `assets/resources/level-one/units/clockwork-runner.png` | 第三波起出现的疾行机 |
+| `iron-canister-hauler` | `art-source/first-level-units/iron-canister-hauler.png` | `assets/resources/level-one/units/iron-canister-hauler.png` | 第五波起出现的重装敌人候选 |
 
 - 来源：2026-09-26 使用 OpenAI 内置 image_gen 原创生成；源 PNG 均为 1254×1254 透明图。机枪塔提示词为铜金色、双炮管、俯视 3/4 角度的玩具机械炮塔；冷凝塔为铜色底座、青蓝发光能量芯的同视角机械装置；步兵为铜色发条、青蓝配件的小型机械敌人。均要求单体、透明背景、无文字和场景。
 - 规格：使用仓库 `ai-asset-pipeline/src/resize.py --size 128 --square` 缩到 128×128 RGBA；每张运行时约 20 KiB。`art-source/first-level-units-source-contact.png` 和 `art-source/first-level-units-runtime-contact.png` 分别保存源图与缩小后对照。
 - 显示：塔在战场使用 108×108 设计坐标、敌人使用 78×78，中心锚点；商店图标 86×86。步兵按生成序号固定分到四个轻微错位的视觉位置，逻辑位置、寻路和索敌不变。无碰撞。Cocos 资源类型固定为 SpriteFrame，启动异步加载；任一单位图未就绪时由原 Graphics 灰盒整体兜底。
 - 状态：右侧 Web Mobile 浏览器已确认两塔商店图标、布塔预览、战场塔和移动步兵可见；密集队列的静态图现在可稍微分开。命中短闪和死亡淡出由只读战斗事件驱动，不阻塞模拟；仍需正式分层炮身、待机/移动/受击/死亡动作，以及真人对密集画面的阅读性评审。
 - 疾行机源图于 2026-09-26 用 OpenAI 内置 image_gen 以步兵源图作风格参考生成：铜金/海军蓝玩具机械材质、俯视 3/4 角度，改为低伏头部、双后掠鳍、青蓝眼缝和脚部涡轮；保留独立轮廓，不复制步兵造型。源图 1254×1254 透明 PNG，运行时经 `sips -Z 128` 归一为 128×128 RGBA、约 14 KiB；原图与运行时图均已入库，`art-source/first-level-enemy-variants-contact.png` 是游戏尺寸对照。两种敌人的身体轮廓可分，但密集战斗中辨识仍待真人验证。
-- 新图片必须将 Cocos `.png.meta` 的 `userData.type` 设为 `sprite-frame` 并生成 `f9941` 子资源；默认导入成 `texture` 时，`resources.load(.../spriteFrame)` 会失败，整层单位图退回 Graphics。现有规则测试覆盖四张图的导入契约。战场塔图显示不超过格宽 90%，商店图标不跟随缩小。
+- 新图片必须将 Cocos `.png.meta` 的 `userData.type` 设为 `sprite-frame` 并生成 `f9941` 子资源；默认导入成 `texture` 时，`resources.load(.../spriteFrame)` 会失败，整层单位图退回 Graphics。现有规则测试覆盖五种基础单位图的导入契约。战场塔图显示不超过格宽 90%，商店图标不跟随缩小。
+
+## 铁罐搬运者候选
+
+- 2026-09-26 使用 OpenAI 内置 image_gen 生成，已有步兵源图仅作**风格参考**，不直接改写。保持铜金/深蓝材质、左上暖光与 3/4 俯视；用宽方锅炉、两侧罐体、短粗活塞腿和小琥珀眼缝与步兵/疾行机区分。生成源图为 1254×1254 透明 PNG，运行时 `sips -Z 128` 归一成 128×128 RGBA、约 25 KiB。完整字段见 `art-source/first-level-units/iron-canister-hauler-manifest.json`。
+- Cocos 以 SpriteFrame 导入；战场实际显示 92×92 设计单位，血条/冰环随尺寸同步调整；缺图时整层回退程序化战场，重装用方形而非圆形标识。右侧浏览器已确认第五波进场、旧单位仍显示、完整八波可结算；实际移动截图与首次玩家对密集混编的辨识尚不足，不批准为最终资产。
+- 最终提示词：`Use case: stylized-concept. Asset type: original transparent enemy sprite for Nightwatch Tower Defense level one. The supplied clockwork-infantry image is a STYLE REFERENCE only, not the edit target: match its 3/4 top-down camera, painterly toy-mechanical finish, upper-left warm light, polished copper/brass and deep navy enamel palette. Create ONE new heavy enemy called an iron-canister hauler: clearly wider and more square than the infantry, squat large riveted boiler/canister body, broad plated shoulders and thick short pistons for legs, a small recessed amber visor, two visible dark navy side tanks with brass hoops, grounded weighty silhouette. Its body should read as a slow durable threat at approximately 80x80 pixels on a dark rooftop game board, distinct from round-headed infantry and sleek runner. Full body centered in square composition, modest transparent padding, genuinely transparent RGBA background and clean alpha. No scenery, floor, platform, baked shadow, UI, text, labels, border, duplicate characters, weapons, watermark, or cropped edges.`
 
 ## 机枪塔分层候选
 

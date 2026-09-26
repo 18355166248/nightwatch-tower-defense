@@ -131,12 +131,17 @@ export class PhaseBCanvasRenderer {
             const y = from.y + (to.y - from.y) * enemy.progress;
             if (!state.useUnitSprites) {
                 const runner = enemy.archetype.id === 'clockwork-runner';
-                graphics.fillColor = new Color(runner ? '#33D7E7' : '#F06A63');
-                graphics.circle(x, y, metrics.cellSize * 0.25);
+                const heavy = enemy.archetype.id === 'iron-canister-hauler';
+                graphics.fillColor = new Color(heavy ? '#D7A455' : runner ? '#33D7E7' : '#F06A63');
+                if (heavy) graphics.roundRect(x - metrics.cellSize * 0.31, y - metrics.cellSize * 0.31,
+                    metrics.cellSize * 0.62, metrics.cellSize * 0.62, 8);
+                else graphics.circle(x, y, metrics.cellSize * 0.25);
                 graphics.fill();
                 graphics.strokeColor = new Color(runner ? '#D1FCFF' : '#FFF1CF');
                 graphics.lineWidth = 4;
-                graphics.circle(x, y, metrics.cellSize * 0.25);
+                if (heavy) graphics.roundRect(x - metrics.cellSize * 0.31, y - metrics.cellSize * 0.31,
+                    metrics.cellSize * 0.62, metrics.cellSize * 0.62, 8);
+                else graphics.circle(x, y, metrics.cellSize * 0.25);
                 graphics.stroke();
             }
             if (!state.useUnitSprites && enemy.slowRemainingSeconds > 0) {

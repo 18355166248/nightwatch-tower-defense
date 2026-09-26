@@ -18,13 +18,14 @@ const productiveBottom = FIRST_LEVEL_REINFORCEMENTS.map((entry, index) => {
 const productiveOptional = { cell: { column: 7, row: 11 }, towerId: 'rivet-gun' };
 
 const variants = [
-    ['教学混合 350', { opening: FIRST_LEVEL_OPENING, reinforcements: FIRST_LEVEL_REINFORCEMENTS }],
-    ['纯机枪同格 330', { opening: allRivets(FIRST_LEVEL_OPENING), reinforcements: allRivets(FIRST_LEVEL_REINFORCEMENTS) }],
-    ['纯机枪加固 360', { opening: allRivets(FIRST_LEVEL_OPENING), reinforcements: allRivets([...FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_OPTIONAL_FORTIFICATIONS[0]]) }],
-    ['三冷凝混合 360', { opening: FIRST_LEVEL_OPENING, reinforcements: thirdFrost }],
-    ['有效下排混合 350', { opening: FIRST_LEVEL_OPENING, reinforcements: productiveBottom }],
-    ['有效下排纯机枪 330', { opening: allRivets(FIRST_LEVEL_OPENING), reinforcements: allRivets(productiveBottom) }],
-    ['有效下排纯机枪加固 360', { opening: allRivets(FIRST_LEVEL_OPENING), reinforcements: allRivets([...productiveBottom, productiveOptional]) }],
+    ['教学混合+升级', { opening: FIRST_LEVEL_OPENING, reinforcements: FIRST_LEVEL_REINFORCEMENTS }],
+    ['教学混合不升级', { opening: FIRST_LEVEL_OPENING, reinforcements: FIRST_LEVEL_REINFORCEMENTS, upgradesAfterWave: [] }],
+    ['纯机枪同格+升级', { opening: allRivets(FIRST_LEVEL_OPENING), reinforcements: allRivets(FIRST_LEVEL_REINFORCEMENTS) }],
+    ['纯机枪加固+升级', { opening: allRivets(FIRST_LEVEL_OPENING), reinforcements: allRivets([...FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_OPTIONAL_FORTIFICATIONS[0]]) }],
+    ['三冷凝混合+升级', { opening: FIRST_LEVEL_OPENING, reinforcements: thirdFrost }],
+    ['有效下排混合+升级', { opening: FIRST_LEVEL_OPENING, reinforcements: productiveBottom }],
+    ['有效下排纯机枪+升级', { opening: allRivets(FIRST_LEVEL_OPENING), reinforcements: allRivets(productiveBottom) }],
+    ['有效下排纯机枪加固+升级', { opening: allRivets(FIRST_LEVEL_OPENING), reinforcements: allRivets([...productiveBottom, productiveOptional]) }],
 ];
 
 for (const [name, plan] of variants) {

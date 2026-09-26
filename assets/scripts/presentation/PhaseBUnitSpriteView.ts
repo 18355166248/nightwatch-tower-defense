@@ -12,6 +12,7 @@ const UNIT_ASSETS = {
     'frost-coil': 'level-one/units/frost-coil/spriteFrame',
     'clockwork-infantry': 'level-one/units/clockwork-infantry/spriteFrame',
     'clockwork-runner': 'level-one/units/clockwork-runner/spriteFrame',
+    'iron-canister-hauler': 'level-one/units/iron-canister-hauler/spriteFrame',
 } as const;
 type UnitArtId = keyof typeof UNIT_ASSETS;
 const ENEMY_GAIT_ASSETS = {
@@ -151,8 +152,9 @@ export class PhaseBUnitSpriteView {
         for (const enemy of state.enemies) {
             const frame = this.frames.get(enemy.archetype.id);
             if (!frame) continue;
-            const node = this.ensureEnemyNode(enemy.id, frame);
-            this.renderEnemyIndicators(node, enemy);
+            const heavy = enemy.archetype.id === 'iron-canister-hauler';
+            const node = this.ensureEnemyNode(enemy.id, frame, heavy ? 92 : 78);
+            this.renderEnemyIndicators(node, enemy, heavy);
             const from = this.layout.gridPointCenter(enemy.fromCell, state.grid);
             const to = this.layout.gridPointCenter(enemy.toCell, state.grid);
             const x = from.x + (to.x - from.x) * enemy.progress;
@@ -188,7 +190,8 @@ export class PhaseBUnitSpriteView {
         for (const death of state.feedback.deaths) {
             const frame = this.frames.get(death.archetypeId);
             if (!frame) continue;
-            const node = this.ensureNode(this.deaths, death.enemyId, this.deathLayer, frame, 78);
+            const node = this.ensureNode(this.deaths, death.enemyId, this.deathLayer, frame,
+                death.archetypeId === 'iron-canister-hauler' ? 92 : 78);
             const point = this.layout.gridPointCenter(death.point, state.grid);
             const offset = enemyVisualOffset(death.spawnOrder, cellSize);
             const progress = 1 - death.remainingSeconds / death.durationSeconds;
@@ -204,7 +207,7 @@ export class PhaseBUnitSpriteView {
         this.removeMissing(this.deaths, visible);
     }
 
-    private renderEnemyIndicators(node: Node, enemy: PhaseBSceneState['enemies'][number]): void {
+    private renderEnemyIndicators(node: Node, enemy: PhaseBSceneState['enemies'][number], heavy: boolean): void {
         let indicators = node.getChildByName('CombatIndicators')?.getComponent(Graphics);
         if (!indicators) {
             const child = new Node('CombatIndicators');
@@ -217,14 +220,14 @@ export class PhaseBUnitSpriteView {
         // 切图在战场 Graphics 之上，血量和减速提示也必须跟随敌人节点绘制在切图之上。
         if (enemy.slowRemainingSeconds > 0) {
             const strength = enemySlowVisualStrength(enemy.slowRemainingSeconds, FROST_COIL.effect?.durationSeconds ?? 0);
-            EnemySlowIndicatorView.draw(indicators, 0, 0, 37, strength);
+            EnemySlowIndicatorView.draw(indicators, 0, 0, heavy ? 45 : 37, strength);
         }
-        const width = 52;
+        const width = heavy ? 66 : 52;
         indicators.fillColor = new Color('#35262C');
-        indicators.rect(-width / 2, 48, width, 7);
+        indicators.rect(-width / 2, heavy ? 55 : 48, width, 7);
         indicators.fill();
         indicators.fillColor = new Color('#69D391');
-        indicators.rect(-width / 2, 48, width * Math.max(0, enemy.health / enemy.archetype.maxHealth), 7);
+        indicators.rect(-width / 2, heavy ? 55 : 48, width * Math.max(0, enemy.health / enemy.archetype.maxHealth), 7);
         indicators.fill();
     }
 
@@ -287,15 +290,15 @@ export class PhaseBUnitSpriteView {
         return towerId === 'frost-coil' ? FROST_COIL_LAYER_SPEC : RIVET_GUN_LAYER_SPEC;
     }
 
-    private ensureEnemyNode(key: string, frame: SpriteFrame): Node {
+    private ensureEnemyNode(key: string, frame: SpriteFrame, size: number): Node {
         const existing = this.enemies.get(key);
         if (existing) return existing;
         const node = new Node(key);
         node.layer = this.root.layer;
-        node.addComponent(UITransform).setContentSize(78, 78);
+        node.addComponent(UITransform).setContentSize(size, size);
         const body = new Node('Body');
         body.layer = this.root.layer;
-        body.addComponent(UITransform).setContentSize(78, 78);
+        body.addComponent(UITransform).setContentSize(size, size);
         const sprite = body.addComponent(Sprite);
         sprite.spriteFrame = frame;
         sprite.sizeMode = Sprite.SizeMode.CUSTOM;

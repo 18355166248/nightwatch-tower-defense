@@ -12,6 +12,11 @@ export const FIRST_LEVEL_OPENING: readonly { readonly cell: GridCell; readonly t
     { cell: { column: 5, row: 2 }, towerId: 'rivet-gun' },
 ];
 
+/** 推荐回放跟随首波波间的真实教学选择；这是建议，不自动替玩家升级。 */
+export const FIRST_LEVEL_GUIDED_UPGRADES: readonly { readonly wave: number; readonly cell: GridCell }[] = [
+    { wave: 1, cell: FIRST_LEVEL_OPENING[0].cell },
+];
+
 export const FIRST_LEVEL_FIRST_REINFORCEMENT: GridCell = { column: 1, row: 2 };
 
 /** 推荐布防保留末波压力；只用于提示，玩家仍可自由加固。 */

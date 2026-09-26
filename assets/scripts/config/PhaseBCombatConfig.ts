@@ -1,5 +1,7 @@
+export type EnemyId = 'clockwork-infantry' | 'clockwork-runner' | 'iron-canister-hauler';
+
 export interface EnemyArchetype {
-    readonly id: 'clockwork-infantry' | 'clockwork-runner';
+    readonly id: EnemyId;
     readonly label: string;
     readonly maxHealth: number;
     readonly speedCellsPerSecond: number;
@@ -61,6 +63,15 @@ export const CLOCKWORK_RUNNER: EnemyArchetype = {
     killReward: 4,
 };
 
+/** 慢速厚甲敌人只复用现有流场和减速状态；压力来自长时间占据火力窗口，而非额外 AI 分支。 */
+export const IRON_CANISTER_HAULER: EnemyArchetype = {
+    id: 'iron-canister-hauler',
+    label: '铁罐搬运者',
+    maxHealth: 230,
+    speedCellsPerSecond: 0.62,
+    killReward: 10,
+};
+
 export const RIVET_GUN: TowerArchetype = {
     id: 'rivet-gun',
     label: '机枪塔',
@@ -92,10 +103,11 @@ export const PHASE_B_WAVES: readonly WaveDefinition[] = [
     // 第三波仍在步兵之后首次放出 2 只疾行机，形成不依赖空等的速度考核。
     { wave: 3, clearReward: 10, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 11, spawnIntervalSeconds: 0.78 }, { enemy: CLOCKWORK_RUNNER, count: 2, spawnIntervalSeconds: 0.78 }] },
     { wave: 4, clearReward: 20, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 6, spawnIntervalSeconds: 0.54 }, { enemy: CLOCKWORK_RUNNER, count: 4, spawnIntervalSeconds: 0.56 }] },
-    { wave: 5, clearReward: 24, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 8, spawnIntervalSeconds: 0.52 }, { enemy: CLOCKWORK_RUNNER, count: 4, spawnIntervalSeconds: 0.54 }] },
-    { wave: 6, clearReward: 24, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 7, spawnIntervalSeconds: 0.5 }, { enemy: CLOCKWORK_RUNNER, count: 5, spawnIntervalSeconds: 0.52 }] },
-    { wave: 7, clearReward: 28, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 8, spawnIntervalSeconds: 0.48 }, { enemy: CLOCKWORK_RUNNER, count: 6, spawnIntervalSeconds: 0.5 }] },
-    { wave: 8, clearReward: 40, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 8, spawnIntervalSeconds: 0.46 }, { enemy: CLOCKWORK_RUNNER, count: 8, spawnIntervalSeconds: 0.48 }] },
+    // 第五波先单独教学重装的高血量与低速；后三波再与疾行机混编，避免初见即要求同时解两种威胁。
+    { wave: 5, clearReward: 24, groups: [{ enemy: IRON_CANISTER_HAULER, count: 6, spawnIntervalSeconds: 1.15 }] },
+    { wave: 6, clearReward: 24, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 10, spawnIntervalSeconds: 0.68 }, { enemy: CLOCKWORK_RUNNER, count: 8, spawnIntervalSeconds: 0.62 }, { enemy: IRON_CANISTER_HAULER, count: 4, spawnIntervalSeconds: 1 }] },
+    { wave: 7, clearReward: 28, groups: [{ enemy: CLOCKWORK_RUNNER, count: 16, spawnIntervalSeconds: 0.55 }, { enemy: IRON_CANISTER_HAULER, count: 6, spawnIntervalSeconds: 0.95 }] },
+    { wave: 8, clearReward: 40, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 14, spawnIntervalSeconds: 0.52 }, { enemy: CLOCKWORK_RUNNER, count: 10, spawnIntervalSeconds: 0.5 }, { enemy: IRON_CANISTER_HAULER, count: 8, spawnIntervalSeconds: 0.85 }] },
 ];
 
 export const PHASE_B_WAVE_ONE = PHASE_B_WAVES[0];
