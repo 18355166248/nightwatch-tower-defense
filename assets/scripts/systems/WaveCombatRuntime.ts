@@ -2,6 +2,7 @@ import type { EnemyArchetype, TowerArchetype, TowerId, WaveDefinition } from '..
 import { sameCell, type EnemyRouteState, type GridCell, type GridDefinition } from '../core/GridTypes';
 import { FlowField } from './FlowField';
 import type { TowerDeployment } from './PlacementModel';
+import { towerAtLevel } from './TowerLevelRules';
 
 export interface CombatEnemy {
     readonly id: string;
@@ -246,8 +247,9 @@ export class WaveCombatRuntime {
         for (const deployment of deployments) {
             const key = `${deployment.cell.column},${deployment.cell.row}`;
             activeTowerKeys.add(key);
-            const tower = this.towersById.get(deployment.towerId);
-            if (!tower) throw new Error(`战斗运行时未知塔种：${deployment.towerId}`);
+            const baseTower = this.towersById.get(deployment.towerId);
+            if (!baseTower) throw new Error(`战斗运行时未知塔种：${deployment.towerId}`);
+            const tower = towerAtLevel(baseTower, deployment.level ?? 1);
             const cooldown = (this.towerCooldowns.get(key) ?? 0) - deltaSeconds;
             if (cooldown > 0) {
                 this.towerCooldowns.set(key, cooldown);

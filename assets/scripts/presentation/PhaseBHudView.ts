@@ -11,6 +11,7 @@ import type { TowerId } from '../config/PhaseBCombatConfig';
 import type { BattlePhase } from '../systems/BattleStateMachine';
 import { firstLevelWaveBanner } from './FirstLevelWaveBanner';
 import { hudEventText } from './PhaseBHudText';
+import { PHASE_B_UPGRADE_BUTTON } from './PhaseBLayout';
 
 export interface PhaseBHudState {
     readonly qaMode: boolean;
@@ -32,6 +33,7 @@ export interface PhaseBHudState {
     readonly canStartNextWaveEarly: boolean;
     readonly countdownSeconds: number;
     readonly selectedTowerId: TowerId;
+    readonly inspectedUpgrade: { readonly level: number; readonly cost: number | null } | null;
     readonly result: BattleResultViewModel | null;
 }
 
@@ -52,6 +54,7 @@ export class PhaseBHudView {
     private readonly earlyWaveLabel: Label;
     private readonly rivetLabel: Label;
     private readonly frostLabel: Label;
+    private readonly upgradeLabel: Label;
     private readonly resultTitleLabel: Label;
     private readonly resultSummaryLabel: Label;
     private readonly resultActionLabel: Label;
@@ -76,6 +79,8 @@ export class PhaseBHudView {
         this.earlyWaveLabel = this.createControlLabel(parent, 340, -812);
         this.rivetLabel = this.createTowerLabel(parent, -89, -854);
         this.frostLabel = this.createTowerLabel(parent, 89, -854);
+        this.upgradeLabel = this.createCenteredLabel(parent, 32, new Color('#18283A'),
+            (PHASE_B_UPGRADE_BUTTON.bottom + PHASE_B_UPGRADE_BUTTON.top) / 2, 680, 80);
         this.resultTitleLabel = this.createCenteredLabel(parent, 64, new Color('#F4D58D'), 230, 760, 100);
         this.resultSummaryLabel = this.createCenteredLabel(parent, 34, new Color('#D7E6F5'), 25, 760, 190);
         this.resultActionLabel = this.createCenteredLabel(parent, 38, new Color('#101827'), -218, 600, 120);
@@ -86,7 +91,8 @@ export class PhaseBHudView {
             state.qaMode, state.guidanceText, state.statusText, state.gold, state.pathLength, state.wave, state.totalWaves,
             state.coreHealth, state.phaseText, state.phase, state.waveSpawned, state.waveTotal, state.activeEnemyCount,
             state.speedMultiplier, state.soundEnabled, state.soundReady, state.canStartNextWaveEarly,
-            Math.ceil(state.countdownSeconds), state.selectedTowerId, state.result?.kind ?? '', state.result?.summary ?? '',
+            Math.ceil(state.countdownSeconds), state.selectedTowerId, state.inspectedUpgrade?.level ?? 0,
+            state.inspectedUpgrade?.cost ?? -1, state.result?.kind ?? '', state.result?.summary ?? '',
         ].join('|');
         // Bootstrap 仍可提交每帧快照，但 Label 只在展示字段变化时写入，避免 UI 跟随战斗帧率刷新。
         if (signature === this.renderedSignature) return;
@@ -99,13 +105,15 @@ export class PhaseBHudView {
         this.waveLabel.node.active = !result;
         this.coreLabel.node.active = !result;
         this.levelLabel.node.active = !result && !state.qaMode;
-        this.guidanceLabel.node.active = !result && !state.qaMode;
+        // 点选炮塔后，升级按钮接管引导区；塔属性继续留在上方事件行，避免两层文字压在一起。
+        this.guidanceLabel.node.active = !result && !state.qaMode && !state.inspectedUpgrade;
         this.helpLabel.node.active = !result;
         this.speedLabel.node.active = !result;
         this.soundLabel.node.active = !result;
         this.earlyWaveLabel.node.active = !result;
         this.rivetLabel.node.active = !result;
         this.frostLabel.node.active = !result;
+        this.upgradeLabel.node.active = !result && Boolean(state.inspectedUpgrade);
         this.resultTitleLabel.node.active = Boolean(result);
         this.resultSummaryLabel.node.active = Boolean(result);
         this.resultActionLabel.node.active = Boolean(result);
@@ -136,11 +144,15 @@ export class PhaseBHudView {
             this.frostLabel.string = '冷凝\n40';
             this.rivetLabel.color = new Color(state.selectedTowerId === 'rivet-gun' ? '#101827' : '#F2E4BF');
             this.frostLabel.color = new Color(state.selectedTowerId === 'frost-coil' ? '#101827' : '#DDFBFF');
+            this.upgradeLabel.string = state.inspectedUpgrade?.cost === null
+                ? '已满级 · 当前 Lv2'
+                : `升级至 Lv2 · ${state.inspectedUpgrade?.cost} 金币`;
+            this.upgradeLabel.color = new Color(state.inspectedUpgrade?.cost !== null && state.gold >= (state.inspectedUpgrade?.cost ?? Infinity) ? '#18283A' : '#D9E3E9');
             this.helpLabel.string = state.qaMode
                 ? '先建 2 塔且路径 +2｜Q/W选塔 J混合样例｜X切速 N提前开波｜F/G/H样例 R重置'
                 : state.phaseText === '准备态'
-                    ? '点已建塔看射程，再点撤销 · 拖塔或选塔后双击格子'
-                    : '点已建塔看射程 · 战斗中不可撤销';
+                    ? '点已建塔看射程/升级，再点撤销 · 拖塔或选塔后双击格子'
+                    : '点已建塔看射程与升级 · 战斗中不可撤销';
             return;
         }
         this.resultTitleLabel.string = result.title;

@@ -9,14 +9,24 @@ import {
 } from '../core/GridTypes';
 import { FlowField } from './FlowField';
 import { EconomyLedger } from './EconomyLedger';
-import type { TowerArchetype, TowerId } from '../config/PhaseBCombatConfig';
+import type { TowerId } from '../config/PhaseBCombatConfig';
+import { nextUpgradeCost, type UpgradeTower } from './TowerLevelRules';
 
 export interface TowerDeployment {
     readonly cell: GridCell;
     readonly towerId: TowerId;
+    readonly level?: number;
 }
 
-type PlacementTower = Pick<TowerArchetype, 'id' | 'cost'>;
+type PlacementTower = UpgradeTower;
+
+export type UpgradeRejectReason = 'not-found' | 'max-level' | 'insufficient-gold';
+export interface UpgradeResult {
+    readonly accepted: boolean;
+    readonly reason?: UpgradeRejectReason;
+    readonly level: number;
+    readonly gold: number;
+}
 
 export interface PlacementPreview {
     readonly cell: GridCell;
@@ -39,6 +49,7 @@ export interface PlacementCommit {
 export class PlacementModel {
     private readonly towerCells = new Set<string>();
     private readonly towerIdsByCell = new Map<string, TowerId>();
+    private readonly towerLevelsByCell = new Map<string, number>();
     private readonly towersById = new Map<TowerId, PlacementTower>();
     private readonly defaultTowerId: TowerId;
     private currentMapVersion = 0;
@@ -74,7 +85,7 @@ export class PlacementModel {
     }
 
     public get deployments(): readonly TowerDeployment[] {
-        return Array.from(this.towerIdsByCell, ([key, towerId]) => ({ cell: this.cellFromKey(key), towerId }));
+        return Array.from(this.towerIdsByCell, ([key, towerId]) => ({ cell: this.cellFromKey(key), towerId, level: this.towerLevelsByCell.get(key) ?? 1 }));
     }
 
     public get placementTowers(): readonly PlacementTower[] {
@@ -124,9 +135,23 @@ export class PlacementModel {
         const key = cellKey(preview.cell);
         this.towerCells.add(key);
         this.towerIdsByCell.set(key, preview.towerId);
+        this.towerLevelsByCell.set(key, 1);
         this.currentMapVersion += 1;
         this.currentFlowField = fresh.flowField;
         return { accepted: true, mapVersion: this.currentMapVersion, gold: this.gold };
+    }
+
+    public upgrade(cell: GridCell): UpgradeResult {
+        const key = cellKey(cell);
+        const towerId = this.towerIdsByCell.get(key);
+        if (!towerId) return { accepted: false, reason: 'not-found', level: 0, gold: this.gold };
+        const level = this.towerLevelsByCell.get(key) ?? 1;
+        const cost = nextUpgradeCost(this.requireTower(towerId), level);
+        if (cost === null) return { accepted: false, reason: 'max-level', level, gold: this.gold };
+        // 扣费成功后才推进等级；升级不改变占格/流场，不使玩家正在预览的路径失效。
+        if (!this.economy.trySpend(cost)) return { accepted: false, reason: 'insufficient-gold', level, gold: this.gold };
+        this.towerLevelsByCell.set(key, level + 1);
+        return { accepted: true, level: level + 1, gold: this.gold };
     }
 
     public sell(cell: GridCell, preparing: boolean): boolean {
@@ -136,7 +161,10 @@ export class PlacementModel {
         if (!towerId) throw new Error(`塔位缺少塔种：${key}`);
         this.towerCells.delete(key);
         this.towerIdsByCell.delete(key);
-        this.economy.credit(this.requireTower(towerId).cost);
+        const tower = this.requireTower(towerId);
+        const level = this.towerLevelsByCell.get(key) ?? 1;
+        this.towerLevelsByCell.delete(key);
+        this.economy.credit(tower.cost + (level > 1 ? nextUpgradeCost(tower, 1) ?? 0 : 0));
         this.currentMapVersion += 1;
         this.currentFlowField = new FlowField(this.grid, this.towerCells);
         return true;

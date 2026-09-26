@@ -1,7 +1,7 @@
 import type { GridDefinition } from '../core/GridTypes';
 import { EconomyLedger } from './EconomyLedger';
 import { PlacementModel, type TowerDeployment } from './PlacementModel';
-import type { TowerArchetype } from '../config/PhaseBCombatConfig';
+import { nextUpgradeCost, type UpgradeTower } from './TowerLevelRules';
 
 export interface RestoredPlacement {
     readonly economy: EconomyLedger;
@@ -14,7 +14,7 @@ export class BattleRunCheckpoint {
         private readonly grid: GridDefinition,
         private readonly deployments: readonly TowerDeployment[],
         private readonly remainingGold: number,
-        private readonly towers: readonly Pick<TowerArchetype, 'id' | 'cost'>[],
+        private readonly towers: readonly UpgradeTower[],
     ) {}
 
     public static capture(model: PlacementModel, _legacyTowerCost?: number): BattleRunCheckpoint {
@@ -25,13 +25,16 @@ export class BattleRunCheckpoint {
         const investedGold = this.deployments.reduce((sum, deployment) => {
             const tower = this.towers.find(({ id }) => id === deployment.towerId);
             if (!tower) throw new Error(`检查点缺少塔种配置：${deployment.towerId}`);
-            return sum + tower.cost;
+            return sum + tower.cost + (deployment.level && deployment.level > 1 ? nextUpgradeCost(tower, 1) ?? 0 : 0);
         }, 0);
         const economy = new EconomyLedger(this.remainingGold + investedGold);
         const model = new PlacementModel(this.grid, economy, this.towers);
         for (const deployment of this.deployments) {
             const result = model.commit(model.preview(deployment.cell, [], deployment.towerId), []);
             if (!result.accepted) throw new Error(`无法恢复塔坐标 (${deployment.cell.column},${deployment.cell.row})：${result.reason}`);
+            if (deployment.level && deployment.level > 1 && !model.upgrade(deployment.cell).accepted) {
+                throw new Error(`无法恢复塔等级 (${deployment.cell.column},${deployment.cell.row})`);
+            }
         }
         return { economy, model };
     }

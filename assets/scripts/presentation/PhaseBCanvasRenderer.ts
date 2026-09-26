@@ -1,5 +1,6 @@
 import { Color, Graphics } from 'cc';
 import { FROST_COIL, RIVET_GUN } from '../config/PhaseBCombatConfig';
+import { towerAtLevel } from '../systems/TowerLevelRules';
 import { cellKey, type GridDefinition } from '../core/GridTypes';
 import type { BattleResultViewModel } from './BattleResultViewModel';
 import type { PhaseBSceneState } from './PhaseBSceneState';
@@ -15,6 +16,7 @@ import {
     PHASE_B_SOUND_BUTTON,
     PHASE_B_SPEED_BUTTON,
     PHASE_B_RIVET_BUTTON,
+    PHASE_B_UPGRADE_BUTTON,
     type PhaseBGridPoint,
     type PhaseBPoint,
     PhaseBLayout,
@@ -104,6 +106,16 @@ export class PhaseBCanvasRenderer {
                 const center = this.center({ column, row }, state.grid);
                 this.drawTower(center, metrics.cellSize, state.towerIdsByCell.get(key) === 'frost-coil');
             }
+        }
+        // 升级环位于贴图层下方，贴图就绪与灰盒兜底都能读出 Lv2，且不依赖第二套切图。
+        for (const [key, level] of Array.from(state.towerLevelsByCell.entries())) {
+            if (level < 2) continue;
+            const [column, row] = key.split(',').map(Number);
+            const center = this.center({ column, row }, state.grid);
+            graphics.strokeColor = new Color('#FFE09C');
+            graphics.lineWidth = 5;
+            graphics.circle(center.x, center.y, metrics.cellSize * 0.42);
+            graphics.stroke();
         }
 
         this.drawRouteChange(state, metrics.cellSize);
@@ -235,7 +247,7 @@ export class PhaseBCanvasRenderer {
         const inspected = state.inspectedTower;
         if (!inspected) return;
         const center = this.center(inspected.cell, state.grid);
-        const tower = inspected.towerId === 'frost-coil' ? FROST_COIL : RIVET_GUN;
+        const tower = towerAtLevel(inspected.towerId === 'frost-coil' ? FROST_COIL : RIVET_GUN, inspected.level);
         const color = inspected.towerId === 'frost-coil'
             ? new Color(139, 232, 244, 205)
             : new Color(255, 218, 139, 205);
@@ -386,6 +398,14 @@ export class PhaseBCanvasRenderer {
         graphics.fill();
         this.drawTowerButton(PHASE_B_RIVET_BUTTON, state.gold >= RIVET_GUN.cost, state.selectedTowerId === RIVET_GUN.id, '#D5A84B');
         this.drawTowerButton(PHASE_B_FROST_BUTTON, state.gold >= FROST_COIL.cost, state.selectedTowerId === FROST_COIL.id, '#62BCD0');
+        const upgrade = state.inspectedTower;
+        if (upgrade) {
+            graphics.fillColor = new Color(upgrade.upgradeCost === null || state.gold < upgrade.upgradeCost ? '#596273' : '#C79958');
+            graphics.roundRect(PHASE_B_UPGRADE_BUTTON.left, PHASE_B_UPGRADE_BUTTON.bottom,
+                PHASE_B_UPGRADE_BUTTON.right - PHASE_B_UPGRADE_BUTTON.left,
+                PHASE_B_UPGRADE_BUTTON.top - PHASE_B_UPGRADE_BUTTON.bottom, 18);
+            graphics.fill();
+        }
     }
 
     private drawTowerButton(rect: { left: number; right: number; bottom: number; top: number }, affordable: boolean, selected: boolean, color: string): void {

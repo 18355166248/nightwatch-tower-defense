@@ -10,6 +10,7 @@ const { CLOCKWORK_INFANTRY, CLOCKWORK_RUNNER, FROST_COIL, PHASE_B_TOWERS, PHASE_
 const { cellKey } = require('../.test-dist/core/GridTypes.js');
 const { FlowField } = require('../.test-dist/systems/FlowField.js');
 const { PlacementModel } = require('../.test-dist/systems/PlacementModel.js');
+const { nextUpgradeCost, towerAtLevel } = require('../.test-dist/systems/TowerLevelRules.js');
 const { simulateNoDamageRoute } = require('../.test-dist/systems/RouteSimulation.js');
 const { BattleStateMachine } = require('../.test-dist/systems/BattleStateMachine.js');
 const { EconomyLedger } = require('../.test-dist/systems/EconomyLedger.js');
@@ -115,6 +116,11 @@ test('首关入场卡独立于战斗，教学随真实布塔状态推进且可�
     assert.equal(flow.snapshot({ ...context, towerCount: 4, pathDelta: 4 }).step, 'ready');
     assert.equal(flow.snapshot({ ...context, towerCount: 3, gold: 10 }).step, 'route');
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'countdown', wave: 1, gold: 54 }).step, 'reinforce');
+    const upgradeCoach = { ...context, preparing: false, phase: 'paused', wave: 1, gold: 54,
+        guidedIntermissionHeld: true, firstRivetCell: { column: 3, row: 2 }, upgradedTowerCount: 0 };
+    assert.equal(flow.snapshot(upgradeCoach).step, 'upgrade');
+    assert.deepEqual(flow.snapshot(upgradeCoach).suggestedCell, { column: 3, row: 2 });
+    assert.equal(flow.snapshot({ ...upgradeCoach, gold: 30, upgradedTowerCount: 1 }).step, 'reinforce');
     assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 1, gold: 54, guidedIntermissionHeld: true }).guidanceText, /再点 ▶ 开下一波/);
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 1, gold: 24, guidedIntermissionHeld: true }).step, 'ready');
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 4, gold: 44, guidedIntermissionHeld: true, occupiedCells: new Set(FIRST_LEVEL_REINFORCEMENTS.slice(0, 4).map(({ cell }) => cellKey(cell))) }).suggestedTowerId, 'frost-coil');
@@ -668,6 +674,53 @@ test('塔种价格绑定在预览事务中，出售按各自造价全额返还',
     assert.deepEqual(model.deployments.map(({ towerId }) => towerId), ['rivet-gun', 'frost-coil']);
     assert.equal(model.sell(frostCell, true), true);
     assert.equal(model.gold, 70);
+});
+
+test('升级扣费原子化，满级与金币不足不改变等级，准备态撤销返还全部投入', () => {
+    const cell = { column: 2, row: 2 };
+    const model = new PlacementModel(PHASE_A_GRIDS['grid-9x13'], 50, PHASE_B_TOWERS);
+    assert.equal(model.upgrade(cell).reason, 'not-found');
+    assert.equal(model.commit(model.preview(cell, [], 'rivet-gun'), []).accepted, true);
+    const version = model.mapVersion;
+    assert.equal(model.upgrade(cell).reason, 'insufficient-gold');
+    assert.equal(model.deployments[0].level, 1);
+    assert.equal(model.gold, 20);
+    model.sell(cell, true);
+    assert.equal(model.gold, 50);
+    const funded = new PlacementModel(PHASE_A_GRIDS['grid-9x13'], 60, PHASE_B_TOWERS);
+    assert.equal(funded.commit(funded.preview(cell, [], 'rivet-gun'), []).accepted, true);
+    assert.deepEqual(funded.upgrade(cell), { accepted: true, level: 2, gold: 6 });
+    assert.equal(funded.mapVersion, version);
+    assert.equal(funded.upgrade(cell).reason, 'max-level');
+    assert.equal(funded.sell(cell, false), false);
+    assert.equal(funded.sell(cell, true), true);
+    assert.equal(funded.gold, 60);
+    assert.equal(nextUpgradeCost(RIVET_GUN, 2), null);
+    assert.equal(towerAtLevel(RIVET_GUN, 2).damage, 11);
+    assert.equal(nextUpgradeCost(FROST_COIL, 1), 32);
+    assert.equal(towerAtLevel(FROST_COIL, 2).effect.speedMultiplier, 0.5);
+});
+
+test('检查点保留升级等级与剩余金币，升级后的伤害进入战斗结算', () => {
+    const grid = PHASE_A_GRIDS['grid-9x13'];
+    const cell = { column: 2, row: 2 };
+    const model = new PlacementModel(grid, 80, PHASE_B_TOWERS);
+    assert.equal(model.commit(model.preview(cell, [], 'rivet-gun'), []).accepted, true);
+    assert.equal(model.upgrade(cell).accepted, true);
+    const checkpoint = BattleRunCheckpoint.capture(model);
+    const restored = checkpoint.restore().model;
+    assert.equal(restored.gold, 26);
+    assert.deepEqual(restored.deployments, model.deployments);
+    const wave = { wave: 1, clearReward: 0, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 1, spawnIntervalSeconds: 1 }] };
+    const flow = restored.flowField;
+    const upgraded = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
+    const base = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
+    upgraded.start(wave);
+    base.start(wave);
+    const upgradedShots = upgraded.tick(0, flow, [{ cell: grid.entry, towerId: 'rivet-gun', level: 2 }]).shots;
+    const baseShots = base.tick(0, flow, [{ cell: grid.entry, towerId: 'rivet-gun', level: 1 }]).shots;
+    assert.equal(upgradedShots[0].damage, 11);
+    assert.equal(baseShots[0].damage, 7);
 });
 
 test('重新部署从开战检查点恢复塔位与当时金币，不带回击杀收益', () => {

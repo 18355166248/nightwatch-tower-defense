@@ -49,6 +49,7 @@ import {
     PHASE_B_SOUND_BUTTON,
     PHASE_B_SPEED_BUTTON,
     PHASE_B_RIVET_BUTTON,
+    PHASE_B_UPGRADE_BUTTON,
     PhaseBLayout,
 } from '../presentation/PhaseBLayout';
 import { BattleRunCheckpoint } from '../systems/BattleRunCheckpoint';
@@ -59,6 +60,7 @@ import { SimulationClock } from '../systems/SimulationClock';
 import { WaveCombatRuntime } from '../systems/WaveCombatRuntime';
 import { WaveCatalog } from '../systems/WaveCatalog';
 import { WaveRewardRuntime } from '../systems/WaveRewardRuntime';
+import { nextUpgradeCost, towerAtLevel } from '../systems/TowerLevelRules';
 
 const { ccclass } = _decorator;
 
@@ -205,7 +207,7 @@ export class NightwatchPocBootstrap extends Component {
             this.primaryTouchId = null;
             return;
         }
-        if (this.handleTopControls(point)) {
+        if (this.handleUpgradeTouch(point) || this.handleTopControls(point)) {
             this.primaryTouchId = null;
             return;
         }
@@ -324,6 +326,18 @@ export class NightwatchPocBootstrap extends Component {
         return true;
     }
 
+    private handleUpgradeTouch(point: Vec3): boolean {
+        const cell = this.towerInspection.cell;
+        if (!cell || !this.layout.insideRect(point, PHASE_B_UPGRADE_BUTTON)) return false;
+        const result = this.model.upgrade(cell);
+        if (result.accepted) this.towerInspection.clear();
+        this.statusText = result.accepted ? `炮塔升级至 Lv${result.level} · 攻击能力提升`
+            : result.reason === 'insufficient-gold' ? '金币不足，暂不能升级'
+                : result.reason === 'max-level' ? '当前炮塔已满级' : '炮塔不存在，请重新选择';
+        this.playSound(result.accepted ? 'ui' : 'reject');
+        return true;
+    }
+
     private toggleBattle(): void {
         if (this.resultViewModel()) return;
         const phase = this.battle.snapshot.phase;
@@ -400,7 +414,8 @@ export class NightwatchPocBootstrap extends Component {
             return;
         }
         if (this.inputMode !== 'idle') return;
-        const towerId = this.model.deployments.find(({ cell: towerCell }) => sameCell(towerCell, cell))?.towerId;
+        const deployment = this.model.deployments.find(({ cell: towerCell }) => sameCell(towerCell, cell));
+        const towerId = deployment?.towerId;
         if (towerId) {
             const canSell = this.preparing && !this.pausedByLifecycle;
             const action = this.towerInspection.tap(cell, canSell);
@@ -413,7 +428,7 @@ export class NightwatchPocBootstrap extends Component {
                 this.statusText = sold ? `炮塔已全额撤销 · ${routeChangeText(delta)}` : '撤销失败，请重新选择炮塔';
                 this.playSound(sold ? 'ui' : 'reject');
             } else if (action === 'inspect') {
-                this.statusText = this.towerInspectionText(towerId, canSell);
+                this.statusText = this.towerInspectionText(towerId, canSell, deployment?.level ?? 1);
                 this.playSound('ui');
             } else this.statusText = '已关闭炮塔射程查看';
             return;
@@ -538,11 +553,11 @@ export class NightwatchPocBootstrap extends Component {
         return this.selectedTowerId === 'frost-coil' ? '冷凝塔' : '机枪塔';
     }
 
-    private towerInspectionText(towerId: TowerId, canSell: boolean): string {
-        const tower = PHASE_B_TOWERS.find(({ id }) => id === towerId)!;
+    private towerInspectionText(towerId: TowerId, canSell: boolean, level = 1): string {
+        const tower = towerAtLevel(PHASE_B_TOWERS.find(({ id }) => id === towerId)!, level);
         return tower.effect
-            ? `${tower.label} · 射程 ${tower.rangeCells} 格 · 减速 45% · ${canSell ? '再点撤销' : '战斗中不可撤销'}`
-            : `${tower.label} · 射程 ${tower.rangeCells} 格 · 伤害 ${tower.damage} · ${canSell ? '再点撤销' : '战斗中不可撤销'}`;
+            ? `${tower.label} Lv${level} · 射程 ${tower.rangeCells} 格 · 减速 ${Math.round((1 - tower.effect.speedMultiplier) * 100)}% · ${canSell ? '再点撤销' : '战斗中不可撤销'}`
+            : `${tower.label} Lv${level} · 射程 ${tower.rangeCells} 格 · 伤害 ${tower.damage} · ${canSell ? '再点撤销' : '战斗中不可撤销'}`;
     }
 
     private restartFromCheckpoint(): void {
@@ -574,6 +589,7 @@ export class NightwatchPocBootstrap extends Component {
 
     private startCurrentWave(): void {
         // 自动倒计时和玩家提前开波都汇入这里，避免生成器出现两套初始化顺序。
+        this.towerInspection.clear();
         const wave = this.waves.get(this.battle.snapshot.wave);
         this.combat.start(wave);
         this.waveKillGold = 0;
@@ -658,16 +674,23 @@ export class NightwatchPocBootstrap extends Component {
             wave: battle.wave,
             occupiedCells: this.model.towers,
             guidedIntermissionHeld: this.guidedIntermissionHeld,
+            upgradedTowerCount: this.model.deployments.filter(({ level }) => (level ?? 1) > 1).length,
+            firstRivetCell: this.model.deployments.find(({ towerId }) => towerId === 'rivet-gun')?.cell,
         });
         const activePath = this.preview?.accepted && this.preview.path
             ? this.preview.path
             : this.model.flowField.pathFrom(this.model.grid.entry);
         const inspectedCell = this.towerInspection.cell;
-        const inspectedTowerId = inspectedCell
-            ? this.model.deployments.find(({ cell }) => sameCell(cell, inspectedCell))?.towerId
+        const inspectedDeployment = inspectedCell
+            ? this.model.deployments.find(({ cell }) => sameCell(cell, inspectedCell))
             : undefined;
+        const inspectedTowerId = inspectedDeployment?.towerId;
+        const inspectedLevel = inspectedDeployment?.level ?? 1;
+        const upgradeCost = inspectedTowerId
+            ? nextUpgradeCost(PHASE_B_TOWERS.find(({ id }) => id === inspectedTowerId)!, inspectedLevel)
+            : null;
         const baseGuidanceText = inspectedTowerId
-            ? this.towerInspectionText(inspectedTowerId, this.preparing && !this.pausedByLifecycle)
+            ? this.towerInspectionText(inspectedTowerId, this.preparing && !this.pausedByLifecycle, inspectedLevel)
             : experience.guidanceText ?? firstLevelGuidance({
                 preparing: this.preparing,
                 towerCount: this.model.towers.size,
@@ -688,9 +711,10 @@ export class NightwatchPocBootstrap extends Component {
             grid: this.model.grid,
             towers: this.model.towers,
             towerIdsByCell: new Map(this.model.deployments.map(({ cell, towerId }) => [cellKey(cell), towerId])),
+            towerLevelsByCell: new Map(this.model.deployments.map(({ cell, level }) => [cellKey(cell), level ?? 1])),
             activePath,
             preview: this.preview,
-            inspectedTower: inspectedCell && inspectedTowerId ? { cell: inspectedCell, towerId: inspectedTowerId } : null,
+            inspectedTower: inspectedCell && inspectedTowerId ? { cell: inspectedCell, towerId: inspectedTowerId, level: inspectedLevel, upgradeCost } : null,
             enemies: this.combat.enemies,
             feedback: this.feedback.snapshot,
             routeChange: this.routeChange.snapshot,
@@ -731,6 +755,7 @@ export class NightwatchPocBootstrap extends Component {
             canStartNextWaveEarly: battle.phase === 'countdown',
             countdownSeconds: battle.countdownSeconds,
             selectedTowerId: this.selectedTowerId,
+            inspectedUpgrade: inspectedTowerId ? { level: inspectedLevel, cost: upgradeCost } : null,
             result,
         });
         this.publishBrowserDiagnostics(guidanceText);
@@ -745,6 +770,7 @@ export class NightwatchPocBootstrap extends Component {
         const deployments = this.model.deployments;
         const rivetTowerCount = deployments.filter(({ towerId }) => towerId === 'rivet-gun').length;
         const frostTowerCount = deployments.filter(({ towerId }) => towerId === 'frost-coil').length;
+        const upgradedTowerCount = deployments.filter(({ level }) => (level ?? 1) > 1).length;
         const slowedEnemyCount = this.combat.enemies.filter(({ slowRemainingSeconds }) => slowRemainingSeconds > 0).length;
         this.browserDiagnostics.publish({
             entryMode: this.experience.entryMode,
@@ -756,6 +782,7 @@ export class NightwatchPocBootstrap extends Component {
             towerCount: this.model.towers.size,
             rivetTowerCount,
             frostTowerCount,
+            upgradedTowerCount,
             selectedTowerId: this.selectedTowerId,
             inspectedTowerCell: this.towerInspection.cell ? cellKey(this.towerInspection.cell) : null,
             slowedEnemyCount,

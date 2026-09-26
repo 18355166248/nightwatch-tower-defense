@@ -8,6 +8,7 @@ export interface BrowserBattleDiagnosticsState {
     readonly towerCount: number;
     readonly rivetTowerCount: number;
     readonly frostTowerCount: number;
+    readonly upgradedTowerCount: number;
     readonly selectedTowerId: string;
     readonly inspectedTowerCell: string | null;
     readonly slowedEnemyCount: number;
