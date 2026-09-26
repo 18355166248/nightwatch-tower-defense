@@ -26,7 +26,7 @@ import { countCombatFeedback, CombatFeedbackRuntime } from '../presentation/Comb
 import { PhaseBBackdropView } from '../presentation/PhaseBBackdropView';
 import { PhaseBCanvasRenderer } from '../presentation/PhaseBCanvasRenderer';
 import { PhaseBHudView } from '../presentation/PhaseBHudView';
-import { towerInspectionSummary, waveClearIncomeText } from '../presentation/PhaseBHudText';
+import { towerInspectionSummary, towerUpgradeSuccessText, waveClearIncomeText } from '../presentation/PhaseBHudText';
 import { PhaseBUnitSpriteView } from '../presentation/PhaseBUnitSpriteView';
 import { RouteChangeFeedback, routeChangeText, routeLengthDelta } from '../presentation/RouteChangeFeedback';
 import { waveStartStatus, waveThreatHint } from '../presentation/WaveBriefing';
@@ -329,9 +329,10 @@ export class NightwatchPocBootstrap extends Component {
     private handleUpgradeTouch(point: Vec3): boolean {
         const cell = this.towerInspection.cell;
         if (!cell || !this.layout.insideRect(point, PHASE_B_UPGRADE_BUTTON)) return false;
+        const towerId = this.model.deployments.find(({ cell: towerCell }) => sameCell(towerCell, cell))?.towerId;
         const result = this.model.upgrade(cell);
         if (result.accepted) this.towerInspection.clear();
-        this.statusText = result.accepted ? `炮塔升级至 Lv${result.level} · 攻击能力提升`
+        this.statusText = result.accepted && towerId ? towerUpgradeSuccessText(towerId, result.level)
             : result.reason === 'insufficient-gold' ? '金币不足，暂不能升级'
                 : result.reason === 'max-level' ? '当前炮塔已满级' : '炮塔不存在，请重新选择';
         this.playSound(result.accepted ? 'ui' : 'reject');

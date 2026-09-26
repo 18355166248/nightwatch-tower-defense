@@ -1,4 +1,4 @@
-import type { TowerArchetype } from '../config/PhaseBCombatConfig';
+import type { TowerArchetype, TowerId } from '../config/PhaseBCombatConfig';
 import { towerAtLevel } from '../systems/TowerLevelRules';
 
 /** 金币已有独立数值卡片，事件行只保留发生了什么，避免短屏顶部重复挤字。 */
@@ -10,8 +10,15 @@ export function hudEventText(statusText: string): string {
 export function towerInspectionSummary(baseTower: TowerArchetype, level: number): string {
     const tower = towerAtLevel(baseTower, level);
     return tower.effect
-        ? `${tower.label} Lv${level} · ${tower.rangeCells}格 · 减速${Math.round((1 - tower.effect.speedMultiplier) * 100)}%`
+        ? `${tower.label} Lv${level} · ${tower.rangeCells}格 · 范围减速${Math.round((1 - tower.effect.speedMultiplier) * 100)}%`
         : `${tower.label} Lv${level} · ${tower.rangeCells}格 · 伤害${tower.damage}`;
+}
+
+/** 升级提示对应真实定位；冷凝升级主要买到群控强度，不应沿用机枪的火力文案。 */
+export function towerUpgradeSuccessText(towerId: TowerId, level: number): string {
+    return towerId === 'frost-coil'
+        ? `冷凝塔升至 Lv${level} · 范围减速增强`
+        : `机枪塔升至 Lv${level} · 火力与射程提升`;
 }
 
 /** 击杀金币已逐只入账；这里只汇总本波所得，不重复发钱。 */

@@ -14,7 +14,11 @@ export interface TracerFeedback extends TimedFeedback {
     readonly lethal: boolean;
     readonly towerId: TowerId;
     readonly appliedSlow: boolean;
-    readonly slowRadiusCells?: number;
+}
+
+export interface SlowPulseFeedback extends TimedFeedback {
+    readonly radiusCells: number;
+    readonly affectedEnemyCount: number;
 }
 
 export interface RewardFeedback extends TimedFeedback {
@@ -30,6 +34,7 @@ export interface DeathFeedback extends TimedFeedback {
 export interface CombatFeedbackSnapshot {
     readonly tracers: readonly TracerFeedback[];
     readonly impacts: readonly TimedFeedback[];
+    readonly slowPulses: readonly SlowPulseFeedback[];
     readonly deaths: readonly DeathFeedback[];
     readonly rewards: readonly RewardFeedback[];
     readonly coreHits: readonly TimedFeedback[];
@@ -37,13 +42,15 @@ export interface CombatFeedbackSnapshot {
 
 const TRACER_SECONDS = 0.1;
 const IMPACT_SECONDS = 0.16;
+// 与 0.1 秒弹道分离：2× 战斗时仍给范围圈约 0.25 秒真实可见时间。
+const SLOW_PULSE_SECONDS = 0.5;
 const DEATH_SECONDS = 0.38;
 const REWARD_SECONDS = 0.7;
 const CORE_HIT_SECONDS = 0.28;
 const MAX_FEEDBACK_PER_CHANNEL = 64;
 
 export function countCombatFeedback(snapshot: CombatFeedbackSnapshot): number {
-    return snapshot.tracers.length + snapshot.impacts.length + snapshot.deaths.length
+    return snapshot.tracers.length + snapshot.impacts.length + snapshot.slowPulses.length + snapshot.deaths.length
         + snapshot.rewards.length + snapshot.coreHits.length;
 }
 
@@ -54,6 +61,7 @@ export function countCombatFeedback(snapshot: CombatFeedbackSnapshot): number {
 export class CombatFeedbackRuntime {
     private activeTracers: TracerFeedback[] = [];
     private activeImpacts: TimedFeedback[] = [];
+    private activeSlowPulses: SlowPulseFeedback[] = [];
     private activeDeaths: DeathFeedback[] = [];
     private activeRewards: RewardFeedback[] = [];
     private activeCoreHits: TimedFeedback[] = [];
@@ -62,6 +70,7 @@ export class CombatFeedbackRuntime {
         return {
             tracers: this.activeTracers,
             impacts: this.activeImpacts,
+            slowPulses: this.activeSlowPulses,
             deaths: this.activeDeaths,
             rewards: this.activeRewards,
             coreHits: this.activeCoreHits,
@@ -71,6 +80,12 @@ export class CombatFeedbackRuntime {
     public consume(result: CombatTickResult): void {
         this.activeTracers.push(...result.shots.map((shot) => this.tracerFor(shot)));
         this.activeImpacts.push(...result.shots.map((shot) => this.timed(shot.targetPoint, IMPACT_SECONDS)));
+        this.activeSlowPulses.push(...result.shots.flatMap((shot) => {
+            const affectedEnemyCount = shot.slowedEnemyIds?.length ?? Number(shot.appliedSlow);
+            if (!shot.appliedSlow || !shot.slowRadiusCells || affectedEnemyCount === 0) return [];
+            return [{ ...this.timed(shot.targetPoint, SLOW_PULSE_SECONDS),
+                radiusCells: shot.slowRadiusCells, affectedEnemyCount }];
+        }));
         this.activeDeaths.push(...result.killed.map((enemy) => ({
             ...this.timed(this.enemyPoint(enemy), DEATH_SECONDS),
             enemyId: enemy.id,
@@ -89,6 +104,7 @@ export class CombatFeedbackRuntime {
         if (!Number.isFinite(deltaSeconds) || deltaSeconds < 0) throw new RangeError('deltaSeconds 不能为负数');
         this.activeTracers = this.decay(this.activeTracers, deltaSeconds);
         this.activeImpacts = this.decay(this.activeImpacts, deltaSeconds);
+        this.activeSlowPulses = this.decay(this.activeSlowPulses, deltaSeconds);
         this.activeDeaths = this.decay(this.activeDeaths, deltaSeconds);
         this.activeRewards = this.decay(this.activeRewards, deltaSeconds);
         this.activeCoreHits = this.decay(this.activeCoreHits, deltaSeconds);
@@ -97,6 +113,7 @@ export class CombatFeedbackRuntime {
     public clear(): void {
         this.activeTracers = [];
         this.activeImpacts = [];
+        this.activeSlowPulses = [];
         this.activeDeaths = [];
         this.activeRewards = [];
         this.activeCoreHits = [];
@@ -111,7 +128,6 @@ export class CombatFeedbackRuntime {
             lethal: shot.lethal,
             towerId: shot.towerId,
             appliedSlow: shot.appliedSlow,
-            slowRadiusCells: shot.slowRadiusCells,
         };
     }
 
@@ -135,6 +151,7 @@ export class CombatFeedbackRuntime {
     private trimChannels(): void {
         this.activeTracers = this.activeTracers.slice(-MAX_FEEDBACK_PER_CHANNEL);
         this.activeImpacts = this.activeImpacts.slice(-MAX_FEEDBACK_PER_CHANNEL);
+        this.activeSlowPulses = this.activeSlowPulses.slice(-MAX_FEEDBACK_PER_CHANNEL);
         this.activeDeaths = this.activeDeaths.slice(-MAX_FEEDBACK_PER_CHANNEL);
         this.activeRewards = this.activeRewards.slice(-MAX_FEEDBACK_PER_CHANNEL);
         this.activeCoreHits = this.activeCoreHits.slice(-MAX_FEEDBACK_PER_CHANNEL);

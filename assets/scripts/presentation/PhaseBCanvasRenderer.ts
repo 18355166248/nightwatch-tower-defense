@@ -298,13 +298,22 @@ export class PhaseBCanvasRenderer {
                 : new Color(255, 239, 169, Math.round(230 * life));
             graphics.circle(origin.x, origin.y, cellSize * (0.08 + 0.07 * life));
             graphics.fill();
-            if (tracer.appliedSlow && tracer.slowRadiusCells) {
-                // 冷凝脉冲的可视半径与规则同源，让玩家能看见“群体减速”真正覆盖了哪里。
-                graphics.strokeColor = new Color(115, 232, 245, Math.round(175 * life));
-                graphics.lineWidth = 4;
-                graphics.circle(target.x, target.y, cellSize * tracer.slowRadiusCells * (1 - 0.25 * life));
-                graphics.stroke();
-            }
+        }
+        for (const pulse of state.feedback.slowPulses) {
+            const point = this.center(pulse.point, state.grid);
+            const progress = 1 - pulse.remainingSeconds / pulse.durationSeconds;
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            const radius = cellSize * pulse.radiusCells * (0.58 + 0.42 * easeOut);
+            const life = 1 - progress;
+            // 脉冲与短弹道独立衰减；淡色底面交代覆盖范围，轮廓只在真正减速时出现。
+            graphics.fillColor = new Color(89, 208, 231, Math.round(25 * life));
+            graphics.circle(point.x, point.y, radius);
+            graphics.fill();
+            graphics.strokeColor = new Color(131, 242, 255,
+                Math.round((pulse.affectedEnemyCount > 1 ? 205 : 130) * life));
+            graphics.lineWidth = pulse.affectedEnemyCount > 1 ? 8 : 6;
+            graphics.circle(point.x, point.y, radius);
+            graphics.stroke();
         }
         for (const impact of state.feedback.impacts) {
             const point = this.center(impact.point, state.grid);

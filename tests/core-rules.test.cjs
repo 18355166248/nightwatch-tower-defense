@@ -28,7 +28,7 @@ const { buildCoreObjectiveState } = require('../.test-dist/presentation/CoreObje
 const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGuidance.js');
 const { FirstLevelExperience } = require('../.test-dist/presentation/FirstLevelExperience.js');
 const { firstLevelWaveBanner } = require('../.test-dist/presentation/FirstLevelWaveBanner.js');
-const { hudEventText, towerInspectionSummary, waveClearIncomeText } = require('../.test-dist/presentation/PhaseBHudText.js');
+const { hudEventText, towerInspectionSummary, towerUpgradeSuccessText, waveClearIncomeText } = require('../.test-dist/presentation/PhaseBHudText.js');
 const { enemyGaitFrame, enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
 const { RouteChangeFeedback, routeChangeText, routeLengthDelta } = require('../.test-dist/presentation/RouteChangeFeedback.js');
 const { waveLineup, waveStartStatus, waveThreatHint } = require('../.test-dist/presentation/WaveBriefing.js');
@@ -53,8 +53,10 @@ test('首关 HUD 将重复金币移到独立数值卡，保留建塔与波次事
     assert.equal(towerInspectionSummary(RIVET_GUN, 1), '机枪塔 Lv1 · 2.6格 · 伤害7');
     assert.equal(towerInspectionSummary(RIVET_GUN, 2), '机枪塔 Lv2 · 2.8格 · 伤害11');
     assert.equal(towerInspectionSummary(RIVET_GUN, 3), '机枪塔 Lv3 · 3.2格 · 伤害18');
-    assert.equal(towerInspectionSummary(FROST_COIL, 1), '冷凝塔 Lv1 · 3格 · 减速75%');
-    assert.equal(towerInspectionSummary(FROST_COIL, 3), '冷凝塔 Lv3 · 3.5格 · 减速89%');
+    assert.equal(towerInspectionSummary(FROST_COIL, 1), '冷凝塔 Lv1 · 3格 · 范围减速75%');
+    assert.equal(towerInspectionSummary(FROST_COIL, 3), '冷凝塔 Lv3 · 3.5格 · 范围减速89%');
+    assert.equal(towerUpgradeSuccessText('frost-coil', 2), '冷凝塔升至 Lv2 · 范围减速增强');
+    assert.equal(towerUpgradeSuccessText('rivet-gun', 3), '机枪塔升至 Lv3 · 火力与射程提升');
 });
 
 test('波内生成进度区分短暂清屏、真正清场和下一波待命', () => {
@@ -1021,6 +1023,30 @@ test('战斗反馈消费只读事件，并在独立时间轴上自动回收', ()
     assert.equal(feedback.snapshot.deaths.length, 0);
     assert.equal(feedback.snapshot.rewards.length, 0);
     assert.equal(result.shots[0].damage, 7);
+});
+
+test('冷凝范围脉冲独立于短弹道衰减，2倍速下仍保留可见时窗', () => {
+    const feedback = new CombatFeedbackRuntime();
+    const point = { column: 3, row: 2 };
+    const shot = { towerCell: { column: 2, row: 2 }, towerId: 'frost-coil',
+        targetId: 'enemy-1', targetPoint: point, damage: 4, lethal: false,
+        appliedSlow: true, slowedEnemyIds: ['enemy-1', 'enemy-2'], slowRadiusCells: 1.5 };
+    feedback.consume({ shots: [shot], killed: [], leaked: [], spawningCompleted: false });
+    assert.equal(feedback.snapshot.slowPulses.length, 1);
+    assert.deepEqual(feedback.snapshot.slowPulses[0].point, point);
+    assert.equal(feedback.snapshot.slowPulses[0].radiusCells, 1.5);
+    assert.equal(feedback.snapshot.slowPulses[0].affectedEnemyCount, 2);
+    // 0.2 秒玩法时间相当于 2× 下 0.1 秒真实时间：弹道消失，控制波纹仍在。
+    feedback.advance(0.2);
+    assert.equal(feedback.snapshot.tracers.length, 0);
+    assert.ok(feedback.snapshot.slowPulses[0].remainingSeconds > 0.2);
+    feedback.advance(0.3);
+    assert.equal(feedback.snapshot.slowPulses.length, 0);
+    feedback.consume({ shots: [{ ...shot, appliedSlow: false, slowedEnemyIds: [] }],
+        killed: [], leaked: [], spawningCompleted: false });
+    assert.equal(feedback.snapshot.slowPulses.length, 0, '未施加减速时不能伪造脉冲反馈');
+    feedback.clear();
+    assert.equal(countCombatFeedback(feedback.snapshot), 0);
 });
 
 test('第一波短折线在 20/30/60 FPS 下保持至少双敌同屏并全部守住', () => {
