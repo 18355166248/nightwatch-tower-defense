@@ -36,7 +36,7 @@ const { enemyCrowdGroups } = require('../.test-dist/presentation/EnemyCrowdGroup
 const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGuidance.js');
 const { FirstLevelExperience } = require('../.test-dist/presentation/FirstLevelExperience.js');
 const { firstLevelWaveBanner } = require('../.test-dist/presentation/FirstLevelWaveBanner.js');
-const { hudEventText, towerInspectionSummary, towerSelectionSummary, towerUpgradeSuccessText, waveClearIncomeText } = require('../.test-dist/presentation/PhaseBHudText.js');
+const { hudEventText, towerInspectionSummary, towerSelectionSummary, towerUpgradeSuccessText, waveClearIncomeText, waveStartButtonViewModel } = require('../.test-dist/presentation/PhaseBHudText.js');
 const { enemyDeathFeedbackSeconds, enemyDeathPose, enemyGaitFrame, enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
 const { RouteChangeFeedback, routeChangeText, routeLengthDelta, routePathChanged } = require('../.test-dist/presentation/RouteChangeFeedback.js');
 const { routePreviewDiff } = require('../.test-dist/presentation/RoutePreviewDiff.js');
@@ -72,6 +72,14 @@ test('首关 HUD 将重复金币移到独立数值卡，保留建塔与波次事
     assert.equal(towerSelectionSummary(RIVET_GUN), '已选机枪塔 · 稳定单体输出');
     assert.equal(towerUpgradeSuccessText('frost-coil', 2), '冷凝塔升至 Lv2 · 范围减速增强');
     assert.equal(towerUpgradeSuccessText('rivet-gun', 3), '机枪塔升至 Lv3 · 火力与射程提升');
+});
+
+test('底栏开波按钮按首波、波间与教学待命状态展示一致的动作', () => {
+    assert.deepEqual(waveStartButtonViewModel('preparing', false, false, 0), { label: '第一波\n先布防', active: false });
+    assert.deepEqual(waveStartButtonViewModel('preparing', true, false, 0), { label: '开始\n第一波', active: true });
+    assert.deepEqual(waveStartButtonViewModel('countdown', false, false, 7.2), { label: '提前开波\n8 秒', active: true });
+    assert.deepEqual(waveStartButtonViewModel('paused', false, true, 0), { label: '开始\n下一波', active: true });
+    assert.deepEqual(waveStartButtonViewModel('spawning', false, false, 0), { label: '提前开波\n等待中', active: false });
 });
 
 test('只有拿起或预览中的塔卡高亮，空闲态记住塔种但不冒充可直接落塔', () => {

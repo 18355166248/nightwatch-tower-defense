@@ -476,7 +476,7 @@ export class PhaseBCanvasRenderer {
             20,
         );
         graphics.fill();
-        graphics.fillColor = state.canStartNextWaveEarly ? new Color('#2F9E72') : new Color('#354355');
+        graphics.fillColor = state.waveStartButton.active ? new Color('#2F9E72') : new Color('#354355');
         graphics.roundRect(
             earlyRect.left,
             earlyRect.bottom,

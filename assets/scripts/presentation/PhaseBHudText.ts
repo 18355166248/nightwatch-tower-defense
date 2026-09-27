@@ -1,5 +1,26 @@
 import type { TowerArchetype, TowerId } from '../config/PhaseBCombatConfig';
+import type { BattlePhase } from '../systems/BattleStateMachine';
 import { towerAtLevel } from '../systems/TowerLevelRules';
+
+export interface WaveStartButtonViewModel {
+    readonly label: string;
+    readonly active: boolean;
+}
+
+/** 同一按钮在首波、自然波间和教学待命中分别承担开波动作，文案与可用态必须同步。 */
+export function waveStartButtonViewModel(
+    phase: BattlePhase,
+    firstWaveReady: boolean,
+    guidedIntermissionHeld: boolean,
+    countdownSeconds: number,
+): WaveStartButtonViewModel {
+    if (phase === 'preparing') return firstWaveReady
+        ? { label: '开始\n第一波', active: true }
+        : { label: '第一波\n先布防', active: false };
+    if (phase === 'countdown') return { label: `提前开波\n${Math.ceil(countdownSeconds)} 秒`, active: true };
+    if (phase === 'paused' && guidedIntermissionHeld) return { label: '开始\n下一波', active: true };
+    return { label: '提前开波\n等待中', active: false };
+}
 
 /** 金币已有独立数值卡片，事件行只保留发生了什么，避免短屏顶部重复挤字。 */
 export function hudEventText(statusText: string): string {

@@ -3,6 +3,7 @@ import type { GridCell, GridDefinition, GridId } from '../core/GridTypes';
 import type { BattleResultViewModel } from './BattleResultViewModel';
 import type { CombatFeedbackSnapshot } from './CombatFeedbackRuntime';
 import type { RouteChangeSnapshot } from './RouteChangeFeedback';
+import type { WaveStartButtonViewModel } from './PhaseBHudText';
 
 /** 各表现层共享只读快照，渲染实现不反向持有战斗或经济对象。 */
 export interface PhaseBSceneState {
@@ -37,7 +38,7 @@ export interface PhaseBSceneState {
     readonly soundEnabled: boolean;
     /** 仅操作已拿起炮塔时才高亮卡片；记住上次塔类型不等于正在放置。 */
     readonly activePlacementTowerId: TowerId | null;
-    readonly canStartNextWaveEarly: boolean;
+    readonly waveStartButton: WaveStartButtonViewModel;
     readonly showPlayControl: boolean;
     readonly result: BattleResultViewModel | null;
     readonly resultRevealProgress: number;

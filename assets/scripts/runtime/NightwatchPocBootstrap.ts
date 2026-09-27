@@ -28,7 +28,7 @@ import { PhaseBBackdropView } from '../presentation/PhaseBBackdropView';
 import { PhaseBCanvasRenderer } from '../presentation/PhaseBCanvasRenderer';
 import { PhaseBHudView } from '../presentation/PhaseBHudView';
 import { PhaseBPauseOverlayView } from '../presentation/PhaseBPauseOverlayView';
-import { towerInspectionSummary, towerSelectionSummary, towerUpgradeSuccessText, waveClearIncomeText } from '../presentation/PhaseBHudText';
+import { towerInspectionSummary, towerSelectionSummary, towerUpgradeSuccessText, waveClearIncomeText, waveStartButtonViewModel } from '../presentation/PhaseBHudText';
 import { PhaseBUnitSpriteView } from '../presentation/PhaseBUnitSpriteView';
 import { RouteChangeFeedback, routeChangeText, routeLengthDelta, routePathChanged } from '../presentation/RouteChangeFeedback';
 import { ResultRevealRuntime } from '../presentation/ResultRevealRuntime';
@@ -384,7 +384,9 @@ export class NightwatchPocBootstrap extends Component {
             return true;
         }
         if (this.layout.insideRect(point, this.layout.safeRect(PHASE_B_EARLY_WAVE_BUTTON))) {
-            this.startNextWaveEarly();
+            // 底栏按钮与中央 ▶ 汇入同一开波路径；首波不应误走仅允许波间的提前开波接口。
+            if (this.preparing || this.guidedIntermissionHeld) this.toggleBattle();
+            else this.startNextWaveEarly();
             return true;
         }
         return false;
@@ -771,6 +773,11 @@ export class NightwatchPocBootstrap extends Component {
         return this.model.flowField.distanceAt(this.model.grid.entry) - this.initialPathLength;
     }
 
+    private firstWaveReady(): boolean {
+        return this.preparing && this.model.towers.size >= FIRST_WAVE_MIN_TOWER_COUNT
+            && this.currentPathDelta() >= FIRST_WAVE_MIN_PATH_DELTA;
+    }
+
     private startCurrentWave(): void {
         // 自动倒计时和玩家提前开波都汇入这里，避免生成器出现两套初始化顺序。
         // 未提交的预览不能跨入战斗：否则画面显示候选路线，敌人却沿已提交流场行动。
@@ -905,6 +912,7 @@ export class NightwatchPocBootstrap extends Component {
         const guidanceText = baseGuidanceText;
         // 记住上次塔类型仅供下次操作复用；空闲态不能把卡片画成“已拿起”，否则点网格无响应像是故障。
         const activePlacementTowerId = activePlacementTower(this.selectedTowerId, this.inputMode);
+        const waveStartButton = waveStartButtonViewModel(battle.phase, this.firstWaveReady(), this.guidedIntermissionHeld, battle.countdownSeconds);
         const sceneState: PhaseBSceneState = {
             qaMode: this.qaMode,
             useUnitSprites: this.unitSprites?.ready ?? false,
@@ -926,7 +934,7 @@ export class NightwatchPocBootstrap extends Component {
             speedMultiplier: this.simulationClock.scale,
             soundEnabled: this.sound.isEnabled,
             activePlacementTowerId,
-            canStartNextWaveEarly: battle.phase === 'countdown',
+            waveStartButton,
             showPlayControl: this.preparing || this.battle.snapshot.phase === 'paused',
             result,
             resultRevealProgress: this.resultReveal.progress,
@@ -964,8 +972,7 @@ export class NightwatchPocBootstrap extends Component {
             speedMultiplier: this.simulationClock.scale,
             soundEnabled: this.sound.isEnabled,
             soundReady: this.sound.isReady,
-            canStartNextWaveEarly: battle.phase === 'countdown',
-            countdownSeconds: battle.countdownSeconds,
+            waveStartButton,
             activePlacementTowerId,
             inspectedUpgrade: inspectedTowerId ? { level: inspectedLevel, cost: upgradeCost, saleRefund } : null,
             upcomingWave,
@@ -993,9 +1000,10 @@ export class NightwatchPocBootstrap extends Component {
             : `已选塔可${saleWindow === 'opening' ? '全额撤销' : '波间出售'}返还${inspectedSaleRefund}金币，`;
         // 第一波使用布防门槛，波间才使用提前开波状态；避免读屏把可开的第一波误报为未激活。
         const waveStartAccessibleText = this.preparing
-            ? this.model.towers.size >= FIRST_WAVE_MIN_TOWER_COUNT && this.currentPathDelta() >= FIRST_WAVE_MIN_PATH_DELTA
+            ? this.firstWaveReady()
                 ? '第一波可开'
                 : '第一波待布防'
+            : this.guidedIntermissionHeld ? '下一波可开'
             : this.battle.snapshot.phase === 'countdown' ? '可提前开波' : '提前开波未激活';
         this.browserDiagnostics.publish({
             entryMode: this.experience.entryMode,

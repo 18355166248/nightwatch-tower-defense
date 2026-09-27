@@ -11,7 +11,7 @@ import type { BattleResultViewModel } from './BattleResultViewModel';
 import { FROST_COIL, RIVET_GUN, type TowerId } from '../config/PhaseBCombatConfig';
 import type { BattlePhase } from '../systems/BattleStateMachine';
 import { firstLevelWaveBanner } from './FirstLevelWaveBanner';
-import { hudEventText } from './PhaseBHudText';
+import { hudEventText, type WaveStartButtonViewModel } from './PhaseBHudText';
 import { resultRevealEase } from './ResultRevealRuntime';
 import type { UpcomingWaveBriefing } from './WaveBriefing';
 import { PHASE_B_EARLY_WAVE_BUTTON, PHASE_B_RESULT_HOME_BUTTON, PHASE_B_RESULT_RESTART_BUTTON, PHASE_B_SOUND_BUTTON, PHASE_B_SPEED_BUTTON,
@@ -34,8 +34,7 @@ export interface PhaseBHudState {
     readonly speedMultiplier: number;
     readonly soundEnabled: boolean;
     readonly soundReady: boolean;
-    readonly canStartNextWaveEarly: boolean;
-    readonly countdownSeconds: number;
+    readonly waveStartButton: WaveStartButtonViewModel;
     readonly activePlacementTowerId: TowerId | null;
     readonly inspectedUpgrade: { readonly level: number; readonly cost: number | null; readonly saleRefund: number | null } | null;
     readonly upcomingWave: UpcomingWaveBriefing | null;
@@ -140,8 +139,8 @@ export class PhaseBHudView {
         const signature = [
             state.qaMode, state.guidanceText, state.statusText, state.gold, state.pathLength, state.wave, state.totalWaves,
             state.coreHealth, state.phaseText, state.phase, state.waveSpawned, state.waveTotal, state.activeEnemyCount,
-            state.speedMultiplier, state.soundEnabled, state.soundReady, state.canStartNextWaveEarly,
-            Math.ceil(state.countdownSeconds), state.activePlacementTowerId, state.inspectedUpgrade?.level ?? 0,
+            state.speedMultiplier, state.soundEnabled, state.soundReady, state.waveStartButton.label,
+            state.waveStartButton.active, state.activePlacementTowerId, state.inspectedUpgrade?.level ?? 0,
             state.upcomingWave?.wave ?? 0, state.upcomingWave?.lineup ?? '', state.upcomingWave?.tactic ?? '',
             state.inspectedUpgrade?.cost ?? -1, state.inspectedUpgrade?.saleRefund ?? -1,
             state.result?.kind ?? '', state.result?.summary ?? '', state.result?.subtitle ?? '',
@@ -202,10 +201,8 @@ export class PhaseBHudView {
             this.guidanceLabel.string = state.guidanceText;
             this.speedLabel.string = `速度\n${state.speedMultiplier}×`;
             this.soundLabel.string = state.soundEnabled ? `音效\n${state.soundReady ? '开' : '待启用'}` : '音效\n关';
-            this.earlyWaveLabel.string = state.canStartNextWaveEarly
-                ? `提前开波\n${Math.ceil(state.countdownSeconds)} 秒`
-                : '提前开波\n等待中';
-            this.earlyWaveLabel.color = new Color(state.canStartNextWaveEarly ? '#E9FFF4' : '#718197');
+            this.earlyWaveLabel.string = state.waveStartButton.label;
+            this.earlyWaveLabel.color = new Color(state.waveStartButton.active ? '#E9FFF4' : '#718197');
             this.rivetLabel.string = `机枪\n${RIVET_GUN.cost}`;
             this.frostLabel.string = `冷凝\n${FROST_COIL.cost}`;
             this.rivetLabel.color = new Color(state.activePlacementTowerId === 'rivet-gun' ? '#101827' : '#F2E4BF');
