@@ -10,7 +10,7 @@ const { FIRST_LEVEL_GUIDED_UPGRADES, FIRST_LEVEL_OPENING, FIRST_LEVEL_OPTIONAL_F
 const { CLOCKWORK_INFANTRY, CLOCKWORK_RUNNER, FROST_COIL, IRON_CANISTER_HAULER, PHASE_B_TOWERS, PHASE_B_WAVES, PHASE_B_WAVE_ONE, RIVET_GUN } = require('../.test-dist/config/PhaseBCombatConfig.js');
 const { cellKey } = require('../.test-dist/core/GridTypes.js');
 const { FlowField } = require('../.test-dist/systems/FlowField.js');
-const { applyGuidedQaOpening, applyGuidedQaPurchases } = require('../.test-dist/systems/GuidedQaPlacement.js');
+const { applyGuidedQaOpening, applyGuidedQaPurchases, canApplyGuidedQaPurchases, shouldHoldQaIntermission } = require('../.test-dist/systems/GuidedQaPlacement.js');
 const { PlacementModel } = require('../.test-dist/systems/PlacementModel.js');
 const { nextUpgradeCost, towerAtLevel, towerInvestment } = require('../.test-dist/systems/TowerLevelRules.js');
 const { simulateNoDamageRoute } = require('../.test-dist/systems/RouteSimulation.js');
@@ -124,6 +124,17 @@ test('QA 推荐夹具复用真实购买事务，八波购买窗口与重复按�
     assert.equal(model.flowField.distanceAt(model.grid.entry), 20);
     economy.credit(220);
     assert.equal(model.gold, 349);
+});
+
+test('QA 自然倒计时只开放波间真实购买，不进入教学强制暂停', () => {
+    assert.equal(shouldHoldQaIntermission(true, false), true);
+    assert.equal(shouldHoldQaIntermission(true, true), false);
+    assert.equal(shouldHoldQaIntermission(false, false), false);
+    assert.equal(canApplyGuidedQaPurchases('paused', true, false), true);
+    assert.equal(canApplyGuidedQaPurchases('countdown', false, true), true);
+    assert.equal(canApplyGuidedQaPurchases('spawning', false, true), false);
+    assert.equal(canApplyGuidedQaPurchases('paused', false, true), false);
+    assert.equal(canApplyGuidedQaPurchases('countdown', false, false), false);
 });
 
 test('波内生成进度区分短暂清屏、真正清场和下一波待命', () => {

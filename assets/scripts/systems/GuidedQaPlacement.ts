@@ -2,12 +2,22 @@ import { FIRST_LEVEL_GUIDED_UPGRADES, FIRST_LEVEL_OPENING, FIRST_LEVEL_REINFORCE
 import type { TowerId } from '../config/PhaseBCombatConfig';
 import { cellKey, sameCell, type GridCell } from '../core/GridTypes';
 import type { PlacementModel } from './PlacementModel';
+import type { BattlePhase } from './BattleStateMachine';
 
 export interface GuidedQaPurchaseResult {
     readonly placed: number;
     readonly upgraded: number;
     readonly gold: number;
     readonly pathLength: number;
+}
+
+/** 自然倒计时 QA 只改变等待方式，不跳过开波、购买或战斗事务。 */
+export function shouldHoldQaIntermission(qaGuidedRun: boolean, naturalCountdown: boolean): boolean {
+    return qaGuidedRun && !naturalCountdown;
+}
+
+export function canApplyGuidedQaPurchases(phase: BattlePhase, held: boolean, naturalCountdown: boolean): boolean {
+    return (held && phase === 'paused') || (naturalCountdown && phase === 'countdown');
 }
 
 /** QA 浏览器夹具复用教学配置和真实事务；重复按键不会重复扣费。 */

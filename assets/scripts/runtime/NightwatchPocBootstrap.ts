@@ -64,7 +64,7 @@ import { BattleRunClock } from '../systems/BattleRunClock';
 import { BattleStateMachine } from '../systems/BattleStateMachine';
 import { EconomyLedger } from '../systems/EconomyLedger';
 import { FirstLevelBestTimeStore } from '../systems/FirstLevelBestTimeStore';
-import { applyGuidedQaOpening, applyGuidedQaPurchases } from '../systems/GuidedQaPlacement';
+import { applyGuidedQaOpening, applyGuidedQaPurchases, canApplyGuidedQaPurchases, shouldHoldQaIntermission } from '../systems/GuidedQaPlacement';
 import { PauseOverlayRuntime } from '../systems/PauseOverlayRuntime';
 import { isCoarseLandscape } from '../systems/ViewportSafety';
 import { PlacementModel, type PlacementPreview } from '../systems/PlacementModel';
@@ -80,6 +80,7 @@ const { ccclass } = _decorator;
 export class NightwatchPocBootstrap extends Component {
     private readonly qaMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('qa') === '1';
     private readonly qaCoarsePointer = this.qaMode && new URLSearchParams(window.location.search).get('qaCoarse') === '1';
+    private readonly qaNaturalCountdown = this.qaMode && new URLSearchParams(window.location.search).get('qaNaturalCountdown') === '1';
     private canvas: Node | null = null;
     private browserCanvas: HTMLCanvasElement | null = null;
     private coarsePointerQuery: MediaQueryList | null = null;
@@ -685,8 +686,10 @@ export class NightwatchPocBootstrap extends Component {
     }
 
     private applyGuidedQaWavePurchases(): void {
-        if (!this.qaMode || !this.qaGuidedRun || !this.guidedIntermissionHeld || this.battle.snapshot.phase !== 'paused') {
-            this.statusText = 'QA 仅在推荐局清场暂停时可按 B 补塔';
+        if (!this.qaMode || !this.qaGuidedRun || !canApplyGuidedQaPurchases(
+            this.battle.snapshot.phase, this.guidedIntermissionHeld, this.qaNaturalCountdown,
+        )) {
+            this.statusText = 'QA 仅在推荐局波间可按 B 补塔';
             return;
         }
         const wave = this.battle.snapshot.wave;
@@ -794,13 +797,18 @@ export class NightwatchPocBootstrap extends Component {
         } else if (phase === 'countdown') {
             // 教学波间在奖励结算后暂停，让玩家按“击杀→回款→补塔→继续”掌握整局节奏。
             const holdForCoach = this.experience.shouldHoldIntermission(this.battle.snapshot.wave, this.waves.totalWaves)
-                || this.qaGuidedRun;
+                || shouldHoldQaIntermission(this.qaGuidedRun, this.qaNaturalCountdown);
             if (holdForCoach) {
                 this.battle.pause();
                 this.guidedIntermissionHeld = true;
             }
-            // 下一步操作由教学/波次横幅负责提示，这里只呈现真实收入，避免短屏事件行拥挤。
-            this.statusText = waveClearIncomeText(this.battle.snapshot.wave, this.waveKillGold, clearReward);
+            // 仅 1× 自然倒计时 QA 在清场瞬间用真实交易自动补塔，避免浏览器控制延迟错过 8 秒窗口。
+            // 玩家入口与常规 QA B 键仍需手动决策；此模式只用于测量引擎实际局长。
+            const qaPurchase = this.qaNaturalCountdown && this.qaGuidedRun
+                ? applyGuidedQaPurchases(this.model, this.battle.snapshot.wave) : null;
+            this.statusText = qaPurchase
+                ? `${waveClearIncomeText(this.battle.snapshot.wave, this.waveKillGold, clearReward)} · QA 建${qaPurchase.placed}升${qaPurchase.upgraded}`
+                : waveClearIncomeText(this.battle.snapshot.wave, this.waveKillGold, clearReward);
             this.playSound('wave-clear');
         } else if (phase === 'defeat') {
             this.resultReveal.begin();
