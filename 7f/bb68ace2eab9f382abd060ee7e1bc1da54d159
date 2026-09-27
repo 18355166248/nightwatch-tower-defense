@@ -1,0 +1,27 @@
+tests/core-rules.test.cjs
+  s_57db2c01e7cdde::t_0270e7cbe1ffcf 52,346-349,463,1121,1154-1163
+  s_57db2c01e7cdde::t_67cdde35ffa42a 1164-1165
+docs/poc/phase-b-economy-window-regression.md
+  s_57db2c01e7cdde::t_86ec78b2400aa5 1-11,13-32
+  s_57db2c01e7cdde::t_0a79a6536942c1 12
+scripts/probe-first-level-pacing.cjs
+  s_57db2c01e7cdde::t_3f1b4085c0b134 19-20,25-29,39
+assets/scripts/config/PhaseBCombatConfig.ts
+  s_57db2c01e7cdde::t_8a660e5f5eabc7 68,71,77,112-119
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "7fbb68ace2eab9f382abd060ee7e1bc1da54d159",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
