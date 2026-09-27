@@ -30,7 +30,7 @@ import { PhaseBHudView } from '../presentation/PhaseBHudView';
 import { PhaseBPauseOverlayView } from '../presentation/PhaseBPauseOverlayView';
 import { towerInspectionSummary, towerSelectionSummary, towerUpgradeSuccessText, waveClearIncomeText } from '../presentation/PhaseBHudText';
 import { PhaseBUnitSpriteView } from '../presentation/PhaseBUnitSpriteView';
-import { RouteChangeFeedback, routeChangeText, routeLengthDelta } from '../presentation/RouteChangeFeedback';
+import { RouteChangeFeedback, routeChangeText, routeLengthDelta, routePathChanged } from '../presentation/RouteChangeFeedback';
 import { ResultRevealRuntime } from '../presentation/ResultRevealRuntime';
 import { upcomingWaveBriefing, waveStartStatus, type UpcomingWaveBriefing } from '../presentation/WaveBriefing';
 import type { PhaseBSceneState } from '../presentation/PhaseBSceneState';
@@ -440,13 +440,13 @@ export class NightwatchPocBootstrap extends Component {
         const window = towerSaleWindow(this.preparing, this.battle.snapshot.phase, this.guidedIntermissionHeld);
         const refund = this.model.saleQuote(cell, window);
         if (refund !== null && this.layout.insideRect(point, this.layout.safeRect(PHASE_B_SELL_BUTTON))) {
-            const before = this.model.flowField.distanceAt(this.model.grid.entry);
+            const before = this.committedPath();
             // 输入回调内再次以当前阶段提交；倒计时已经开波时窗口变 locked，绝不跨波出售。
             const sold = this.model.sell(cell, towerSaleWindow(this.preparing, this.battle.snapshot.phase, this.guidedIntermissionHeld));
             if (sold) {
                 this.towerInspection.clear();
-                const delta = this.routeChange.record(cell, before, this.model.flowField.distanceAt(this.model.grid.entry)).delta;
-                this.statusText = `${window === 'opening' ? '全额撤销' : '波间出售'} · +${refund} 金 · ${routeChangeText(delta)}`;
+                const change = this.routeChange.record(cell, before, this.committedPath());
+                this.statusText = `${window === 'opening' ? '全额撤销' : '波间出售'} · +${refund} 金 · ${routeChangeText(change.delta, change.changed)}`;
             } else this.statusText = '本波已开始，不能出售';
             this.playSound(sold ? 'ui' : 'reject');
             return true;
@@ -598,10 +598,14 @@ export class NightwatchPocBootstrap extends Component {
 
     private previewRouteText(preview: PlacementPreview): string {
         if (!preview.accepted || !preview.path) throw new Error('仅合法预览可计算路线变化');
-        return routeChangeText(routeLengthDelta(
-            this.model.flowField.distanceAt(this.model.grid.entry),
-            preview.path.length - 1,
-        ));
+        const before = this.committedPath();
+        return routeChangeText(routeLengthDelta(before.length - 1, preview.path.length - 1), routePathChanged(before, preview.path));
+    }
+
+    private committedPath(): readonly GridCell[] {
+        const path = this.model.flowField.pathFrom(this.model.grid.entry);
+        if (!path) throw new Error('当前合法战场缺少入口到出口的路线');
+        return path;
     }
 
     private commitCurrentPreview(): void {
@@ -609,12 +613,11 @@ export class NightwatchPocBootstrap extends Component {
             this.cancelInput('没有有效落点，未扣费');
             return;
         }
-        const before = this.model.flowField.distanceAt(this.model.grid.entry);
+        const before = this.committedPath();
         const placedCell = this.preview.cell;
         const result = this.model.commit(this.preview, this.enemyStates());
-        const routeText = result.accepted
-            ? routeChangeText(this.routeChange.record(placedCell, before, this.model.flowField.distanceAt(this.model.grid.entry)).delta)
-            : null;
+        const change = result.accepted ? this.routeChange.record(placedCell, before, this.committedPath()) : null;
+        const routeText = change ? routeChangeText(change.delta, change.changed) : null;
         this.statusText = result.accepted
             ? this.qaMode
                 ? `${this.selectedTowerLabel()}建造成功 · ${routeText} · 金币 ${result.gold} · 地图版本 ${result.mapVersion}`

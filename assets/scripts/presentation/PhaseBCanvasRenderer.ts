@@ -233,7 +233,7 @@ export class PhaseBCanvasRenderer {
     private drawRouteChange(state: PhaseBSceneState, cellSize: number): void {
         const change = state.routeChange;
         const path = state.activePath;
-        if (!change || change.delta === 0 || !path || state.preview) return;
+        if (!change || !change.changed || !path || state.preview) return;
         const progress = change.remainingSeconds / change.durationSeconds;
         const alpha = Math.round(190 * progress);
         const graphics = this.graphics;
