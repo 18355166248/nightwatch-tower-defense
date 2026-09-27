@@ -559,7 +559,10 @@ export class NightwatchPocBootstrap extends Component {
                 this.statusText = sold ? `炮塔已全额撤销 · ${routeChangeText(delta)}` : '撤销失败，请重新选择炮塔';
                 this.playSound(sold ? 'ui' : 'reject');
             } else if (action === 'inspect') {
-                this.statusText = this.towerInspectionText(towerId, deployment?.level ?? 1);
+                // 教学恢复路径要明确二次点击才撤销；查看态下方提示被升级按钮占用，因此放到顶部事件行。
+                this.statusText = canSell && this.experience.entryMode === 'guided'
+                    ? '再点此塔全额撤销 · 下方可升级'
+                    : this.towerInspectionText(towerId, deployment?.level ?? 1);
                 this.playSound('ui');
             } else this.statusText = '已关闭炮塔射程查看';
             return;

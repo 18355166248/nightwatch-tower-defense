@@ -96,8 +96,11 @@ export class FirstLevelExperienceView {
         } else if (snapshot.step === 'place') {
             if (previewCell ?? snapshot.suggestedCell) this.outlineCell(previewCell ?? snapshot.suggestedCell!, grid);
         } else if (snapshot.step === 'route') {
-            const board = this.layout.boardMetrics(grid);
-            this.outline({ left: board.left, right: board.left + board.width, bottom: board.bottom, top: board.bottom + board.height });
+            if (snapshot.suggestedCell) this.outlineCell(snapshot.suggestedCell, grid);
+            else {
+                const board = this.layout.boardMetrics(grid);
+                this.outline({ left: board.left, right: board.left + board.width, bottom: board.bottom, top: board.bottom + board.height });
+            }
         } else if (snapshot.step === 'upgrade') {
             if (snapshot.suggestedCell) this.outlineCell(snapshot.suggestedCell, grid);
             this.outline(PHASE_B_UPGRADE_BUTTON);

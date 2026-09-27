@@ -83,7 +83,10 @@ export class PhaseBHudView {
         this.waveLabel = this.createHudValueLabel(parent, 120, new Color('#D7E6F5'));
         this.coreLabel = this.createHudValueLabel(parent, 358, new Color('#79E0AD'));
         this.levelLabel = this.createCenteredLabel(parent, 35, new Color('#F4D58D'), 655, 760, 80);
-        this.guidanceLabel = this.createCenteredLabel(parent, 34, new Color('#D7E6F5'), -655, 920, 125);
+        this.guidanceLabel = this.createCenteredLabel(parent, 42, new Color('#D7E6F5'), -655, 920, 125);
+        // 竖屏实际可见宽度仅约 360–430 px，开局指令固定两行并保留完整字号，不压缩成细小单行。
+        this.guidanceLabel.lineHeight = 50;
+        this.guidanceLabel.enableWrapText = true;
         this.helpLabel = this.createLabel(parent, 28, new Color('#A9C4DB'), -920);
         this.speedLabel = this.createControlLabel(parent, -340, -812);
         this.soundLabel = this.createCenteredLabel(parent, 27, new Color('#E9FFF4'), 845, 170, 105);

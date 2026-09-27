@@ -193,13 +193,18 @@ test('首关入场卡独立于战斗，教学随真实布塔状态推进且可�
     assert.deepEqual(flow.snapshot(context).suggestedCell, { column: 3, row: 2 });
     assert.equal(flow.snapshot({ ...context, inputMode: 'armed' }).step, 'place');
     assert.match(flow.snapshot({ ...context, inputMode: 'click-preview', previewAccepted: false }).guidanceText, /红色/);
-    assert.match(flow.snapshot({ ...context, towerCount: 1, previewAccepted: true }).guidanceText, /第 2 步/);
+    assert.match(flow.snapshot({ ...context, towerCount: 1, previewAccepted: true }).guidanceText, /布防 2\/4/);
     assert.equal(flow.snapshot({ ...context, towerCount: 1, pathDelta: 2 }).suggestedTowerId, 'frost-coil');
     assert.deepEqual(flow.snapshot({ ...context, towerCount: 1, occupiedCells: new Set(['3,2']) }).suggestedCell, { column: 2, row: 2 });
     assert.equal(flow.snapshot({ ...context, towerCount: 1, inputMode: 'armed' }).step, 'place');
     assert.equal(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2 }).step, 'shape');
     assert.equal(flow.snapshot({ ...context, towerCount: 4, pathDelta: 2 }).step, 'route');
     assert.equal(flow.snapshot({ ...context, towerCount: 4, pathDelta: 4 }).step, 'ready');
+    assert.match(flow.snapshot({ ...context, towerCount: 4, pathDelta: 4 }).guidanceText, /绕路 \+4 格\n点 ▶/);
+    const misplaced = flow.snapshot({ ...context, towerCount: 4, pathDelta: 2,
+        occupiedCells: new Set(['0,0', '2,2', '3,2', '4,2']) });
+    assert.deepEqual(misplaced.suggestedCell, { column: 0, row: 0 });
+    assert.match(misplaced.guidanceText, /点高亮塔两次撤销/);
     assert.equal(flow.snapshot({ ...context, towerCount: 3, gold: 10 }).step, 'route');
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'countdown', wave: 1, gold: 54 }).step, 'reinforce');
     const upgradeCoach = { ...context, preparing: false, phase: 'paused', wave: 1, gold: 54,

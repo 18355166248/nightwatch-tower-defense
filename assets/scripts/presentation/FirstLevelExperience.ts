@@ -113,38 +113,49 @@ export class FirstLevelExperience {
                 mode: this.mode,
                 step: 'place',
                 guidanceText: context.previewAccepted
-                    ? `第 ${ordinal} 步 · 绿色可建造，再点同一格确认`
-                    : `第 ${ordinal} 步 · 红色不能建造，换一个格子`,
+                    ? `推荐布防 ${ordinal}/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 绿色可建\n再点同一格确认`
+                    : `推荐布防 ${ordinal}/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 红色不可建\n换一个格子`,
             };
         }
         const nextOpening = FIRST_LEVEL_OPENING.find(({ cell }) => !context.occupiedCells.has(cellKey(cell)));
         if (context.towerCount === 0) {
             return context.inputMode === 'idle'
-                ? { mode: this.mode, step: 'select', guidanceText: '第 1 步 · 点机枪塔，参考高亮格开始横向布防', suggestedCell: nextOpening?.cell, suggestedTowerId: 'rivet-gun' }
-                : { mode: this.mode, step: 'place', guidanceText: '第 1 步 · 拖到格子落塔，或点格子预览', suggestedCell: nextOpening?.cell };
+                ? { mode: this.mode, step: 'select', guidanceText: `推荐布防 1/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 点机枪塔\n照高亮格摆出第一座`, suggestedCell: nextOpening?.cell, suggestedTowerId: 'rivet-gun' }
+                : { mode: this.mode, step: 'place', guidanceText: `推荐布防 1/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 已选机枪\n拖到高亮格，或点两次确认`, suggestedCell: nextOpening?.cell };
         }
         if (context.towerCount < FIRST_LEVEL_SUGGESTED_TOWER_COUNT) {
             const recommendedTower: TowerId = context.towerCount === 1 ? 'frost-coil' : 'rivet-gun';
             const cost = recommendedTower === 'frost-coil' ? FROST_COIL.cost : RIVET_GUN.cost;
             if (context.gold < cost) {
-                return { mode: this.mode, step: 'route', guidanceText: '金币不够补齐横墙；准备时点已建塔可全额撤销调整' };
+                return { mode: this.mode, step: 'route', guidanceText: '金币不足以补齐横墙\n点已建塔全额撤销后调整' };
             }
             if (context.inputMode !== 'idle') {
-                return { mode: this.mode, step: 'place', guidanceText: `第 ${context.towerCount + 1} 步 · 点高亮格预览，确认后建造`, suggestedCell: nextOpening?.cell };
+                return { mode: this.mode, step: 'place', guidanceText: `推荐布防 ${context.towerCount + 1}/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 已选炮塔\n点高亮格预览，再点确认`, suggestedCell: nextOpening?.cell };
             }
             return {
                 mode: this.mode,
                 step: 'shape',
                 guidanceText: context.towerCount === 1
-                    ? '第 2 步 · 选冷凝塔，沿入口下方横着补塔'
-                    : `第 3 步 · 再点机枪塔，组成 4 塔横墙（${context.towerCount}/4）`,
+                    ? `推荐布防 2/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 选冷凝塔\n贴着上一塔横向补塔`
+                    : `推荐布防 ${context.towerCount + 1}/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 选机枪塔\n继续横向补齐墙`,
                 suggestedCell: nextOpening?.cell,
                 suggestedTowerId: recommendedTower,
             };
         }
         if (context.pathDelta < FIRST_LEVEL_SUGGESTED_PATH_DELTA) {
-            return { mode: this.mode, step: 'route', guidanceText: `第 3 步 · 路线还差 ${FIRST_LEVEL_SUGGESTED_PATH_DELTA - context.pathDelta} 格；调整横墙，点塔可撤销` };
+            const openingCells = new Set(FIRST_LEVEL_OPENING.map(({ cell }) => cellKey(cell)));
+            const misplacedKey = Array.from(context.occupiedCells).sort().find((key) => !openingCells.has(key));
+            const misplacedCell = misplacedKey ? this.cellFromKey(misplacedKey) : undefined;
+            // 偏位塔可在准备态全额撤销；只给出一座确定的恢复目标，不替玩家自动改阵。
+            return { mode: this.mode, step: 'route',
+                guidanceText: `路线还差 ${FIRST_LEVEL_SUGGESTED_PATH_DELTA - context.pathDelta} 格\n${misplacedCell ? '点高亮塔两次撤销，再按提示重建' : '点已建塔两次撤销，换位挡住直路'}`,
+                suggestedCell: misplacedCell };
         }
-        return { mode: this.mode, step: 'ready', guidanceText: '第 4 步 · 横墙已成，点 ▶ 开始第一波' };
+        return { mode: this.mode, step: 'ready', guidanceText: `推荐布防 ${FIRST_LEVEL_SUGGESTED_TOWER_COUNT}/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 绕路 +${context.pathDelta} 格\n点 ▶ 开始第一波` };
+    }
+
+    private cellFromKey(key: string): GridCell {
+        const [column, row] = key.split(',').map(Number);
+        return { column, row };
     }
 }
