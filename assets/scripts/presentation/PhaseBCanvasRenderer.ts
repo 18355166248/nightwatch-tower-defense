@@ -15,6 +15,8 @@ import {
     PHASE_B_RESULT_RESTART_BUTTON,
     PHASE_B_SOUND_BUTTON,
     PHASE_B_SPEED_BUTTON,
+    PHASE_B_RESET_BUTTON,
+    PHASE_B_PLAY_BUTTON,
     PHASE_B_RIVET_BUTTON,
     PHASE_B_UPGRADE_BUTTON,
     type PhaseBGridPoint,
@@ -54,26 +56,28 @@ export class PhaseBCanvasRenderer {
 
     private drawInterfacePanels(): void {
         const graphics = this.graphics;
+        const safeHalf = this.layout.safeHalfWidth;
         // 文字永远压在低对比面板上，避免底图时钟和屋檐抢掉状态信息。
         graphics.fillColor = new Color(13, 24, 38, 190);
-        graphics.roundRect(-485, 712, 970, 215, 25);
+        graphics.roundRect(-Math.min(485, safeHalf), 712, Math.min(970, safeHalf * 2), 215, 25);
         graphics.fill();
         // 四项常驻资源各占固定视觉槽，长事件文案不再把关键数字挤成一行小字。
-        for (const left of [-469, -231, 9, 247]) {
+        for (const rect of this.layout.hudCardRects()) {
             graphics.fillColor = new Color(35, 55, 73, 228);
-            graphics.roundRect(left, 710, 222, 64, 14);
+            graphics.roundRect(rect.left, rect.bottom, rect.right - rect.left, rect.top - rect.bottom, 14);
             graphics.fill();
         }
         graphics.fillColor = new Color(13, 24, 38, 168);
-        graphics.roundRect(-500, -950, 1000, 465, 25);
+        graphics.roundRect(-Math.min(500, safeHalf), -950, Math.min(1000, safeHalf * 2), 465, 25);
         graphics.fill();
     }
 
     private drawTabs(state: PhaseBSceneState): void {
         const graphics = this.graphics;
         for (const tab of PHASE_B_GRID_TABS) {
+            const rect = this.layout.safeRect({ ...tab, bottom: 610, top: 700 });
             graphics.fillColor = tab.id === state.selectedGridId ? new Color('#C68A35') : new Color('#263A55');
-            graphics.rect(tab.left, 610, tab.right - tab.left, 90);
+            graphics.rect(rect.left, rect.bottom, rect.right - rect.left, rect.top - rect.bottom);
             graphics.fill();
         }
         this.drawGridCode(-292, 655, [9, 1, 3]);
@@ -83,8 +87,9 @@ export class PhaseBCanvasRenderer {
 
     private drawLevelBanner(): void {
         const graphics = this.graphics;
+        const width = Math.min(860, this.layout.safeHalfWidth * 2);
         graphics.fillColor = new Color('#263A55');
-        graphics.roundRect(-430, 615, 860, 85, 18);
+        graphics.roundRect(-width / 2, 615, width, 85, 18);
         graphics.fill();
         graphics.fillColor = new Color('#F4D58D');
         graphics.circle(-375, 657, 15);
@@ -368,10 +373,11 @@ export class PhaseBCanvasRenderer {
         graphics.rect(-540, -960, 1080, 1920);
         graphics.fill();
         graphics.fillColor = new Color('#17263A');
-        graphics.roundRect(-430, -430, 860, 850, 34);
+        const width = Math.min(860, this.layout.safeHalfWidth * 2);
+        graphics.roundRect(-width / 2, -430, width, 850, 34);
         graphics.fill();
         graphics.fillColor = new Color(result.kind === 'victory' ? '#2F9E72' : '#B84F50');
-        graphics.rect(-430, 350, 860, 70);
+        graphics.rect(-width / 2, 350, width, 70);
         graphics.fill();
         graphics.fillColor = new Color(result.kind === 'victory' ? '#79E0AD' : '#FF8580');
         graphics.roundRect(
@@ -386,17 +392,22 @@ export class PhaseBCanvasRenderer {
 
     private drawControls(state: PhaseBSceneState): void {
         const graphics = this.graphics;
+        const soundRect = this.layout.safeRect(PHASE_B_SOUND_BUTTON);
+        const speedRect = this.layout.safeRect(PHASE_B_SPEED_BUTTON);
+        const earlyRect = this.layout.safeRect(PHASE_B_EARLY_WAVE_BUTTON);
+        const resetRect = this.layout.safeRect(PHASE_B_RESET_BUTTON);
+        const playRect = this.layout.safeRect(PHASE_B_PLAY_BUTTON);
         graphics.fillColor = new Color(state.soundEnabled ? '#2C605E' : '#354355');
         graphics.roundRect(
-            PHASE_B_SOUND_BUTTON.left,
-            PHASE_B_SOUND_BUTTON.bottom,
-            PHASE_B_SOUND_BUTTON.right - PHASE_B_SOUND_BUTTON.left,
-            PHASE_B_SOUND_BUTTON.top - PHASE_B_SOUND_BUTTON.bottom,
+            soundRect.left,
+            soundRect.bottom,
+            soundRect.right - soundRect.left,
+            soundRect.top - soundRect.bottom,
             17,
         );
         graphics.fill();
-        this.drawButton(-440, -600, 340, 85);
-        this.drawButton(100, -600, 340, 85);
+        this.drawButton(resetRect.left, resetRect.bottom, resetRect.right - resetRect.left, resetRect.top - resetRect.bottom);
+        this.drawButton(playRect.left, playRect.bottom, playRect.right - playRect.left, playRect.top - playRect.bottom);
         if (state.qaMode) {
             this.drawButton(-440, -700, 280, 90);
             this.drawButton(160, -700, 280, 90);
@@ -407,19 +418,19 @@ export class PhaseBCanvasRenderer {
         this.drawPhaseIcon(270, -558, state.showPlayControl);
         graphics.fillColor = new Color('#29405C');
         graphics.roundRect(
-            PHASE_B_SPEED_BUTTON.left,
-            PHASE_B_SPEED_BUTTON.bottom,
-            PHASE_B_SPEED_BUTTON.right - PHASE_B_SPEED_BUTTON.left,
-            PHASE_B_SPEED_BUTTON.top - PHASE_B_SPEED_BUTTON.bottom,
+            speedRect.left,
+            speedRect.bottom,
+            speedRect.right - speedRect.left,
+            speedRect.top - speedRect.bottom,
             20,
         );
         graphics.fill();
         graphics.fillColor = state.canStartNextWaveEarly ? new Color('#2F9E72') : new Color('#354355');
         graphics.roundRect(
-            PHASE_B_EARLY_WAVE_BUTTON.left,
-            PHASE_B_EARLY_WAVE_BUTTON.bottom,
-            PHASE_B_EARLY_WAVE_BUTTON.right - PHASE_B_EARLY_WAVE_BUTTON.left,
-            PHASE_B_EARLY_WAVE_BUTTON.top - PHASE_B_EARLY_WAVE_BUTTON.bottom,
+            earlyRect.left,
+            earlyRect.bottom,
+            earlyRect.right - earlyRect.left,
+            earlyRect.top - earlyRect.bottom,
             20,
         );
         graphics.fill();

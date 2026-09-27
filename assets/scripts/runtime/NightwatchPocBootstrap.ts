@@ -48,6 +48,8 @@ import {
     PHASE_B_RESULT_RESTART_BUTTON,
     PHASE_B_SOUND_BUTTON,
     PHASE_B_SPEED_BUTTON,
+    PHASE_B_RESET_BUTTON,
+    PHASE_B_PLAY_BUTTON,
     PHASE_B_RIVET_BUTTON,
     PHASE_B_UPGRADE_BUTTON,
     PhaseBLayout,
@@ -108,6 +110,7 @@ export class NightwatchPocBootstrap extends Component {
 
     protected override onLoad(): void {
         view.setDesignResolutionSize(PHASE_B_DESIGN_WIDTH, PHASE_B_DESIGN_HEIGHT, ResolutionPolicy.FIXED_HEIGHT);
+        this.layout.setVisibleWidth(view.getVisibleSize().width);
         this.canvas = this.findCanvas();
         if (!this.canvas) throw new Error('Phase A 场景缺少 Canvas');
 
@@ -118,7 +121,7 @@ export class NightwatchPocBootstrap extends Component {
         this.canvas.addChild(layer);
         new PhaseBBackdropView(layer);
         this.unitSprites = new PhaseBUnitSpriteView(layer, this.layout);
-        this.hud = new PhaseBHudView(layer);
+        this.hud = new PhaseBHudView(layer, this.layout);
         const graphicsNode = new Node('PhaseAGraphics');
         graphicsNode.layer = layer.layer;
         graphicsNode.addComponent(UITransform).setContentSize(PHASE_B_DESIGN_WIDTH, PHASE_B_DESIGN_HEIGHT);
@@ -198,7 +201,7 @@ export class NightwatchPocBootstrap extends Component {
             this.primaryTouchId = null;
             return;
         }
-        if (this.experience.entryMode === 'guided' && this.layout.insideRect(point, FIRST_LEVEL_SKIP_COACH_BUTTON)) {
+        if (this.experience.entryMode === 'guided' && this.layout.insideRect(point, this.layout.safeRect(FIRST_LEVEL_SKIP_COACH_BUTTON))) {
             this.experience.skip();
             if (this.guidedIntermissionHeld) {
                 this.guidedIntermissionHeld = false;
@@ -267,7 +270,7 @@ export class NightwatchPocBootstrap extends Component {
     }
 
     private handleTopControls(point: Vec3): boolean {
-        if (this.layout.insideRect(point, PHASE_B_SOUND_BUTTON)) {
+        if (this.layout.insideRect(point, this.layout.safeRect(PHASE_B_SOUND_BUTTON))) {
             const enabled = this.sound.toggle();
             this.statusText = enabled ? '音效已开启' : '音效已关闭';
             if (enabled) this.playSound('ui');
@@ -289,19 +292,19 @@ export class NightwatchPocBootstrap extends Component {
             this.applyFixture('longSnake');
             return true;
         }
-        if (point.y >= -600 && point.y <= -515 && point.x >= -440 && point.x <= -100) {
+        if (this.layout.insideRect(point, this.layout.safeRect(PHASE_B_RESET_BUTTON))) {
             this.resetGrid();
             return true;
         }
-        if (point.y >= -600 && point.y <= -515 && point.x >= 100 && point.x <= 440) {
+        if (this.layout.insideRect(point, this.layout.safeRect(PHASE_B_PLAY_BUTTON))) {
             this.toggleBattle();
             return true;
         }
-        if (this.layout.insideRect(point, PHASE_B_SPEED_BUTTON)) {
+        if (this.layout.insideRect(point, this.layout.safeRect(PHASE_B_SPEED_BUTTON))) {
             this.toggleSpeed();
             return true;
         }
-        if (this.layout.insideRect(point, PHASE_B_EARLY_WAVE_BUTTON)) {
+        if (this.layout.insideRect(point, this.layout.safeRect(PHASE_B_EARLY_WAVE_BUTTON))) {
             this.startNextWaveEarly();
             return true;
         }
@@ -685,6 +688,8 @@ export class NightwatchPocBootstrap extends Component {
     }
 
     private redraw(): void {
+        // 地址栏伸缩或视窗改尺寸后重新同步安全宽度，所有表现层与触控共用这份布局。
+        this.layout.setVisibleWidth(view.getVisibleSize().width);
         const result = this.resultViewModel();
         const battle = this.battle.snapshot;
         const experience = this.experience.snapshot({

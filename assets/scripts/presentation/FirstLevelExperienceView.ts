@@ -41,7 +41,7 @@ export class FirstLevelExperienceView {
     }
 
     public render(snapshot: FirstLevelExperienceSnapshot, grid: GridDefinition, resultVisible: boolean, previewCell: GridCell | null): void {
-        const signature = `${snapshot.mode}|${snapshot.step}|${snapshot.suggestedTowerId ?? ''}|${snapshot.suggestedCell?.column ?? ''},${snapshot.suggestedCell?.row ?? ''}|${grid.id}|${resultVisible}|${previewCell?.column ?? ''},${previewCell?.row ?? ''}`;
+        const signature = `${this.layout.safeHalfWidth}|${snapshot.mode}|${snapshot.step}|${snapshot.suggestedTowerId ?? ''}|${snapshot.suggestedCell?.column ?? ''},${snapshot.suggestedCell?.row ?? ''}|${grid.id}|${resultVisible}|${previewCell?.column ?? ''},${previewCell?.row ?? ''}`;
         if (signature === this.signature) return;
         this.signature = signature;
         this.graphics.clear();
@@ -52,6 +52,9 @@ export class FirstLevelExperienceView {
         this.action.node.active = home;
         this.skip.node.active = home;
         this.coachSkip.node.active = guided;
+        const coachSkipRect = this.layout.safeRect(FIRST_LEVEL_SKIP_COACH_BUTTON);
+        this.coachSkip.node.setPosition((coachSkipRect.left + coachSkipRect.right) / 2, 658, 0);
+        this.coachSkip.node.getComponent(UITransform)?.setContentSize(coachSkipRect.right - coachSkipRect.left, 65);
         if (home) this.drawHome();
         if (guided) this.drawCoach(snapshot, grid, previewCell);
     }
@@ -62,14 +65,16 @@ export class FirstLevelExperienceView {
         graphics.rect(-540, -960, 1080, 1920);
         graphics.fill();
         graphics.fillColor = new Color('#1C3045');
-        graphics.roundRect(-455, -500, 910, 1030, 36);
+        const cardWidth = Math.min(910, this.layout.safeHalfWidth * 2);
+        graphics.roundRect(-cardWidth / 2, -500, cardWidth, 1030, 36);
         graphics.fill();
         graphics.fillColor = new Color('#C79958');
-        graphics.rect(-455, 470, 910, 60);
+        graphics.rect(-cardWidth / 2, 470, cardWidth, 60);
         graphics.fill();
         graphics.strokeColor = new Color('#C79958');
         graphics.lineWidth = 4;
-        graphics.roundRect(-410, -170, 820, 340, 25);
+        const bodyWidth = Math.min(820, cardWidth - 40);
+        graphics.roundRect(-bodyWidth / 2, -170, bodyWidth, 340, 25);
         graphics.stroke();
         this.button(FIRST_LEVEL_START_BUTTON, '#83D2AD');
         this.title.string = '夜城防线';
@@ -79,7 +84,7 @@ export class FirstLevelExperienceView {
     }
 
     private drawCoach(snapshot: FirstLevelExperienceSnapshot, grid: GridDefinition, previewCell: GridCell | null): void {
-        this.button(FIRST_LEVEL_SKIP_COACH_BUTTON, '#30465B');
+        this.button(this.layout.safeRect(FIRST_LEVEL_SKIP_COACH_BUTTON), '#30465B');
         this.coachSkip.string = '跳过';
         const graphics = this.graphics;
         graphics.strokeColor = new Color('#FFE09C');
@@ -96,7 +101,7 @@ export class FirstLevelExperienceView {
             if (snapshot.suggestedCell) this.outlineCell(snapshot.suggestedCell, grid);
             this.outline(PHASE_B_UPGRADE_BUTTON);
         } else if (snapshot.step === 'ready') {
-            this.outline({ left: 100, right: 440, bottom: -600, top: -515 });
+            this.outline(this.layout.safeRect({ left: 100, right: 440, bottom: -600, top: -515 }));
         }
     }
 

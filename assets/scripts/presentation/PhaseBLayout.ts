@@ -7,6 +7,8 @@ export const PHASE_B_RIVET_BUTTON = { left: -170, right: -8, bottom: -890, top: 
 export const PHASE_B_FROST_BUTTON = { left: 8, right: 170, bottom: -890, top: -735 } as const;
 export const PHASE_B_SPEED_BUTTON = { left: -480, right: -200, bottom: -890, top: -735 } as const;
 export const PHASE_B_EARLY_WAVE_BUTTON = { left: 200, right: 480, bottom: -890, top: -735 } as const;
+export const PHASE_B_RESET_BUTTON = { left: -440, right: -100, bottom: -600, top: -515 } as const;
+export const PHASE_B_PLAY_BUTTON = { left: 100, right: 440, bottom: -600, top: -515 } as const;
 export const PHASE_B_RESULT_RESTART_BUTTON = { left: -300, right: 300, bottom: -300, top: -135 } as const;
 export const PHASE_B_SOUND_BUTTON = { left: 310, right: 480, bottom: 790, top: 900 } as const;
 export const PHASE_B_UPGRADE_BUTTON = { left: -350, right: 350, bottom: -710, top: -625 } as const;
@@ -47,6 +49,30 @@ const BOARD_MAX_HEIGHT = 1110;
 
 /** 输入与渲染共享同一套几何换算，避免调整画板尺寸后出现“看得见但点不中”。 */
 export class PhaseBLayout {
+    private visibleWidth = PHASE_B_DESIGN_WIDTH;
+
+    /** 固定高度适配会在长屏上收窄可见设计宽度；输入和绘制必须共用同一安全边界。 */
+    public setVisibleWidth(width: number): void {
+        if (Number.isFinite(width) && width > 0) this.visibleWidth = width;
+    }
+
+    public get safeHalfWidth(): number {
+        return Math.min(PHASE_B_DESIGN_WIDTH, this.visibleWidth) / 2 - 24;
+    }
+
+    public safeRect(rect: PhaseBRect): PhaseBRect {
+        return { ...rect, left: Math.max(rect.left, -this.safeHalfWidth), right: Math.min(rect.right, this.safeHalfWidth) };
+    }
+
+    public hudCardRects(): readonly PhaseBRect[] {
+        const span = Math.min(938, this.safeHalfWidth * 2);
+        const width = Math.min(222, (span - 48) / 4);
+        return Array.from({ length: 4 }, (_, index) => {
+            const left = -span / 2 + index * (width + 16);
+            return { left, right: left + width, bottom: 710, top: 774 };
+        });
+    }
+
     public boardMetrics(grid: GridDefinition): PhaseBBoardMetrics {
         const cellSize = Math.floor(Math.min(BOARD_MAX_WIDTH / grid.columns, BOARD_MAX_HEIGHT / grid.rows));
         const width = cellSize * grid.columns;

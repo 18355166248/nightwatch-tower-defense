@@ -326,6 +326,27 @@ test('战场布局让绘制中心点与输入命中使用同一套网格换算',
     assert.equal(layout.insideRect({ x: 0, y: -812 }, PHASE_B_EARLY_WAVE_BUTTON), false);
 });
 
+test('360×780 等竖屏视口的 HUD 和侧边按钮落在可见安全宽度内', () => {
+    const layout = new PhaseBLayout();
+    const grid = PHASE_A_GRIDS['grid-9x13'];
+    for (const [width, height] of [[360, 780], [390, 844], [430, 932], [1080, 1920]]) {
+        layout.setVisibleWidth(1920 * width / height);
+        const safeHalf = layout.safeHalfWidth;
+        assert.ok(safeHalf > layout.boardMetrics(grid).width / 2, `${width}×${height} 下地图被安全区裁切`);
+        const cards = layout.hudCardRects();
+        assert.equal(cards.length, 4);
+        assert.ok(cards[0].left >= -safeHalf && cards[3].right <= safeHalf);
+        for (const rect of [PHASE_B_SOUND_BUTTON, PHASE_B_SPEED_BUTTON, PHASE_B_EARLY_WAVE_BUTTON]) {
+            const safeRect = layout.safeRect(rect);
+            assert.ok(safeRect.left >= -safeHalf && safeRect.right <= safeHalf);
+            assert.ok(safeRect.right - safeRect.left >= 100, `${width}×${height} 下按钮横向热区不足`);
+            assert.ok(layout.insideRect({ x: (safeRect.left + safeRect.right) / 2, y: (safeRect.bottom + safeRect.top) / 2 }, safeRect));
+        }
+    }
+    layout.setVisibleWidth(1080);
+    assert.equal(layout.safeRect(PHASE_B_SOUND_BUTTON).right, PHASE_B_SOUND_BUTTON.right);
+});
+
 test('步兵视觉错位稳定且不超过单格范围，循环后不会累计漂移', () => {
     assert.deepEqual(enemyVisualOffset(1, 100), { x: -17, y: -8 });
     assert.deepEqual(enemyVisualOffset(2, 100), { x: 17, y: 8 });
