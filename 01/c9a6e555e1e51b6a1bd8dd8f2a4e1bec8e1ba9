@@ -1,0 +1,34 @@
+assets/scripts/presentation/PhaseBCanvasRenderer.ts
+  s_57db2c01e7cdde::t_f3608f972a4364 479
+assets/scripts/presentation/PhaseBSceneState.ts
+  s_57db2c01e7cdde::t_f3608f972a4364 6,41
+assets/scripts/presentation/PhaseBHudView.ts
+  s_57db2c01e7cdde::t_f3608f972a4364 14,37,142-143,204-205
+assets/scripts/presentation/PhaseBHudText.ts
+  s_57db2c01e7cdde::t_f3608f972a4364 2,5-23
+  s_57db2c01e7cdde::t_a01d1df33d107b 24
+assets/scripts/runtime/NightwatchPocBootstrap.ts
+  s_57db2c01e7cdde::t_8d3bb86a70fb93 31,387-389,776-780,915,937,975,1003
+  s_57db2c01e7cdde::t_e4f4cda69aac63 1006
+tests/core-rules.test.cjs
+  s_57db2c01e7cdde::t_3c800da52068fe 39,77-82
+  s_57db2c01e7cdde::t_45d47b4e55424c 83-84
+docs/poc/phase-b-wave-start-button-coherence.md
+  s_57db2c01e7cdde::t_a1e2db00db9925 1-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "01c9a6e555e1e51b6a1bd8dd8f2a4e1bec8e1ba9",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
