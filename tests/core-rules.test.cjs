@@ -17,6 +17,8 @@ const { simulateNoDamageRoute } = require('../.test-dist/systems/RouteSimulation
 const { BattleStateMachine } = require('../.test-dist/systems/BattleStateMachine.js');
 const { EconomyLedger } = require('../.test-dist/systems/EconomyLedger.js');
 const { BattleRunCheckpoint } = require('../.test-dist/systems/BattleRunCheckpoint.js');
+const { BattleRunClock } = require('../.test-dist/systems/BattleRunClock.js');
+const { FirstLevelBestTimeStore } = require('../.test-dist/systems/FirstLevelBestTimeStore.js');
 const { FirstLevelSoundDirector } = require('../.test-dist/audio/FirstLevelSoundDirector.js');
 const { TowerInspection } = require('../.test-dist/input/TowerInspection.js');
 const { activePlacementTower } = require('../.test-dist/input/TowerPlacementMode.js');
@@ -24,7 +26,7 @@ const { WaveCombatRuntime } = require('../.test-dist/systems/WaveCombatRuntime.j
 const { WaveCatalog } = require('../.test-dist/systems/WaveCatalog.js');
 const { WaveRewardRuntime } = require('../.test-dist/systems/WaveRewardRuntime.js');
 const { SimulationClock } = require('../.test-dist/systems/SimulationClock.js');
-const { buildBattleResultViewModel } = require('../.test-dist/presentation/BattleResultViewModel.js');
+const { buildBattleResultViewModel, formatRunDuration } = require('../.test-dist/presentation/BattleResultViewModel.js');
 const { ResultRevealRuntime, resultRevealEase } = require('../.test-dist/presentation/ResultRevealRuntime.js');
 const { countCombatFeedback, CombatFeedbackRuntime } = require('../.test-dist/presentation/CombatFeedbackRuntime.js');
 const { buildCoreObjectiveState } = require('../.test-dist/presentation/CoreObjectiveState.js');
@@ -42,6 +44,7 @@ const {
     PHASE_B_RIVET_BUTTON,
     PHASE_B_FROST_BUTTON,
     PHASE_B_RESULT_RESTART_BUTTON,
+    PHASE_B_RESULT_HOME_BUTTON,
     PHASE_B_TOWER_BUTTON,
     PHASE_B_SOUND_BUTTON,
     PhaseBLayout,
@@ -214,6 +217,10 @@ test('首关入场卡独立于战斗，教学随真实布塔状态推进且可�
     assert.equal(flow.shouldHoldIntermission(1, 8), false);
     assert.equal(flow.snapshot(context).mode, 'free');
     assert.equal(flow.snapshot(context).guidanceText, null);
+    flow.returnHome();
+    assert.equal(flow.snapshot(context).mode, 'home');
+    flow.begin();
+    assert.equal(flow.snapshot(context).step, 'select');
     assert.equal(new FirstLevelExperience(true).snapshot(context).mode, 'free');
 });
 
@@ -349,11 +356,18 @@ test('360×780 等竖屏视口的 HUD 和侧边按钮落在可见安全宽度内
         assert.ok(cards[0].left >= -safeHalf && cards[3].right <= safeHalf);
         const resultPanel = layout.resultPanelRect();
         const resultStats = layout.resultStatRects();
+        const resultDetails = layout.resultDetailRects();
         assert.equal(resultStats.length, 4);
+        assert.equal(resultDetails.length, 3);
         assert.ok(resultPanel.left >= -safeHalf && resultPanel.right <= safeHalf);
-        for (const rect of resultStats) {
+        for (const rect of [...resultStats, ...resultDetails]) {
             assert.ok(rect.left >= resultPanel.left && rect.right <= resultPanel.right);
-            assert.ok(rect.bottom > PHASE_B_RESULT_RESTART_BUTTON.top);
+            assert.ok(rect.bottom > PHASE_B_RESULT_RESTART_BUTTON.top && rect.bottom > PHASE_B_RESULT_HOME_BUTTON.top);
+        }
+        for (const rect of [PHASE_B_RESULT_RESTART_BUTTON, PHASE_B_RESULT_HOME_BUTTON]) {
+            assert.ok(rect.left >= -safeHalf && rect.right <= safeHalf);
+            assert.ok(rect.right - rect.left >= 100 && rect.top - rect.bottom >= 100);
+            assert.ok(rect.bottom >= resultPanel.bottom && rect.top <= resultPanel.top);
         }
         for (const rect of [PHASE_B_SOUND_BUTTON, PHASE_B_SPEED_BUTTON, PHASE_B_EARLY_WAVE_BUTTON]) {
             const safeRect = layout.safeRect(rect);
@@ -925,19 +939,78 @@ test('重新部署检查点保留混合塔种与不同造价', () => {
 
 test('结算视图模型只在终局生成，并区分胜利与失败', () => {
     const totals = { spawned: 8, killed: 6, leaked: 2 };
-    assert.equal(buildBattleResultViewModel({ phase: 'clearing', wave: 1, coreHealth: 8, countdownSeconds: 0 }, totals, 24, 10, 8), null);
-    const victory = buildBattleResultViewModel({ phase: 'victory', wave: 1, coreHealth: 8, countdownSeconds: 0 }, totals, 24, 10, 8);
+    const context = { initialCoreHealth: 10, totalWaves: 8, elapsedSeconds: 414.7, towerCount: 10, upgradeCount: 6, bestSeconds: 414.7, newRecord: true };
+    assert.equal(buildBattleResultViewModel({ phase: 'clearing', wave: 1, coreHealth: 8, countdownSeconds: 0 }, totals, 24, context), null);
+    const victory = buildBattleResultViewModel({ phase: 'victory', wave: 1, coreHealth: 8, countdownSeconds: 0 }, totals, 24, context);
     assert.equal(victory.kind, 'victory');
     assert.match(victory.summary, /击毁 6\/8/);
     assert.match(victory.subtitle, /1\/8 波守住/);
     assert.deepEqual(victory.stats.map(({ label, value }) => [label, value]), [
         ['击毁', '6/8'], ['漏怪', '2'], ['核心', '8/10'], ['金币', '24'],
     ]);
-    const defeat = buildBattleResultViewModel({ phase: 'defeat', wave: 1, coreHealth: 0, countdownSeconds: 0 }, totals, 24, 2, 8);
+    assert.deepEqual(victory.runDetails.map(({ label, value }) => [label, value]), [
+        ['局内用时', '06:54'], ['建塔', '10'], ['升级', '6'],
+    ]);
+    assert.match(victory.footnote, /新最快纪录/);
+    assert.equal(victory.homeActionLabel, '返回首页');
+    const defeat = buildBattleResultViewModel({ phase: 'defeat', wave: 1, coreHealth: 0, countdownSeconds: 0 }, totals, 24,
+        { ...context, initialCoreHealth: 2, elapsedSeconds: 100, newRecord: false });
     assert.equal(defeat.kind, 'defeat');
     assert.match(defeat.summary, /核心 0\/2/);
     assert.match(defeat.subtitle, /止步第 1\/8 波/);
     assert.equal(defeat.stats[2].tone, 'danger');
+    assert.equal(defeat.runDetails[0].value, '01:40');
+    assert.match(defeat.footnote, /本机最快/);
+    assert.equal(formatRunDuration(3599.9), '59:59');
+});
+
+test('局内计时只累计战斗与自然波间，暂停、教学等待和重开清零', () => {
+    const clock = new BattleRunClock();
+    clock.advance(3, 'spawning');
+    assert.equal(clock.elapsedSeconds, 0);
+    clock.start();
+    clock.advance(2, 'spawning');
+    clock.advance(8, 'countdown');
+    clock.advance(3, 'paused');
+    clock.advance(1, 'clearing');
+    clock.advance(1, 'victory');
+    assert.equal(clock.elapsedSeconds, 11);
+    clock.reset();
+    assert.equal(clock.elapsedSeconds, 0);
+    assert.throws(() => clock.advance(-1, 'spawning'), RangeError);
+});
+
+test('返回首页时重置速度，重部署仍可保留玩家当前速度', () => {
+    const clock = new SimulationClock();
+    assert.equal(clock.cycleScale(), 2);
+    clock.reset();
+    assert.equal(clock.scale, 2);
+    clock.resetToDefaultSpeed();
+    assert.equal(clock.scale, 1);
+});
+
+test('最快纪录校验版本与数值，QA 与玩家隔离且存储失败不阻断胜利', () => {
+    const values = new Map();
+    const storage = { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
+    const player = new FirstLevelBestTimeStore(false, () => storage);
+    const qa = new FirstLevelBestTimeStore(true, () => storage);
+    assert.equal(player.bestSeconds, null);
+    assert.equal(player.recordVictory(420), true);
+    assert.equal(player.recordVictory(440), false);
+    assert.equal(player.recordVictory(420.00000000001), false);
+    assert.equal(qa.bestSeconds, null);
+    assert.equal(qa.recordVictory(390), true);
+    assert.equal(new FirstLevelBestTimeStore(false, () => storage).bestSeconds, 420);
+    assert.equal(new FirstLevelBestTimeStore(true, () => storage).bestSeconds, 390);
+    assert.equal(qa.recordVictory(358.70000000000243), true);
+    assert.equal(qa.recordVictory(358.6999999999999), false);
+    assert.equal(new FirstLevelBestTimeStore(true, () => storage).bestSeconds, 358.7);
+    values.set('nightwatch:first-level:best-time:player:v1', '{bad');
+    assert.equal(new FirstLevelBestTimeStore(false, () => storage).bestSeconds, null);
+    const denied = new FirstLevelBestTimeStore(false, () => { throw new Error('blocked'); });
+    assert.equal(denied.recordVictory(300), true);
+    assert.equal(denied.bestSeconds, 300);
+    assert.throws(() => denied.recordVictory(0), RangeError);
 });
 
 test('结算反馈按真实时间收敛，暂停和 2 倍速不会改变展示时窗', () => {

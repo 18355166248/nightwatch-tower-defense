@@ -7,8 +7,10 @@ export interface BattleResultViewModel {
     readonly subtitle: string;
     readonly summary: string;
     readonly stats: readonly BattleResultStat[];
+    readonly runDetails: readonly BattleResultStat[];
     readonly footnote: string;
     readonly actionLabel: string;
+    readonly homeActionLabel: string;
 }
 
 export interface BattleResultStat {
@@ -17,15 +19,31 @@ export interface BattleResultStat {
     readonly tone: 'gold' | 'success' | 'danger';
 }
 
+export interface BattleResultContext {
+    readonly initialCoreHealth: number;
+    readonly totalWaves: number;
+    readonly elapsedSeconds: number;
+    readonly towerCount: number;
+    readonly upgradeCount: number;
+    readonly bestSeconds: number | null;
+    readonly newRecord: boolean;
+}
+
+export function formatRunDuration(seconds: number): string {
+    if (!Number.isFinite(seconds) || seconds < 0) throw new RangeError('局内时长必须为非负数');
+    const whole = Math.floor(seconds);
+    return `${String(Math.floor(whole / 60)).padStart(2, '0')}:${String(whole % 60).padStart(2, '0')}`;
+}
+
 /** 把规则快照翻译为结算文案，渲染层无需理解胜负判断与统计字段。 */
 export function buildBattleResultViewModel(
     battle: BattleSnapshot,
     totals: CombatTotals,
     gold: number,
-    initialCoreHealth: number,
-    totalWaves: number,
+    context: BattleResultContext,
 ): BattleResultViewModel | null {
     if (battle.phase !== 'victory' && battle.phase !== 'defeat') return null;
+    const { initialCoreHealth, totalWaves, elapsedSeconds, towerCount, upgradeCount, bestSeconds, newRecord } = context;
     return {
         kind: battle.phase,
         title: battle.phase === 'victory' ? '防线守住了' : '核心失守',
@@ -39,7 +57,16 @@ export function buildBattleResultViewModel(
             { label: '核心', value: `${battle.coreHealth}/${initialCoreHealth}`, tone: battle.coreHealth > 3 ? 'success' : 'danger' },
             { label: '金币', value: String(gold), tone: 'gold' },
         ],
-        footnote: '恢复开战前布防，可调整后再次挑战',
+        runDetails: [
+            { label: '局内用时', value: formatRunDuration(elapsedSeconds), tone: 'gold' },
+            { label: '建塔', value: String(towerCount), tone: 'gold' },
+            { label: '升级', value: String(upgradeCount), tone: 'gold' },
+        ],
+        footnote: battle.phase === 'victory'
+            ? newRecord ? `新最快纪录 · ${formatRunDuration(elapsedSeconds)}`
+                : bestSeconds !== null ? `本机最快 · ${formatRunDuration(bestSeconds)}` : '首关已守住'
+            : bestSeconds !== null ? `本机最快 · ${formatRunDuration(bestSeconds)}` : '调整布防后可再次挑战',
         actionLabel: '重新部署',
+        homeActionLabel: '返回首页',
     };
 }

@@ -47,6 +47,7 @@ import {
     PHASE_B_EARLY_WAVE_BUTTON,
     PHASE_B_FROST_BUTTON,
     PHASE_B_GRID_TABS,
+    PHASE_B_RESULT_HOME_BUTTON,
     PHASE_B_RESULT_RESTART_BUTTON,
     PHASE_B_SOUND_BUTTON,
     PHASE_B_SPEED_BUTTON,
@@ -57,8 +58,10 @@ import {
     PhaseBLayout,
 } from '../presentation/PhaseBLayout';
 import { BattleRunCheckpoint } from '../systems/BattleRunCheckpoint';
+import { BattleRunClock } from '../systems/BattleRunClock';
 import { BattleStateMachine } from '../systems/BattleStateMachine';
 import { EconomyLedger } from '../systems/EconomyLedger';
+import { FirstLevelBestTimeStore } from '../systems/FirstLevelBestTimeStore';
 import { applyGuidedQaOpening, applyGuidedQaPurchases } from '../systems/GuidedQaPlacement';
 import { PlacementModel, type PlacementPreview } from '../systems/PlacementModel';
 import { SimulationClock } from '../systems/SimulationClock';
@@ -89,6 +92,8 @@ export class NightwatchPocBootstrap extends Component {
     private readonly sound = new FirstLevelSoundDirector(new BrowserSynthAudio());
     private readonly towerInspection = new TowerInspection();
     private readonly simulationClock = new SimulationClock();
+    private readonly runClock = new BattleRunClock();
+    private readonly bestTime = new FirstLevelBestTimeStore(this.qaMode);
     private selectedGridId: GridId = DEFAULT_GRID_ID;
     private selectedTowerId: TowerId = 'rivet-gun';
     private preview: PlacementPreview | null = null;
@@ -100,6 +105,7 @@ export class NightwatchPocBootstrap extends Component {
     private guidedIntermissionHeld = false;
     private qaGuidedRun = false;
     private waveKillGold = 0;
+    private resultWasNewRecord = false;
     private initialCoreHealth = 10;
     private initialPathLength = this.model.flowField.distanceAt(this.model.grid.entry);
     private runCheckpoint: BattleRunCheckpoint | null = null;
@@ -165,6 +171,7 @@ export class NightwatchPocBootstrap extends Component {
     private advanceGameStep(step: number): void {
         this.feedback.advance(step);
         const phaseBeforeAdvance = this.battle.snapshot.phase;
+        this.runClock.advance(step, phaseBeforeAdvance);
         if (phaseBeforeAdvance === 'countdown') {
             this.battle.advance(step);
             if (this.battle.snapshot.phase === 'spawning') this.startCurrentWave();
@@ -332,6 +339,7 @@ export class NightwatchPocBootstrap extends Component {
     private handleResultTouch(point: Vec3): boolean {
         if (!this.resultViewModel()) return false;
         if (this.layout.insideRect(point, PHASE_B_RESULT_RESTART_BUTTON)) this.restartFromCheckpoint();
+        else if (this.layout.insideRect(point, PHASE_B_RESULT_HOME_BUTTON)) this.returnToHome();
         return true;
     }
 
@@ -384,6 +392,8 @@ export class NightwatchPocBootstrap extends Component {
         }
         this.runCheckpoint = checkpoint;
         this.preparing = false;
+        this.resultWasNewRecord = false;
+        this.runClock.start();
         this.startCurrentWave();
     }
 
@@ -506,7 +516,7 @@ export class NightwatchPocBootstrap extends Component {
         this.statusText = `已切换 ${PHASE_A_GRIDS[id].columns}×${PHASE_A_GRIDS[id].rows}，证据需独立记录`;
     }
 
-    private resetGrid(initialGold = PHASE_A_INITIAL_GOLD, coreHealth = 10): void {
+    private resetGrid(initialGold = this.qaMode ? PHASE_A_INITIAL_GOLD : FIRST_LEVEL_STARTING_GOLD, coreHealth = 10): void {
         const grid = PHASE_A_GRIDS[this.selectedGridId];
         this.economy = new EconomyLedger(initialGold);
         this.model = new PlacementModel(grid, this.economy, PHASE_B_TOWERS);
@@ -516,6 +526,7 @@ export class NightwatchPocBootstrap extends Component {
         this.combat = new WaveCombatRuntime(grid, PHASE_B_TOWERS);
         this.waveRewards = new WaveRewardRuntime();
         this.simulationClock.reset();
+        this.runClock.reset();
         this.initialCoreHealth = coreHealth;
         this.runCheckpoint = null;
         this.preparing = true;
@@ -523,6 +534,7 @@ export class NightwatchPocBootstrap extends Component {
         this.guidedIntermissionHeld = false;
         this.qaGuidedRun = false;
         this.waveKillGold = 0;
+        this.resultWasNewRecord = false;
         this.towerInspection.clear();
         this.feedback.clear();
         this.routeChange.clear();
@@ -599,6 +611,7 @@ export class NightwatchPocBootstrap extends Component {
         this.combat = new WaveCombatRuntime(restored.model.grid, PHASE_B_TOWERS);
         this.waveRewards = new WaveRewardRuntime();
         this.simulationClock.reset();
+        this.runClock.reset();
         this.feedback.clear();
         this.routeChange.clear();
         this.resultReveal.clear();
@@ -607,9 +620,21 @@ export class NightwatchPocBootstrap extends Component {
         this.guidedIntermissionHeld = false;
         this.qaGuidedRun = false;
         this.waveKillGold = 0;
+        this.resultWasNewRecord = false;
         this.towerInspection.clear();
         this.cancelInput('已恢复开战前部署，可调整后再次开波');
         this.runCheckpoint = checkpoint;
+        this.playSound('ui');
+    }
+
+    private returnToHome(): void {
+        if (!this.resultViewModel()) return;
+        this.selectedGridId = DEFAULT_GRID_ID;
+        this.selectedTowerId = 'rivet-gun';
+        // QA 结算也可能回到玩家入场卡；首页必须与卡面一致使用 140 金和默认 1×。
+        this.resetGrid(FIRST_LEVEL_STARTING_GOLD);
+        this.simulationClock.resetToDefaultSpeed();
+        this.experience.returnHome();
         this.playSound('ui');
     }
 
@@ -652,6 +677,7 @@ export class NightwatchPocBootstrap extends Component {
         }
         if (phase === 'victory') {
             this.resultReveal.begin();
+            this.resultWasNewRecord = this.bestTime.recordVictory(this.runClock.elapsedSeconds);
             this.statusText = waveClearIncomeText(this.battle.snapshot.wave, this.waveKillGold, clearReward);
             this.playSound('victory');
         } else if (phase === 'countdown') {
@@ -832,6 +858,9 @@ export class NightwatchPocBootstrap extends Component {
             totalWaves: this.waves.totalWaves,
             countdownSeconds: this.battle.snapshot.countdownSeconds,
             speedMultiplier: this.simulationClock.scale,
+            runElapsedSeconds: this.runClock.elapsedSeconds,
+            bestTimeSeconds: this.bestTime.bestSeconds,
+            resultWasNewRecord: this.resultWasNewRecord,
             soundEnabled: this.sound.isEnabled,
             soundReady: this.sound.isReady,
             canStartNextWaveEarly: this.battle.snapshot.phase === 'countdown',
@@ -855,7 +884,7 @@ export class NightwatchPocBootstrap extends Component {
             this.experience.entryMode === 'home'
                 ? '夜城防线第一关：守住夜城入口。开始布防，或直接开始并跳过引导'
                 : result
-                ? `${result.title}，${result.summary.replace('\n', '，')}，${result.actionLabel}`
+                ? `${result.title}，${result.summary.replace('\n', '，')}，${result.runDetails.map(({ label, value }) => `${label}${value}`).join('，')}，${result.footnote}，${result.actionLabel}，${result.homeActionLabel}`
                 : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，机枪${rivetTowerCount}座，冷凝${frostTowerCount}座，减速中${slowedEnemyCount}名，${this.inputMode === 'idle' ? '未拿起炮塔' : `已拿起${this.selectedTowerLabel()}`}，速度${this.simulationClock.scale}倍，${this.battle.snapshot.phase === 'countdown' ? '可提前开波' : '提前开波未激活'}，${guidanceText ? `${guidanceText}，` : ''}${this.statusText}`,
         );
     }
@@ -865,8 +894,15 @@ export class NightwatchPocBootstrap extends Component {
             this.battle.snapshot,
             this.combat.totals,
             this.model.gold,
-            this.initialCoreHealth,
-            this.waves.totalWaves,
+            {
+                initialCoreHealth: this.initialCoreHealth,
+                totalWaves: this.waves.totalWaves,
+                elapsedSeconds: this.runClock.elapsedSeconds,
+                towerCount: this.model.deployments.length,
+                upgradeCount: this.model.deployments.reduce((sum, { level }) => sum + (level ?? 1) - 1, 0),
+                bestSeconds: this.bestTime.bestSeconds,
+                newRecord: this.resultWasNewRecord,
+            },
         );
     }
 

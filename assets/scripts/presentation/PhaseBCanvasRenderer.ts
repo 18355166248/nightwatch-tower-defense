@@ -13,6 +13,7 @@ import {
     PHASE_B_GRID_TABS,
     PHASE_B_FROST_BUTTON,
     PHASE_B_EARLY_WAVE_BUTTON,
+    PHASE_B_RESULT_HOME_BUTTON,
     PHASE_B_RESULT_RESTART_BUTTON,
     PHASE_B_SOUND_BUTTON,
     PHASE_B_SPEED_BUTTON,
@@ -382,31 +383,31 @@ export class PhaseBCanvasRenderer {
         graphics.fill();
         graphics.fillColor = result.kind === 'victory'
             ? new Color(47, 158, 114, alpha(255)) : new Color(184, 79, 80, alpha(255));
-        graphics.rect(panel.left, 390, panel.right - panel.left, 60);
+        graphics.rect(panel.left, 430, panel.right - panel.left, 60);
         graphics.fill();
         // 胜败只在非交互元素上做短暂入场；按钮始终保持原位并沿用既有命中框。
         graphics.fillColor = accent;
-        graphics.circle(0, 353, 26 + 12 * reveal);
+        graphics.circle(0, 393, 26 + 12 * reveal);
         graphics.fill();
         graphics.strokeColor = new Color(16, 40, 55, alpha(255));
         graphics.lineWidth = 9;
         if (result.kind === 'victory') {
-            graphics.moveTo(-17, 353);
-            graphics.lineTo(-4, 339);
-            graphics.lineTo(20, 367);
+            graphics.moveTo(-17, 393);
+            graphics.lineTo(-4, 379);
+            graphics.lineTo(20, 407);
         } else {
-            graphics.moveTo(-14, 339);
-            graphics.lineTo(14, 367);
-            graphics.moveTo(-14, 367);
-            graphics.lineTo(14, 339);
+            graphics.moveTo(-14, 379);
+            graphics.lineTo(14, 407);
+            graphics.moveTo(-14, 407);
+            graphics.lineTo(14, 379);
         }
         graphics.stroke();
         graphics.strokeColor = new Color(116, 155, 177, alpha(130));
         graphics.lineWidth = 3;
-        graphics.moveTo(panel.left + 40, 135);
-        graphics.lineTo(panel.right - 40, 135);
+        graphics.moveTo(panel.left + 40, 175);
+        graphics.lineTo(panel.right - 40, 175);
         graphics.stroke();
-        for (const rect of this.layout.resultStatRects()) {
+        for (const rect of [...this.layout.resultStatRects(), ...this.layout.resultDetailRects()]) {
             graphics.fillColor = new Color(34, 55, 75, alpha(235));
             graphics.roundRect(rect.left, rect.bottom, rect.right - rect.left, rect.top - rect.bottom, 17);
             graphics.fill();
@@ -421,6 +422,15 @@ export class PhaseBCanvasRenderer {
             PHASE_B_RESULT_RESTART_BUTTON.bottom,
             PHASE_B_RESULT_RESTART_BUTTON.right - PHASE_B_RESULT_RESTART_BUTTON.left,
             PHASE_B_RESULT_RESTART_BUTTON.top - PHASE_B_RESULT_RESTART_BUTTON.bottom,
+            24,
+        );
+        graphics.fill();
+        graphics.fillColor = new Color(51, 72, 92, alpha(255));
+        graphics.roundRect(
+            PHASE_B_RESULT_HOME_BUTTON.left,
+            PHASE_B_RESULT_HOME_BUTTON.bottom,
+            PHASE_B_RESULT_HOME_BUTTON.right - PHASE_B_RESULT_HOME_BUTTON.left,
+            PHASE_B_RESULT_HOME_BUTTON.top - PHASE_B_RESULT_HOME_BUTTON.bottom,
             24,
         );
         graphics.fill();

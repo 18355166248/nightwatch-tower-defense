@@ -60,6 +60,10 @@ export class FirstLevelExperience {
         this.mode = 'free';
     }
 
+    public returnHome(): void {
+        this.mode = 'home';
+    }
+
     /** 教学模式波间等待玩家主动继续；自由模式仍按原倒计时自动推进。 */
     public shouldHoldIntermission(wave: number, totalWaves: number): boolean {
         return this.mode === 'guided' && wave >= 1 && wave < totalWaves;

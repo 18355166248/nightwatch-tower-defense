@@ -64,4 +64,9 @@ export class SimulationClock {
     public reset(): void {
         this.accumulatedSeconds = 0;
     }
+
+    public resetToDefaultSpeed(): void {
+        this.reset();
+        this.scaleIndex = 0;
+    }
 }

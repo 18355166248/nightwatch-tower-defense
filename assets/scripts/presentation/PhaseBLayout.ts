@@ -9,7 +9,8 @@ export const PHASE_B_SPEED_BUTTON = { left: -480, right: -200, bottom: -890, top
 export const PHASE_B_EARLY_WAVE_BUTTON = { left: 200, right: 480, bottom: -890, top: -735 } as const;
 export const PHASE_B_RESET_BUTTON = { left: -440, right: -100, bottom: -600, top: -515 } as const;
 export const PHASE_B_PLAY_BUTTON = { left: 100, right: 440, bottom: -600, top: -515 } as const;
-export const PHASE_B_RESULT_RESTART_BUTTON = { left: -300, right: 300, bottom: -355, top: -215 } as const;
+export const PHASE_B_RESULT_RESTART_BUTTON = { left: -390, right: -20, bottom: -410, top: -275 } as const;
+export const PHASE_B_RESULT_HOME_BUTTON = { left: 20, right: 390, bottom: -410, top: -275 } as const;
 export const PHASE_B_SOUND_BUTTON = { left: 310, right: 480, bottom: 790, top: 900 } as const;
 export const PHASE_B_UPGRADE_BUTTON = { left: -350, right: 350, bottom: -710, top: -625 } as const;
 export const PHASE_B_GRID_TABS: readonly { id: GridId; label: string; left: number; right: number }[] = [
@@ -76,7 +77,7 @@ export class PhaseBLayout {
     /** 结算统计和底板共用窄屏安全宽度，触控按钮继续使用独立命中矩形。 */
     public resultPanelRect(): PhaseBRect {
         const width = Math.min(860, this.safeHalfWidth * 2);
-        return { left: -width / 2, right: width / 2, bottom: -470, top: 450 };
+        return { left: -width / 2, right: width / 2, bottom: -540, top: 490 };
     }
 
     public resultStatRects(): readonly PhaseBRect[] {
@@ -87,11 +88,22 @@ export class PhaseBLayout {
         const left = panel.left + padding;
         const right = left + width + gap;
         return [
-            { left, right: left + width, bottom: 0, top: 100 },
-            { left: right, right: right + width, bottom: 0, top: 100 },
-            { left, right: left + width, bottom: -118, top: -18 },
-            { left: right, right: right + width, bottom: -118, top: -18 },
+            { left, right: left + width, bottom: 38, top: 138 },
+            { left: right, right: right + width, bottom: 38, top: 138 },
+            { left, right: left + width, bottom: -80, top: 20 },
+            { left: right, right: right + width, bottom: -80, top: 20 },
         ];
+    }
+
+    public resultDetailRects(): readonly PhaseBRect[] {
+        const panel = this.resultPanelRect();
+        const padding = 32;
+        const gap = 12;
+        const width = (panel.right - panel.left - padding * 2 - gap * 2) / 3;
+        return Array.from({ length: 3 }, (_, index) => {
+            const left = panel.left + padding + index * (width + gap);
+            return { left, right: left + width, bottom: -238, top: -115 };
+        });
     }
 
     public boardMetrics(grid: GridDefinition): PhaseBBoardMetrics {
