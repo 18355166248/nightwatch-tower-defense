@@ -1,0 +1,43 @@
+assets/scripts/presentation/PhaseBSceneState.ts
+  s_57db2c01e7cdde::t_7b7042315e114b 36-37
+docs/poc/phase-b-tower-card-state-regression.md
+  s_57db2c01e7cdde::t_82e5bbbbf843d7 1-15
+assets/scripts/runtime/NightwatchPocBootstrap.ts
+  s_57db2c01e7cdde::t_18224bb042324c 850
+  s_57db2c01e7cdde::t_7b7042315e114b 734,755,786
+  s_57db2c01e7cdde::t_fe5958daf11d4f 22,93,735
+tsconfig.test.json
+  s_57db2c01e7cdde::t_bc9412893ca752 15
+tests/core-rules.test.cjs
+  s_57db2c01e7cdde::t_fe5958daf11d4f 22,67-72
+  s_57db2c01e7cdde::t_d02e4afbe2eb1a 73-74
+assets/scripts/presentation/PhaseBHudView.ts
+  s_57db2c01e7cdde::t_7b7042315e114b 36,98,149-150
+assets/scripts/input/TowerPlacementMode.ts
+  s_57db2c01e7cdde::t_fe5958daf11d4f 1-8
+assets/scripts/presentation/FirstLevelExperienceView.ts
+  s_57db2c01e7cdde::t_18224bb042324c 93-94,116-125
+  s_57db2c01e7cdde::t_1ee031febedf53 126-127
+docs/validation.md
+  s_57db2c01e7cdde::t_82e5bbbbf843d7 253-258
+assets/scripts/presentation/PhaseBCanvasRenderer.ts
+  s_57db2c01e7cdde::t_7b7042315e114b 437-438
+assets/scripts/input/TowerPlacementMode.ts.meta
+  s_57db2c01e7cdde::t_b4a14a3e3a2a92 1-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "afaab258671e43435fc5a977f81a942279769d98",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
