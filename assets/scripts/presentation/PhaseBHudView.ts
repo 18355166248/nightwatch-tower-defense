@@ -13,6 +13,7 @@ import type { BattlePhase } from '../systems/BattleStateMachine';
 import { firstLevelWaveBanner } from './FirstLevelWaveBanner';
 import { hudEventText } from './PhaseBHudText';
 import { resultRevealEase } from './ResultRevealRuntime';
+import type { UpcomingWaveBriefing } from './WaveBriefing';
 import { PHASE_B_EARLY_WAVE_BUTTON, PHASE_B_RESULT_HOME_BUTTON, PHASE_B_RESULT_RESTART_BUTTON, PHASE_B_SOUND_BUTTON, PHASE_B_SPEED_BUTTON,
     PHASE_B_UPGRADE_BUTTON, PhaseBLayout } from './PhaseBLayout';
 
@@ -37,6 +38,7 @@ export interface PhaseBHudState {
     readonly countdownSeconds: number;
     readonly activePlacementTowerId: TowerId | null;
     readonly inspectedUpgrade: { readonly level: number; readonly cost: number | null } | null;
+    readonly upcomingWave: UpcomingWaveBriefing | null;
     readonly result: BattleResultViewModel | null;
     readonly resultRevealProgress: number;
 }
@@ -52,6 +54,8 @@ export class PhaseBHudView {
     private readonly waveLabel: Label;
     private readonly coreLabel: Label;
     private readonly levelLabel: Label;
+    private readonly upcomingLineupLabel: Label;
+    private readonly upcomingTacticLabel: Label;
     private readonly guidanceLabel: Label;
     private readonly helpLabel: Label;
     private readonly speedLabel: Label;
@@ -83,6 +87,10 @@ export class PhaseBHudView {
         this.waveLabel = this.createHudValueLabel(parent, 120, new Color('#D7E6F5'));
         this.coreLabel = this.createHudValueLabel(parent, 358, new Color('#79E0AD'));
         this.levelLabel = this.createCenteredLabel(parent, 35, new Color('#F4D58D'), 655, 760, 80);
+        this.upcomingLineupLabel = this.createCenteredLabel(parent, 34, new Color('#F4D58D'), 675, 760, 42);
+        this.upcomingTacticLabel = this.createCenteredLabel(parent, 29, new Color('#9DE2CB'), 635, 760, 42);
+        this.upcomingLineupLabel.enableWrapText = false;
+        this.upcomingTacticLabel.enableWrapText = false;
         this.guidanceLabel = this.createCenteredLabel(parent, 42, new Color('#D7E6F5'), -655, 920, 125);
         // 竖屏实际可见宽度仅约 360–430 px，开局指令固定两行并保留完整字号，不压缩成细小单行。
         this.guidanceLabel.lineHeight = 50;
@@ -130,6 +138,7 @@ export class PhaseBHudView {
             state.coreHealth, state.phaseText, state.phase, state.waveSpawned, state.waveTotal, state.activeEnemyCount,
             state.speedMultiplier, state.soundEnabled, state.soundReady, state.canStartNextWaveEarly,
             Math.ceil(state.countdownSeconds), state.activePlacementTowerId, state.inspectedUpgrade?.level ?? 0,
+            state.upcomingWave?.wave ?? 0, state.upcomingWave?.lineup ?? '', state.upcomingWave?.tactic ?? '',
             state.inspectedUpgrade?.cost ?? -1, state.result?.kind ?? '', state.result?.summary ?? '', state.result?.subtitle ?? '',
             state.result?.footnote ?? '', state.result?.runDetails.map(({ value }) => value).join(',') ?? '',
         ].join('|');
@@ -143,7 +152,9 @@ export class PhaseBHudView {
         this.pathLabel.node.active = !result;
         this.waveLabel.node.active = !result;
         this.coreLabel.node.active = !result;
-        this.levelLabel.node.active = !result && !state.qaMode;
+        this.levelLabel.node.active = !result && !state.qaMode && !state.upcomingWave;
+        this.upcomingLineupLabel.node.active = !result && !state.qaMode && Boolean(state.upcomingWave);
+        this.upcomingTacticLabel.node.active = !result && !state.qaMode && Boolean(state.upcomingWave);
         // 点选炮塔后，升级按钮接管引导区；塔属性缩成上方单行事件，不遮挡资源。
         this.guidanceLabel.node.active = !result && !state.qaMode && !state.inspectedUpgrade;
         this.helpLabel.node.active = !result;
@@ -178,6 +189,10 @@ export class PhaseBHudView {
                 activeEnemies: state.activeEnemyCount,
                 phase: state.phase,
             });
+            if (state.upcomingWave) {
+                this.upcomingLineupLabel.string = `第 ${state.upcomingWave.wave} 波 · ${state.upcomingWave.lineup}`;
+                this.upcomingTacticLabel.string = state.upcomingWave.tactic;
+            }
             this.guidanceLabel.string = state.guidanceText;
             this.speedLabel.string = `速度\n${state.speedMultiplier}×`;
             this.soundLabel.string = state.soundEnabled ? `音效\n${state.soundReady ? '开' : '待启用'}` : '音效\n关';
@@ -232,6 +247,9 @@ export class PhaseBHudView {
         }
         this.statusLabel.node.getComponent(UITransform)?.setContentSize(Math.min(755, safeHalf * 2), 52);
         this.guidanceLabel.node.getComponent(UITransform)?.setContentSize(Math.min(920, safeHalf * 2), 125);
+        for (const label of [this.upcomingLineupLabel, this.upcomingTacticLabel]) {
+            label.node.getComponent(UITransform)?.setContentSize(Math.min(760, safeHalf * 2), 42);
+        }
         const cards = this.layout.hudCardRects();
         [this.goldLabel, this.pathLabel, this.waveLabel, this.coreLabel].forEach((label, index) => {
             const rect = cards[index];

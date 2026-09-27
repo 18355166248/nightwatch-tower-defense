@@ -32,7 +32,7 @@ import { towerInspectionSummary, towerSelectionSummary, towerUpgradeSuccessText,
 import { PhaseBUnitSpriteView } from '../presentation/PhaseBUnitSpriteView';
 import { RouteChangeFeedback, routeChangeText, routeLengthDelta } from '../presentation/RouteChangeFeedback';
 import { ResultRevealRuntime } from '../presentation/ResultRevealRuntime';
-import { waveStartStatus, waveThreatHint } from '../presentation/WaveBriefing';
+import { upcomingWaveBriefing, waveStartStatus, type UpcomingWaveBriefing } from '../presentation/WaveBriefing';
 import type { PhaseBSceneState } from '../presentation/PhaseBSceneState';
 import {
     FIRST_LEVEL_SKIP_COACH_BUTTON,
@@ -880,12 +880,12 @@ export class NightwatchPocBootstrap extends Component {
                 previewAccepted: this.preview?.accepted ?? null,
                 selectedTowerId: this.selectedTowerId,
             });
-        const nextThreat = this.guidedIntermissionHeld && battle.wave < this.waves.totalWaves
-            ? waveThreatHint(this.waves.get(battle.wave + 1))
+        const upcomingWave = (this.guidedIntermissionHeld || battle.phase === 'countdown')
+            && battle.wave < this.waves.totalWaves
+            ? upcomingWaveBriefing(this.waves.get(battle.wave + 1))
             : null;
-        const guidanceText = nextThreat && !inspectedTowerId
-            ? `${baseGuidanceText}\n${nextThreat}`
-            : baseGuidanceText;
+        // 下波敌情占用顶栏固定两行，操作建议仍在底栏；不再把第三行塞进窄屏引导槽。
+        const guidanceText = baseGuidanceText;
         // 记住上次塔类型仅供下次操作复用；空闲态不能把卡片画成“已拿起”，否则点网格无响应像是故障。
         const activePlacementTowerId = activePlacementTower(this.selectedTowerId, this.inputMode);
         const sceneState: PhaseBSceneState = {
@@ -950,13 +950,14 @@ export class NightwatchPocBootstrap extends Component {
             countdownSeconds: battle.countdownSeconds,
             activePlacementTowerId,
             inspectedUpgrade: inspectedTowerId ? { level: inspectedLevel, cost: upgradeCost } : null,
+            upcomingWave,
             result,
             resultRevealProgress: this.resultReveal.progress,
         });
-        this.publishBrowserDiagnostics(guidanceText);
+        this.publishBrowserDiagnostics(guidanceText, upcomingWave);
     }
 
-    private publishBrowserDiagnostics(guidanceText: string | null): void {
+    private publishBrowserDiagnostics(guidanceText: string | null, upcomingWave: UpcomingWaveBriefing | null): void {
         const pathLength = this.preview?.accepted && this.preview.path
             ? this.preview.path.length - 1
             : this.model.flowField.distanceAt(this.model.grid.entry);
@@ -1025,7 +1026,7 @@ export class NightwatchPocBootstrap extends Component {
                 ? this.pauseOverlay.hasReason('orientation')
                     ? `夜城防线横屏安全暂停，请转回竖屏，再点继续战斗。第${this.battle.snapshot.wave}波，核心${this.battle.snapshot.coreHealth}`
                     : `夜城防线暂停，${this.pauseOverlay.snapshot.screen === 'menu' ? '继续战斗，回到战前布防，战斗设置，返回首页' : this.pauseOverlay.snapshot.screen === 'settings' ? '音效与速度设置，返回暂停' : '请确认或取消'}，第${this.battle.snapshot.wave}波，核心${this.battle.snapshot.coreHealth}`
-                : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，机枪${rivetTowerCount}座，冷凝${frostTowerCount}座，减速中${slowedEnemyCount}名，${this.inputMode === 'idle' ? '未拿起炮塔' : `已拿起${this.selectedTowerLabel()}`}，速度${this.simulationClock.scale}倍，${this.battle.snapshot.phase === 'countdown' ? '可提前开波' : '提前开波未激活'}，${guidanceText ? `${guidanceText}，` : ''}${this.statusText}`,
+                : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，机枪${rivetTowerCount}座，冷凝${frostTowerCount}座，减速中${slowedEnemyCount}名，${this.inputMode === 'idle' ? '未拿起炮塔' : `已拿起${this.selectedTowerLabel()}`}，速度${this.simulationClock.scale}倍，${this.battle.snapshot.phase === 'countdown' ? '可提前开波' : '提前开波未激活'}，${upcomingWave ? `下一波第${upcomingWave.wave}波，${upcomingWave.accessibleLineup}，${upcomingWave.tactic}，` : ''}${guidanceText ? `${guidanceText}，` : ''}${this.statusText}`,
         );
     }
 

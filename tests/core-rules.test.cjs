@@ -39,7 +39,7 @@ const { firstLevelWaveBanner } = require('../.test-dist/presentation/FirstLevelW
 const { hudEventText, towerInspectionSummary, towerSelectionSummary, towerUpgradeSuccessText, waveClearIncomeText } = require('../.test-dist/presentation/PhaseBHudText.js');
 const { enemyDeathFeedbackSeconds, enemyDeathPose, enemyGaitFrame, enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
 const { RouteChangeFeedback, routeChangeText, routeLengthDelta } = require('../.test-dist/presentation/RouteChangeFeedback.js');
-const { waveLineup, waveStartStatus, waveThreatHint } = require('../.test-dist/presentation/WaveBriefing.js');
+const { upcomingWaveBriefing, waveLineup, waveStartStatus, waveThreatHint } = require('../.test-dist/presentation/WaveBriefing.js');
 const {
     PHASE_B_EARLY_WAVE_BUTTON,
     PHASE_B_SPEED_BUTTON,
@@ -503,12 +503,17 @@ test('疾行机由第三波少量出现，波前预告和总敌数都跟随配�
     assert.equal(waveLineup(PHASE_B_WAVES[2]), '发条步兵×11 · 疾行机×2');
     assert.equal(waveStartStatus(PHASE_B_WAVES[4]), '第 5 波 · 铁罐搬运者×9进场');
     assert.equal(waveStartStatus(PHASE_B_WAVES[7]), '第 8 波 · 发条步兵先行，后续混编来袭');
-    assert.equal(waveThreatHint(PHASE_B_WAVES[1]), null);
-    assert.match(waveThreatHint(PHASE_B_WAVES[2]), /疾行机×2.*冷凝塔/);
+    assert.equal(waveThreatHint(PHASE_B_WAVES[1]), '机枪守线 · 留意改路');
+    assert.match(waveThreatHint(PHASE_B_WAVES[2]), /疾行.*冷凝/);
     assert.equal(PHASE_B_WAVES.slice(0, 4).every(({ groups }) => groups.every(({ enemy }) => enemy.id !== IRON_CANISTER_HAULER.id)), true);
     assert.deepEqual(PHASE_B_WAVES[4].groups.map(({ enemy, count }) => [enemy.id, count]), [['iron-canister-hauler', 9]]);
-    assert.match(waveThreatHint(PHASE_B_WAVES[4]), /铁罐×9.*集火/);
-    assert.match(waveThreatHint(PHASE_B_WAVES[6]), /疾行.*铁罐.*控快/);
+    assert.match(waveThreatHint(PHASE_B_WAVES[4]), /冷凝.*集火/);
+    assert.match(waveThreatHint(PHASE_B_WAVES[6]), /疾行控速.*重装集火/);
+    assert.deepEqual(upcomingWaveBriefing(PHASE_B_WAVES[2]), {
+        wave: 3, lineup: '步兵×11 · 疾行×2', tactic: '疾行更快 · 冷凝压速',
+        accessibleLineup: '发条步兵×11 · 疾行机×2',
+    });
+    assert.equal(upcomingWaveBriefing(PHASE_B_WAVES[7]).lineup, '步兵×31 · 疾行×22 · 重装×18');
 });
 
 test('五张单位图均导入为 SpriteFrame，避免新增纹理让整层切图降级', () => {
