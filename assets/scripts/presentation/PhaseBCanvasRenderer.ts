@@ -434,8 +434,8 @@ export class PhaseBCanvasRenderer {
             20,
         );
         graphics.fill();
-        this.drawTowerButton(PHASE_B_RIVET_BUTTON, state.gold >= RIVET_GUN.cost, state.selectedTowerId === RIVET_GUN.id, '#D5A84B');
-        this.drawTowerButton(PHASE_B_FROST_BUTTON, state.gold >= FROST_COIL.cost, state.selectedTowerId === FROST_COIL.id, '#62BCD0');
+        this.drawTowerButton(PHASE_B_RIVET_BUTTON, state.gold >= RIVET_GUN.cost, state.activePlacementTowerId === RIVET_GUN.id, '#D5A84B');
+        this.drawTowerButton(PHASE_B_FROST_BUTTON, state.gold >= FROST_COIL.cost, state.activePlacementTowerId === FROST_COIL.id, '#62BCD0');
         const upgrade = state.inspectedTower;
         if (upgrade) {
             graphics.fillColor = new Color(upgrade.upgradeCost === null || state.gold < upgrade.upgradeCost ? '#596273' : '#C79958');

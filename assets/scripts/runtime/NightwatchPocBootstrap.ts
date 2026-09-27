@@ -19,6 +19,7 @@ import { FIRST_LEVEL_STARTING_GOLD } from '../config/FirstLevelOpening';
 import { PHASE_B_TOWERS, PHASE_B_WAVES, type TowerId } from '../config/PhaseBCombatConfig';
 import { cellKey, sameCell, type EnemyRouteState, type GridCell, type GridId } from '../core/GridTypes';
 import { PhaseBDebugInput, type PhaseBDebugAction } from '../input/PhaseBDebugInput';
+import { activePlacementTower, type TowerInputMode } from '../input/TowerPlacementMode';
 import { TowerInspection } from '../input/TowerInspection';
 import { buildBattleResultViewModel } from '../presentation/BattleResultViewModel';
 import { BrowserBattleDiagnostics } from '../presentation/BrowserBattleDiagnostics';
@@ -67,8 +68,6 @@ import { nextUpgradeCost } from '../systems/TowerLevelRules';
 
 const { ccclass } = _decorator;
 
-type InputMode = 'idle' | 'tower-pressed' | 'armed' | 'dragging' | 'click-preview';
-
 @ccclass('NightwatchPocBootstrap')
 export class NightwatchPocBootstrap extends Component {
     private readonly qaMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('qa') === '1';
@@ -91,7 +90,7 @@ export class NightwatchPocBootstrap extends Component {
     private selectedGridId: GridId = DEFAULT_GRID_ID;
     private selectedTowerId: TowerId = 'rivet-gun';
     private preview: PlacementPreview | null = null;
-    private inputMode: InputMode = 'idle';
+    private inputMode: TowerInputMode = 'idle';
     private primaryTouchId: number | null = null;
     private pressStart = new Vec3();
     private preparing = true;
@@ -732,6 +731,8 @@ export class NightwatchPocBootstrap extends Component {
         const guidanceText = nextThreat && !inspectedTowerId
             ? `${baseGuidanceText}\n${nextThreat}`
             : baseGuidanceText;
+        // 记住上次塔类型仅供下次操作复用；空闲态不能把卡片画成“已拿起”，否则点网格无响应像是故障。
+        const activePlacementTowerId = activePlacementTower(this.selectedTowerId, this.inputMode);
         const sceneState: PhaseBSceneState = {
             qaMode: this.qaMode,
             useUnitSprites: this.unitSprites?.ready ?? false,
@@ -751,7 +752,7 @@ export class NightwatchPocBootstrap extends Component {
             maxCoreHealth: this.initialCoreHealth,
             speedMultiplier: this.simulationClock.scale,
             soundEnabled: this.sound.isEnabled,
-            selectedTowerId: this.selectedTowerId,
+            activePlacementTowerId,
             canStartNextWaveEarly: battle.phase === 'countdown',
             showPlayControl: this.preparing || this.battle.snapshot.phase === 'paused',
             result,
@@ -782,7 +783,7 @@ export class NightwatchPocBootstrap extends Component {
             soundReady: this.sound.isReady,
             canStartNextWaveEarly: battle.phase === 'countdown',
             countdownSeconds: battle.countdownSeconds,
-            selectedTowerId: this.selectedTowerId,
+            activePlacementTowerId,
             inspectedUpgrade: inspectedTowerId ? { level: inspectedLevel, cost: upgradeCost } : null,
             result,
         });
@@ -846,7 +847,7 @@ export class NightwatchPocBootstrap extends Component {
                 ? '夜城防线第一关：守住夜城入口。开始布防，或直接开始并跳过引导'
                 : result
                 ? `${result.title}，${result.summary.replace('\n', '，')}，${result.actionLabel}`
-                : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，机枪${rivetTowerCount}座，冷凝${frostTowerCount}座，减速中${slowedEnemyCount}名，已选${this.selectedTowerLabel()}，速度${this.simulationClock.scale}倍，${this.battle.snapshot.phase === 'countdown' ? '可提前开波' : '提前开波未激活'}，${guidanceText ? `${guidanceText}，` : ''}${this.statusText}`,
+                : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，机枪${rivetTowerCount}座，冷凝${frostTowerCount}座，减速中${slowedEnemyCount}名，${this.inputMode === 'idle' ? '未拿起炮塔' : `已拿起${this.selectedTowerLabel()}`}，速度${this.simulationClock.scale}倍，${this.battle.snapshot.phase === 'countdown' ? '可提前开波' : '提前开波未激活'}，${guidanceText ? `${guidanceText}，` : ''}${this.statusText}`,
         );
     }
 

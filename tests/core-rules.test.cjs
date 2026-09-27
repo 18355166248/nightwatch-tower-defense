@@ -19,6 +19,7 @@ const { EconomyLedger } = require('../.test-dist/systems/EconomyLedger.js');
 const { BattleRunCheckpoint } = require('../.test-dist/systems/BattleRunCheckpoint.js');
 const { FirstLevelSoundDirector } = require('../.test-dist/audio/FirstLevelSoundDirector.js');
 const { TowerInspection } = require('../.test-dist/input/TowerInspection.js');
+const { activePlacementTower } = require('../.test-dist/input/TowerPlacementMode.js');
 const { WaveCombatRuntime } = require('../.test-dist/systems/WaveCombatRuntime.js');
 const { WaveCatalog } = require('../.test-dist/systems/WaveCatalog.js');
 const { WaveRewardRuntime } = require('../.test-dist/systems/WaveRewardRuntime.js');
@@ -61,6 +62,14 @@ test('首关 HUD 将重复金币移到独立数值卡，保留建塔与波次事
     assert.equal(towerSelectionSummary(RIVET_GUN), '已选机枪塔 · 稳定单体输出');
     assert.equal(towerUpgradeSuccessText('frost-coil', 2), '冷凝塔升至 Lv2 · 范围减速增强');
     assert.equal(towerUpgradeSuccessText('rivet-gun', 3), '机枪塔升至 Lv3 · 火力与射程提升');
+});
+
+test('只有拿起或预览中的塔卡高亮，空闲态记住塔种但不冒充可直接落塔', () => {
+    assert.equal(activePlacementTower('rivet-gun', 'idle'), null);
+    assert.equal(activePlacementTower('frost-coil', 'idle'), null);
+    for (const mode of ['tower-pressed', 'armed', 'dragging', 'click-preview']) {
+        assert.equal(activePlacementTower('frost-coil', mode), 'frost-coil');
+    }
 });
 
 test('同格敌群显示局部人数，单只不添徽标且只读计算不改变敌人位置', () => {

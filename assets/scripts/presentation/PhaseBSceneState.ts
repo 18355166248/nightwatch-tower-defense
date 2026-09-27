@@ -33,7 +33,8 @@ export interface PhaseBSceneState {
     readonly maxCoreHealth: number;
     readonly speedMultiplier: number;
     readonly soundEnabled: boolean;
-    readonly selectedTowerId: TowerId;
+    /** 仅操作已拿起炮塔时才高亮卡片；记住上次塔类型不等于正在放置。 */
+    readonly activePlacementTowerId: TowerId | null;
     readonly canStartNextWaveEarly: boolean;
     readonly showPlayControl: boolean;
     readonly result: BattleResultViewModel | null;

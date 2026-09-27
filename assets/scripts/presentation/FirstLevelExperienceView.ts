@@ -90,7 +90,8 @@ export class FirstLevelExperienceView {
         graphics.strokeColor = new Color('#FFE09C');
         graphics.lineWidth = 7;
         if (snapshot.step === 'select' || snapshot.step === 'shape' || snapshot.step === 'reinforce') {
-            this.outline(snapshot.suggestedTowerId === 'frost-coil' ? PHASE_B_FROST_BUTTON : PHASE_B_RIVET_BUTTON);
+            // 教学建议用指针，卡片内描边只留给真正“拿起炮塔”的输入态，避免首局误以为点网格即可落塔。
+            this.pointAtTower(snapshot.suggestedTowerId === 'frost-coil' ? PHASE_B_FROST_BUTTON : PHASE_B_RIVET_BUTTON);
             if (snapshot.suggestedCell) this.outlineCell(snapshot.suggestedCell, grid);
         } else if (snapshot.step === 'place') {
             if (previewCell ?? snapshot.suggestedCell) this.outlineCell(previewCell ?? snapshot.suggestedCell!, grid);
@@ -110,6 +111,18 @@ export class FirstLevelExperienceView {
         const size = this.layout.boardMetrics(grid).cellSize;
         this.graphics.roundRect(center.x - size / 2, center.y - size / 2, size, size, 12);
         this.graphics.stroke();
+    }
+
+    private pointAtTower(rect: PhaseBRect): void {
+        const safe = this.layout.safeRect(rect);
+        const x = (safe.left + safe.right) / 2;
+        const tipY = safe.top + 12;
+        this.graphics.fillColor = new Color('#FFE09C');
+        this.graphics.moveTo(x, tipY);
+        this.graphics.lineTo(x - 22, tipY + 27);
+        this.graphics.lineTo(x + 22, tipY + 27);
+        this.graphics.close();
+        this.graphics.fill();
     }
 
     private outline(rect: PhaseBRect): void {

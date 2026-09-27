@@ -33,7 +33,7 @@ export interface PhaseBHudState {
     readonly soundReady: boolean;
     readonly canStartNextWaveEarly: boolean;
     readonly countdownSeconds: number;
-    readonly selectedTowerId: TowerId;
+    readonly activePlacementTowerId: TowerId | null;
     readonly inspectedUpgrade: { readonly level: number; readonly cost: number | null } | null;
     readonly result: BattleResultViewModel | null;
 }
@@ -95,7 +95,7 @@ export class PhaseBHudView {
             state.qaMode, state.guidanceText, state.statusText, state.gold, state.pathLength, state.wave, state.totalWaves,
             state.coreHealth, state.phaseText, state.phase, state.waveSpawned, state.waveTotal, state.activeEnemyCount,
             state.speedMultiplier, state.soundEnabled, state.soundReady, state.canStartNextWaveEarly,
-            Math.ceil(state.countdownSeconds), state.selectedTowerId, state.inspectedUpgrade?.level ?? 0,
+            Math.ceil(state.countdownSeconds), state.activePlacementTowerId, state.inspectedUpgrade?.level ?? 0,
             state.inspectedUpgrade?.cost ?? -1, state.result?.kind ?? '', state.result?.summary ?? '',
         ].join('|');
         // Bootstrap 仍可提交每帧快照，但 Label 只在展示字段变化时写入，避免 UI 跟随战斗帧率刷新。
@@ -146,8 +146,8 @@ export class PhaseBHudView {
             this.earlyWaveLabel.color = new Color(state.canStartNextWaveEarly ? '#E9FFF4' : '#718197');
             this.rivetLabel.string = `机枪\n${RIVET_GUN.cost}`;
             this.frostLabel.string = `冷凝\n${FROST_COIL.cost}`;
-            this.rivetLabel.color = new Color(state.selectedTowerId === 'rivet-gun' ? '#101827' : '#F2E4BF');
-            this.frostLabel.color = new Color(state.selectedTowerId === 'frost-coil' ? '#101827' : '#DDFBFF');
+            this.rivetLabel.color = new Color(state.activePlacementTowerId === 'rivet-gun' ? '#101827' : '#F2E4BF');
+            this.frostLabel.color = new Color(state.activePlacementTowerId === 'frost-coil' ? '#101827' : '#DDFBFF');
             this.upgradeLabel.string = state.inspectedUpgrade?.cost === null
                 ? `已满级 · 当前 Lv${state.inspectedUpgrade?.level}`
                 : `升级至 Lv${(state.inspectedUpgrade?.level ?? 1) + 1} · ${state.inspectedUpgrade?.cost} 金币`;
