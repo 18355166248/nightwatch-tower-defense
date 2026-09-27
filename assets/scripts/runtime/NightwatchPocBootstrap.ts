@@ -868,9 +868,10 @@ export class NightwatchPocBootstrap extends Component {
             towerLevelsByCell: new Map(this.model.deployments.map(({ cell, level }) => [cellKey(cell), level ?? 1])),
             guidedIntermissionHeld: this.guidedIntermissionHeld,
         });
+        const baselinePath = this.model.flowField.pathFrom(this.model.grid.entry);
         const activePath = this.preview?.accepted && this.preview.path
             ? this.preview.path
-            : this.model.flowField.pathFrom(this.model.grid.entry);
+            : baselinePath;
         const inspectedCell = this.towerInspection.cell;
         const inspectedDeployment = inspectedCell
             ? this.model.deployments.find(({ cell }) => sameCell(cell, inspectedCell))
@@ -908,6 +909,7 @@ export class NightwatchPocBootstrap extends Component {
             towerIdsByCell: new Map(this.model.deployments.map(({ cell, towerId }) => [cellKey(cell), towerId])),
             towerLevelsByCell: new Map(this.model.deployments.map(({ cell, level }) => [cellKey(cell), level ?? 1])),
             activePath,
+            previewBaselinePath: this.preview?.accepted && this.preview.path ? baselinePath : null,
             preview: this.preview,
             inspectedTower: inspectedCell && inspectedTowerId ? { cell: inspectedCell, towerId: inspectedTowerId, level: inspectedLevel, upgradeCost, saleRefund } : null,
             enemies: this.combat.enemies,

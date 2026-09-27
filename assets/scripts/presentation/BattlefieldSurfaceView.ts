@@ -2,6 +2,7 @@ import { Color, Graphics } from 'cc';
 import { cellKey, sameCell } from '../core/GridTypes';
 import type { PhaseBSceneState } from './PhaseBSceneState';
 import { PhaseBLayout } from './PhaseBLayout';
+import { routePreviewDiff } from './RoutePreviewDiff';
 
 /** 只负责战场地表；道路由真实路径快照绘制，布塔改路后不会留下旧道路贴图。 */
 export class BattlefieldSurfaceView {
@@ -59,6 +60,38 @@ export class BattlefieldSurfaceView {
                 graphics.rect(center.x - size / 2, center.y - size / 2, size, size);
                 graphics.stroke();
             }
+        }
+        this.drawRoutePreviewDifference(state, size);
+    }
+
+    private drawRoutePreviewDifference(state: PhaseBSceneState, size: number): void {
+        if (!state.preview?.accepted || !state.previewBaselinePath || !state.activePath) return;
+        const graphics = this.graphics;
+        const { abandoned, added } = routePreviewDiff(state.previewBaselinePath, state.activePath);
+        // 旧路用斜杠表示“将被封掉”，新路用实心轮廓表示“敌人将改走这里”；不只依赖红绿颜色。
+        for (const cell of abandoned) {
+            if (sameCell(cell, state.preview.cell)) continue;
+            const center = this.layout.gridPointCenter(cell, state.grid);
+            const half = size * 0.38;
+            graphics.fillColor = new Color(225, 159, 97, 45);
+            graphics.roundRect(center.x - half, center.y - half, half * 2, half * 2, 8);
+            graphics.fill();
+            graphics.strokeColor = new Color(250, 189, 117, 195);
+            graphics.lineWidth = 5;
+            graphics.moveTo(center.x - half * 0.48, center.y - half * 0.48);
+            graphics.lineTo(center.x + half * 0.48, center.y + half * 0.48);
+            graphics.stroke();
+        }
+        for (const cell of added) {
+            const center = this.layout.gridPointCenter(cell, state.grid);
+            const half = size * 0.4;
+            graphics.fillColor = new Color(95, 237, 185, 48);
+            graphics.roundRect(center.x - half, center.y - half, half * 2, half * 2, 8);
+            graphics.fill();
+            graphics.strokeColor = new Color(151, 255, 214, 220);
+            graphics.lineWidth = 4;
+            graphics.roundRect(center.x - half, center.y - half, half * 2, half * 2, 8);
+            graphics.stroke();
         }
     }
 

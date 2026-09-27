@@ -13,6 +13,8 @@ export interface PhaseBSceneState {
     readonly towers: ReadonlySet<string>;
     readonly towerIdsByCell: ReadonlyMap<string, TowerId>;
     readonly activePath: readonly GridCell[] | null;
+    /** 只在合法布塔预览中提供当前真实路线，供战场对比旧路与候选路。 */
+    readonly previewBaselinePath: readonly GridCell[] | null;
     readonly preview: { readonly accepted: boolean; readonly cell: GridCell; readonly towerId: TowerId } | null;
     readonly inspectedTower: { readonly cell: GridCell; readonly towerId: TowerId; readonly level: number; readonly upgradeCost: number | null; readonly saleRefund: number | null } | null;
     readonly towerLevelsByCell: ReadonlyMap<string, number>;

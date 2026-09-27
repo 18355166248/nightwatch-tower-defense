@@ -39,6 +39,7 @@ const { firstLevelWaveBanner } = require('../.test-dist/presentation/FirstLevelW
 const { hudEventText, towerInspectionSummary, towerSelectionSummary, towerUpgradeSuccessText, waveClearIncomeText } = require('../.test-dist/presentation/PhaseBHudText.js');
 const { enemyDeathFeedbackSeconds, enemyDeathPose, enemyGaitFrame, enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
 const { RouteChangeFeedback, routeChangeText, routeLengthDelta } = require('../.test-dist/presentation/RouteChangeFeedback.js');
+const { routePreviewDiff } = require('../.test-dist/presentation/RoutePreviewDiff.js');
 const { upcomingWaveBriefing, waveLineup, waveStartStatus, waveThreatHint } = require('../.test-dist/presentation/WaveBriefing.js');
 const {
     PHASE_B_EARLY_WAVE_BUTTON,
@@ -275,10 +276,22 @@ test('布塔预览、提交与撤销使用同一流场计算路线变化，提�
     assert.equal(preview.accepted, true);
     const previewDelta = routeLengthDelta(before, preview.path.length - 1);
     assert.ok(previewDelta > 0);
+    const originalPath = model.flowField.pathFrom(grid.entry);
+    const difference = routePreviewDiff(originalPath, preview.path);
+    assert.ok(difference.abandoned.length > 0);
+    assert.ok(difference.added.length > 0);
+    assert.equal(difference.abandoned.some((candidate) => cellKey(candidate) === cellKey(cell)), true);
+    assert.deepEqual(routePreviewDiff(originalPath, originalPath), { abandoned: [], added: [] });
     assert.match(routeChangeText(previewDelta), /路线 \+\d+ 格/);
     assert.equal(model.commit(preview, []).accepted, true);
     const placed = routeFeedback.record(cell, before, model.flowField.distanceAt(grid.entry));
     assert.equal(placed.delta, previewDelta);
+    const equalLengthPreview = model.preview({ column: 5, row: 2 }, [], 'rivet-gun');
+    assert.equal(equalLengthPreview.accepted, true);
+    const currentPath = model.flowField.pathFrom(grid.entry);
+    assert.equal(equalLengthPreview.path.length, currentPath.length);
+    const equalLengthDifference = routePreviewDiff(currentPath, equalLengthPreview.path);
+    assert.ok(equalLengthDifference.abandoned.length > 0 && equalLengthDifference.added.length > 0);
     routeFeedback.advance(0.45);
     assert.ok(routeFeedback.snapshot.remainingSeconds > 0);
     const beforeSell = model.flowField.distanceAt(grid.entry);
