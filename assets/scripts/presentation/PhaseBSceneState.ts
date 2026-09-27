@@ -38,4 +38,5 @@ export interface PhaseBSceneState {
     readonly canStartNextWaveEarly: boolean;
     readonly showPlayControl: boolean;
     readonly result: BattleResultViewModel | null;
+    readonly resultRevealProgress: number;
 }

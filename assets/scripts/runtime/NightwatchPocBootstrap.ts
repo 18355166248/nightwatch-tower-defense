@@ -30,6 +30,7 @@ import { PhaseBHudView } from '../presentation/PhaseBHudView';
 import { towerInspectionSummary, towerSelectionSummary, towerUpgradeSuccessText, waveClearIncomeText } from '../presentation/PhaseBHudText';
 import { PhaseBUnitSpriteView } from '../presentation/PhaseBUnitSpriteView';
 import { RouteChangeFeedback, routeChangeText, routeLengthDelta } from '../presentation/RouteChangeFeedback';
+import { ResultRevealRuntime } from '../presentation/ResultRevealRuntime';
 import { waveStartStatus, waveThreatHint } from '../presentation/WaveBriefing';
 import type { PhaseBSceneState } from '../presentation/PhaseBSceneState';
 import {
@@ -84,6 +85,7 @@ export class NightwatchPocBootstrap extends Component {
     private waveRewards = new WaveRewardRuntime();
     private readonly feedback = new CombatFeedbackRuntime();
     private readonly routeChange = new RouteChangeFeedback();
+    private readonly resultReveal = new ResultRevealRuntime();
     private readonly sound = new FirstLevelSoundDirector(new BrowserSynthAudio());
     private readonly towerInspection = new TowerInspection();
     private readonly simulationClock = new SimulationClock();
@@ -156,6 +158,7 @@ export class NightwatchPocBootstrap extends Component {
         this.simulationClock.advance(deltaTime, (step) => this.advanceGameStep(step));
         // 布塔反馈走真实时间，暂停和 2× 战斗都不会改变玩家读到提示的时长。
         this.routeChange.advance(deltaTime);
+        this.resultReveal.advance(deltaTime);
         this.redraw();
     }
 
@@ -523,6 +526,7 @@ export class NightwatchPocBootstrap extends Component {
         this.towerInspection.clear();
         this.feedback.clear();
         this.routeChange.clear();
+        this.resultReveal.clear();
         this.cancelInput(this.qaMode ? '已重置为空网格' : '已重新布防，可以调整路线');
     }
 
@@ -597,6 +601,7 @@ export class NightwatchPocBootstrap extends Component {
         this.simulationClock.reset();
         this.feedback.clear();
         this.routeChange.clear();
+        this.resultReveal.clear();
         this.preparing = true;
         this.pausedByLifecycle = false;
         this.guidedIntermissionHeld = false;
@@ -646,6 +651,7 @@ export class NightwatchPocBootstrap extends Component {
             clearReward = this.waveRewards.settle(this.waves.get(this.battle.snapshot.wave), this.economy).amount;
         }
         if (phase === 'victory') {
+            this.resultReveal.begin();
             this.statusText = waveClearIncomeText(this.battle.snapshot.wave, this.waveKillGold, clearReward);
             this.playSound('victory');
         } else if (phase === 'countdown') {
@@ -660,6 +666,7 @@ export class NightwatchPocBootstrap extends Component {
             this.statusText = waveClearIncomeText(this.battle.snapshot.wave, this.waveKillGold, clearReward);
             this.playSound('wave-clear');
         } else if (phase === 'defeat') {
+            this.resultReveal.begin();
             this.statusText = '核心已失守';
             this.playSound('defeat');
         } else if (result.killed.length > 0) this.statusText = `击杀 ${result.killed.length} 名敌人 · +${result.killed.reduce((sum, enemy) => sum + enemy.archetype.killReward, 0)} 金币`;
@@ -756,6 +763,7 @@ export class NightwatchPocBootstrap extends Component {
             canStartNextWaveEarly: battle.phase === 'countdown',
             showPlayControl: this.preparing || this.battle.snapshot.phase === 'paused',
             result,
+            resultRevealProgress: this.resultReveal.progress,
         };
         this.renderer?.render(sceneState);
         this.unitSprites?.render(sceneState);
@@ -786,6 +794,7 @@ export class NightwatchPocBootstrap extends Component {
             activePlacementTowerId,
             inspectedUpgrade: inspectedTowerId ? { level: inspectedLevel, cost: upgradeCost } : null,
             result,
+            resultRevealProgress: this.resultReveal.progress,
         });
         this.publishBrowserDiagnostics(guidanceText);
     }
@@ -857,6 +866,7 @@ export class NightwatchPocBootstrap extends Component {
             this.combat.totals,
             this.model.gold,
             this.initialCoreHealth,
+            this.waves.totalWaves,
         );
     }
 

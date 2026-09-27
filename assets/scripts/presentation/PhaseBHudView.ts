@@ -3,6 +3,7 @@ import {
     HorizontalTextAlignment,
     Label,
     Node,
+    UIOpacity,
     UITransform,
     VerticalTextAlignment,
 } from 'cc';
@@ -11,7 +12,8 @@ import { FROST_COIL, RIVET_GUN, type TowerId } from '../config/PhaseBCombatConfi
 import type { BattlePhase } from '../systems/BattleStateMachine';
 import { firstLevelWaveBanner } from './FirstLevelWaveBanner';
 import { hudEventText } from './PhaseBHudText';
-import { PHASE_B_EARLY_WAVE_BUTTON, PHASE_B_SOUND_BUTTON, PHASE_B_SPEED_BUTTON,
+import { resultRevealEase } from './ResultRevealRuntime';
+import { PHASE_B_EARLY_WAVE_BUTTON, PHASE_B_RESULT_RESTART_BUTTON, PHASE_B_SOUND_BUTTON, PHASE_B_SPEED_BUTTON,
     PHASE_B_UPGRADE_BUTTON, PhaseBLayout } from './PhaseBLayout';
 
 export interface PhaseBHudState {
@@ -36,6 +38,7 @@ export interface PhaseBHudState {
     readonly activePlacementTowerId: TowerId | null;
     readonly inspectedUpgrade: { readonly level: number; readonly cost: number | null } | null;
     readonly result: BattleResultViewModel | null;
+    readonly resultRevealProgress: number;
 }
 
 /** 管理程序化 HUD 节点与结算文案，Bootstrap 只提供展示快照。 */
@@ -57,9 +60,13 @@ export class PhaseBHudView {
     private readonly rivetLabel: Label;
     private readonly frostLabel: Label;
     private readonly upgradeLabel: Label;
+    private readonly resultRoot: Node;
+    private readonly resultOpacity: UIOpacity;
     private readonly resultTitleLabel: Label;
-    private readonly resultSummaryLabel: Label;
+    private readonly resultSubtitleLabel: Label;
+    private readonly resultStatLabels: readonly { readonly value: Label; readonly caption: Label }[];
     private readonly resultActionLabel: Label;
+    private readonly resultFooterLabel: Label;
 
     public constructor(parent: Node, private readonly layout: PhaseBLayout) {
         this.titleLabel = this.createLabel(parent, 46, new Color('#F4D58D'), 875);
@@ -84,19 +91,34 @@ export class PhaseBHudView {
         this.frostLabel = this.createTowerLabel(parent, 89, -854);
         this.upgradeLabel = this.createCenteredLabel(parent, 32, new Color('#18283A'),
             (PHASE_B_UPGRADE_BUTTON.bottom + PHASE_B_UPGRADE_BUTTON.top) / 2, 680, 80);
-        this.resultTitleLabel = this.createCenteredLabel(parent, 64, new Color('#F4D58D'), 230, 760, 100);
-        this.resultSummaryLabel = this.createCenteredLabel(parent, 34, new Color('#D7E6F5'), 25, 760, 190);
-        this.resultActionLabel = this.createCenteredLabel(parent, 38, new Color('#101827'), -218, 600, 120);
+        this.resultRoot = new Node('ResultContent');
+        this.resultRoot.layer = parent.layer;
+        this.resultRoot.addComponent(UITransform).setContentSize(1080, 1920);
+        this.resultOpacity = this.resultRoot.addComponent(UIOpacity);
+        parent.addChild(this.resultRoot);
+        this.resultTitleLabel = this.createCenteredLabel(this.resultRoot, 64, new Color('#79E0AD'), 260, 760, 100);
+        this.resultSubtitleLabel = this.createCenteredLabel(this.resultRoot, 32, new Color('#D7E6F5'), 174, 760, 64);
+        this.resultStatLabels = Array.from({ length: 4 }, () => ({
+            value: this.createCenteredLabel(this.resultRoot, 48, new Color('#F4D58D'), 0, 360, 58),
+            caption: this.createCenteredLabel(this.resultRoot, 26, new Color('#A9C4DB'), 0, 360, 36),
+        }));
+        this.resultActionLabel = this.createCenteredLabel(this.resultRoot, 40, new Color('#101827'),
+            (PHASE_B_RESULT_RESTART_BUTTON.bottom + PHASE_B_RESULT_RESTART_BUTTON.top) / 2, 600, 110);
+        this.resultFooterLabel = this.createCenteredLabel(this.resultRoot, 27, new Color('#A9C4DB'), -412, 760, 50);
+        this.resultRoot.active = false;
     }
 
     public render(state: PhaseBHudState): void {
         this.syncResponsiveLayout();
+        // 入场插值不进入文字签名：文字保持事件驱动，只有结算容器的透明度按真实时间收敛。
+        this.resultRoot.active = Boolean(state.result);
+        this.resultOpacity.opacity = Math.round(255 * resultRevealEase(state.resultRevealProgress));
         const signature = [
             state.qaMode, state.guidanceText, state.statusText, state.gold, state.pathLength, state.wave, state.totalWaves,
             state.coreHealth, state.phaseText, state.phase, state.waveSpawned, state.waveTotal, state.activeEnemyCount,
             state.speedMultiplier, state.soundEnabled, state.soundReady, state.canStartNextWaveEarly,
             Math.ceil(state.countdownSeconds), state.activePlacementTowerId, state.inspectedUpgrade?.level ?? 0,
-            state.inspectedUpgrade?.cost ?? -1, state.result?.kind ?? '', state.result?.summary ?? '',
+            state.inspectedUpgrade?.cost ?? -1, state.result?.kind ?? '', state.result?.summary ?? '', state.result?.subtitle ?? '',
         ].join('|');
         // Bootstrap 仍可提交每帧快照，但 Label 只在展示字段变化时写入，避免 UI 跟随战斗帧率刷新。
         if (signature === this.renderedSignature) return;
@@ -119,8 +141,13 @@ export class PhaseBHudView {
         this.frostLabel.node.active = !result;
         this.upgradeLabel.node.active = !result && Boolean(state.inspectedUpgrade);
         this.resultTitleLabel.node.active = Boolean(result);
-        this.resultSummaryLabel.node.active = Boolean(result);
+        this.resultSubtitleLabel.node.active = Boolean(result);
         this.resultActionLabel.node.active = Boolean(result);
+        this.resultFooterLabel.node.active = Boolean(result);
+        for (const pair of this.resultStatLabels) {
+            pair.value.node.active = Boolean(result);
+            pair.caption.node.active = Boolean(result);
+        }
 
         if (!result) {
             this.titleLabel.string = state.qaMode ? '夜城防线 · Phase B 八波灰盒' : '夜城防线';
@@ -161,7 +188,15 @@ export class PhaseBHudView {
         }
         this.resultTitleLabel.string = result.title;
         this.resultTitleLabel.color = new Color(result.kind === 'victory' ? '#79E0AD' : '#FF8580');
-        this.resultSummaryLabel.string = result.summary;
+        this.resultSubtitleLabel.string = result.subtitle;
+        this.resultFooterLabel.string = result.footnote;
+        result.stats.forEach((stat, index) => {
+            const pair = this.resultStatLabels[index];
+            if (!pair) return;
+            pair.value.string = stat.value;
+            pair.value.color = new Color(stat.tone === 'danger' ? '#FF8580' : stat.tone === 'success' ? '#79E0AD' : '#F4D58D');
+            pair.caption.string = stat.label;
+        });
         this.resultActionLabel.string = result.actionLabel;
     }
 
@@ -191,6 +226,19 @@ export class PhaseBHudView {
             label.node.setPosition((rect.left + rect.right) / 2, label.node.position.y, 0);
             label.node.getComponent(UITransform)?.setContentSize(rect.right - rect.left, rect.top - rect.bottom);
         }
+        const resultPanel = this.layout.resultPanelRect();
+        const resultWidth = resultPanel.right - resultPanel.left - 64;
+        for (const label of [this.resultTitleLabel, this.resultSubtitleLabel, this.resultFooterLabel]) {
+            label.node.getComponent(UITransform)?.setContentSize(Math.min(760, resultWidth), label.node.getComponent(UITransform)!.contentSize.height);
+        }
+        this.layout.resultStatRects().forEach((rect, index) => {
+            const pair = this.resultStatLabels[index];
+            const centerX = (rect.left + rect.right) / 2;
+            pair.value.node.setPosition(centerX, rect.bottom + 60, 0);
+            pair.caption.node.setPosition(centerX, rect.bottom + 22, 0);
+            pair.value.node.getComponent(UITransform)?.setContentSize(rect.right - rect.left - 12, 58);
+            pair.caption.node.getComponent(UITransform)?.setContentSize(rect.right - rect.left - 12, 36);
+        });
     }
 
     private createTowerLabel(parent: Node, x: number, y: number): Label {

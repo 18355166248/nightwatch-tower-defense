@@ -8,6 +8,7 @@ import { CoreObjectiveView } from './CoreObjectiveView';
 import { BattlefieldSurfaceView } from './BattlefieldSurfaceView';
 import { EnemySlowIndicatorView } from './EnemySlowIndicatorView';
 import { enemySlowVisualStrength } from './UnitVisualMotion';
+import { resultRevealEase } from './ResultRevealRuntime';
 import {
     PHASE_B_GRID_TABS,
     PHASE_B_FROST_BUTTON,
@@ -51,7 +52,7 @@ export class PhaseBCanvasRenderer {
         else this.drawLevelBanner();
         this.drawBoard(state);
         this.drawControls(state);
-        this.drawResultOverlay(state.result);
+        this.drawResultOverlay(state.result, state.resultRevealProgress);
     }
 
     private drawInterfacePanels(): void {
@@ -366,20 +367,55 @@ export class PhaseBCanvasRenderer {
         }
     }
 
-    private drawResultOverlay(result: BattleResultViewModel | null): void {
+    private drawResultOverlay(result: BattleResultViewModel | null, progress: number): void {
         if (!result) return;
         const graphics = this.graphics;
+        const reveal = resultRevealEase(progress);
+        const alpha = (opacity: number) => Math.round(opacity * reveal);
+        const panel = this.layout.resultPanelRect();
+        const accent = result.kind === 'victory' ? new Color(121, 224, 173, alpha(255)) : new Color(255, 133, 128, alpha(255));
         graphics.fillColor = new Color(7, 12, 21, 232);
         graphics.rect(-540, -960, 1080, 1920);
         graphics.fill();
-        graphics.fillColor = new Color('#17263A');
-        const width = Math.min(860, this.layout.safeHalfWidth * 2);
-        graphics.roundRect(-width / 2, -430, width, 850, 34);
+        graphics.fillColor = new Color(23, 38, 58, alpha(250));
+        graphics.roundRect(panel.left, panel.bottom, panel.right - panel.left, panel.top - panel.bottom, 34);
         graphics.fill();
-        graphics.fillColor = new Color(result.kind === 'victory' ? '#2F9E72' : '#B84F50');
-        graphics.rect(-width / 2, 350, width, 70);
+        graphics.fillColor = result.kind === 'victory'
+            ? new Color(47, 158, 114, alpha(255)) : new Color(184, 79, 80, alpha(255));
+        graphics.rect(panel.left, 390, panel.right - panel.left, 60);
         graphics.fill();
-        graphics.fillColor = new Color(result.kind === 'victory' ? '#79E0AD' : '#FF8580');
+        // 胜败只在非交互元素上做短暂入场；按钮始终保持原位并沿用既有命中框。
+        graphics.fillColor = accent;
+        graphics.circle(0, 353, 26 + 12 * reveal);
+        graphics.fill();
+        graphics.strokeColor = new Color(16, 40, 55, alpha(255));
+        graphics.lineWidth = 9;
+        if (result.kind === 'victory') {
+            graphics.moveTo(-17, 353);
+            graphics.lineTo(-4, 339);
+            graphics.lineTo(20, 367);
+        } else {
+            graphics.moveTo(-14, 339);
+            graphics.lineTo(14, 367);
+            graphics.moveTo(-14, 367);
+            graphics.lineTo(14, 339);
+        }
+        graphics.stroke();
+        graphics.strokeColor = new Color(116, 155, 177, alpha(130));
+        graphics.lineWidth = 3;
+        graphics.moveTo(panel.left + 40, 135);
+        graphics.lineTo(panel.right - 40, 135);
+        graphics.stroke();
+        for (const rect of this.layout.resultStatRects()) {
+            graphics.fillColor = new Color(34, 55, 75, alpha(235));
+            graphics.roundRect(rect.left, rect.bottom, rect.right - rect.left, rect.top - rect.bottom, 17);
+            graphics.fill();
+            graphics.strokeColor = new Color(116, 155, 177, alpha(105));
+            graphics.lineWidth = 2;
+            graphics.roundRect(rect.left, rect.bottom, rect.right - rect.left, rect.top - rect.bottom, 17);
+            graphics.stroke();
+        }
+        graphics.fillColor = accent;
         graphics.roundRect(
             PHASE_B_RESULT_RESTART_BUTTON.left,
             PHASE_B_RESULT_RESTART_BUTTON.bottom,
