@@ -19,6 +19,7 @@
   ],
   "exclude": [
     "assets/scripts/presentation/PhaseBHudView.ts",
+    "assets/scripts/presentation/PhaseBPauseOverlayView.ts",
     "assets/scripts/presentation/PhaseBBackdropView.ts",
     "assets/scripts/presentation/PhaseBUnitSpriteView.ts",
     "assets/scripts/presentation/FirstLevelExperienceView.ts",

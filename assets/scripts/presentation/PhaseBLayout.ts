@@ -1,4 +1,5 @@
 import type { GridCell, GridDefinition, GridId } from '../core/GridTypes';
+import type { PauseScreen } from '../systems/PauseOverlayRuntime';
 
 export const PHASE_B_DESIGN_WIDTH = 1080;
 export const PHASE_B_DESIGN_HEIGHT = 1920;
@@ -11,6 +12,27 @@ export const PHASE_B_RESET_BUTTON = { left: -440, right: -100, bottom: -600, top
 export const PHASE_B_PLAY_BUTTON = { left: 100, right: 440, bottom: -600, top: -515 } as const;
 export const PHASE_B_RESULT_RESTART_BUTTON = { left: -390, right: -20, bottom: -410, top: -275 } as const;
 export const PHASE_B_RESULT_HOME_BUTTON = { left: 20, right: 390, bottom: -410, top: -275 } as const;
+export const PHASE_B_PAUSE_BUTTONS = [
+    { left: -340, right: 340, bottom: 165, top: 290 },
+    { left: -340, right: 340, bottom: 5, top: 130 },
+    { left: -340, right: 340, bottom: -155, top: -30 },
+    { left: -340, right: 340, bottom: -315, top: -190 },
+] as const;
+const PHASE_B_PAUSE_SETTINGS_BUTTONS = [
+    { left: -340, right: 340, bottom: 30, top: 130 },
+    { left: -340, right: 340, bottom: -100, top: 0 },
+    { left: -340, right: 340, bottom: -230, top: -130 },
+] as const;
+const PHASE_B_PAUSE_CONFIRM_BUTTONS = [
+    { left: -340, right: 340, bottom: -20, top: 80 },
+    { left: -340, right: 340, bottom: -145, top: -45 },
+] as const;
+
+/** 暂停页绘制和命中必须从同一份屏幕几何读取，避免精修版式后按钮错位。 */
+export function phaseBPauseButtons(screen: PauseScreen): readonly PhaseBRect[] {
+    return screen === 'menu' ? PHASE_B_PAUSE_BUTTONS
+        : screen === 'settings' ? PHASE_B_PAUSE_SETTINGS_BUTTONS : PHASE_B_PAUSE_CONFIRM_BUTTONS;
+}
 export const PHASE_B_SOUND_BUTTON = { left: 310, right: 480, bottom: 790, top: 900 } as const;
 export const PHASE_B_UPGRADE_BUTTON = { left: -350, right: 350, bottom: -710, top: -625 } as const;
 export const PHASE_B_GRID_TABS: readonly { id: GridId; label: string; left: number; right: number }[] = [
@@ -78,6 +100,13 @@ export class PhaseBLayout {
     public resultPanelRect(): PhaseBRect {
         const width = Math.min(860, this.safeHalfWidth * 2);
         return { left: -width / 2, right: width / 2, bottom: -540, top: 490 };
+    }
+
+    public pausePanelRect(screen: PauseScreen = 'menu'): PhaseBRect {
+        const width = Math.min(860, this.safeHalfWidth * 2);
+        return screen === 'menu'
+            ? { left: -width / 2, right: width / 2, bottom: -465, top: 475 }
+            : { left: -width / 2, right: width / 2, bottom: -330, top: 330 };
     }
 
     public resultStatRects(): readonly PhaseBRect[] {

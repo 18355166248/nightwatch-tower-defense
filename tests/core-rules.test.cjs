@@ -17,6 +17,7 @@ const { simulateNoDamageRoute } = require('../.test-dist/systems/RouteSimulation
 const { BattleStateMachine } = require('../.test-dist/systems/BattleStateMachine.js');
 const { EconomyLedger } = require('../.test-dist/systems/EconomyLedger.js');
 const { BattleRunCheckpoint } = require('../.test-dist/systems/BattleRunCheckpoint.js');
+const { PauseOverlayRuntime } = require('../.test-dist/systems/PauseOverlayRuntime.js');
 const { BattleRunClock } = require('../.test-dist/systems/BattleRunClock.js');
 const { FirstLevelBestTimeStore } = require('../.test-dist/systems/FirstLevelBestTimeStore.js');
 const { FirstLevelSoundDirector } = require('../.test-dist/audio/FirstLevelSoundDirector.js');
@@ -45,6 +46,8 @@ const {
     PHASE_B_FROST_BUTTON,
     PHASE_B_RESULT_RESTART_BUTTON,
     PHASE_B_RESULT_HOME_BUTTON,
+    PHASE_B_PAUSE_BUTTONS,
+    phaseBPauseButtons,
     PHASE_B_TOWER_BUTTON,
     PHASE_B_SOUND_BUTTON,
     PhaseBLayout,
@@ -369,6 +372,16 @@ test('360×780 等竖屏视口的 HUD 和侧边按钮落在可见安全宽度内
             assert.ok(rect.right - rect.left >= 100 && rect.top - rect.bottom >= 100);
             assert.ok(rect.bottom >= resultPanel.bottom && rect.top <= resultPanel.top);
         }
+        for (const screen of ['menu', 'settings', 'confirm-restart', 'confirm-home']) {
+            const pausePanel = layout.pausePanelRect(screen);
+            assert.ok(pausePanel.left >= -safeHalf && pausePanel.right <= safeHalf);
+            for (const button of phaseBPauseButtons(screen)) {
+                const rect = layout.safeRect(button);
+                assert.ok(rect.left >= pausePanel.left && rect.right <= pausePanel.right);
+                assert.ok(rect.right - rect.left >= 100 && rect.top - rect.bottom >= 100);
+                assert.ok(rect.bottom >= pausePanel.bottom && rect.top <= pausePanel.top);
+            }
+        }
         for (const rect of [PHASE_B_SOUND_BUTTON, PHASE_B_SPEED_BUTTON, PHASE_B_EARLY_WAVE_BUTTON]) {
             const safeRect = layout.safeRect(rect);
             assert.ok(safeRect.left >= -safeHalf && safeRect.right <= safeHalf);
@@ -378,6 +391,7 @@ test('360×780 等竖屏视口的 HUD 和侧边按钮落在可见安全宽度内
     }
     layout.setVisibleWidth(1080);
     assert.equal(layout.safeRect(PHASE_B_SOUND_BUTTON).right, PHASE_B_SOUND_BUTTON.right);
+    assert.equal(phaseBPauseButtons('menu'), PHASE_B_PAUSE_BUTTONS);
 });
 
 test('步兵视觉错位稳定且不超过单格范围，循环后不会累计漂移', () => {
@@ -978,6 +992,30 @@ test('局内计时只累计战斗与自然波间，暂停、教学等待和重�
     clock.reset();
     assert.equal(clock.elapsedSeconds, 0);
     assert.throws(() => clock.advance(-1, 'spawning'), RangeError);
+});
+
+test('暂停来源叠加、设置子页和后台恢复都要求玩家显式继续', () => {
+    const pause = new PauseOverlayRuntime();
+    assert.equal(pause.snapshot.visible, false);
+    assert.equal(pause.enterUser(), true);
+    assert.equal(pause.enterUser(), false);
+    pause.show('settings');
+    assert.equal(pause.snapshot.screen, 'settings');
+    assert.equal(pause.enterLifecycle(), false);
+    assert.equal(pause.snapshot.reason, 'lifecycle');
+    assert.equal(pause.snapshot.canContinue, false);
+    assert.equal(pause.continue(), false);
+    pause.leaveLifecycle();
+    assert.equal(pause.snapshot.visible, true);
+    assert.equal(pause.snapshot.reason, 'user');
+    assert.equal(pause.continue(), true);
+    assert.equal(pause.snapshot.visible, false);
+    assert.equal(pause.enterLifecycle(), true);
+    pause.leaveLifecycle();
+    assert.equal(pause.snapshot.visible, true);
+    assert.equal(pause.snapshot.canContinue, true);
+    assert.equal(pause.continue(), true);
+    assert.equal(pause.snapshot.visible, false);
 });
 
 test('返回首页时重置速度，重部署仍可保留玩家当前速度', () => {
