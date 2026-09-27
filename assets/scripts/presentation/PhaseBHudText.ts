@@ -49,7 +49,18 @@ export function towerUpgradeSuccessText(towerId: TowerId, level: number): string
         : `机枪塔升至 Lv${level} · 火力与射程提升`;
 }
 
-/** 击杀金币已逐只入账；这里只汇总本波所得，不重复发钱。 */
-export function waveClearIncomeText(wave: number, killGold: number, clearGold: number): string {
-    return `第 ${wave} 波守住 · 本波 +${killGold + clearGold}（清场 +${clearGold}）`;
+export type WaveClearTone = 'clean' | 'damaged' | 'critical';
+
+/** 清场不等于零损；只根据本波漏怪和当前核心余量分级，不拿累计漏怪误报当前波次。 */
+export function waveClearTone(leakedThisWave: number, coreHealth: number): WaveClearTone {
+    if (leakedThisWave <= 0) return 'clean';
+    return coreHealth <= 3 ? 'critical' : 'damaged';
+}
+
+/** 击杀金币已逐只入账；带损局优先报告危险和总回款，避免窄屏事件行截掉漏怪。 */
+export function waveClearIncomeText(wave: number, killGold: number, clearGold: number, leakedThisWave = 0, coreHealth = 10): string {
+    const totalGold = killGold + clearGold;
+    const tone = waveClearTone(leakedThisWave, coreHealth);
+    if (tone !== 'clean') return `第 ${wave} 波${tone === 'critical' ? '险守' : '有损守住'} · 漏 ${leakedThisWave} · 回款 +${totalGold}`;
+    return `第 ${wave} 波守住 · 本波 +${totalGold}（清场 +${clearGold}）`;
 }

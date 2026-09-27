@@ -116,6 +116,7 @@ export class NightwatchPocBootstrap extends Component {
     private guidedIntermissionHeld = false;
     private qaGuidedRun = false;
     private waveKillGold = 0;
+    private waveLeakedCount = 0;
     private resultWasNewRecord = false;
     private initialCoreHealth = 10;
     private initialPathLength = this.model.flowField.distanceAt(this.model.grid.entry);
@@ -662,6 +663,7 @@ export class NightwatchPocBootstrap extends Component {
         this.guidedIntermissionHeld = false;
         this.qaGuidedRun = false;
         this.waveKillGold = 0;
+        this.waveLeakedCount = 0;
         this.resultWasNewRecord = false;
         this.towerInspection.clear();
         this.feedback.clear();
@@ -751,6 +753,7 @@ export class NightwatchPocBootstrap extends Component {
         this.guidedIntermissionHeld = false;
         this.qaGuidedRun = false;
         this.waveKillGold = 0;
+        this.waveLeakedCount = 0;
         this.resultWasNewRecord = false;
         this.towerInspection.clear();
         this.cancelInput('已恢复开战前部署，可调整后再次开波');
@@ -786,6 +789,7 @@ export class NightwatchPocBootstrap extends Component {
         const wave = this.waves.get(this.battle.snapshot.wave);
         this.combat.start(wave);
         this.waveKillGold = 0;
+        this.waveLeakedCount = 0;
         this.statusText = waveStartStatus(wave);
         this.playSound('wave-start');
     }
@@ -796,6 +800,7 @@ export class NightwatchPocBootstrap extends Component {
         for (const shot of result.shots) this.playSound(shot.towerId === 'frost-coil' ? 'frost-shot' : 'rivet-shot');
         if (result.killed.length > 0) this.playSound('kill');
         if (result.leaked.length > 0) this.playSound('core-hit');
+        this.waveLeakedCount += result.leaked.length;
         for (const killed of result.killed) {
             this.economy.credit(killed.archetype.killReward);
             this.waveKillGold += killed.archetype.killReward;
@@ -816,7 +821,8 @@ export class NightwatchPocBootstrap extends Component {
         if (phase === 'victory') {
             this.resultReveal.begin();
             this.resultWasNewRecord = this.bestTime.recordVictory(this.runClock.elapsedSeconds);
-            this.statusText = waveClearIncomeText(this.battle.snapshot.wave, this.waveKillGold, clearReward);
+            this.statusText = waveClearIncomeText(this.battle.snapshot.wave, this.waveKillGold, clearReward,
+                this.waveLeakedCount, this.battle.snapshot.coreHealth);
             this.playSound('victory');
         } else if (phase === 'countdown') {
             // 教学波间在奖励结算后暂停，让玩家按“击杀→回款→补塔→继续”掌握整局节奏。
@@ -830,9 +836,11 @@ export class NightwatchPocBootstrap extends Component {
             // 玩家入口与常规 QA B 键仍需手动决策；此模式只用于测量引擎实际局长。
             const qaPurchase = this.qaNaturalCountdown && this.qaGuidedRun
                 ? applyGuidedQaPurchases(this.model, this.battle.snapshot.wave) : null;
+            const clearText = waveClearIncomeText(this.battle.snapshot.wave, this.waveKillGold, clearReward,
+                this.waveLeakedCount, this.battle.snapshot.coreHealth);
             this.statusText = qaPurchase
-                ? `${waveClearIncomeText(this.battle.snapshot.wave, this.waveKillGold, clearReward)} · QA 建${qaPurchase.placed}升${qaPurchase.upgraded}`
-                : waveClearIncomeText(this.battle.snapshot.wave, this.waveKillGold, clearReward);
+                ? `${clearText} · QA 建${qaPurchase.placed}升${qaPurchase.upgraded}`
+                : clearText;
             this.playSound('wave-clear');
         } else if (phase === 'defeat') {
             this.resultReveal.begin();

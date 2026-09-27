@@ -36,7 +36,7 @@ const { enemyCrowdGroups } = require('../.test-dist/presentation/EnemyCrowdGroup
 const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGuidance.js');
 const { FirstLevelExperience } = require('../.test-dist/presentation/FirstLevelExperience.js');
 const { firstLevelWaveBanner } = require('../.test-dist/presentation/FirstLevelWaveBanner.js');
-const { hudEventText, towerInspectionSummary, towerSelectionSummary, towerUpgradeSuccessText, waveClearIncomeText, waveStartButtonViewModel } = require('../.test-dist/presentation/PhaseBHudText.js');
+const { hudEventText, towerInspectionSummary, towerSelectionSummary, towerUpgradeSuccessText, waveClearIncomeText, waveClearTone, waveStartButtonViewModel } = require('../.test-dist/presentation/PhaseBHudText.js');
 const { enemyDeathFeedbackSeconds, enemyDeathPose, enemyGaitFrame, enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
 const { RouteChangeFeedback, routeChangeText, routeLengthDelta, routePathChanged } = require('../.test-dist/presentation/RouteChangeFeedback.js');
 const { routePreviewDiff } = require('../.test-dist/presentation/RoutePreviewDiff.js');
@@ -63,6 +63,11 @@ test('首关 HUD 将重复金币移到独立数值卡，保留建塔与波次事
     assert.equal(hudEventText('核心已失守'), '核心已失守');
     assert.equal(waveClearIncomeText(1, 36, 8), '第 1 波守住 · 本波 +44（清场 +8）');
     assert.equal(waveClearIncomeText(8, 200, 20), '第 8 波守住 · 本波 +220（清场 +20）');
+    assert.equal(waveClearIncomeText(1, 8, 8, 7, 3), '第 1 波险守 · 漏 7 · 回款 +16');
+    assert.equal(waveClearIncomeText(2, 32, 6, 1, 9), '第 2 波有损守住 · 漏 1 · 回款 +38');
+    assert.equal(waveClearTone(0, 3), 'clean');
+    assert.equal(waveClearTone(1, 9), 'damaged');
+    assert.equal(waveClearTone(7, 3), 'critical');
     assert.equal(towerInspectionSummary(RIVET_GUN, 1), '机枪塔 Lv1 · 2.6格 · 伤害7');
     assert.equal(towerInspectionSummary(RIVET_GUN, 2), '机枪塔 Lv2 · 2.8格 · 伤害11');
     assert.equal(towerInspectionSummary(RIVET_GUN, 3), '机枪塔 Lv3 · 3.2格 · 伤害18');
