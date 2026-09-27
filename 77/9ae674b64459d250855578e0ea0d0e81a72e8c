@@ -1,0 +1,42 @@
+tests/core-rules.test.cjs
+  s_57db2c01e7cdde::t_4cba51068c5981 203,206,217
+  s_57db2c01e7cdde::t_847e7684fb47af 204
+  s_57db2c01e7cdde::t_0d8391c93c58ec 202,205,207-208,211-213,216
+assets/scripts/runtime/NightwatchPocBootstrap.ts
+  s_57db2c01e7cdde::t_5c2b7eee79f6fd 66,496-497
+  s_57db2c01e7cdde::t_d4b75b7e1ca266 776-777
+  s_57db2c01e7cdde::t_2041eaa1c60917 994-999,1059
+assets/scripts/presentation/FirstLevelExperience.ts
+  s_57db2c01e7cdde::t_0d8391c93c58ec 115,117,119,123
+  s_57db2c01e7cdde::t_847e7684fb47af 116,118
+  s_57db2c01e7cdde::t_fca27bd5cc40bb 11,37,111-112,124,137,139,142,144-145,150,152,157,161-162,164,170,173
+  s_57db2c01e7cdde::t_4cba51068c5981 138,143,151,163
+docs/validation.md
+  s_57db2c01e7cdde::t_40db29b7808868 336-347
+docs/poc/phase-b-opening-gate-vs-recommendation.md
+  s_57db2c01e7cdde::t_03e056bc6682dd 19-20
+  s_57db2c01e7cdde::t_40db29b7808868 1-18,21-31
+assets/scripts/systems/BattleStateMachine.ts
+  s_57db2c01e7cdde::t_fca27bd5cc40bb 14-17,59-60
+assets/scripts/presentation/FirstLevelGuidance.ts
+  s_57db2c01e7cdde::t_0d8391c93c58ec 1-2
+  s_57db2c01e7cdde::t_fca27bd5cc40bb 17-18
+assets/scripts/presentation/FirstLevelExperienceView.ts
+  s_57db2c01e7cdde::t_fca27bd5cc40bb 13,45,109,111-112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "779ae674b64459d250855578e0ea0d0e81a72e8c",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
