@@ -83,6 +83,10 @@ export class PhaseBLayout {
         return Math.min(PHASE_B_DESIGN_WIDTH, this.visibleWidth) / 2 - 24;
     }
 
+    public get visibleDesignWidth(): number {
+        return this.visibleWidth;
+    }
+
     public safeRect(rect: PhaseBRect): PhaseBRect {
         return { ...rect, left: Math.max(rect.left, -this.safeHalfWidth), right: Math.min(rect.right, this.safeHalfWidth) };
     }
@@ -107,6 +111,12 @@ export class PhaseBLayout {
         return screen === 'menu'
             ? { left: -width / 2, right: width / 2, bottom: -465, top: 475 }
             : { left: -width / 2, right: width / 2, bottom: -330, top: 330 };
+    }
+
+    /** 横屏只显示阻断提示，利用固定高度策略额外露出的宽度放大文案。 */
+    public orientationPanelRect(): PhaseBRect {
+        const width = Math.min(2200, Math.max(860, this.visibleWidth - 180));
+        return { left: -width / 2, right: width / 2, bottom: -360, top: 360 };
     }
 
     public resultStatRects(): readonly PhaseBRect[] {

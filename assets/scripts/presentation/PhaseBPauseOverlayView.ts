@@ -40,17 +40,20 @@ export class PhaseBPauseOverlayView {
             this.signature = '';
             return;
         }
-        const signature = [this.layout.safeHalfWidth, state.pause.screen, state.pause.reason, state.pause.canContinue,
+        const signature = [this.layout.safeHalfWidth, this.layout.visibleDesignWidth, state.pause.screen, state.pause.reason, state.pause.canContinue,
             state.wave, state.totalWaves, state.coreHealth, state.soundEnabled, state.speedMultiplier].join('|');
         if (signature === this.signature) return;
         this.signature = signature;
         const screen = state.pause.screen;
-        const compact = screen !== 'menu';
-        const panel = this.layout.pausePanelRect(screen);
+        const orientationBlocked = state.pause.reason === 'orientation';
+        const compact = screen !== 'menu' || orientationBlocked;
+        const panel = orientationBlocked ? this.layout.orientationPanelRect()
+            : this.layout.pausePanelRect(compact ? 'settings' : screen);
         const graphics = this.graphics;
         graphics.clear();
         graphics.fillColor = new Color(6, 12, 22, 229);
-        graphics.rect(-540, -960, 1080, 1920);
+        graphics.rect(-Math.max(540, this.layout.visibleDesignWidth / 2), -960,
+            Math.max(1080, this.layout.visibleDesignWidth), 1920);
         graphics.fill();
         graphics.fillColor = new Color('#1A2C40');
         graphics.roundRect(panel.left, panel.bottom, panel.right - panel.left, panel.top - panel.bottom, 34);
@@ -59,11 +62,21 @@ export class PhaseBPauseOverlayView {
         graphics.rect(panel.left, panel.top - 45, panel.right - panel.left, 45);
         graphics.fill();
 
-        this.title.node.setPosition(0, compact ? 235 : 380, 0);
-        this.subtitle.node.setPosition(0, compact ? 175 : 320, 0);
-        this.footer.node.setPosition(0, compact ? -280 : -395, 0);
+        this.title.node.setPosition(0, orientationBlocked ? 205 : compact ? 235 : 380, 0);
+        this.subtitle.node.setPosition(0, orientationBlocked ? 95 : compact ? 175 : 320, 0);
+        this.footer.node.setPosition(0, orientationBlocked ? -255 : compact ? -280 : -395, 0);
+        this.title.fontSize = orientationBlocked ? 96 : 64;
+        this.subtitle.fontSize = orientationBlocked ? 52 : 32;
+        this.footer.fontSize = orientationBlocked ? 48 : 28;
+        this.title.lineHeight = Math.round(this.title.fontSize * 1.25);
+        this.subtitle.lineHeight = Math.round(this.subtitle.fontSize * 1.25);
+        this.footer.lineHeight = Math.round(this.footer.fontSize * 1.25);
         let labels: readonly string[];
-        if (screen === 'settings') {
+        if (orientationBlocked) {
+            this.title.string = '请转回竖屏';
+            labels = ['横屏期间战斗已暂停'];
+            this.footer.string = '恢复竖屏后，点继续战斗';
+        } else if (screen === 'settings') {
             this.title.string = '战斗设置';
             labels = [`音效 · ${state.soundEnabled ? '开' : '关'}`, `速度 · ${state.speedMultiplier}×`, '返回暂停'];
             this.footer.string = '设置仅影响当前局；暂停期间不会推进战斗';
@@ -78,19 +91,24 @@ export class PhaseBPauseOverlayView {
             this.footer.string = '敌人、倒计时、弹道与局内计时均已冻结';
         }
         this.subtitle.string = `第 ${state.wave}/${state.totalWaves} 波 · 核心 ${state.coreHealth}/${state.maxCoreHealth}`;
-        this.title.node.getComponent(UITransform)?.setContentSize(panel.right - panel.left - 48, 100);
-        this.subtitle.node.getComponent(UITransform)?.setContentSize(panel.right - panel.left - 48, 70);
-        this.footer.node.getComponent(UITransform)?.setContentSize(panel.right - panel.left - 48, 70);
-        const buttons = phaseBPauseButtons(screen);
+        this.title.node.getComponent(UITransform)?.setContentSize(panel.right - panel.left - 48, orientationBlocked ? 130 : 100);
+        this.subtitle.node.getComponent(UITransform)?.setContentSize(panel.right - panel.left - 48, orientationBlocked ? 90 : 70);
+        this.footer.node.getComponent(UITransform)?.setContentSize(panel.right - panel.left - 48, orientationBlocked ? 90 : 70);
+        const buttons = phaseBPauseButtons(orientationBlocked ? 'settings' : screen);
         this.actions.forEach((label, index) => {
             const button = buttons[index];
             label.node.active = index < labels.length;
             if (!label.node.active) return;
-            const rect = this.layout.safeRect(button);
+            const rect = orientationBlocked
+                ? { left: panel.left + 90, right: panel.right - 90, bottom: -90, top: 70 }
+                : this.layout.safeRect(button);
             label.node.setPosition(0, (rect.bottom + rect.top) / 2, 0);
             label.string = labels[index];
+            label.fontSize = orientationBlocked ? 76 : 40;
+            label.lineHeight = Math.round(label.fontSize * 1.25);
             label.node.getComponent(UITransform)?.setContentSize(rect.right - rect.left - 24, rect.top - rect.bottom - 10);
-            graphics.fillColor = new Color(screen === 'menu' && index === 0 && state.pause.canContinue
+            graphics.fillColor = new Color(orientationBlocked ? '#344456'
+                : screen === 'menu' && index === 0 && state.pause.canContinue
                 ? '#79CBA5' : screen === 'menu' && index === 3 ? '#6A4550' : '#354B61');
             graphics.roundRect(rect.left, rect.bottom, rect.right - rect.left, rect.top - rect.bottom, 20);
             graphics.fill();

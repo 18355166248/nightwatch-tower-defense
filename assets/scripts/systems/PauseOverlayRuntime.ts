@@ -1,4 +1,4 @@
-export type PauseReason = 'user' | 'lifecycle';
+export type PauseReason = 'user' | 'lifecycle' | 'orientation';
 export type PauseScreen = 'menu' | 'settings' | 'confirm-restart' | 'confirm-home';
 
 export interface PauseOverlaySnapshot {
@@ -19,9 +19,15 @@ export class PauseOverlayRuntime {
         return {
             visible: this.needsContinue,
             screen: this.currentScreen,
-            reason: this.reasons.has('lifecycle') ? 'lifecycle' : this.reasons.has('user') ? 'user' : null,
-            canContinue: this.needsContinue && !this.hidden && !this.reasons.has('lifecycle'),
+            reason: this.reasons.has('lifecycle') ? 'lifecycle'
+                : this.reasons.has('orientation') ? 'orientation' : this.reasons.has('user') ? 'user' : null,
+            canContinue: this.needsContinue && !this.hidden
+                && !this.reasons.has('lifecycle') && !this.reasons.has('orientation'),
         };
+    }
+
+    public hasReason(reason: PauseReason): boolean {
+        return this.reasons.has(reason);
     }
 
     public enterUser(): boolean {
@@ -47,12 +53,25 @@ export class PauseOverlayRuntime {
         // 后台解除只消除阻塞来源；needsContinue 保留到玩家点继续。
     }
 
+    public enterOrientation(): boolean {
+        const first = !this.needsContinue;
+        this.needsContinue = true;
+        this.reasons.add('orientation');
+        this.currentScreen = 'menu';
+        return first;
+    }
+
+    public leaveOrientation(): void {
+        this.reasons.delete('orientation');
+        // 转回竖屏不能自动续战；仍需玩家主动按“继续”。
+    }
+
     public show(screen: PauseScreen): void {
         if (this.needsContinue) this.currentScreen = screen;
     }
 
     public continue(): boolean {
-        if (!this.needsContinue || this.hidden || this.reasons.has('lifecycle')) return false;
+        if (!this.needsContinue || this.hidden || this.reasons.has('lifecycle') || this.reasons.has('orientation')) return false;
         this.reasons.delete('user');
         if (this.reasons.size > 0) return false;
         this.clear();

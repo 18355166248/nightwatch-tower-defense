@@ -39,6 +39,7 @@ export interface BrowserBattleDiagnosticsState {
     readonly activeFeedbackCount: number;
     readonly resultVisible: boolean;
     readonly retryAvailable: boolean;
+    readonly orientationBlocked: boolean;
     readonly pauseMenuVisible: boolean;
     readonly pauseScreen: string | null;
     readonly pauseReason: string | null;

@@ -66,6 +66,7 @@ import { EconomyLedger } from '../systems/EconomyLedger';
 import { FirstLevelBestTimeStore } from '../systems/FirstLevelBestTimeStore';
 import { applyGuidedQaOpening, applyGuidedQaPurchases } from '../systems/GuidedQaPlacement';
 import { PauseOverlayRuntime } from '../systems/PauseOverlayRuntime';
+import { isCoarseLandscape } from '../systems/ViewportSafety';
 import { PlacementModel, type PlacementPreview } from '../systems/PlacementModel';
 import { SimulationClock } from '../systems/SimulationClock';
 import { WaveCombatRuntime } from '../systems/WaveCombatRuntime';
@@ -78,7 +79,10 @@ const { ccclass } = _decorator;
 @ccclass('NightwatchPocBootstrap')
 export class NightwatchPocBootstrap extends Component {
     private readonly qaMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('qa') === '1';
+    private readonly qaCoarsePointer = this.qaMode && new URLSearchParams(window.location.search).get('qaCoarse') === '1';
     private canvas: Node | null = null;
+    private browserCanvas: HTMLCanvasElement | null = null;
+    private coarsePointerQuery: MediaQueryList | null = null;
     private renderer: PhaseBCanvasRenderer | null = null;
     private hud: PhaseBHudView | null = null;
     private unitSprites: PhaseBUnitSpriteView | null = null;
@@ -118,6 +122,10 @@ export class NightwatchPocBootstrap extends Component {
     private readonly browserDiagnostics = new BrowserBattleDiagnostics();
     private readonly debugInput = new PhaseBDebugInput((action) => this.handleDebugAction(action));
     private readonly experience = new FirstLevelExperience(this.qaMode);
+    private readonly onBrowserBlur = (): void => {
+        // 浏览器失焦不等同退后台，但拖放必须原子取消，不能靠下一次 TOUCH_END 误提交。
+        if (this.inputMode !== 'idle') this.cancelInput('画布失焦：已取消放置，未扣费');
+    };
 
     protected override onLoad(): void {
         view.setDesignResolutionSize(PHASE_B_DESIGN_WIDTH, PHASE_B_DESIGN_HEIGHT, ResolutionPolicy.FIXED_HEIGHT);
@@ -150,6 +158,12 @@ export class NightwatchPocBootstrap extends Component {
         this.canvas.on(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
         game.on(Game.EVENT_HIDE, this.onLifecycleHide, this);
         game.on(Game.EVENT_SHOW, this.onLifecycleShow, this);
+        if (typeof window !== 'undefined') {
+            this.coarsePointerQuery = window.matchMedia?.('(pointer: coarse)') ?? null;
+            window.addEventListener('blur', this.onBrowserBlur);
+            this.browserCanvas = document.querySelector('canvas');
+            this.browserCanvas?.addEventListener('blur', this.onBrowserBlur);
+        }
         // QA 夹具仅在显式 qa=1 时注册，首关默认画面不暴露测试捷径。
         if (this.qaMode) this.debugInput.attach();
         this.redraw();
@@ -163,11 +177,15 @@ export class NightwatchPocBootstrap extends Component {
         this.canvas?.off(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
         game.off(Game.EVENT_HIDE, this.onLifecycleHide, this);
         game.off(Game.EVENT_SHOW, this.onLifecycleShow, this);
+        if (typeof window !== 'undefined') window.removeEventListener('blur', this.onBrowserBlur);
+        this.browserCanvas?.removeEventListener('blur', this.onBrowserBlur);
+        this.browserCanvas = null;
         this.debugInput.detach();
         this.sound.close();
     }
 
     protected override update(deltaTime: number): void {
+        this.syncOrientationSafety();
         this.simulationClock.advance(deltaTime, (step) => this.advanceGameStep(step));
         // 布塔反馈走真实时间，暂停和 2× 战斗都不会改变玩家读到提示的时长。
         if (this.battle.snapshot.phase !== 'paused') this.routeChange.advance(deltaTime);
@@ -199,6 +217,11 @@ export class NightwatchPocBootstrap extends Component {
         const id = event.getID();
         if (this.primaryTouchId !== null && this.primaryTouchId !== id) return;
         this.primaryTouchId = id;
+        this.syncOrientationSafety();
+        if (this.pauseOverlay.hasReason('orientation')) {
+            this.primaryTouchId = null;
+            return;
+        }
         this.sound.unlockFromGesture();
         const point = this.localPoint(event);
         this.pressStart.set(point);
@@ -294,7 +317,33 @@ export class NightwatchPocBootstrap extends Component {
 
     private onLifecycleShow(): void {
         this.pauseOverlay.leaveLifecycle();
+        this.syncOrientationSafety();
         if (this.pauseOverlay.snapshot.visible) this.statusText = '已回到游戏，请点继续战斗';
+    }
+
+    private syncOrientationSafety(): void {
+        if (typeof window === 'undefined') return;
+        const landscape = isCoarseLandscape({
+            width: window.innerWidth,
+            height: window.innerHeight,
+            coarsePointer: this.qaCoarsePointer || Boolean(this.coarsePointerQuery?.matches),
+        });
+        if (!landscape) {
+            if (this.pauseOverlay.hasReason('orientation')) {
+                this.pauseOverlay.leaveOrientation();
+                this.statusText = '已恢复竖屏，请点继续战斗';
+            }
+            return;
+        }
+        const phase = this.battle.snapshot.phase;
+        const active = phase === 'spawning' || phase === 'clearing' || phase === 'countdown';
+        if (!active && !(phase === 'paused' && this.pauseOverlay.snapshot.visible)) return;
+        if (this.pauseOverlay.hasReason('orientation')) return;
+        // 旋转与用户暂停/退后台可交错，第一次横屏就冻结当前帧，恢复竖屏也不自动续战。
+        this.pauseOverlay.enterOrientation();
+        this.cancelInput('横屏安全暂停：请转回竖屏');
+        this.sound.suspend();
+        if (active) this.battle.pause();
     }
 
     private handleTopControls(point: Vec3): boolean {
@@ -364,6 +413,7 @@ export class NightwatchPocBootstrap extends Component {
     private handlePauseTouch(point: Vec3): boolean {
         const pause = this.pauseOverlay.snapshot;
         if (!pause.visible) return false;
+        if (this.pauseOverlay.hasReason('orientation')) return true;
         const button = phaseBPauseButtons(pause.screen).findIndex((rect) => this.layout.insideRect(point, this.layout.safeRect(rect)));
         if (button < 0) return true;
         if (pause.screen === 'menu') {
@@ -947,6 +997,7 @@ export class NightwatchPocBootstrap extends Component {
             activeFeedbackCount: countCombatFeedback(this.feedback.snapshot),
             resultVisible: Boolean(result),
             retryAvailable: Boolean(this.runCheckpoint && result),
+            orientationBlocked: this.pauseOverlay.hasReason('orientation'),
             pauseMenuVisible: this.pauseOverlay.snapshot.visible,
             pauseScreen: this.pauseOverlay.snapshot.visible ? this.pauseOverlay.snapshot.screen : null,
             pauseReason: this.pauseOverlay.snapshot.reason,
@@ -960,7 +1011,9 @@ export class NightwatchPocBootstrap extends Component {
                 : result
                 ? `${result.title}，${result.summary.replace('\n', '，')}，${result.runDetails.map(({ label, value }) => `${label}${value}`).join('，')}，${result.footnote}，${result.actionLabel}，${result.homeActionLabel}`
                 : this.pauseOverlay.snapshot.visible
-                ? `夜城防线暂停，${this.pauseOverlay.snapshot.screen === 'menu' ? '继续战斗，回到战前布防，战斗设置，返回首页' : this.pauseOverlay.snapshot.screen === 'settings' ? '音效与速度设置，返回暂停' : '请确认或取消'}，第${this.battle.snapshot.wave}波，核心${this.battle.snapshot.coreHealth}`
+                ? this.pauseOverlay.hasReason('orientation')
+                    ? `夜城防线横屏安全暂停，请转回竖屏，再点继续战斗。第${this.battle.snapshot.wave}波，核心${this.battle.snapshot.coreHealth}`
+                    : `夜城防线暂停，${this.pauseOverlay.snapshot.screen === 'menu' ? '继续战斗，回到战前布防，战斗设置，返回首页' : this.pauseOverlay.snapshot.screen === 'settings' ? '音效与速度设置，返回暂停' : '请确认或取消'}，第${this.battle.snapshot.wave}波，核心${this.battle.snapshot.coreHealth}`
                 : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，机枪${rivetTowerCount}座，冷凝${frostTowerCount}座，减速中${slowedEnemyCount}名，${this.inputMode === 'idle' ? '未拿起炮塔' : `已拿起${this.selectedTowerLabel()}`}，速度${this.simulationClock.scale}倍，${this.battle.snapshot.phase === 'countdown' ? '可提前开波' : '提前开波未激活'}，${guidanceText ? `${guidanceText}，` : ''}${this.statusText}`,
         );
     }
@@ -989,7 +1042,8 @@ export class NightwatchPocBootstrap extends Component {
             spawning: '出怪中',
             clearing: '清场中',
             countdown: `下一波 ${Math.ceil(this.battle.snapshot.countdownSeconds)} 秒`,
-            paused: this.pauseOverlay.snapshot.reason === 'lifecycle' ? '后台暂停' : '已暂停',
+            paused: this.pauseOverlay.snapshot.reason === 'lifecycle' ? '后台暂停'
+                : this.pauseOverlay.snapshot.reason === 'orientation' ? '横屏暂停' : '已暂停',
             victory: '已胜利',
             defeat: '已失败',
         };

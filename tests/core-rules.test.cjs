@@ -18,6 +18,7 @@ const { BattleStateMachine } = require('../.test-dist/systems/BattleStateMachine
 const { EconomyLedger } = require('../.test-dist/systems/EconomyLedger.js');
 const { BattleRunCheckpoint } = require('../.test-dist/systems/BattleRunCheckpoint.js');
 const { PauseOverlayRuntime } = require('../.test-dist/systems/PauseOverlayRuntime.js');
+const { isCoarseLandscape } = require('../.test-dist/systems/ViewportSafety.js');
 const { BattleRunClock } = require('../.test-dist/systems/BattleRunClock.js');
 const { FirstLevelBestTimeStore } = require('../.test-dist/systems/FirstLevelBestTimeStore.js');
 const { FirstLevelSoundDirector } = require('../.test-dist/audio/FirstLevelSoundDirector.js');
@@ -392,6 +393,11 @@ test('360×780 等竖屏视口的 HUD 和侧边按钮落在可见安全宽度内
     layout.setVisibleWidth(1080);
     assert.equal(layout.safeRect(PHASE_B_SOUND_BUTTON).right, PHASE_B_SOUND_BUTTON.right);
     assert.equal(phaseBPauseButtons('menu'), PHASE_B_PAUSE_BUTTONS);
+    layout.setVisibleWidth(1920 * 844 / 390);
+    const orientationPanel = layout.orientationPanelRect();
+    assert.ok(orientationPanel.left >= -layout.visibleDesignWidth / 2);
+    assert.ok(orientationPanel.right <= layout.visibleDesignWidth / 2);
+    assert.ok(orientationPanel.right - orientationPanel.left > layout.pausePanelRect().right - layout.pausePanelRect().left);
 });
 
 test('步兵视觉错位稳定且不超过单格范围，循环后不会累计漂移', () => {
@@ -1013,6 +1019,34 @@ test('暂停来源叠加、设置子页和后台恢复都要求玩家显式继�
     assert.equal(pause.enterLifecycle(), true);
     pause.leaveLifecycle();
     assert.equal(pause.snapshot.visible, true);
+    assert.equal(pause.snapshot.canContinue, true);
+    assert.equal(pause.continue(), true);
+    assert.equal(pause.snapshot.visible, false);
+});
+
+test('触控横屏先冻结、转回竖屏后仍显式继续，且与后台/用户暂停可叠加', () => {
+    assert.equal(isCoarseLandscape({ width: 844, height: 390, coarsePointer: true }), true);
+    assert.equal(isCoarseLandscape({ width: 390, height: 844, coarsePointer: true }), false);
+    assert.equal(isCoarseLandscape({ width: 1280, height: 720, coarsePointer: false }), false);
+    assert.equal(isCoarseLandscape({ width: 0, height: 390, coarsePointer: true }), false);
+    const pause = new PauseOverlayRuntime();
+    assert.equal(pause.enterUser(), true);
+    assert.equal(pause.enterOrientation(), false);
+    assert.equal(pause.snapshot.reason, 'orientation');
+    assert.equal(pause.snapshot.canContinue, false);
+    assert.equal(pause.continue(), false);
+    assert.equal(pause.hasReason('user'), true, '横屏点击继续不应提前丢失用户暂停来源');
+    pause.enterLifecycle();
+    assert.equal(pause.snapshot.reason, 'lifecycle');
+    pause.leaveLifecycle();
+    assert.equal(pause.snapshot.reason, 'orientation');
+    pause.leaveOrientation();
+    assert.equal(pause.snapshot.visible, true);
+    assert.equal(pause.snapshot.reason, 'user');
+    assert.equal(pause.continue(), true);
+    assert.equal(pause.snapshot.visible, false);
+    assert.equal(pause.enterOrientation(), true);
+    pause.leaveOrientation();
     assert.equal(pause.snapshot.canContinue, true);
     assert.equal(pause.continue(), true);
     assert.equal(pause.snapshot.visible, false);
