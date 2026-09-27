@@ -10,6 +10,7 @@ const { FIRST_LEVEL_GUIDED_UPGRADES, FIRST_LEVEL_OPENING, FIRST_LEVEL_OPTIONAL_F
 const { CLOCKWORK_INFANTRY, CLOCKWORK_RUNNER, FROST_COIL, IRON_CANISTER_HAULER, PHASE_B_TOWERS, PHASE_B_WAVES, PHASE_B_WAVE_ONE, RIVET_GUN } = require('../.test-dist/config/PhaseBCombatConfig.js');
 const { cellKey } = require('../.test-dist/core/GridTypes.js');
 const { FlowField } = require('../.test-dist/systems/FlowField.js');
+const { applyGuidedQaOpening, applyGuidedQaPurchases } = require('../.test-dist/systems/GuidedQaPlacement.js');
 const { PlacementModel } = require('../.test-dist/systems/PlacementModel.js');
 const { nextUpgradeCost, towerAtLevel, towerInvestment } = require('../.test-dist/systems/TowerLevelRules.js');
 const { simulateNoDamageRoute } = require('../.test-dist/systems/RouteSimulation.js');
@@ -72,6 +73,39 @@ test('同格敌群显示局部人数，单只不添徽标且只读计算不改�
     assert.deepEqual(enemyCrowdGroups([close(0.1)]), []);
     assert.equal(enemies[0].progress, 0.1);
     assert.deepEqual(enemyCrowdGroups([close(Number.NaN), close(0)]), [{ key: '4,0', count: 2, column: 4, row: 0 }]);
+});
+
+test('相邻拥挤格的徽标合为一个人数，远处敌群仍保留独立提示', () => {
+    const between = (progress, column = 4) => ({ fromCell: { column, row: 0 }, toCell: { column, row: 1 }, progress });
+    const groups = enemyCrowdGroups([between(0.3), between(0.4), between(0.6), between(0.7),
+        between(0.2, 7), between(0.3, 7)]);
+    assert.deepEqual(groups.map(({ key, count }) => ({ key, count })), [
+        { key: '4,0', count: 4 }, { key: '7,0', count: 2 },
+    ]);
+    assert.ok(Math.abs(groups[0].row - 0.5) < 1e-10);
+});
+
+test('QA 推荐夹具复用真实购买事务，八波购买窗口与重复按键保持稳定', () => {
+    const economy = new EconomyLedger(FIRST_LEVEL_STARTING_GOLD);
+    const model = new PlacementModel(PHASE_A_GRIDS['grid-9x13'], economy, PHASE_B_TOWERS);
+    assert.deepEqual(applyGuidedQaOpening(model), { placed: 4, upgraded: 0, gold: 10, pathLength: 16 });
+    assert.deepEqual(applyGuidedQaOpening(model), { placed: 0, upgraded: 0, gold: 10, pathLength: 16 });
+    const income = [44, 42, 58, 52, 39, 132, 88];
+    const expectedGold = [0, 12, 40, 52, 29, 89, 129];
+    for (let wave = 1; wave <= 7; wave += 1) {
+        economy.credit(income[wave - 1]);
+        const applied = applyGuidedQaPurchases(model, wave);
+        assert.equal(applied.gold, expectedGold[wave - 1]);
+        assert.equal(applied.placed, wave <= 6 ? 1 : 0);
+        assert.equal(applied.upgraded, [1, 5, 6, 7].includes(wave) ? 1 : 0);
+        assert.deepEqual(applyGuidedQaPurchases(model, wave), {
+            placed: 0, upgraded: 0, gold: applied.gold, pathLength: applied.pathLength,
+        });
+    }
+    assert.equal(model.deployments.length, 10);
+    assert.equal(model.flowField.distanceAt(model.grid.entry), 20);
+    economy.credit(220);
+    assert.equal(model.gold, 349);
 });
 
 test('波内生成进度区分短暂清屏、真正清场和下一波待命', () => {

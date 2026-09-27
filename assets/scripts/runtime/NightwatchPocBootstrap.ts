@@ -55,6 +55,7 @@ import {
 import { BattleRunCheckpoint } from '../systems/BattleRunCheckpoint';
 import { BattleStateMachine } from '../systems/BattleStateMachine';
 import { EconomyLedger } from '../systems/EconomyLedger';
+import { applyGuidedQaOpening, applyGuidedQaPurchases } from '../systems/GuidedQaPlacement';
 import { PlacementModel, type PlacementPreview } from '../systems/PlacementModel';
 import { SimulationClock } from '../systems/SimulationClock';
 import { WaveCombatRuntime } from '../systems/WaveCombatRuntime';
@@ -94,6 +95,7 @@ export class NightwatchPocBootstrap extends Component {
     private preparing = true;
     private pausedByLifecycle = false;
     private guidedIntermissionHeld = false;
+    private qaGuidedRun = false;
     private waveKillGold = 0;
     private initialCoreHealth = 10;
     private initialPathLength = this.model.flowField.distanceAt(this.model.grid.entry);
@@ -312,6 +314,8 @@ export class NightwatchPocBootstrap extends Component {
         else if (action === 'apply-long') this.applyFixture('longSnake');
         else if (action === 'apply-failure') this.applyFixture('shortFold', 2);
         else if (action === 'apply-mixed') this.applyMixedFixture();
+        else if (action === 'apply-guided-opening') this.applyGuidedQaFixture();
+        else if (action === 'apply-guided-purchases') this.applyGuidedQaWavePurchases();
         else if (action === 'select-rivet') this.selectTower('rivet-gun');
         else if (action === 'select-frost') this.selectTower('frost-coil');
         else if (action === 'restart-run') this.restartFromCheckpoint();
@@ -512,6 +516,7 @@ export class NightwatchPocBootstrap extends Component {
         this.preparing = true;
         this.pausedByLifecycle = false;
         this.guidedIntermissionHeld = false;
+        this.qaGuidedRun = false;
         this.waveKillGold = 0;
         this.towerInspection.clear();
         this.feedback.clear();
@@ -540,6 +545,25 @@ export class NightwatchPocBootstrap extends Component {
         }
         this.selectedTowerId = 'frost-coil';
         this.statusText = `混合塔组 fixture · 冷凝前置 + 3 机枪 · 路径 ${this.model.flowField.distanceAt(this.model.grid.entry)} 格`;
+    }
+
+    private applyGuidedQaFixture(): void {
+        if (!this.qaMode) return;
+        this.selectedGridId = DEFAULT_GRID_ID;
+        this.resetGrid(FIRST_LEVEL_STARTING_GOLD);
+        const applied = applyGuidedQaOpening(this.model);
+        this.qaGuidedRun = true;
+        this.statusText = `QA 推荐开局 · ${applied.placed} 塔 · 路径 ${applied.pathLength} 格 · 余 ${applied.gold} 金`;
+    }
+
+    private applyGuidedQaWavePurchases(): void {
+        if (!this.qaMode || !this.qaGuidedRun || !this.guidedIntermissionHeld || this.battle.snapshot.phase !== 'paused') {
+            this.statusText = 'QA 仅在推荐局清场暂停时可按 B 补塔';
+            return;
+        }
+        const wave = this.battle.snapshot.wave;
+        const applied = applyGuidedQaPurchases(this.model, wave);
+        this.statusText = `QA 第 ${wave} 波后 · 建 ${applied.placed} 升 ${applied.upgraded} · 余 ${applied.gold} 金`;
     }
 
     private selectTower(towerId: TowerId): void {
@@ -574,6 +598,7 @@ export class NightwatchPocBootstrap extends Component {
         this.preparing = true;
         this.pausedByLifecycle = false;
         this.guidedIntermissionHeld = false;
+        this.qaGuidedRun = false;
         this.waveKillGold = 0;
         this.towerInspection.clear();
         this.cancelInput('已恢复开战前部署，可调整后再次开波');
@@ -623,7 +648,8 @@ export class NightwatchPocBootstrap extends Component {
             this.playSound('victory');
         } else if (phase === 'countdown') {
             // 教学波间在奖励结算后暂停，让玩家按“击杀→回款→补塔→继续”掌握整局节奏。
-            const holdForCoach = this.experience.shouldHoldIntermission(this.battle.snapshot.wave, this.waves.totalWaves);
+            const holdForCoach = this.experience.shouldHoldIntermission(this.battle.snapshot.wave, this.waves.totalWaves)
+                || this.qaGuidedRun;
             if (holdForCoach) {
                 this.battle.pause();
                 this.guidedIntermissionHeld = true;

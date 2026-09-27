@@ -150,7 +150,7 @@ export class PhaseBHudView {
                 : `升级至 Lv${(state.inspectedUpgrade?.level ?? 1) + 1} · ${state.inspectedUpgrade?.cost} 金币`;
             this.upgradeLabel.color = new Color(state.inspectedUpgrade?.cost !== null && state.gold >= (state.inspectedUpgrade?.cost ?? Infinity) ? '#18283A' : '#D9E3E9');
             this.helpLabel.string = state.qaMode
-                ? '先建 2 塔且路径 +2｜Q/W选塔 J混合样例｜X切速 N提前开波｜F/G/H样例 R重置'
+                ? 'A推荐开局 B波间补塔｜Q/W选塔 J混合样例｜X切速 N提前开波｜F/G/H样例 R重置'
                 : state.phaseText === '准备态'
                     ? '点已建塔看射程/升级，再点撤销 · 拖塔或选塔后双击格子'
                     : '点已建塔看射程与升级 · 战斗中不可撤销';
