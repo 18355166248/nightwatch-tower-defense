@@ -65,16 +65,16 @@ export const CLOCKWORK_RUNNER: EnemyArchetype = {
     label: '疾行机',
     maxHealth: 85,
     speedCellsPerSecond: 1.6,
-    killReward: 2,
+    killReward: 1,
 };
 
-/** 厚甲血量让冷凝控制与后期升级成为真实选择；高密度波次降低单体赏金，避免金币无上限膨胀。 */
+/** 厚甲血量让冷凝控制与后期升级成为真实选择；单体赏金收敛，不能让高密度波次变成免费补塔。 */
 export const IRON_CANISTER_HAULER: EnemyArchetype = {
     id: 'iron-canister-hauler',
     label: '铁罐搬运者',
     maxHealth: 320,
     speedCellsPerSecond: 0.62,
-    killReward: 5,
+    killReward: 3,
 };
 
 export const RIVET_GUN: TowerArchetype = {
@@ -109,13 +109,14 @@ export const PHASE_B_WAVES: readonly WaveDefinition[] = [
     // 第一波后多一座上路机枪；第二、三波压紧生成间隔，保持双敌同屏而不靠空场等待拖时长。
     { wave: 2, clearReward: 6, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 9, spawnIntervalSeconds: 0.65 }] },
     // 第三波仍在步兵之后首次放出 2 只疾行机，形成不依赖空等的速度考核。
-    { wave: 3, clearReward: 10, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 11, spawnIntervalSeconds: 0.65 }, { enemy: CLOCKWORK_RUNNER, count: 2, spawnIntervalSeconds: 0.65 }] },
-    { wave: 4, clearReward: 20, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 6, spawnIntervalSeconds: 0.54 }, { enemy: CLOCKWORK_RUNNER, count: 4, spawnIntervalSeconds: 0.56 }] },
-    // 第五波先隔离展示重装；后段再加密三类敌人。冷凝脉冲和升级承担后期压力，不靠拉长空刷怪间隔凑局长。
-    { wave: 5, clearReward: 24, groups: [{ enemy: IRON_CANISTER_HAULER, count: 9, spawnIntervalSeconds: 1.15 }] },
-    { wave: 6, clearReward: 24, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 20, spawnIntervalSeconds: 0.68 }, { enemy: CLOCKWORK_RUNNER, count: 16, spawnIntervalSeconds: 0.62 }, { enemy: IRON_CANISTER_HAULER, count: 8, spawnIntervalSeconds: 1 }] },
-    { wave: 7, clearReward: 28, groups: [{ enemy: CLOCKWORK_RUNNER, count: 35, spawnIntervalSeconds: 0.55 }, { enemy: IRON_CANISTER_HAULER, count: 13, spawnIntervalSeconds: 0.95 }] },
-    { wave: 8, clearReward: 40, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 31, spawnIntervalSeconds: 0.52 }, { enemy: CLOCKWORK_RUNNER, count: 22, spawnIntervalSeconds: 0.5 }, { enemy: IRON_CANISTER_HAULER, count: 18, spawnIntervalSeconds: 0.85 }] },
+    // 前四波清场总回款不变，补回疾行单体赏金下降的差额；教学升级与补塔仍在原波间可负担。
+    { wave: 3, clearReward: 12, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 11, spawnIntervalSeconds: 0.65 }, { enemy: CLOCKWORK_RUNNER, count: 2, spawnIntervalSeconds: 0.65 }] },
+    { wave: 4, clearReward: 24, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 6, spawnIntervalSeconds: 0.54 }, { enemy: CLOCKWORK_RUNNER, count: 4, spawnIntervalSeconds: 0.56 }] },
+    // 第五波先隔离展示重装；后段赏金按推荐升级预算倒推，保留补塔自由但不让玩家过早堆满右侧火力走廊。
+    { wave: 5, clearReward: 12, groups: [{ enemy: IRON_CANISTER_HAULER, count: 9, spawnIntervalSeconds: 1.15 }] },
+    { wave: 6, clearReward: 12, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 20, spawnIntervalSeconds: 0.68 }, { enemy: CLOCKWORK_RUNNER, count: 16, spawnIntervalSeconds: 0.62 }, { enemy: IRON_CANISTER_HAULER, count: 8, spawnIntervalSeconds: 1 }] },
+    { wave: 7, clearReward: 14, groups: [{ enemy: CLOCKWORK_RUNNER, count: 35, spawnIntervalSeconds: 0.55 }, { enemy: IRON_CANISTER_HAULER, count: 13, spawnIntervalSeconds: 0.95 }] },
+    { wave: 8, clearReward: 20, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 31, spawnIntervalSeconds: 0.52 }, { enemy: CLOCKWORK_RUNNER, count: 22, spawnIntervalSeconds: 0.5 }, { enemy: IRON_CANISTER_HAULER, count: 18, spawnIntervalSeconds: 0.85 }] },
 ];
 
 export const PHASE_B_WAVE_ONE = PHASE_B_WAVES[0];

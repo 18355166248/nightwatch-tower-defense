@@ -16,10 +16,17 @@ const noPulseTowers = PHASE_B_TOWERS.map((tower) => tower.id === 'frost-coil'
 
 for (const row of [2, 3]) {
     const layout = standardLayout(row);
+    const extraGuns = [{ column: 7, row: 3 }, { column: 7, row: 4 }]
+        .map((cell) => ({ afterWave: 6, cell, towerId: 'rivet-gun' }));
     for (const [strategy, plan, towers] of [
         ['混合+脉冲', layout.mixed, PHASE_B_TOWERS],
         ['纯机枪近等预算', layout.pure, PHASE_B_TOWERS],
         ['混合但只减速单体', layout.mixed, noPulseTowers],
+        // 补塔反例与标准布防复用同一路线，专门观察后段收入能否绕过局长下界。
+        ...(row === 2 ? [['混合+脉冲+两座后段机枪', {
+            ...layout.mixed,
+            reinforcements: [...layout.mixed.reinforcements, ...extraGuns],
+        }, PHASE_B_TOWERS]] : []),
     ]) {
         const result = replayFirstLevel({ ...plan, towers });
         const combatSeconds = result.telemetry.reduce((sum, wave) => sum + wave.combatSeconds, 0);
@@ -29,6 +36,7 @@ for (const row of [2, 3]) {
             investment: result.telemetry.at(-1)?.towerInvestment,
             combatSeconds: Number(combatSeconds.toFixed(1)),
             naturalCountdownSeconds: result.waveResults.length === 8 ? 56 : null,
+            freeModeSeconds: result.waveResults.length === 8 ? Number((combatSeconds + 56).toFixed(1)) : null,
             emptySpawnSeconds: Number(emptySpawnSeconds.toFixed(1)),
             peakEnemies: Math.max(...result.telemetry.map((wave) => wave.peakActiveEnemies)),
             gold: result.gold, wave5to8Leaks: result.waveResults.slice(4).map(({ leaked }) => leaked),

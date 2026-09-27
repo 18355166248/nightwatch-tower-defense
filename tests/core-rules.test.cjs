@@ -49,7 +49,7 @@ test('首关 HUD 将重复金币移到独立数值卡，保留建塔与波次事
     assert.equal(hudEventText('第 1 波清场！清场 +20 · 剩余金币 54'), '第 1 波清场！清场 +20');
     assert.equal(hudEventText('核心已失守'), '核心已失守');
     assert.equal(waveClearIncomeText(1, 36, 8), '第 1 波守住 · 本波 +44（清场 +8）');
-    assert.equal(waveClearIncomeText(8, 56, 40), '第 8 波守住 · 本波 +96（清场 +40）');
+    assert.equal(waveClearIncomeText(8, 200, 20), '第 8 波守住 · 本波 +220（清场 +20）');
     assert.equal(towerInspectionSummary(RIVET_GUN, 1), '机枪塔 Lv1 · 2.6格 · 伤害7');
     assert.equal(towerInspectionSummary(RIVET_GUN, 2), '机枪塔 Lv2 · 2.8格 · 伤害11');
     assert.equal(towerInspectionSummary(RIVET_GUN, 3), '机枪塔 Lv3 · 3.2格 · 伤害18');
@@ -343,7 +343,10 @@ test('八波目录连续可索引且保留第一波冻结配置', () => {
     assert.deepEqual(PHASE_B_WAVE_ONE.groups.map(({ count, spawnIntervalSeconds }) => ({ count, spawnIntervalSeconds })), [
         { count: 9, spawnIntervalSeconds: 0.8 },
     ]);
-    assert.deepEqual(PHASE_B_WAVES.map(({ clearReward }) => clearReward), [8, 6, 10, 20, 24, 24, 28, 40]);
+    assert.deepEqual(PHASE_B_WAVES.map(({ clearReward }) => clearReward), [8, 6, 12, 24, 12, 12, 14, 20]);
+    assert.deepEqual(PHASE_B_WAVES.map(({ clearReward, groups }) => clearReward
+        + groups.reduce((sum, { enemy, count }) => sum + enemy.killReward * count, 0)),
+    [44, 42, 58, 52, 39, 132, 88, 220], '前四波教学回款不变，后四波赏金按购买窗口收敛');
     assert.throws(() => new WaveCatalog([PHASE_B_WAVES[1]]), /连续编号/);
     assert.throws(
         () => new WaveCatalog([{ wave: 1, clearReward: -1, groups: PHASE_B_WAVE_ONE.groups }]),
@@ -457,7 +460,7 @@ test('铁罐搬运者复用流场与减速规则，保持高生命低速度', ()
     assert.equal(runtime.enemies[0].health, 316);
     assert.equal(runtime.enemies[0].slowMultiplier, 0.25);
     assert.ok(runtime.enemies[0].slowRemainingSeconds > 0);
-    assert.equal(runtime.enemies[0].archetype.killReward, 5);
+    assert.equal(runtime.enemies[0].archetype.killReward, 3);
 });
 
 test('模拟时钟统一限制长帧并在 1x 与 2x 间循环', () => {
@@ -1115,6 +1118,7 @@ test('首关分波推荐构筑零漏，末段可选加固缩短清场', () => {
     assert.equal(guided.towers, 10);
     assert.deepEqual(guided.totals, { spawned: 213, killed: 213, leaked: 0 });
     assert.equal(guided.telemetry.at(-1).towerInvestment, 466);
+    assert.deepEqual(guided.telemetry.slice(4).map(({ gold }) => gold), [29, 89, 129, 349]);
     const combatSeconds = guided.telemetry.reduce((sum, wave) => sum + wave.combatSeconds, 0);
     assert.ok(combatSeconds >= 360 && combatSeconds <= 480, '推荐构筑 1× 纯战斗应落在 6–8 分钟区间');
     assert.ok(guided.telemetry.reduce((sum, wave) => sum + wave.emptySpawnSeconds, 0) < 1,
@@ -1145,6 +1149,18 @@ test('首关分波推荐构筑零漏，末段可选加固缩短清场', () => {
     const noUpgrade = replayFirstLevel({ upgradesAfterWave: [] });
     assert.ok(noUpgrade.coreHealth < guided.coreHealth, '升级应减少末波漏怪，但不强制玩家照单全升');
     assert.equal(noUpgrade.waveResults.at(-1).wave, 8);
+});
+
+test('后段赏金收敛后仍可主动补两座有效机枪，但不能轻易跳过局长下界', () => {
+    const extraGuns = [{ column: 7, row: 3 }, { column: 7, row: 4 }]
+        .map((cell) => ({ afterWave: 6, cell, towerId: 'rivet-gun' }));
+    const result = replayFirstLevel({ reinforcements: [...FIRST_LEVEL_REINFORCEMENTS, ...extraGuns] });
+    assert.equal(result.coreHealth, 10);
+    assert.equal(result.towers, 12);
+    assert.equal(result.telemetry[5].gold, 29, '第六波后两座补塔必须真实花费 60 金');
+    const battleSeconds = result.telemetry.reduce((sum, wave) => sum + wave.combatSeconds, 0);
+    assert.ok(battleSeconds + 56 >= 360, '两座有效补塔后，1× 战斗加自然波间不应低于 6 分钟');
+    assert.ok(battleSeconds + 56 <= 480);
 });
 
 test('推荐构筑在常见帧步长下保持相同的逐波结果', () => {
