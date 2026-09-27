@@ -1,0 +1,31 @@
+assets/scripts/runtime/NightwatchPocBootstrap.ts
+  s_57db2c01e7cdde::t_3abf8c32999daa 51-52,113,124,204,273,295,299,303,307,691-692
+assets/scripts/presentation/PhaseBCanvasRenderer.ts
+  s_57db2c01e7cdde::t_3ba7e1c63a52fd 18-19,59,62,65,67,71,78,80,90,92,376-377,380,395-399,402-405,409-410,421-424,430-433
+assets/scripts/presentation/FirstLevelExperienceView.ts
+  s_57db2c01e7cdde::t_d7aabb6499c6bd 44,55-57,68-69,72,76-77,87,104
+tests/core-rules.test.cjs
+  s_57db2c01e7cdde::t_3e23c1780ea339 329-349
+assets/scripts/presentation/PhaseBLayout.ts
+  s_57db2c01e7cdde::t_067d6a003fb0d4 10-11,52-75
+assets/scripts/presentation/PhaseBHudView.ts
+  s_57db2c01e7cdde::t_cd9cf1c899c252 14-15,44,64,93,168-174,176-193
+  s_57db2c01e7cdde::t_89a7f5a262e9ad 78,156,158-159,175
+  s_57db2c01e7cdde::t_1ffb1a5dca1f0c 194-195
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "c86988ee48d1532b498051da8d5de7a2f77dd886",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
