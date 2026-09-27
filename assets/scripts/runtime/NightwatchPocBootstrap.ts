@@ -26,7 +26,7 @@ import { countCombatFeedback, CombatFeedbackRuntime } from '../presentation/Comb
 import { PhaseBBackdropView } from '../presentation/PhaseBBackdropView';
 import { PhaseBCanvasRenderer } from '../presentation/PhaseBCanvasRenderer';
 import { PhaseBHudView } from '../presentation/PhaseBHudView';
-import { towerInspectionSummary, towerUpgradeSuccessText, waveClearIncomeText } from '../presentation/PhaseBHudText';
+import { towerInspectionSummary, towerSelectionSummary, towerUpgradeSuccessText, waveClearIncomeText } from '../presentation/PhaseBHudText';
 import { PhaseBUnitSpriteView } from '../presentation/PhaseBUnitSpriteView';
 import { RouteChangeFeedback, routeChangeText, routeLengthDelta } from '../presentation/RouteChangeFeedback';
 import { waveStartStatus, waveThreatHint } from '../presentation/WaveBriefing';
@@ -546,7 +546,7 @@ export class NightwatchPocBootstrap extends Component {
         this.selectedTowerId = towerId;
         this.preview = null;
         this.inputMode = 'idle';
-        this.statusText = `已选择${this.selectedTowerLabel()} · ${towerId === 'frost-coil' ? '减速 45%，持续 1.2 秒' : '稳定单体输出'}`;
+        this.statusText = towerSelectionSummary(PHASE_B_TOWERS.find(({ id }) => id === towerId)!);
         this.playSound('ui');
     }
 

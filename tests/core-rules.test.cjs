@@ -25,10 +25,11 @@ const { SimulationClock } = require('../.test-dist/systems/SimulationClock.js');
 const { buildBattleResultViewModel } = require('../.test-dist/presentation/BattleResultViewModel.js');
 const { countCombatFeedback, CombatFeedbackRuntime } = require('../.test-dist/presentation/CombatFeedbackRuntime.js');
 const { buildCoreObjectiveState } = require('../.test-dist/presentation/CoreObjectiveState.js');
+const { enemyCrowdGroups } = require('../.test-dist/presentation/EnemyCrowdGroups.js');
 const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGuidance.js');
 const { FirstLevelExperience } = require('../.test-dist/presentation/FirstLevelExperience.js');
 const { firstLevelWaveBanner } = require('../.test-dist/presentation/FirstLevelWaveBanner.js');
-const { hudEventText, towerInspectionSummary, towerUpgradeSuccessText, waveClearIncomeText } = require('../.test-dist/presentation/PhaseBHudText.js');
+const { hudEventText, towerInspectionSummary, towerSelectionSummary, towerUpgradeSuccessText, waveClearIncomeText } = require('../.test-dist/presentation/PhaseBHudText.js');
 const { enemyGaitFrame, enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
 const { RouteChangeFeedback, routeChangeText, routeLengthDelta } = require('../.test-dist/presentation/RouteChangeFeedback.js');
 const { waveLineup, waveStartStatus, waveThreatHint } = require('../.test-dist/presentation/WaveBriefing.js');
@@ -55,8 +56,22 @@ test('首关 HUD 将重复金币移到独立数值卡，保留建塔与波次事
     assert.equal(towerInspectionSummary(RIVET_GUN, 3), '机枪塔 Lv3 · 3.2格 · 伤害18');
     assert.equal(towerInspectionSummary(FROST_COIL, 1), '冷凝塔 Lv1 · 3格 · 范围减速75%');
     assert.equal(towerInspectionSummary(FROST_COIL, 3), '冷凝塔 Lv3 · 3.5格 · 范围减速89%');
+    assert.equal(towerSelectionSummary(FROST_COIL), '已选冷凝塔 · 范围减速75% · 1.2秒');
+    assert.equal(towerSelectionSummary(RIVET_GUN), '已选机枪塔 · 稳定单体输出');
     assert.equal(towerUpgradeSuccessText('frost-coil', 2), '冷凝塔升至 Lv2 · 范围减速增强');
     assert.equal(towerUpgradeSuccessText('rivet-gun', 3), '机枪塔升至 Lv3 · 火力与射程提升');
+});
+
+test('同格敌群显示局部人数，单只不添徽标且只读计算不改变敌人位置', () => {
+    const close = (progress) => ({ fromCell: { column: 4, row: 0 }, toCell: { column: 4, row: 1 }, progress });
+    const enemies = [close(0.1), close(0.2), close(0.8),
+        { fromCell: { column: 5, row: 1 }, toCell: { column: 6, row: 1 }, progress: 0.1 }];
+    const groups = enemyCrowdGroups(enemies);
+    assert.deepEqual(groups.map(({ key, count, column }) => ({ key, count, column })), [{ key: '4,0', count: 2, column: 4 }]);
+    assert.ok(Math.abs(groups[0].row - 0.15) < 1e-10);
+    assert.deepEqual(enemyCrowdGroups([close(0.1)]), []);
+    assert.equal(enemies[0].progress, 0.1);
+    assert.deepEqual(enemyCrowdGroups([close(Number.NaN), close(0)]), [{ key: '4,0', count: 2, column: 4, row: 0 }]);
 });
 
 test('波内生成进度区分短暂清屏、真正清场和下一波待命', () => {

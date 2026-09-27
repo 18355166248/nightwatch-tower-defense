@@ -1,10 +1,11 @@
-import { Color, Graphics, isValid, Node, resources, Sprite, SpriteFrame, UIOpacity, UITransform } from 'cc';
+import { Color, Graphics, HorizontalTextAlignment, isValid, Label, Node, resources, Sprite, SpriteFrame, UIOpacity, UITransform, VerticalTextAlignment } from 'cc';
 import { FROST_COIL } from '../config/PhaseBCombatConfig';
 import type { GridCell } from '../core/GridTypes';
 import { PHASE_B_DESIGN_HEIGHT, PHASE_B_DESIGN_WIDTH, PhaseBLayout } from './PhaseBLayout';
 import type { PhaseBSceneState } from './PhaseBSceneState';
 import { FROST_COIL_LAYER_SPEC, LayeredTowerRig, RIVET_GUN_LAYER_SPEC, type LayeredTowerSpec } from './LayeredTowerRig';
 import { EnemySlowIndicatorView } from './EnemySlowIndicatorView';
+import { enemyCrowdGroups } from './EnemyCrowdGroups';
 import { enemyGaitFrame, enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } from './UnitVisualMotion';
 
 const UNIT_ASSETS = {
@@ -37,6 +38,7 @@ export class PhaseBUnitSpriteView {
     private readonly root = new Node('FirstLevelUnitSprites');
     private readonly towerLayer = new Node('TowerSprites');
     private readonly enemyLayer = new Node('EnemySprites');
+    private readonly crowdLayer = new Node('EnemyCrowdBadges');
     private readonly deathLayer = new Node('DeathSprites');
     private readonly shopLayer = new Node('ShopSprites');
     private readonly frames = new Map<UnitArtId, SpriteFrame>();
@@ -44,6 +46,7 @@ export class PhaseBUnitSpriteView {
     private readonly towerLayers = new Map<string, SpriteFrame>();
     private readonly towers = new Map<string, Node>();
     private readonly enemies = new Map<string, Node>();
+    private readonly crowdBadges = new Map<string, Node>();
     private readonly deaths = new Map<string, Node>();
     private readonly layout: PhaseBLayout;
     private readonly preview: Node;
@@ -53,7 +56,7 @@ export class PhaseBUnitSpriteView {
         this.root.layer = parent.layer;
         this.root.addComponent(UITransform).setContentSize(PHASE_B_DESIGN_WIDTH, PHASE_B_DESIGN_HEIGHT);
         parent.addChild(this.root);
-        for (const layer of [this.towerLayer, this.enemyLayer, this.deathLayer, this.shopLayer]) {
+        for (const layer of [this.towerLayer, this.enemyLayer, this.crowdLayer, this.deathLayer, this.shopLayer]) {
             layer.layer = parent.layer;
             this.root.addChild(layer);
         }
@@ -101,6 +104,7 @@ export class PhaseBUnitSpriteView {
         if (!this.root.active) return;
         this.renderTowers(state);
         this.renderEnemies(state);
+        this.renderCrowdBadges(state);
         this.renderDeaths(state);
         this.renderPreview(state);
         this.renderShop();
@@ -182,6 +186,53 @@ export class PhaseBUnitSpriteView {
             visible.add(enemy.id);
         }
         this.removeMissing(this.enemies, visible);
+    }
+
+    private renderCrowdBadges(state: PhaseBSceneState): void {
+        const metrics = this.layout.boardMetrics(state.grid);
+        const visible = new Set<string>();
+        for (const group of enemyCrowdGroups(state.enemies)) {
+            const node = this.ensureCrowdBadge(group.key);
+            const center = this.layout.gridPointCenter(group, state.grid);
+            // 角落里的徽标保持在棋盘内，不能钻进顶栏或底部控制区。
+            const x = Math.max(metrics.left + 37, Math.min(metrics.left + metrics.width - 37, center.x + metrics.cellSize * 0.31));
+            const y = Math.max(metrics.bottom + 26, Math.min(metrics.bottom + metrics.height - 26, center.y - metrics.cellSize * 0.28));
+            node.setPosition(x, y, 0);
+            const label = node.getChildByName('Count')?.getComponent(Label);
+            if (label) label.string = `×${group.count}`;
+            visible.add(group.key);
+        }
+        this.removeMissing(this.crowdBadges, visible);
+    }
+
+    private ensureCrowdBadge(key: string): Node {
+        const existing = this.crowdBadges.get(key);
+        if (existing) return existing;
+        const badge = new Node(key);
+        badge.layer = this.root.layer;
+        badge.addComponent(UITransform).setContentSize(74, 52);
+        const graphics = badge.addComponent(Graphics);
+        graphics.fillColor = new Color(18, 39, 56, 235);
+        graphics.roundRect(-36, -24, 72, 48, 18);
+        graphics.fill();
+        graphics.strokeColor = new Color('#FFE2A0');
+        graphics.lineWidth = 3;
+        graphics.roundRect(-36, -24, 72, 48, 18);
+        graphics.stroke();
+        const count = new Node('Count');
+        count.layer = this.root.layer;
+        count.addComponent(UITransform).setContentSize(70, 48);
+        const label = count.addComponent(Label);
+        label.fontSize = 36;
+        label.lineHeight = 42;
+        label.color = new Color('#FFF3D8');
+        label.horizontalAlign = HorizontalTextAlignment.CENTER;
+        label.verticalAlign = VerticalTextAlignment.CENTER;
+        label.overflow = Label.Overflow.CLAMP;
+        badge.addChild(count);
+        this.crowdLayer.addChild(badge);
+        this.crowdBadges.set(key, badge);
+        return badge;
     }
 
     private renderDeaths(state: PhaseBSceneState): void {

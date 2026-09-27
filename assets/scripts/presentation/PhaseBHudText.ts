@@ -14,6 +14,13 @@ export function towerInspectionSummary(baseTower: TowerArchetype, level: number)
         : `${tower.label} Lv${level} · ${tower.rangeCells}格 · 伤害${tower.damage}`;
 }
 
+/** 选塔说明始终从实际配置生成，调数值后不能继续显示旧的减速百分比。 */
+export function towerSelectionSummary(tower: TowerArchetype): string {
+    return tower.effect
+        ? `已选${tower.label} · 范围减速${Math.round((1 - tower.effect.speedMultiplier) * 100)}% · ${tower.effect.durationSeconds}秒`
+        : `已选${tower.label} · 稳定单体输出`;
+}
+
 /** 升级提示对应真实定位；冷凝升级主要买到群控强度，不应沿用机枪的火力文案。 */
 export function towerUpgradeSuccessText(towerId: TowerId, level: number): string {
     return towerId === 'frost-coil'
