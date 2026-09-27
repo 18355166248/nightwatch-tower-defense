@@ -1169,13 +1169,18 @@ test('首关分波推荐构筑零漏，末段可选加固缩短清场', () => {
     assert.equal(guided.telemetry.at(-1).towerInvestment, 466);
     assert.deepEqual(guided.telemetry.slice(4).map(({ gold }) => gold), [29, 89, 129, 349]);
     const combatSeconds = guided.telemetry.reduce((sum, wave) => sum + wave.combatSeconds, 0);
-    assert.ok(combatSeconds >= 360 && combatSeconds <= 480, '推荐构筑 1× 纯战斗应落在 6–8 分钟区间');
+    // 首关局长口径包含七段正常波间倒计时，不包含教学停留或手动暂停。
+    const scheduledWaveBreakSeconds = (PHASE_B_WAVES.length - 1) * 8;
+    assert.ok(combatSeconds + scheduledWaveBreakSeconds >= 360 && combatSeconds + scheduledWaveBreakSeconds <= 480,
+        '推荐构筑 1× 战斗加自然波间应落在 6–8 分钟区间');
     assert.ok(guided.telemetry.reduce((sum, wave) => sum + wave.emptySpawnSeconds, 0) < 1,
         '不能靠刷怪期空场等待凑局长');
     assert.ok(guided.telemetry[0].shotsByCell['3,2'] > 0, '首塔必须实际参与教学波');
     assert.deepEqual(FIRST_LEVEL_REINFORCEMENTS.map(({ afterWave }) => afterWave), [1, 2, 3, 4, 5, 6]);
     assert.deepEqual(guided.telemetry.slice(0, 3).map(({ pathLength }) => pathLength), [18, 18, 20]);
     assert.equal(guided.telemetry[2].pathCells.includes('8,8'), true, '第三波后应把敌人导入右侧火力区');
+    assert.deepEqual(guided.pathCells.slice(11, 16).map(cellKey), ['8,7', '7,7', '6,7', '5,7', '5,8'],
+        '第六波补塔后敌人应离开右边界，折回中线火力区');
     const shotsByCell = guided.telemetry.reduce((sum, wave) => {
         for (const [cell, shots] of Object.entries(wave.shotsByCell)) sum[cell] = (sum[cell] ?? 0) + shots;
         return sum;
@@ -1188,6 +1193,7 @@ test('首关分波推荐构筑零漏，末段可选加固缩短清场', () => {
         '左侧封路塔虽不攻击，但必须真实改变最终路线');
     assert.ok(guided.telemetry.slice(4).reduce((sum, wave) => sum + (wave.frostShotsByCell['7,8'] ?? 0), 0) >= 10,
         '末段冷凝塔应实际参与战斗，不能再次放到射程外');
+    assert.ok(guided.telemetry[7].shotsByCell['8,9'] >= 50, '改路塔还应参与末波输出，不能只占格子');
 
     const fortified = replayFirstLevel({ reinforcements: [...FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_OPTIONAL_FORTIFICATIONS[0]] });
     assert.equal(fortified.coreHealth, 10);

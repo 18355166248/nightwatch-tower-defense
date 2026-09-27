@@ -40,7 +40,8 @@ export const FIRST_LEVEL_REINFORCEMENTS: readonly {
     { afterWave: 3, cell: { column: 7, row: 2 }, towerId: 'rivet-gun', coachHint: '引敌转向右侧' },
     { afterWave: 4, cell: { column: 7, row: 8 }, towerId: 'frost-coil', coachHint: '下排冷凝拖慢重甲' },
     { afterWave: 5, cell: { column: 6, row: 8 }, towerId: 'rivet-gun', coachHint: '下排机枪集中火力' },
-    { afterWave: 6, cell: { column: 7, row: 10 }, towerId: 'rivet-gun', coachHint: '出口前补最后火力' },
+    // 末段右下补塔既要开火，也要把贴边直行的敌人折回中线，避免变成只看上排输出的关卡。
+    { afterWave: 6, cell: { column: 8, row: 9 }, towerId: 'rivet-gun', coachHint: '右下设伏，逼敌折回中线' },
 ];
 
 /** 末段可选加固用于缩短清场；推荐路径已可守住，教学不代替玩家做额外花费。 */
