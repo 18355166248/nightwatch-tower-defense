@@ -1,5 +1,6 @@
 import type { CombatEnemy, CombatTickResult, GridPoint, ShotEvent } from '../systems/WaveCombatRuntime';
 import type { TowerId } from '../config/PhaseBCombatConfig';
+import { enemyDeathFeedbackSeconds } from './UnitVisualMotion';
 
 export interface TimedFeedback {
     readonly point: GridPoint;
@@ -44,7 +45,6 @@ const TRACER_SECONDS = 0.1;
 const IMPACT_SECONDS = 0.16;
 // 与 0.1 秒弹道分离：2× 战斗时仍给范围圈约 0.25 秒真实可见时间。
 const SLOW_PULSE_SECONDS = 0.5;
-const DEATH_SECONDS = 0.38;
 const REWARD_SECONDS = 0.7;
 const CORE_HIT_SECONDS = 0.28;
 const MAX_FEEDBACK_PER_CHANNEL = 64;
@@ -87,7 +87,7 @@ export class CombatFeedbackRuntime {
                 radiusCells: shot.slowRadiusCells, affectedEnemyCount }];
         }));
         this.activeDeaths.push(...result.killed.map((enemy) => ({
-            ...this.timed(this.enemyPoint(enemy), DEATH_SECONDS),
+            ...this.timed(this.enemyPoint(enemy), enemyDeathFeedbackSeconds(enemy.archetype.id)),
             enemyId: enemy.id,
             archetypeId: enemy.archetype.id,
             spawnOrder: enemy.spawnOrder,

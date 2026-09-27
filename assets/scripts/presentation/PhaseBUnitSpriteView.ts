@@ -6,7 +6,7 @@ import type { PhaseBSceneState } from './PhaseBSceneState';
 import { FROST_COIL_LAYER_SPEC, LayeredTowerRig, RIVET_GUN_LAYER_SPEC, type LayeredTowerSpec } from './LayeredTowerRig';
 import { EnemySlowIndicatorView } from './EnemySlowIndicatorView';
 import { enemyCrowdGroups } from './EnemyCrowdGroups';
-import { enemyGaitFrame, enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } from './UnitVisualMotion';
+import { enemyDeathPose, enemyGaitFrame, enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } from './UnitVisualMotion';
 
 const UNIT_ASSETS = {
     'rivet-gun': 'level-one/units/rivet-gun/spriteFrame',
@@ -245,14 +245,17 @@ export class PhaseBUnitSpriteView {
                 death.archetypeId === 'iron-canister-hauler' ? 92 : 78);
             const point = this.layout.gridPointCenter(death.point, state.grid);
             const offset = enemyVisualOffset(death.spawnOrder, cellSize);
-            const progress = 1 - death.remainingSeconds / death.durationSeconds;
-            node.setPosition(point.x + offset.x, point.y + offset.y + progress * 18, 0);
-            node.setScale(1 + progress * 0.2, 1 - progress * 0.2, 1);
+            const pose = enemyDeathPose(death.archetypeId, death.remainingSeconds, death.durationSeconds, death.spawnOrder);
+            // 切图和爆圈共用同一纯函数时间曲线；重装下沉、普通敌人快速收拢，避免每只都像金币一样飘走。
+            node.setPosition(point.x + offset.x, point.y + offset.y + pose.y, 0);
+            node.setScale(pose.scaleX, pose.scaleY, 1);
+            node.angle = pose.angle;
             const sprite = node.getComponent(Sprite);
-            if (sprite) sprite.color = new Color('#FFD0A4');
+            if (sprite) sprite.color = new Color(death.archetypeId === 'iron-canister-hauler' ? '#FFE3A9'
+                : death.archetypeId === 'clockwork-runner' ? '#C8F5FF' : '#FFD0A4');
             let opacity = node.getComponent(UIOpacity);
             if (!opacity) opacity = node.addComponent(UIOpacity);
-            opacity.opacity = Math.round(255 * (1 - progress));
+            opacity.opacity = pose.opacity;
             visible.add(death.enemyId);
         }
         this.removeMissing(this.deaths, visible);

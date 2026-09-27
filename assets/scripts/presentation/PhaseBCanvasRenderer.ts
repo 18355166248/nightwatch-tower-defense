@@ -7,7 +7,7 @@ import type { PhaseBSceneState } from './PhaseBSceneState';
 import { CoreObjectiveView } from './CoreObjectiveView';
 import { BattlefieldSurfaceView } from './BattlefieldSurfaceView';
 import { EnemySlowIndicatorView } from './EnemySlowIndicatorView';
-import { enemySlowVisualStrength } from './UnitVisualMotion';
+import { enemyDeathPose, enemySlowVisualStrength } from './UnitVisualMotion';
 import { resultRevealEase } from './ResultRevealRuntime';
 import {
     PHASE_B_GRID_TABS,
@@ -332,20 +332,23 @@ export class PhaseBCanvasRenderer {
         }
         for (const death of state.feedback.deaths) {
             const point = this.center(death.point, state.grid);
-            const progress = 1 - death.remainingSeconds / death.durationSeconds;
-            const alpha = Math.round(230 * (1 - progress));
-            graphics.strokeColor = new Color(240, 106, 99, alpha);
-            graphics.lineWidth = 8 * (1 - progress) + 2;
-            graphics.circle(point.x, point.y, cellSize * (0.24 + progress * 0.48));
+            const pose = enemyDeathPose(death.archetypeId, death.remainingSeconds, death.durationSeconds, death.spawnOrder);
+            const heavy = death.archetypeId === 'iron-canister-hauler';
+            const runner = death.archetypeId === 'clockwork-runner';
+            const accent = heavy ? [255, 198, 104] : runner ? [125, 226, 244] : [240, 143, 113];
+            graphics.strokeColor = new Color(accent[0], accent[1], accent[2], pose.ringOpacity);
+            graphics.lineWidth = heavy ? 9 : runner ? 5 : 3;
+            graphics.circle(point.x, point.y, cellSize * pose.ringRadiusCells);
             graphics.stroke();
-            for (let ray = 0; ray < 6; ray += 1) {
-                const angle = ray * Math.PI / 3;
-                const inner = cellSize * (0.2 + progress * 0.18);
-                const outer = cellSize * (0.28 + progress * 0.5);
+            // 普通敌人高频击杀只留弱环；低频重装才有放射火花，保护后段路径可读性。
+            for (let ray = 0; ray < pose.rays; ray += 1) {
+                const angle = ray * Math.PI * 2 / pose.rays;
+                const inner = cellSize * pose.ringRadiusCells * 0.75;
+                const outer = cellSize * pose.ringRadiusCells * 1.35;
                 graphics.moveTo(point.x + Math.cos(angle) * inner, point.y + Math.sin(angle) * inner);
                 graphics.lineTo(point.x + Math.cos(angle) * outer, point.y + Math.sin(angle) * outer);
             }
-            graphics.stroke();
+            if (pose.rays > 0) graphics.stroke();
         }
         for (const reward of state.feedback.rewards) {
             const point = this.center(reward.point, state.grid);

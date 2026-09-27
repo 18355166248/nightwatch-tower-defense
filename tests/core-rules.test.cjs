@@ -37,7 +37,7 @@ const { firstLevelGuidance } = require('../.test-dist/presentation/FirstLevelGui
 const { FirstLevelExperience } = require('../.test-dist/presentation/FirstLevelExperience.js');
 const { firstLevelWaveBanner } = require('../.test-dist/presentation/FirstLevelWaveBanner.js');
 const { hudEventText, towerInspectionSummary, towerSelectionSummary, towerUpgradeSuccessText, waveClearIncomeText } = require('../.test-dist/presentation/PhaseBHudText.js');
-const { enemyGaitFrame, enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
+const { enemyDeathFeedbackSeconds, enemyDeathPose, enemyGaitFrame, enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } = require('../.test-dist/presentation/UnitVisualMotion.js');
 const { RouteChangeFeedback, routeChangeText, routeLengthDelta } = require('../.test-dist/presentation/RouteChangeFeedback.js');
 const { waveLineup, waveStartStatus, waveThreatHint } = require('../.test-dist/presentation/WaveBriefing.js');
 const {
@@ -1293,6 +1293,33 @@ test('战斗反馈消费只读事件，并在独立时间轴上自动回收', ()
     assert.equal(feedback.snapshot.deaths.length, 0);
     assert.equal(feedback.snapshot.rewards.length, 0);
     assert.equal(result.shots[0].damage, 7);
+});
+
+test('死亡反馈分层：高频小怪安静收拢，重装有较长但最终归零的冲击', () => {
+    const infantrySeconds = enemyDeathFeedbackSeconds('clockwork-infantry');
+    const heavySeconds = enemyDeathFeedbackSeconds('iron-canister-hauler');
+    assert.ok(infantrySeconds < heavySeconds);
+    const infantry = enemyDeathPose('clockwork-infantry', infantrySeconds / 2, infantrySeconds, 1);
+    const heavy = enemyDeathPose('iron-canister-hauler', heavySeconds / 2, heavySeconds, 2);
+    assert.equal(infantry.rays, 0);
+    assert.equal(heavy.rays, 8);
+    assert.ok(heavy.ringRadiusCells > infantry.ringRadiusCells);
+    assert.ok(heavy.ringOpacity > infantry.ringOpacity);
+    assert.ok(heavy.y < 0 && heavy.scaleY < 1);
+    assert.equal(enemyDeathPose('iron-canister-hauler', 0, heavySeconds, 2).opacity, 0);
+    assert.equal(enemyDeathPose('clockwork-runner', 0, 0, 1).ringOpacity, 0);
+    const feedback = new CombatFeedbackRuntime();
+    const base = { health: 0, fromCell: { column: 1, row: 1 }, toCell: { column: 1, row: 2 }, progress: 0.5, spawnOrder: 1 };
+    feedback.consume({ shots: [], killed: [
+        { ...base, id: 'infantry', archetype: CLOCKWORK_INFANTRY },
+        { ...base, id: 'heavy', archetype: IRON_CANISTER_HAULER },
+    ], leaked: [], spawningCompleted: false });
+    assert.equal(feedback.snapshot.deaths[0].durationSeconds, infantrySeconds);
+    assert.equal(feedback.snapshot.deaths[1].durationSeconds, heavySeconds);
+    feedback.advance(infantrySeconds);
+    assert.deepEqual(feedback.snapshot.deaths.map((death) => death.enemyId), ['heavy']);
+    feedback.advance(heavySeconds - infantrySeconds);
+    assert.equal(feedback.snapshot.deaths.length, 0);
 });
 
 test('冷凝范围脉冲独立于短弹道衰减，2倍速下仍保留可见时窗', () => {
