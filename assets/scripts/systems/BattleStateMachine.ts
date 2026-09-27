@@ -1,5 +1,14 @@
 export type BattlePhase = 'preparing' | 'spawning' | 'clearing' | 'countdown' | 'paused' | 'victory' | 'defeat';
 
+export type TowerSaleWindow = 'opening' | 'intermission' | 'locked';
+
+/** 开局可无损试错；清场后才允许有损重构。暂停中的教学波间是清场，不是战斗中暂停。 */
+export function towerSaleWindow(preparing: boolean, phase: BattlePhase, guidedIntermissionHeld: boolean): TowerSaleWindow {
+    if (preparing && phase === 'preparing') return 'opening';
+    if (phase === 'countdown' || (phase === 'paused' && guidedIntermissionHeld)) return 'intermission';
+    return 'locked';
+}
+
 export type StartRejectReason = 'needs-two-towers' | 'needs-path-delta' | 'wrong-phase';
 
 export interface BattleSnapshot {

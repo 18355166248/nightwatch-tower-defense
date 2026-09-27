@@ -11,6 +11,7 @@ export interface BrowserBattleDiagnosticsState {
     readonly upgradedTowerCount: number;
     readonly selectedTowerId: string;
     readonly inspectedTowerCell: string | null;
+    readonly inspectedSaleRefund: number | null;
     readonly slowedEnemyCount: number;
     readonly waveRewardTotal: number;
     readonly pathLength: number;

@@ -20,7 +20,9 @@ import {
     PHASE_B_RESET_BUTTON,
     PHASE_B_PLAY_BUTTON,
     PHASE_B_RIVET_BUTTON,
+    PHASE_B_SELL_BUTTON,
     PHASE_B_UPGRADE_BUTTON,
+    PHASE_B_UPGRADE_FULL_BUTTON,
     type PhaseBGridPoint,
     type PhaseBPoint,
     PhaseBLayout,
@@ -488,10 +490,18 @@ export class PhaseBCanvasRenderer {
         const upgrade = state.inspectedTower;
         if (upgrade) {
             graphics.fillColor = new Color(upgrade.upgradeCost === null || state.gold < upgrade.upgradeCost ? '#596273' : '#C79958');
-            graphics.roundRect(PHASE_B_UPGRADE_BUTTON.left, PHASE_B_UPGRADE_BUTTON.bottom,
-                PHASE_B_UPGRADE_BUTTON.right - PHASE_B_UPGRADE_BUTTON.left,
-                PHASE_B_UPGRADE_BUTTON.top - PHASE_B_UPGRADE_BUTTON.bottom, 18);
+            const upgradeRect = this.layout.safeRect(upgrade.saleRefund === null ? PHASE_B_UPGRADE_FULL_BUTTON : PHASE_B_UPGRADE_BUTTON);
+            graphics.roundRect(upgradeRect.left, upgradeRect.bottom,
+                upgradeRect.right - upgradeRect.left, upgradeRect.top - upgradeRect.bottom, 18);
             graphics.fill();
+            if (upgrade.saleRefund !== null) {
+                graphics.fillColor = new Color('#7B514F');
+                const sellRect = this.layout.safeRect(PHASE_B_SELL_BUTTON);
+                graphics.roundRect(sellRect.left, sellRect.bottom,
+                    sellRect.right - sellRect.left,
+                    sellRect.top - sellRect.bottom, 18);
+                graphics.fill();
+            }
         }
     }
 

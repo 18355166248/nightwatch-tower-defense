@@ -9,6 +9,7 @@ import {
 } from '../core/GridTypes';
 import { FlowField } from './FlowField';
 import { EconomyLedger } from './EconomyLedger';
+import type { TowerSaleWindow } from './BattleStateMachine';
 import type { TowerId } from '../config/PhaseBCombatConfig';
 import { nextUpgradeCost, towerInvestment, type UpgradeTower } from './TowerLevelRules';
 
@@ -154,17 +155,23 @@ export class PlacementModel {
         return { accepted: true, level: level + 1, gold: this.gold };
     }
 
-    public sell(cell: GridCell, preparing: boolean): boolean {
+    public saleQuote(cell: GridCell, window: TowerSaleWindow): number | null {
         const key = cellKey(cell);
-        if (!preparing || !this.towerCells.has(key)) return false;
+        if (window === 'locked' || !this.towerCells.has(key)) return null;
         const towerId = this.towerIdsByCell.get(key);
         if (!towerId) throw new Error(`塔位缺少塔种：${key}`);
+        const invested = towerInvestment(this.requireTower(towerId), this.towerLevelsByCell.get(key) ?? 1);
+        return window === 'opening' ? invested : Math.floor(invested * 7 / 10);
+    }
+
+    public sell(cell: GridCell, window: TowerSaleWindow): boolean {
+        const refund = this.saleQuote(cell, window);
+        if (refund === null) return false;
+        const key = cellKey(cell);
         this.towerCells.delete(key);
         this.towerIdsByCell.delete(key);
-        const tower = this.requireTower(towerId);
-        const level = this.towerLevelsByCell.get(key) ?? 1;
         this.towerLevelsByCell.delete(key);
-        this.economy.credit(towerInvestment(tower, level));
+        this.economy.credit(refund);
         this.currentMapVersion += 1;
         this.currentFlowField = new FlowField(this.grid, this.towerCells);
         return true;

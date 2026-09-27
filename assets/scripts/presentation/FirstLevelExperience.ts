@@ -127,7 +127,7 @@ export class FirstLevelExperience {
             const recommendedTower: TowerId = context.towerCount === 1 ? 'frost-coil' : 'rivet-gun';
             const cost = recommendedTower === 'frost-coil' ? FROST_COIL.cost : RIVET_GUN.cost;
             if (context.gold < cost) {
-                return { mode: this.mode, step: 'route', guidanceText: '金币不足以补齐横墙\n点已建塔全额撤销后调整' };
+                return { mode: this.mode, step: 'route', guidanceText: '金币不足以补齐横墙\n点已建塔，再点下方全额撤销' };
             }
             if (context.inputMode !== 'idle') {
                 return { mode: this.mode, step: 'place', guidanceText: `推荐布防 ${context.towerCount + 1}/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 已选炮塔\n点高亮格预览，再点确认`, suggestedCell: nextOpening?.cell };
@@ -148,7 +148,7 @@ export class FirstLevelExperience {
             const misplacedCell = misplacedKey ? this.cellFromKey(misplacedKey) : undefined;
             // 偏位塔可在准备态全额撤销；只给出一座确定的恢复目标，不替玩家自动改阵。
             return { mode: this.mode, step: 'route',
-                guidanceText: `路线还差 ${FIRST_LEVEL_SUGGESTED_PATH_DELTA - context.pathDelta} 格\n${misplacedCell ? '点高亮塔两次撤销，再按提示重建' : '点已建塔两次撤销，换位挡住直路'}`,
+                guidanceText: `路线还差 ${FIRST_LEVEL_SUGGESTED_PATH_DELTA - context.pathDelta} 格\n${misplacedCell ? '点高亮塔，再点下方撤销并重建' : '点已建塔，再点下方撤销换位'}`,
                 suggestedCell: misplacedCell };
         }
         return { mode: this.mode, step: 'ready', guidanceText: `推荐布防 ${FIRST_LEVEL_SUGGESTED_TOWER_COUNT}/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 绕路 +${context.pathDelta} 格\n点 ▶ 开始第一波` };

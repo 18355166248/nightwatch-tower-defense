@@ -56,12 +56,14 @@ import {
     PHASE_B_RESET_BUTTON,
     PHASE_B_PLAY_BUTTON,
     PHASE_B_RIVET_BUTTON,
+    PHASE_B_SELL_BUTTON,
     PHASE_B_UPGRADE_BUTTON,
+    PHASE_B_UPGRADE_FULL_BUTTON,
     PhaseBLayout,
 } from '../presentation/PhaseBLayout';
 import { BattleRunCheckpoint } from '../systems/BattleRunCheckpoint';
 import { BattleRunClock } from '../systems/BattleRunClock';
-import { BattleStateMachine } from '../systems/BattleStateMachine';
+import { BattleStateMachine, towerSaleWindow } from '../systems/BattleStateMachine';
 import { EconomyLedger } from '../systems/EconomyLedger';
 import { FirstLevelBestTimeStore } from '../systems/FirstLevelBestTimeStore';
 import { applyGuidedQaOpening, applyGuidedQaPurchases, canApplyGuidedQaPurchases, shouldHoldQaIntermission } from '../systems/GuidedQaPlacement';
@@ -258,7 +260,7 @@ export class NightwatchPocBootstrap extends Component {
             this.primaryTouchId = null;
             return;
         }
-        if (this.handleUpgradeTouch(point) || this.handleTopControls(point)) {
+        if (this.handleInspectedTowerTouch(point) || this.handleTopControls(point)) {
             this.primaryTouchId = null;
             return;
         }
@@ -432,9 +434,25 @@ export class NightwatchPocBootstrap extends Component {
         return true;
     }
 
-    private handleUpgradeTouch(point: Vec3): boolean {
+    private handleInspectedTowerTouch(point: Vec3): boolean {
         const cell = this.towerInspection.cell;
-        if (!cell || !this.layout.insideRect(point, PHASE_B_UPGRADE_BUTTON)) return false;
+        if (!cell) return false;
+        const window = towerSaleWindow(this.preparing, this.battle.snapshot.phase, this.guidedIntermissionHeld);
+        const refund = this.model.saleQuote(cell, window);
+        if (refund !== null && this.layout.insideRect(point, this.layout.safeRect(PHASE_B_SELL_BUTTON))) {
+            const before = this.model.flowField.distanceAt(this.model.grid.entry);
+            // 输入回调内再次以当前阶段提交；倒计时已经开波时窗口变 locked，绝不跨波出售。
+            const sold = this.model.sell(cell, towerSaleWindow(this.preparing, this.battle.snapshot.phase, this.guidedIntermissionHeld));
+            if (sold) {
+                this.towerInspection.clear();
+                const delta = this.routeChange.record(cell, before, this.model.flowField.distanceAt(this.model.grid.entry)).delta;
+                this.statusText = `${window === 'opening' ? '全额撤销' : '波间出售'} · +${refund} 金 · ${routeChangeText(delta)}`;
+            } else this.statusText = '本波已开始，不能出售';
+            this.playSound(sold ? 'ui' : 'reject');
+            return true;
+        }
+        const upgradeRect = this.layout.safeRect(refund === null ? PHASE_B_UPGRADE_FULL_BUTTON : PHASE_B_UPGRADE_BUTTON);
+        if (!this.layout.insideRect(point, upgradeRect)) return false;
         const towerId = this.model.deployments.find(({ cell: towerCell }) => sameCell(towerCell, cell))?.towerId;
         const result = this.model.upgrade(cell);
         if (result.accepted) this.towerInspection.clear();
@@ -548,20 +566,11 @@ export class NightwatchPocBootstrap extends Component {
         const deployment = this.model.deployments.find(({ cell: towerCell }) => sameCell(towerCell, cell));
         const towerId = deployment?.towerId;
         if (towerId) {
-            const canSell = this.preparing && !this.pauseOverlay.snapshot.visible;
-            const action = this.towerInspection.tap(cell, canSell);
-            if (action === 'sell') {
-                const before = this.model.flowField.distanceAt(this.model.grid.entry);
-                const sold = this.model.sell(cell, true);
-                const delta = sold
-                    ? this.routeChange.record(cell, before, this.model.flowField.distanceAt(this.model.grid.entry)).delta
-                    : 0;
-                this.statusText = sold ? `炮塔已全额撤销 · ${routeChangeText(delta)}` : '撤销失败，请重新选择炮塔';
-                this.playSound(sold ? 'ui' : 'reject');
-            } else if (action === 'inspect') {
-                // 教学恢复路径要明确二次点击才撤销；查看态下方提示被升级按钮占用，因此放到顶部事件行。
-                this.statusText = canSell && this.experience.entryMode === 'guided'
-                    ? '再点此塔全额撤销 · 下方可升级'
+            const action = this.towerInspection.tap(cell);
+            if (action === 'inspect') {
+                const saleWindow = towerSaleWindow(this.preparing, this.battle.snapshot.phase, this.guidedIntermissionHeld);
+                this.statusText = saleWindow !== 'locked'
+                    ? `${this.towerInspectionText(towerId, deployment?.level ?? 1)} · 下方可${saleWindow === 'opening' ? '撤销' : '出售'}`
                     : this.towerInspectionText(towerId, deployment?.level ?? 1);
                 this.playSound('ui');
             } else this.statusText = '已关闭炮塔射程查看';
@@ -871,6 +880,8 @@ export class NightwatchPocBootstrap extends Component {
         const upgradeCost = inspectedTowerId
             ? nextUpgradeCost(PHASE_B_TOWERS.find(({ id }) => id === inspectedTowerId)!, inspectedLevel)
             : null;
+        const saleWindow = towerSaleWindow(this.preparing, battle.phase, this.guidedIntermissionHeld);
+        const saleRefund = inspectedCell ? this.model.saleQuote(inspectedCell, saleWindow) : null;
         const baseGuidanceText = inspectedTowerId
             ? this.towerInspectionText(inspectedTowerId, inspectedLevel)
             : experience.guidanceText ?? firstLevelGuidance({
@@ -898,7 +909,7 @@ export class NightwatchPocBootstrap extends Component {
             towerLevelsByCell: new Map(this.model.deployments.map(({ cell, level }) => [cellKey(cell), level ?? 1])),
             activePath,
             preview: this.preview,
-            inspectedTower: inspectedCell && inspectedTowerId ? { cell: inspectedCell, towerId: inspectedTowerId, level: inspectedLevel, upgradeCost } : null,
+            inspectedTower: inspectedCell && inspectedTowerId ? { cell: inspectedCell, towerId: inspectedTowerId, level: inspectedLevel, upgradeCost, saleRefund } : null,
             enemies: this.combat.enemies,
             feedback: this.feedback.snapshot,
             routeChange: this.routeChange.snapshot,
@@ -949,7 +960,7 @@ export class NightwatchPocBootstrap extends Component {
             canStartNextWaveEarly: battle.phase === 'countdown',
             countdownSeconds: battle.countdownSeconds,
             activePlacementTowerId,
-            inspectedUpgrade: inspectedTowerId ? { level: inspectedLevel, cost: upgradeCost } : null,
+            inspectedUpgrade: inspectedTowerId ? { level: inspectedLevel, cost: upgradeCost, saleRefund } : null,
             upcomingWave,
             result,
             resultRevealProgress: this.resultReveal.progress,
@@ -968,6 +979,11 @@ export class NightwatchPocBootstrap extends Component {
         const frostTowerCount = deployments.filter(({ towerId }) => towerId === 'frost-coil').length;
         const upgradedTowerCount = deployments.filter(({ level }) => (level ?? 1) > 1).length;
         const slowedEnemyCount = this.combat.enemies.filter(({ slowRemainingSeconds }) => slowRemainingSeconds > 0).length;
+        const inspectedCell = this.towerInspection.cell;
+        const saleWindow = towerSaleWindow(this.preparing, this.battle.snapshot.phase, this.guidedIntermissionHeld);
+        const inspectedSaleRefund = inspectedCell ? this.model.saleQuote(inspectedCell, saleWindow) : null;
+        const saleAccessibleText = inspectedSaleRefund === null ? ''
+            : `已选塔可${saleWindow === 'opening' ? '全额撤销' : '波间出售'}返还${inspectedSaleRefund}金币，`;
         this.browserDiagnostics.publish({
             entryMode: this.experience.entryMode,
             gridId: this.selectedGridId,
@@ -980,7 +996,8 @@ export class NightwatchPocBootstrap extends Component {
             frostTowerCount,
             upgradedTowerCount,
             selectedTowerId: this.selectedTowerId,
-            inspectedTowerCell: this.towerInspection.cell ? cellKey(this.towerInspection.cell) : null,
+            inspectedTowerCell: inspectedCell ? cellKey(inspectedCell) : null,
+            inspectedSaleRefund,
             slowedEnemyCount,
             waveRewardTotal: this.waveRewards.totalAwarded,
             pathLength,
@@ -1026,7 +1043,7 @@ export class NightwatchPocBootstrap extends Component {
                 ? this.pauseOverlay.hasReason('orientation')
                     ? `夜城防线横屏安全暂停，请转回竖屏，再点继续战斗。第${this.battle.snapshot.wave}波，核心${this.battle.snapshot.coreHealth}`
                     : `夜城防线暂停，${this.pauseOverlay.snapshot.screen === 'menu' ? '继续战斗，回到战前布防，战斗设置，返回首页' : this.pauseOverlay.snapshot.screen === 'settings' ? '音效与速度设置，返回暂停' : '请确认或取消'}，第${this.battle.snapshot.wave}波，核心${this.battle.snapshot.coreHealth}`
-                : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，机枪${rivetTowerCount}座，冷凝${frostTowerCount}座，减速中${slowedEnemyCount}名，${this.inputMode === 'idle' ? '未拿起炮塔' : `已拿起${this.selectedTowerLabel()}`}，速度${this.simulationClock.scale}倍，${this.battle.snapshot.phase === 'countdown' ? '可提前开波' : '提前开波未激活'}，${upcomingWave ? `下一波第${upcomingWave.wave}波，${upcomingWave.accessibleLineup}，${upcomingWave.tactic}，` : ''}${guidanceText ? `${guidanceText}，` : ''}${this.statusText}`,
+                : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，机枪${rivetTowerCount}座，冷凝${frostTowerCount}座，减速中${slowedEnemyCount}名，${this.inputMode === 'idle' ? '未拿起炮塔' : `已拿起${this.selectedTowerLabel()}`}，速度${this.simulationClock.scale}倍，${this.battle.snapshot.phase === 'countdown' ? '可提前开波' : '提前开波未激活'}，${saleAccessibleText}${upcomingWave ? `下一波第${upcomingWave.wave}波，${upcomingWave.accessibleLineup}，${upcomingWave.tactic}，` : ''}${guidanceText ? `${guidanceText}，` : ''}${this.statusText}`,
         );
     }
 

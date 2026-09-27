@@ -14,7 +14,7 @@ const { applyGuidedQaOpening, applyGuidedQaPurchases, canApplyGuidedQaPurchases,
 const { PlacementModel } = require('../.test-dist/systems/PlacementModel.js');
 const { nextUpgradeCost, towerAtLevel, towerInvestment } = require('../.test-dist/systems/TowerLevelRules.js');
 const { simulateNoDamageRoute } = require('../.test-dist/systems/RouteSimulation.js');
-const { BattleStateMachine } = require('../.test-dist/systems/BattleStateMachine.js');
+const { BattleStateMachine, towerSaleWindow } = require('../.test-dist/systems/BattleStateMachine.js');
 const { EconomyLedger } = require('../.test-dist/systems/EconomyLedger.js');
 const { BattleRunCheckpoint } = require('../.test-dist/systems/BattleRunCheckpoint.js');
 const { PauseOverlayRuntime } = require('../.test-dist/systems/PauseOverlayRuntime.js');
@@ -204,7 +204,7 @@ test('首关入场卡独立于战斗，教学随真实布塔状态推进且可�
     const misplaced = flow.snapshot({ ...context, towerCount: 4, pathDelta: 2,
         occupiedCells: new Set(['0,0', '2,2', '3,2', '4,2']) });
     assert.deepEqual(misplaced.suggestedCell, { column: 0, row: 0 });
-    assert.match(misplaced.guidanceText, /点高亮塔两次撤销/);
+    assert.match(misplaced.guidanceText, /点高亮塔，再点下方撤销/);
     assert.equal(flow.snapshot({ ...context, towerCount: 3, gold: 10 }).step, 'route');
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'countdown', wave: 1, gold: 54 }).step, 'reinforce');
     const upgradeCoach = { ...context, preparing: false, phase: 'paused', wave: 1, gold: 54,
@@ -282,7 +282,7 @@ test('布塔预览、提交与撤销使用同一流场计算路线变化，提�
     routeFeedback.advance(0.45);
     assert.ok(routeFeedback.snapshot.remainingSeconds > 0);
     const beforeSell = model.flowField.distanceAt(grid.entry);
-    assert.equal(model.sell(cell, true), true);
+    assert.equal(model.sell(cell, 'opening'), true);
     const removed = routeFeedback.record(cell, beforeSell, model.flowField.distanceAt(grid.entry));
     assert.equal(removed.delta, -previewDelta);
     assert.match(routeChangeText(removed.delta), /路线缩短/);
@@ -319,20 +319,20 @@ test('首关音效对连续攻击限频，静音与恢复只影响声音不影�
     assert.deepEqual(calls, ['unlock', 'muted:true', 'muted:false', 'unlock', 'suspend', 'close']);
 });
 
-test('已建塔先查看射程，准备态二次点击才撤销；战斗中只关闭查看', () => {
+test('已建塔重复点击只关闭查看，出售交给明确按钮', () => {
     const inspection = new TowerInspection();
     const first = { column: 3, row: 2 };
     const second = { column: 4, row: 2 };
-    assert.equal(inspection.tap(first, true), 'inspect');
+    assert.equal(inspection.tap(first), 'inspect');
     assert.deepEqual(inspection.cell, first);
-    assert.equal(inspection.tap(second, true), 'inspect');
+    assert.equal(inspection.tap(second), 'inspect');
     assert.deepEqual(inspection.cell, second);
-    assert.equal(inspection.tap(second, true), 'sell');
+    assert.equal(inspection.tap(second), 'dismiss');
     assert.equal(inspection.cell, null);
-    assert.equal(inspection.tap(first, false), 'inspect');
-    assert.equal(inspection.tap(first, false), 'dismiss');
+    assert.equal(inspection.tap(first), 'inspect');
+    assert.equal(inspection.tap(first), 'dismiss');
     assert.equal(inspection.cell, null);
-    inspection.tap(first, true);
+    inspection.tap(first);
     inspection.clear();
     assert.equal(inspection.cell, null);
 });
@@ -752,14 +752,59 @@ test('过期预览不会重复扣费或覆盖较新的地图', () => {
     assert.equal(model.gold, beforeGold);
 });
 
-test('出售只在 preparing 开放并恢复金币与流场', () => {
+test('开局全额撤销、波间七成返还且锁定阶段不改金币与流场', () => {
     const model = new PlacementModel(PHASE_A_GRIDS['grid-8x13'], 120, 30);
     const cell = { column: 1, row: 2 };
     assert.ok(model.commit(model.preview(cell, []), []).accepted);
-    assert.equal(model.sell(cell, false), false);
-    assert.equal(model.sell(cell, true), true);
+    assert.equal(model.saleQuote(cell, 'locked'), null);
+    assert.equal(model.sell(cell, 'locked'), false);
+    assert.equal(model.saleQuote(cell, 'opening'), 30);
+    assert.equal(model.sell(cell, 'opening'), true);
     assert.equal(model.gold, 120);
     assert.equal(model.flowField.distanceAt(model.grid.entry), 12);
+    assert.ok(model.commit(model.preview(cell, []), []).accepted);
+    assert.equal(model.saleQuote(cell, 'intermission'), 21);
+    assert.equal(model.sell(cell, 'intermission'), true);
+    assert.equal(model.gold, 111);
+    assert.equal(model.flowField.distanceAt(model.grid.entry), 12);
+    assert.equal(model.sell(cell, 'intermission'), false);
+});
+
+test('出售窗口只在开局与清场波间开放，用户暂停不能绕过战斗锁', () => {
+    assert.equal(towerSaleWindow(true, 'preparing', false), 'opening');
+    assert.equal(towerSaleWindow(false, 'spawning', false), 'locked');
+    assert.equal(towerSaleWindow(false, 'clearing', false), 'locked');
+    assert.equal(towerSaleWindow(false, 'countdown', false), 'intermission');
+    assert.equal(towerSaleWindow(false, 'paused', true), 'intermission');
+    assert.equal(towerSaleWindow(false, 'paused', false), 'locked');
+    assert.equal(towerSaleWindow(false, 'victory', false), 'locked');
+});
+
+test('波间倒计时归零后出售请求被锁定，不能跨波拿回金币', () => {
+    const model = new PlacementModel(PHASE_A_GRIDS['grid-9x13'], 120, 30);
+    const cell = { column: 2, row: 2 };
+    assert.equal(model.commit(model.preview(cell, []), []).accepted, true);
+    const battle = new BattleStateMachine(2, 10, 0);
+    assert.equal(battle.startFirstWave(2, 2).accepted, true);
+    battle.markSpawningComplete(0);
+    assert.equal(towerSaleWindow(false, battle.snapshot.phase, false), 'intermission');
+    battle.advance(0);
+    const before = { gold: model.gold, version: model.mapVersion };
+    assert.equal(towerSaleWindow(false, battle.snapshot.phase, false), 'locked');
+    assert.equal(model.sell(cell, towerSaleWindow(false, battle.snapshot.phase, false)), false);
+    assert.deepEqual({ gold: model.gold, version: model.mapVersion }, before);
+});
+
+test('升级后的出售按累计投入七成取整，报价和真实到账一致', () => {
+    const model = new PlacementModel(PHASE_A_GRIDS['grid-9x13'], 100, PHASE_B_TOWERS);
+    const cell = { column: 2, row: 2 };
+    assert.equal(model.commit(model.preview(cell, [], 'frost-coil'), []).accepted, true);
+    assert.equal(model.upgrade(cell).accepted, true);
+    const before = model.gold;
+    assert.equal(model.saleQuote(cell, 'intermission'), 50);
+    assert.equal(model.sell(cell, 'intermission'), true);
+    assert.equal(model.gold, before + 50);
+    assert.equal(model.saleQuote(cell, 'intermission'), null);
 });
 
 test('第一波同时要求两座塔和至少 2 格路径增量', () => {
@@ -869,7 +914,7 @@ test('塔种价格绑定在预览事务中，出售按各自造价全额返还',
     assert.equal(model.commit(model.preview(frostCell, [], 'frost-coil'), []).accepted, true);
     assert.equal(model.gold, 30);
     assert.deepEqual(model.deployments.map(({ towerId }) => towerId), ['rivet-gun', 'frost-coil']);
-    assert.equal(model.sell(frostCell, true), true);
+    assert.equal(model.sell(frostCell, 'opening'), true);
     assert.equal(model.gold, 70);
 });
 
@@ -882,15 +927,15 @@ test('升级扣费原子化，满级与金币不足不改变等级，准备态�
     assert.equal(model.upgrade(cell).reason, 'insufficient-gold');
     assert.equal(model.deployments[0].level, 1);
     assert.equal(model.gold, 20);
-    model.sell(cell, true);
+    model.sell(cell, 'opening');
     assert.equal(model.gold, 50);
     const funded = new PlacementModel(PHASE_A_GRIDS['grid-9x13'], 60, PHASE_B_TOWERS);
     assert.equal(funded.commit(funded.preview(cell, [], 'rivet-gun'), []).accepted, true);
     assert.deepEqual(funded.upgrade(cell), { accepted: true, level: 2, gold: 6 });
     assert.equal(funded.mapVersion, version);
     assert.equal(funded.upgrade(cell).reason, 'insufficient-gold');
-    assert.equal(funded.sell(cell, false), false);
-    assert.equal(funded.sell(cell, true), true);
+    assert.equal(funded.sell(cell, 'locked'), false);
+    assert.equal(funded.sell(cell, 'opening'), true);
     assert.equal(funded.gold, 60);
     assert.equal(nextUpgradeCost(RIVET_GUN, 2), 42);
     assert.equal(nextUpgradeCost(RIVET_GUN, 3), null);
@@ -914,7 +959,7 @@ test('三级塔升级、满级与检查点恢复使用同一累计投入', () =>
         const restored = BattleRunCheckpoint.capture(model).restore().model;
         assert.deepEqual(restored.deployments, model.deployments);
         assert.equal(restored.gold, 7);
-        assert.equal(restored.sell(cell, true), true);
+        assert.equal(restored.sell(cell, 'opening'), true);
         assert.equal(restored.gold, towerInvestment(tower, 3) + 7);
     }
 });

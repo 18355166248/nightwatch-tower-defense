@@ -103,7 +103,7 @@ export class FirstLevelExperienceView {
             }
         } else if (snapshot.step === 'upgrade') {
             if (snapshot.suggestedCell) this.outlineCell(snapshot.suggestedCell, grid);
-            this.outline(PHASE_B_UPGRADE_BUTTON);
+            this.outline(this.layout.safeRect(PHASE_B_UPGRADE_BUTTON));
         } else if (snapshot.step === 'ready') {
             this.outline(this.layout.safeRect({ left: 100, right: 440, bottom: -600, top: -515 }));
         }

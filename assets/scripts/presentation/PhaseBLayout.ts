@@ -34,7 +34,9 @@ export function phaseBPauseButtons(screen: PauseScreen): readonly PhaseBRect[] {
         : screen === 'settings' ? PHASE_B_PAUSE_SETTINGS_BUTTONS : PHASE_B_PAUSE_CONFIRM_BUTTONS;
 }
 export const PHASE_B_SOUND_BUTTON = { left: 310, right: 480, bottom: 790, top: 900 } as const;
-export const PHASE_B_UPGRADE_BUTTON = { left: -350, right: 350, bottom: -710, top: -625 } as const;
+export const PHASE_B_UPGRADE_BUTTON = { left: -350, right: -10, bottom: -710, top: -625 } as const;
+export const PHASE_B_SELL_BUTTON = { left: 10, right: 350, bottom: -710, top: -625 } as const;
+export const PHASE_B_UPGRADE_FULL_BUTTON = { left: -350, right: 350, bottom: -710, top: -625 } as const;
 export const PHASE_B_GRID_TABS: readonly { id: GridId; label: string; left: number; right: number }[] = [
     { id: 'grid-9x13', label: '9×13', left: -430, right: -155 },
     { id: 'grid-10x14', label: '10×14', left: -135, right: 135 },

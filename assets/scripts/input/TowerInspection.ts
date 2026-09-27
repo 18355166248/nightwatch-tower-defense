@@ -1,8 +1,8 @@
 import { sameCell, type GridCell } from '../core/GridTypes';
 
-export type TowerInspectionAction = 'inspect' | 'sell' | 'dismiss';
+export type TowerInspectionAction = 'inspect' | 'dismiss';
 
-/** 已建塔的查看与二次确认独立于布塔预览，避免一次误触直接撤销。 */
+/** 点塔只切换查看，出售必须走明确按钮，避免连续点塔时误删关键路线。 */
 export class TowerInspection {
     private current: GridCell | null = null;
 
@@ -10,13 +10,13 @@ export class TowerInspection {
         return this.current;
     }
 
-    public tap(cell: GridCell, canSell: boolean): TowerInspectionAction {
+    public tap(cell: GridCell): TowerInspectionAction {
         if (!this.current || !sameCell(this.current, cell)) {
             this.current = { ...cell };
             return 'inspect';
         }
         this.current = null;
-        return canSell ? 'sell' : 'dismiss';
+        return 'dismiss';
     }
 
     public clear(): void {
