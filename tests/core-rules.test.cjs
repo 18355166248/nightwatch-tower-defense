@@ -199,14 +199,22 @@ test('首关入场卡独立于战斗，教学随真实布塔状态推进且可�
     assert.deepEqual(flow.snapshot({ ...context, towerCount: 1, occupiedCells: new Set(['3,2']) }).suggestedCell, { column: 2, row: 2 });
     assert.equal(flow.snapshot({ ...context, towerCount: 1, inputMode: 'armed' }).step, 'place');
     assert.equal(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2 }).step, 'shape');
-    assert.equal(flow.snapshot({ ...context, towerCount: 4, pathDelta: 2 }).step, 'route');
+    assert.equal(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2 }).canStartFirstWave, true);
+    assert.match(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2 }).guidanceText, /可提前开波.*两塔火力薄弱.*点 ▶ 挑战/s);
+    assert.match(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2, previewAccepted: true }).guidanceText, /可提前开波/);
+    assert.equal(flow.snapshot({ ...context, towerCount: 4, pathDelta: 2 }).step, 'ready');
+    assert.match(flow.snapshot({ ...context, towerCount: 4, pathDelta: 2 }).guidanceText, /绕路仅 \+2 格.*推荐 \+4 格更稳/s);
+    assert.equal(flow.snapshot({ ...context, towerCount: 4, pathDelta: 0 }).step, 'route');
+    assert.match(flow.snapshot({ ...context, towerCount: 4, pathDelta: 0 }).guidanceText, /开波路线还差 2 格/);
     assert.equal(flow.snapshot({ ...context, towerCount: 4, pathDelta: 4 }).step, 'ready');
     assert.match(flow.snapshot({ ...context, towerCount: 4, pathDelta: 4 }).guidanceText, /绕路 \+4 格\n点 ▶/);
-    const misplaced = flow.snapshot({ ...context, towerCount: 4, pathDelta: 2,
-        occupiedCells: new Set(['0,0', '2,2', '3,2', '4,2']) });
-    assert.deepEqual(misplaced.suggestedCell, { column: 0, row: 0 });
+    const misplaced = flow.snapshot({ ...context, towerCount: 4, pathDelta: 0,
+        occupiedCells: new Set(['8,4', '2,2', '3,2', '4,2']) });
+    assert.deepEqual(misplaced.suggestedCell, { column: 8, row: 4 });
     assert.match(misplaced.guidanceText, /点高亮塔，再点下方撤销/);
     assert.equal(flow.snapshot({ ...context, towerCount: 3, gold: 10 }).step, 'route');
+    assert.equal(flow.snapshot({ ...context, towerCount: 3, pathDelta: 2, gold: 10 }).step, 'ready');
+    assert.match(flow.snapshot({ ...context, towerCount: 3, pathDelta: 2, gold: 10 }).guidanceText, /防线未补齐/);
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'countdown', wave: 1, gold: 54 }).step, 'reinforce');
     const upgradeCoach = { ...context, preparing: false, phase: 'paused', wave: 1, gold: 54,
         guidedIntermissionHeld: true, occupiedCells: new Set(['3,2']), towerLevelsByCell: new Map([['3,2', 1]]) };

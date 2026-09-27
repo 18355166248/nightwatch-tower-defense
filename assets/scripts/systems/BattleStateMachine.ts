@@ -11,6 +11,10 @@ export function towerSaleWindow(preparing: boolean, phase: BattlePhase, guidedIn
 
 export type StartRejectReason = 'needs-two-towers' | 'needs-path-delta' | 'wrong-phase';
 
+/** 开波硬门槛与教学推荐构筑分开；UI 应读取这两个值，不能把推荐四塔当作规则。 */
+export const FIRST_WAVE_MIN_TOWER_COUNT = 2;
+export const FIRST_WAVE_MIN_PATH_DELTA = 2;
+
 export interface BattleSnapshot {
     readonly phase: BattlePhase;
     readonly wave: number;
@@ -52,8 +56,8 @@ export class BattleStateMachine {
 
     public startFirstWave(towerCount: number, pathDelta: number): StartResult {
         if (this.currentPhase !== 'preparing' || this.currentWave !== 0) return { accepted: false, reason: 'wrong-phase' };
-        if (towerCount < 2) return { accepted: false, reason: 'needs-two-towers' };
-        if (pathDelta < 2) return { accepted: false, reason: 'needs-path-delta' };
+        if (towerCount < FIRST_WAVE_MIN_TOWER_COUNT) return { accepted: false, reason: 'needs-two-towers' };
+        if (pathDelta < FIRST_WAVE_MIN_PATH_DELTA) return { accepted: false, reason: 'needs-path-delta' };
         this.currentWave = 1;
         this.currentPhase = 'spawning';
         return { accepted: true };

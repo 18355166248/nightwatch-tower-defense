@@ -8,7 +8,7 @@ import type { TowerId } from '../config/PhaseBCombatConfig';
 import { FROST_COIL, RIVET_GUN } from '../config/PhaseBCombatConfig';
 import type { GridCell } from '../core/GridTypes';
 import { cellKey } from '../core/GridTypes';
-import type { BattlePhase } from '../systems/BattleStateMachine';
+import { FIRST_WAVE_MIN_PATH_DELTA, FIRST_WAVE_MIN_TOWER_COUNT, type BattlePhase } from '../systems/BattleStateMachine';
 import { nextGuidedUpgrade } from './FirstLevelUpgradeCoach';
 
 export type FirstLevelEntryMode = 'home' | 'guided' | 'free';
@@ -34,6 +34,7 @@ export interface FirstLevelExperienceSnapshot {
     readonly guidanceText: string | null;
     readonly suggestedCell?: GridCell;
     readonly suggestedTowerId?: TowerId;
+    readonly canStartFirstWave?: boolean;
 }
 
 export const FIRST_LEVEL_START_BUTTON = { left: -340, right: 340, bottom: -345, top: -195 } as const;
@@ -107,14 +108,20 @@ export class FirstLevelExperience {
             }
             return { mode: this.mode, step: 'combat', guidanceText: '战斗中也能补塔改路；注意漏怪会损失核心' };
         }
+        const canStartFirstWave = context.towerCount >= FIRST_WAVE_MIN_TOWER_COUNT
+            && context.pathDelta >= FIRST_WAVE_MIN_PATH_DELTA;
         if (context.previewAccepted !== null) {
             const ordinal = Math.min(context.towerCount + 1, FIRST_LEVEL_SUGGESTED_TOWER_COUNT);
+            const guidanceText = context.previewAccepted
+                ? canStartFirstWave ? '可提前开波 · 绿色可建\n再点确认，或点 ▶ 挑战'
+                    : `推荐布防 ${ordinal}/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 绿色可建\n再点同一格确认`
+                : canStartFirstWave ? '可提前开波 · 红色不可建\n换格预览，或点 ▶ 挑战'
+                    : `推荐布防 ${ordinal}/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 红色不可建\n换一个格子`;
             return {
                 mode: this.mode,
                 step: 'place',
-                guidanceText: context.previewAccepted
-                    ? `推荐布防 ${ordinal}/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 绿色可建\n再点同一格确认`
-                    : `推荐布防 ${ordinal}/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 红色不可建\n换一个格子`,
+                guidanceText,
+                canStartFirstWave,
             };
         }
         const nextOpening = FIRST_LEVEL_OPENING.find(({ cell }) => !context.occupiedCells.has(cellKey(cell)));
@@ -127,31 +134,43 @@ export class FirstLevelExperience {
             const recommendedTower: TowerId = context.towerCount === 1 ? 'frost-coil' : 'rivet-gun';
             const cost = recommendedTower === 'frost-coil' ? FROST_COIL.cost : RIVET_GUN.cost;
             if (context.gold < cost) {
-                return { mode: this.mode, step: 'route', guidanceText: '金币不足以补齐横墙\n点已建塔，再点下方全额撤销' };
+                return canStartFirstWave
+                    ? { mode: this.mode, step: 'ready', guidanceText: '可提前开波 · 防线未补齐\n金币不足补塔，点 ▶ 挑战', canStartFirstWave }
+                    : { mode: this.mode, step: 'route', guidanceText: '金币不足以补齐横墙\n点已建塔，再点下方全额撤销' };
             }
             if (context.inputMode !== 'idle') {
-                return { mode: this.mode, step: 'place', guidanceText: `推荐布防 ${context.towerCount + 1}/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 已选炮塔\n点高亮格预览，再点确认`, suggestedCell: nextOpening?.cell };
+                return { mode: this.mode, step: 'place', guidanceText: canStartFirstWave
+                    ? '可提前开波 · 仍建议补塔\n点高亮格，或点 ▶ 挑战'
+                    : `推荐布防 ${context.towerCount + 1}/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 已选炮塔\n点高亮格预览，再点确认`,
+                    suggestedCell: nextOpening?.cell, canStartFirstWave };
             }
             return {
                 mode: this.mode,
                 step: 'shape',
-                guidanceText: context.towerCount === 1
+                guidanceText: canStartFirstWave
+                    ? `可提前开波 · ${context.towerCount === FIRST_WAVE_MIN_TOWER_COUNT ? '两塔火力薄弱' : '防线未补齐'}\n推荐补齐四塔，或点 ▶ 挑战`
+                    : context.towerCount === 1
                     ? `推荐布防 2/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 选冷凝塔\n贴着上一塔横向补塔`
                     : `推荐布防 ${context.towerCount + 1}/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 选机枪塔\n继续横向补齐墙`,
                 suggestedCell: nextOpening?.cell,
                 suggestedTowerId: recommendedTower,
+                canStartFirstWave,
             };
         }
         if (context.pathDelta < FIRST_LEVEL_SUGGESTED_PATH_DELTA) {
+            if (canStartFirstWave) {
+                return { mode: this.mode, step: 'ready', canStartFirstWave,
+                    guidanceText: `可提前开波 · 绕路仅 +${context.pathDelta} 格\n推荐 +${FIRST_LEVEL_SUGGESTED_PATH_DELTA} 格更稳，或点 ▶` };
+            }
             const openingCells = new Set(FIRST_LEVEL_OPENING.map(({ cell }) => cellKey(cell)));
             const misplacedKey = Array.from(context.occupiedCells).sort().find((key) => !openingCells.has(key));
             const misplacedCell = misplacedKey ? this.cellFromKey(misplacedKey) : undefined;
             // 偏位塔可在准备态全额撤销；只给出一座确定的恢复目标，不替玩家自动改阵。
             return { mode: this.mode, step: 'route',
-                guidanceText: `路线还差 ${FIRST_LEVEL_SUGGESTED_PATH_DELTA - context.pathDelta} 格\n${misplacedCell ? '点高亮塔，再点下方撤销并重建' : '点已建塔，再点下方撤销换位'}`,
+                guidanceText: `开波路线还差 ${FIRST_WAVE_MIN_PATH_DELTA - context.pathDelta} 格\n${misplacedCell ? '点高亮塔，再点下方撤销并重建' : '点已建塔，再点下方撤销换位'}`,
                 suggestedCell: misplacedCell };
         }
-        return { mode: this.mode, step: 'ready', guidanceText: `推荐布防 ${FIRST_LEVEL_SUGGESTED_TOWER_COUNT}/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 绕路 +${context.pathDelta} 格\n点 ▶ 开始第一波` };
+        return { mode: this.mode, step: 'ready', canStartFirstWave, guidanceText: `推荐布防 ${FIRST_LEVEL_SUGGESTED_TOWER_COUNT}/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 绕路 +${context.pathDelta} 格\n点 ▶ 开始第一波` };
     }
 
     private cellFromKey(key: string): GridCell {

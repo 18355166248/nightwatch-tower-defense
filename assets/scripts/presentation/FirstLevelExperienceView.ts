@@ -10,6 +10,7 @@ import {
     PHASE_B_DESIGN_HEIGHT,
     PHASE_B_DESIGN_WIDTH,
     PHASE_B_FROST_BUTTON,
+    PHASE_B_PLAY_BUTTON,
     PHASE_B_RIVET_BUTTON,
     PHASE_B_UPGRADE_BUTTON,
     type PhaseBRect,
@@ -41,7 +42,7 @@ export class FirstLevelExperienceView {
     }
 
     public render(snapshot: FirstLevelExperienceSnapshot, grid: GridDefinition, resultVisible: boolean, previewCell: GridCell | null): void {
-        const signature = `${this.layout.safeHalfWidth}|${snapshot.mode}|${snapshot.step}|${snapshot.suggestedTowerId ?? ''}|${snapshot.suggestedCell?.column ?? ''},${snapshot.suggestedCell?.row ?? ''}|${grid.id}|${resultVisible}|${previewCell?.column ?? ''},${previewCell?.row ?? ''}`;
+        const signature = `${this.layout.safeHalfWidth}|${snapshot.mode}|${snapshot.step}|${snapshot.canStartFirstWave ?? false}|${snapshot.suggestedTowerId ?? ''}|${snapshot.suggestedCell?.column ?? ''},${snapshot.suggestedCell?.row ?? ''}|${grid.id}|${resultVisible}|${previewCell?.column ?? ''},${previewCell?.row ?? ''}`;
         if (signature === this.signature) return;
         this.signature = signature;
         this.graphics.clear();
@@ -105,8 +106,10 @@ export class FirstLevelExperienceView {
             if (snapshot.suggestedCell) this.outlineCell(snapshot.suggestedCell, grid);
             this.outline(this.layout.safeRect(PHASE_B_UPGRADE_BUTTON));
         } else if (snapshot.step === 'ready') {
-            this.outline(this.layout.safeRect({ left: 100, right: 440, bottom: -600, top: -515 }));
+            this.outline(this.layout.safeRect(PHASE_B_PLAY_BUTTON));
         }
+        // 已满足硬门槛时同时指出可开波入口，推荐塔位仍只是可选的更稳构筑。
+        if (snapshot.step === 'shape' && snapshot.canStartFirstWave) this.outline(this.layout.safeRect(PHASE_B_PLAY_BUTTON));
     }
 
     private outlineCell(cell: GridCell, grid: GridDefinition): void {

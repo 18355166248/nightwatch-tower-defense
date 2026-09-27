@@ -63,7 +63,7 @@ import {
 } from '../presentation/PhaseBLayout';
 import { BattleRunCheckpoint } from '../systems/BattleRunCheckpoint';
 import { BattleRunClock } from '../systems/BattleRunClock';
-import { BattleStateMachine, towerSaleWindow } from '../systems/BattleStateMachine';
+import { BattleStateMachine, FIRST_WAVE_MIN_PATH_DELTA, FIRST_WAVE_MIN_TOWER_COUNT, towerSaleWindow } from '../systems/BattleStateMachine';
 import { EconomyLedger } from '../systems/EconomyLedger';
 import { FirstLevelBestTimeStore } from '../systems/FirstLevelBestTimeStore';
 import { applyGuidedQaOpening, applyGuidedQaPurchases, canApplyGuidedQaPurchases, shouldHoldQaIntermission } from '../systems/GuidedQaPlacement';
@@ -493,8 +493,8 @@ export class NightwatchPocBootstrap extends Component {
         const start = this.battle.startFirstWave(this.model.towers.size, pathDelta);
         if (!start.accepted) {
             this.statusText = start.reason === 'needs-two-towers'
-                ? '第一波门禁：至少建造 2 座炮塔'
-                : '第一波门禁：路径至少增加 2 格';
+                ? `第一波门禁：至少建造 ${FIRST_WAVE_MIN_TOWER_COUNT} 座炮塔`
+                : `第一波门禁：路径至少增加 ${FIRST_WAVE_MIN_PATH_DELTA} 格`;
             this.playSound('reject');
             return;
         }
@@ -773,6 +773,8 @@ export class NightwatchPocBootstrap extends Component {
 
     private startCurrentWave(): void {
         // 自动倒计时和玩家提前开波都汇入这里，避免生成器出现两套初始化顺序。
+        // 未提交的预览不能跨入战斗：否则画面显示候选路线，敌人却沿已提交流场行动。
+        this.cancelInput('开波时已取消未提交的布塔');
         this.towerInspection.clear();
         const wave = this.waves.get(this.battle.snapshot.wave);
         this.combat.start(wave);
@@ -989,6 +991,12 @@ export class NightwatchPocBootstrap extends Component {
         const inspectedSaleRefund = inspectedCell ? this.model.saleQuote(inspectedCell, saleWindow) : null;
         const saleAccessibleText = inspectedSaleRefund === null ? ''
             : `已选塔可${saleWindow === 'opening' ? '全额撤销' : '波间出售'}返还${inspectedSaleRefund}金币，`;
+        // 第一波使用布防门槛，波间才使用提前开波状态；避免读屏把可开的第一波误报为未激活。
+        const waveStartAccessibleText = this.preparing
+            ? this.model.towers.size >= FIRST_WAVE_MIN_TOWER_COUNT && this.currentPathDelta() >= FIRST_WAVE_MIN_PATH_DELTA
+                ? '第一波可开'
+                : '第一波待布防'
+            : this.battle.snapshot.phase === 'countdown' ? '可提前开波' : '提前开波未激活';
         this.browserDiagnostics.publish({
             entryMode: this.experience.entryMode,
             gridId: this.selectedGridId,
@@ -1048,7 +1056,7 @@ export class NightwatchPocBootstrap extends Component {
                 ? this.pauseOverlay.hasReason('orientation')
                     ? `夜城防线横屏安全暂停，请转回竖屏，再点继续战斗。第${this.battle.snapshot.wave}波，核心${this.battle.snapshot.coreHealth}`
                     : `夜城防线暂停，${this.pauseOverlay.snapshot.screen === 'menu' ? '继续战斗，回到战前布防，战斗设置，返回首页' : this.pauseOverlay.snapshot.screen === 'settings' ? '音效与速度设置，返回暂停' : '请确认或取消'}，第${this.battle.snapshot.wave}波，核心${this.battle.snapshot.coreHealth}`
-                : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，机枪${rivetTowerCount}座，冷凝${frostTowerCount}座，减速中${slowedEnemyCount}名，${this.inputMode === 'idle' ? '未拿起炮塔' : `已拿起${this.selectedTowerLabel()}`}，速度${this.simulationClock.scale}倍，${this.battle.snapshot.phase === 'countdown' ? '可提前开波' : '提前开波未激活'}，${saleAccessibleText}${upcomingWave ? `下一波第${upcomingWave.wave}波，${upcomingWave.accessibleLineup}，${upcomingWave.tactic}，` : ''}${guidanceText ? `${guidanceText}，` : ''}${this.statusText}`,
+                : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，机枪${rivetTowerCount}座，冷凝${frostTowerCount}座，减速中${slowedEnemyCount}名，${this.inputMode === 'idle' ? '未拿起炮塔' : `已拿起${this.selectedTowerLabel()}`}，速度${this.simulationClock.scale}倍，${waveStartAccessibleText}，${saleAccessibleText}${upcomingWave ? `下一波第${upcomingWave.wave}波，${upcomingWave.accessibleLineup}，${upcomingWave.tactic}，` : ''}${guidanceText ? `${guidanceText}，` : ''}${this.statusText}`,
         );
     }
 
