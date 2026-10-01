@@ -1,0 +1,672 @@
+assets/scripts/presentation/FirstLevelSettingsPresentation.ts
+  s_57db2c01e7cdde::t_ae5f4495affede 1-49
+assets/scripts/presentation/FirstLevelResultView.ts
+  s_57db2c01e7cdde::t_64851cae5b6de0 71,76,85,87,120,123
+  s_57db2c01e7cdde::t_3777d9f7210e53 48-49,83
+  s_57db2c01e7cdde::t_ece5b3dfdf6391 72,81,90,105
+  s_57db2c01e7cdde::t_950e5a56297914 2-43,46-47,50-70,73-75,77-80,82,84,86,88-89,91-104,106-119,121,124-130
+  s_57db2c01e7cdde::t_8f8156096dcbaa 1,44-45,122
+assets/scripts/systems/FirstLevelSettingsStore.ts
+  s_57db2c01e7cdde::t_ae5f4495affede 1-116
+tests/responsive-entry-layout.test.cjs
+  s_57db2c01e7cdde::t_feb3bc0e96d533 31
+  s_57db2c01e7cdde::t_d70449441f96c7 62,67-70
+  s_57db2c01e7cdde::t_3c177c4c090186 36,39,41-45,47
+  s_57db2c01e7cdde::t_b714a9e3229242 1-30,32-35,37-38,40,46,48-61,63-66,71-90
+docs/design/first-level-quality-v2/review.js
+  s_57db2c01e7cdde::t_37f9076a7dd8cf 1,4,51,69
+  s_57db2c01e7cdde::t_fc99bf21cf28d7 3,36-46,55-60,66-68,70-74,76-82
+  s_57db2c01e7cdde::t_916f8188263a48 47-48,50,52-54,61-65
+  s_57db2c01e7cdde::t_44bec821884c63 10-11
+  s_57db2c01e7cdde::t_f4d8e113ca03ae 2,5-9,12-35,49,75
+assets/scripts/presentation/FirstLevelExperienceView.ts
+  s_57db2c01e7cdde::t_7c25337d6390dc 18-19,35-38,48-50,59-63,71,76-77,82,87,89,113-117,122-123,126,132,134,142,146-147,149-154,160-161,163,165-166,168,177-179,181-186
+  s_57db2c01e7cdde::t_a3053bec9c8fe7 108-109,190
+  s_57db2c01e7cdde::t_feb3bc0e96d533 129-131,133,148,155-159,162,164,167,169-170,174
+  s_57db2c01e7cdde::t_3c177c4c090186 171-172
+  s_57db2c01e7cdde::t_cab77309fc215a 176
+  s_57db2c01e7cdde::t_576d65bd539e6e 4,12,20-34,39,45-46,58,64-68,74-75,78,85-86,88,90-91,93-95,97-98,101-107,110-112,120,125,135-141,143-145,173,175,180,189,197,209-211,213,216,243-245,250-252,257
+  s_57db2c01e7cdde::t_d359197eb00a45 118-119
+assets/scripts/presentation/PhaseBLayout.ts
+  s_57db2c01e7cdde::t_e5b1bc88bf87a3 38-40,44
+  s_57db2c01e7cdde::t_950e5a56297914 13-14,132,158-161,172
+  s_57db2c01e7cdde::t_479c2b07630a10 16-18,41-43,136
+  s_57db2c01e7cdde::t_5fbafe2cce166a 19,140
+  s_57db2c01e7cdde::t_43bc7d20fb2807 138
+  s_57db2c01e7cdde::t_a3053bec9c8fe7 11-12,22-26,29-30,105-112,122-127,137,139,177-179
+  s_57db2c01e7cdde::t_3df26b8dbdc4b5 128
+assets/scripts/presentation/FirstLevelResultPainter.ts
+  s_57db2c01e7cdde::t_cd6269f85d9561 1-46,48-60
+  s_57db2c01e7cdde::t_2243b3b11932ce 47
+scripts/export-page-quality-v3.cjs
+  s_57db2c01e7cdde::t_71819d84f89b2b 1-68,73-79
+  s_57db2c01e7cdde::t_4273ebfb3accaa 69-72
+docs/design/first-level-quality-v2/UiTypographyView.js
+  s_57db2c01e7cdde::t_37f9076a7dd8cf 1-24,26,28,41
+  s_57db2c01e7cdde::t_44bec821884c63 37-38
+  s_57db2c01e7cdde::t_f4d8e113ca03ae 25,27,29-36,39-40
+tsconfig.test.json
+  s_57db2c01e7cdde::t_cd6269f85d9561 25
+  s_57db2c01e7cdde::t_7c25337d6390dc 22
+  s_57db2c01e7cdde::t_479c2b07630a10 23
+  s_57db2c01e7cdde::t_950e5a56297914 21
+  s_57db2c01e7cdde::t_576d65bd539e6e 24
+  s_57db2c01e7cdde::t_6f2e666f9be813 26-30,36,38-41,43,46-49
+scripts/serve-design-review.cjs
+  s_57db2c01e7cdde::t_1961dac3b30edd 10
+assets/scripts/presentation/FirstLevelEntryLayout.ts
+  s_57db2c01e7cdde::t_0c24301ecf9ae9 1,14-15,28,30
+  s_57db2c01e7cdde::t_d70449441f96c7 2,4,6
+  s_57db2c01e7cdde::t_feb3bc0e96d533 19,23,25,29,31
+  s_57db2c01e7cdde::t_a3053bec9c8fe7 3,5,7-13,16-18,20-22,24,26-27,32-34
+scripts/export-home-quality-v3.cjs
+  s_57db2c01e7cdde::t_0c24301ecf9ae9 1-21
+scripts/compare-result-quality-v3.cjs
+  s_57db2c01e7cdde::t_38f7c9a8c56cfb 1-15
+art-source/design/first-level-quality-v3/PROVENANCE.md
+  s_57db2c01e7cdde::t_abbf6edb0b6612 1-36
+scripts/export-page-quality-v2.cjs
+  s_57db2c01e7cdde::t_de4e7f54425255 101-102,107
+  s_57db2c01e7cdde::t_5db1e6aacd101a 58
+  s_57db2c01e7cdde::t_68088c399c30c3 87-98
+  s_57db2c01e7cdde::t_473547a829f224 20,66-67
+  s_57db2c01e7cdde::t_90797ab2a5b854 1-19,21-28,30,32-57,59-61,63-65,68-73,75-81,83-86,99-100,103-106,108-111
+  s_57db2c01e7cdde::t_170dbf1b8a69c5 29,31,62,74,82
+docs/design/first-level-quality-v2/README.md
+  s_57db2c01e7cdde::t_44bec821884c63 70-83
+  s_57db2c01e7cdde::t_12403bbc4751b2 47
+  s_57db2c01e7cdde::t_a2c506f62ac0be 3-5
+  s_57db2c01e7cdde::t_45e91cb7ad8ed1 1-2,6-46,48-59
+  s_57db2c01e7cdde::t_e3433c8aa43de1 60-69
+docs/design/first-level-quality-v2/pages/browser-verification.json
+  s_57db2c01e7cdde::t_25610e7d5c0bda 22
+  s_57db2c01e7cdde::t_de4e7f54425255 1-21,23-25
+docs/design/first-level-quality-v2/PAGE-AUDIT.md
+  s_57db2c01e7cdde::t_170dbf1b8a69c5 1-16,18-20,24,26,28-38,40
+  s_57db2c01e7cdde::t_25610e7d5c0bda 27
+  s_57db2c01e7cdde::t_211c66b1c5a651 17,21-23,39,41,44-47
+  s_57db2c01e7cdde::t_de4e7f54425255 25,42-43
+assets/scripts/presentation/PhaseBHudView.ts
+  s_57db2c01e7cdde::t_acfca790f328ed 85,219
+  s_57db2c01e7cdde::t_16af6b2b72c608 34-35,46,56,87-89,142
+  s_57db2c01e7cdde::t_b93eaea9cba87f 21,86
+  s_57db2c01e7cdde::t_8c797602aefe18 16,55,134,139-141
+  s_57db2c01e7cdde::t_6f2e666f9be813 12,14-15,17-19,22,26,54,63,65,67,69-74,80-81,84,98,100,102,104-123,130-133,138,145,159,161,163,165,167-170,172-177,183-184,189-192,194,200,202-203,205-207,214-218,220-224,228,239,241,243-255,257-260,262-268,275-278,284,288-301,334-336,351-353
+tests/art/ui-review-states.test.cjs
+  s_57db2c01e7cdde::t_2f0ff26e6116ef 1-21,23-24
+  s_57db2c01e7cdde::t_6f2e666f9be813 22
+art-source/design/first-level-quality-v2/generation-prompts.txt
+  s_57db2c01e7cdde::t_7654794b465897 1-10
+docs/design/first-level-quality-v2/index.html
+  s_57db2c01e7cdde::t_fc99bf21cf28d7 1-2,4-5,7,9-18,20-21,23,25-28,31-34,36-37
+  s_57db2c01e7cdde::t_f4d8e113ca03ae 8,19,22,24,29-30
+  s_57db2c01e7cdde::t_37f9076a7dd8cf 3
+  s_57db2c01e7cdde::t_6f1da95781c8b3 6,35
+docs/design/first-level-quality-v2/review.css
+  s_57db2c01e7cdde::t_d471bf32d9dc1c 23-24
+  s_57db2c01e7cdde::t_637e9e4eb43661 36-37
+  s_57db2c01e7cdde::t_12403bbc4751b2 22
+  s_57db2c01e7cdde::t_4251324272e135 20-21
+  s_57db2c01e7cdde::t_fc99bf21cf28d7 1-10
+  s_57db2c01e7cdde::t_44bec821884c63 38
+  s_57db2c01e7cdde::t_37f9076a7dd8cf 15-19
+  s_57db2c01e7cdde::t_f4d8e113ca03ae 25-35
+  s_57db2c01e7cdde::t_adee438d17522d 11-14
+assets/scripts/presentation/PhaseBUnitSpriteView.ts
+  s_57db2c01e7cdde::t_acfca790f328ed 8-11,13-23,36,39-42,62-67,71,77-86,90,95-99,103,125-131,150-185,187-192,194,197-204,206-208,213,220,226,228,241-243,254,256-257,259-261,266-270,275-276,278-281,284-303,306-310,313,323-333,339-341,391-420,422-426,428-434,436-442,445,451,461-462,529-536,543-544
+assets/scripts/systems/SimulationClock.ts
+  s_57db2c01e7cdde::t_ae5f4495affede 44-51
+docs/design/first-level-quality-v3/SETTINGS.md
+  s_57db2c01e7cdde::t_1a3267b3a0f1f4 1-27
+  s_57db2c01e7cdde::t_476a21b1860653 28-41
+  s_57db2c01e7cdde::t_2745d77f75157e 42-49
+tests/art/page-design.test.cjs
+  s_57db2c01e7cdde::t_d38adb93f77dbe 1-8,10-19
+  s_57db2c01e7cdde::t_68088c399c30c3 9
+assets/scripts/presentation/FirstLevelUiStyle.ts
+  s_57db2c01e7cdde::t_6f2e666f9be813 1-6
+tests/settings-presentation.test.cjs
+  s_57db2c01e7cdde::t_fee57108973dc4 1-44
+scripts/compare-home-quality-v3.cjs
+  s_57db2c01e7cdde::t_2045c08c18eef0 1-15
+tests/quality-ui.test.cjs
+  s_57db2c01e7cdde::t_12df6dee180e49 33-40
+  s_57db2c01e7cdde::t_e4d3e979597b97 7-15
+  s_57db2c01e7cdde::t_65a10e09ff6dc9 1-5,16,47-54,57-70
+  s_57db2c01e7cdde::t_d38adb93f77dbe 6,41-45
+  s_57db2c01e7cdde::t_b714a9e3229242 17-30,46
+  s_57db2c01e7cdde::t_d70449441f96c7 31-32
+  s_57db2c01e7cdde::t_495fb308236df9 55-56
+assets/scripts/presentation/FirstLevelIntroArtView.ts
+  s_57db2c01e7cdde::t_473547a829f224 28,30-31
+  s_57db2c01e7cdde::t_a3053bec9c8fe7 1-27,29,32-97
+docs/design/first-level-quality-v3/index.html
+  s_57db2c01e7cdde::t_f7a66f40955707 33
+  s_57db2c01e7cdde::t_276bea5bc25432 1-4,6-9,13-15,17-18,36-43,45-51
+  s_57db2c01e7cdde::t_798be1fc81799d 11,25-28
+  s_57db2c01e7cdde::t_4273ebfb3accaa 5,10,12,16,19-21,44
+  s_57db2c01e7cdde::t_4624b81528cfa6 22-24
+  s_57db2c01e7cdde::t_6c7656900f1b1d 29-32
+  s_57db2c01e7cdde::t_eab40cf5991f10 34-35
+assets/scripts/presentation/PhaseBPauseOverlayView.ts
+  s_57db2c01e7cdde::t_479c2b07630a10 7,38-39,48-51,61,76-77,79,82-83,87,95-96,101-103,134,138-139,150-153,157-159,161,165-170,177-181
+  s_57db2c01e7cdde::t_576d65bd539e6e 4-6,10-16,25-27,29,36-37,47,52-56,62-64,69-70,73-75,107-109,112,114-118,120-125,128,130,132,136-137,140,143,145,160,171-172,213-221,223-226,229-231,236-238,243
+  s_57db2c01e7cdde::t_e5b1bc88bf87a3 3,141-142
+  s_57db2c01e7cdde::t_3c390fb64f8287 104,106
+  s_57db2c01e7cdde::t_5fbafe2cce166a 97-100,105,155,162-164
+  s_57db2c01e7cdde::t_48c0f44988f911 199-200
+  s_57db2c01e7cdde::t_bab4f42d0695af 8,89-94,173-176,182-198,201-209,211-212,222
+  s_57db2c01e7cdde::t_a024a0566efa65 9
+assets/scripts/presentation/FirstLevelExperience.ts
+  s_57db2c01e7cdde::t_feb3bc0e96d533 41-43
+  s_57db2c01e7cdde::t_a3053bec9c8fe7 10,13,46-49,94-95,102-103,110,120-121,123,125,127,136-145,148-149,152-154,156,159-160,164-165,168-173,178-179,188,196
+  s_57db2c01e7cdde::t_d70449441f96c7 44
+  s_57db2c01e7cdde::t_79b669e3275a92 45
+assets/scripts/presentation/FirstLevelHomeArtView.ts
+  s_57db2c01e7cdde::t_feb3bc0e96d533 45-47
+  s_57db2c01e7cdde::t_7c25337d6390dc 1-44,48-56,63-65
+  s_57db2c01e7cdde::t_cab77309fc215a 57-62
+assets/scripts/runtime/NightwatchPocBootstrap.ts
+  s_57db2c01e7cdde::t_9eef48abfbbb61 556-562
+  s_57db2c01e7cdde::t_d90088530277e2 452-459
+  s_57db2c01e7cdde::t_8c797602aefe18 485-487
+  s_57db2c01e7cdde::t_bab4f42d0695af 51,495-498,518-529,533,535-543
+  s_57db2c01e7cdde::t_16af6b2b72c608 4,17-18,22,30-31,34-36,38,52,66,78-79,85-88,92-95,104-109,114,117-118,125,132-133,138,151,158-159,168-172,182-183,188,192-195,228,235-240,282-287,289-290,307,322,327,339,355,408,433-434,438,442-443,460-467,501-505,517,530-532,534,544,549-553,563,572,575,583,625,637-658,692,701,787-789,796,809,815,867,882-883,889,903,907,938,946-970,972,984,991,996,1032-1053,1087-1089,1142,1145,1147,1150-1155,1158-1159,1165-1167,1176,1185-1186,1196,1199,1211-1212,1217-1218,1232-1233,1248-1254,1265,1267,1269-1271,1274-1286,1292-1298,1300-1303,1316-1318,1320,1325-1326,1330-1332,1334-1335,1352-1354
+  s_57db2c01e7cdde::t_0c24301ecf9ae9 292
+  s_57db2c01e7cdde::t_acfca790f328ed 428
+  s_57db2c01e7cdde::t_1b8e670eb6553f 545
+assets/scripts/presentation/FirstLevelControlPolicy.ts
+  s_57db2c01e7cdde::t_e4d3e979597b97 1-12
+assets/scripts/presentation/PhaseBCanvasRenderer.ts
+  s_57db2c01e7cdde::t_16af6b2b72c608 8,10,12-16,26,43-44,52-53,59-60,63,132-133,154,159-163,166-170,285-286,288,292,302-303,310-311,321,331,354,357-359,363-370,428,437-442
+  s_57db2c01e7cdde::t_1bef0503fb921a 443
+docs/design/first-level-quality-v3/HOME.md
+  s_57db2c01e7cdde::t_798be1fc81799d 24-49
+  s_57db2c01e7cdde::t_0d45c8066fc626 1-23,50-56
+assets/scripts/presentation/FirstLevelPanelPainter.ts
+  s_57db2c01e7cdde::t_576d65bd539e6e 1-72
+scripts/compare-settings-quality-v3.cjs
+  s_57db2c01e7cdde::t_4624b81528cfa6 1-12
+tests/art/home-v3-assets.test.cjs
+  s_57db2c01e7cdde::t_ab69c75222190d 1-22
+scripts/export-ui-quality-v2.cjs
+  s_57db2c01e7cdde::t_6f2e666f9be813 36
+  s_57db2c01e7cdde::t_42eb6c53ff9d8a 66
+  s_57db2c01e7cdde::t_37f9076a7dd8cf 31-32,39-40,64-65
+  s_57db2c01e7cdde::t_12403bbc4751b2 44-46,56-57
+  s_57db2c01e7cdde::t_c639b4e491e10c 48,53,58,61
+  s_57db2c01e7cdde::t_a9f66586956bf2 24,63
+  s_57db2c01e7cdde::t_44bec821884c63 30,54,59
+  s_57db2c01e7cdde::t_c036deaeed1dcd 1-23,25-29,41-43,47,49-51,55,60,62,67-69
+  s_57db2c01e7cdde::t_d471bf32d9dc1c 33-35,37-38
+  s_57db2c01e7cdde::t_7f882f47bc41ec 52
+docs/design/first-level-quality-v3/AUDIT.md
+  s_57db2c01e7cdde::t_276bea5bc25432 1-2,4-37,39-50
+  s_57db2c01e7cdde::t_8f4c3c89ea5034 3,38
+assets/scripts/presentation/FirstLevelUiSkinView.ts
+  s_57db2c01e7cdde::t_458ef966dfb64c 22,48,57,66,75-79,82-88,106-107,141-142,146-148
+  s_57db2c01e7cdde::t_e4d3e979597b97 6,80-81,118,128-132
+  s_57db2c01e7cdde::t_652b7e14399b8f 143-145
+  s_57db2c01e7cdde::t_7b7678be4ed8e5 2,12,39,42,52-56,58-60,108
+  s_57db2c01e7cdde::t_acfca790f328ed 7,24
+  s_57db2c01e7cdde::t_6cea7d4008c562 5
+  s_57db2c01e7cdde::t_e75c48d6d4ef6a 1,3-4,19-20,28-32,44-47,49-51,89-91,93,97-98,102-105,109-116,119-122,126,133-136,138-140,151-176,181-188
+  s_57db2c01e7cdde::t_f66254dd2e928f 124-125
+  s_57db2c01e7cdde::t_495fb308236df9 117,123,127,137
+  s_57db2c01e7cdde::t_6f2e666f9be813 8-11,13-18,21,23,25-27,33-38,40-41,43,61-65,67-74,92,94-96,99-101,149-150,177-180,189-194
+docs/design/first-level-quality-v2/UiReviewStates.js
+  s_57db2c01e7cdde::t_f4d8e113ca03ae 3-5
+  s_57db2c01e7cdde::t_c639b4e491e10c 1-2,6-7
+assets/scripts/input/PhaseBDebugInput.ts
+  s_57db2c01e7cdde::t_d90088530277e2 5-6,40-42
+scripts/export-result-quality-v3.cjs
+  s_57db2c01e7cdde::t_5716166f800069 1-10,12,14-18,22-27
+  s_57db2c01e7cdde::t_ece5b3dfdf6391 19-21
+  s_57db2c01e7cdde::t_8c797602aefe18 11,13
+docs/design/first-level-quality-v2/COCOS-INTEGRATION.md
+  s_57db2c01e7cdde::t_6cea7d4008c562 1-42
+docs/design/first-level-quality-v3/state-index.json
+  s_57db2c01e7cdde::t_798be1fc81799d 14-19,26-31
+  s_57db2c01e7cdde::t_4273ebfb3accaa 52-54,59-65
+  s_57db2c01e7cdde::t_eab40cf5991f10 7-11,13,20-25,37-42,55-58,68-79,81-95,102-110,115-147
+  s_57db2c01e7cdde::t_ca6ef5c9e3926b 1,5-6,67,80,96-101,111-114,148-149
+  s_57db2c01e7cdde::t_8f4c3c89ea5034 2-4,12,66
+  s_57db2c01e7cdde::t_476a21b1860653 32-36,43-51
+docs/design/first-level-quality-v3/GENERATION.md
+  s_57db2c01e7cdde::t_a801ee8a4ea049 1-51
+docs/design/first-level-quality-v3/RESULTS.md
+  s_57db2c01e7cdde::t_f1a8a0623a500f 1-17,39-60
+  s_57db2c01e7cdde::t_d1735915659463 18-35
+  s_57db2c01e7cdde::t_eab40cf5991f10 36-38
+assets/scripts/presentation/FirstLevelPageSkinView.ts
+  s_57db2c01e7cdde::t_8d727b97ae550c 72-74
+  s_57db2c01e7cdde::t_3c390fb64f8287 1,16,26-27,29-30,50-58
+  s_57db2c01e7cdde::t_479c2b07630a10 2-11,13-15,17-21,31-49,59-71,75-86,90-101
+  s_57db2c01e7cdde::t_5fbafe2cce166a 28
+  s_57db2c01e7cdde::t_d9c3374d67660d 88-89
+  s_57db2c01e7cdde::t_c6e162d313549e 12,22-25,87
+scripts/import-quality-ui.cjs
+  s_57db2c01e7cdde::t_6f2e666f9be813 1-17
+design-qa.md
+  s_57db2c01e7cdde::t_8facc71d83f6aa 14
+  s_57db2c01e7cdde::t_476a21b1860653 21-26
+  s_57db2c01e7cdde::t_07c8ec20dc0195 1-6,27-68
+  s_57db2c01e7cdde::t_f7a66f40955707 7,9-13
+  s_57db2c01e7cdde::t_798be1fc81799d 8,15-20
+tests/art/result-v3-assets.test.cjs
+  s_57db2c01e7cdde::t_8f8156096dcbaa 1-19
+assets/scripts/presentation/FirstLevelUiGeometry.ts
+  s_57db2c01e7cdde::t_65a10e09ff6dc9 12
+  s_57db2c01e7cdde::t_e75c48d6d4ef6a 1-4,6-10,13-15,17-18
+  s_57db2c01e7cdde::t_495fb308236df9 5,11,16
+tests/result-layout.test.cjs
+  s_57db2c01e7cdde::t_8f8156096dcbaa 1-20
+tests/art/page-v3-assets.test.cjs
+  s_57db2c01e7cdde::t_b09a107fc7907b 1-36
+scripts/compare-page-quality-v3.cjs
+  s_57db2c01e7cdde::t_3c390fb64f8287 1-15
+art-source/first-level-audio/night-city-music-review-v1-manifest.json
+  s_57db2c01e7cdde::t_5d81136ff285a5 1-17
+art-source/first-level-audio/sfx-review-v1-manifest.json
+  s_57db2c01e7cdde::t_cc9bee4347c5b2 1-146
+art-source/first-level-runtime-budget-v1/collapse-recipe.json
+  s_57db2c01e7cdde::t_eb254700984921 1-41
+art-source/first-level-runtime-budget-v1/collapse/aseprite.json
+  s_57db2c01e7cdde::t_a22096410dcfec 1-389
+art-source/first-level-runtime-budget-v1/collapse/grid.json
+  s_57db2c01e7cdde::t_6b9a734c813d29 1-20
+art-source/first-level-runtime-budget-v1/collapse/manifest.json
+  s_57db2c01e7cdde::t_42ad09f91fb67b 1-186
+art-source/first-level-runtime-budget-v1/collapse/preview.html
+  s_57db2c01e7cdde::t_7938ea82dce15a 1-51
+art-source/first-level-runtime-budget-v1/collapse/provenance.json
+  s_57db2c01e7cdde::t_a90acea8778007 1-124
+art-source/first-level-runtime-budget-v1/collapse/report.json
+  s_57db2c01e7cdde::t_dba7c0b4b013c8 1-221
+art-source/first-level-runtime-budget-v1/profile-manifest.json
+  s_57db2c01e7cdde::t_b2ff268403cd72 1-70
+art-source/first-level-runtime-budget-v1/walk-recipe.json
+  s_57db2c01e7cdde::t_72c43e05d1d8fc 1-41
+art-source/first-level-runtime-budget-v1/walk/aseprite.json
+  s_57db2c01e7cdde::t_ba1662bf2d6d28 1-389
+art-source/first-level-runtime-budget-v1/walk/grid.json
+  s_57db2c01e7cdde::t_87d6b0d06dfb24 1-20
+art-source/first-level-runtime-budget-v1/walk/manifest.json
+  s_57db2c01e7cdde::t_5af9fe0cd685b8 1-186
+art-source/first-level-runtime-budget-v1/walk/preview.html
+  s_57db2c01e7cdde::t_42b0a147a6e154 1-51
+art-source/first-level-runtime-budget-v1/walk/provenance.json
+  s_57db2c01e7cdde::t_7d8e74d4226e42 1-124
+art-source/first-level-runtime-budget-v1/walk/report.json
+  s_57db2c01e7cdde::t_30840af32aaa1f 1-221
+art-source/first-level-units/clockwork-infantry-collapse-v1/bundle/aseprite.json
+  s_57db2c01e7cdde::t_db845584714437 1-63
+art-source/first-level-units/clockwork-infantry-collapse-v1/bundle/grid.json
+  s_57db2c01e7cdde::t_a83cd8674a84f3 1-14
+art-source/first-level-units/clockwork-infantry-collapse-v1/bundle/manifest.json
+  s_57db2c01e7cdde::t_af7ab5aac180d8 1-50
+art-source/first-level-units/clockwork-infantry-collapse-v1/bundle/preview.html
+  s_57db2c01e7cdde::t_f9b807717ef0e2 1-51
+art-source/first-level-units/clockwork-infantry-collapse-v1/bundle/provenance.json
+  s_57db2c01e7cdde::t_6381b73388faaa 1-54
+art-source/first-level-units/clockwork-infantry-collapse-v1/bundle/report.json
+  s_57db2c01e7cdde::t_e855fb48841b20 1-41
+art-source/first-level-units/clockwork-infantry-down-walk-v2/bundle/aseprite.json
+  s_57db2c01e7cdde::t_c6711ad027e9b9 1-107
+art-source/first-level-units/clockwork-infantry-down-walk-v2/bundle/grid.json
+  s_57db2c01e7cdde::t_f5d686ef21bbf3 1-14
+art-source/first-level-units/clockwork-infantry-down-walk-v2/bundle/manifest.json
+  s_57db2c01e7cdde::t_f93d58a108b2e2 1-67
+art-source/first-level-units/clockwork-infantry-down-walk-v2/bundle/preview.html
+  s_57db2c01e7cdde::t_ecf66dc7fe6664 1-51
+art-source/first-level-units/clockwork-infantry-down-walk-v2/bundle/provenance.json
+  s_57db2c01e7cdde::t_aad9a6caeebaa4 1-54
+art-source/first-level-units/clockwork-infantry-down-walk-v2/bundle/report.json
+  s_57db2c01e7cdde::t_be64375511c50f 1-68
+art-source/first-level-units/clockwork-infantry-rig-collapse-v1/bundle/aseprite.json
+  s_57db2c01e7cdde::t_49ff062a8755e7 1-389
+art-source/first-level-units/clockwork-infantry-rig-collapse-v1/bundle/grid.json
+  s_57db2c01e7cdde::t_6092d1c426a47b 1-20
+art-source/first-level-units/clockwork-infantry-rig-collapse-v1/bundle/manifest.json
+  s_57db2c01e7cdde::t_e0e97f400097ac 1-186
+art-source/first-level-units/clockwork-infantry-rig-collapse-v1/bundle/preview.html
+  s_57db2c01e7cdde::t_da1b3788567dc7 1-51
+art-source/first-level-units/clockwork-infantry-rig-collapse-v1/bundle/provenance.json
+  s_57db2c01e7cdde::t_97810d75fcc5fa 1-124
+art-source/first-level-units/clockwork-infantry-rig-collapse-v1/bundle/report.json
+  s_57db2c01e7cdde::t_0bcef8d921f3fa 1-221
+art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render-source.py
+  s_57db2c01e7cdde::t_59930b8fc19d81 1-117
+art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/render-manifest.json
+  s_57db2c01e7cdde::t_e0d6024fe325d4 1-254
+art-source/first-level-units/clockwork-infantry-rig-v1/build-source.py
+  s_57db2c01e7cdde::t_cc0aa60f37fef9 1-178
+art-source/first-level-units/clockwork-infantry-rig-v1/bundle/aseprite.json
+  s_57db2c01e7cdde::t_72f321a69465e2 1-389
+art-source/first-level-units/clockwork-infantry-rig-v1/bundle/grid.json
+  s_57db2c01e7cdde::t_e1bcfd2ca46836 1-20
+art-source/first-level-units/clockwork-infantry-rig-v1/bundle/manifest.json
+  s_57db2c01e7cdde::t_3b6d95a1e34675 1-186
+art-source/first-level-units/clockwork-infantry-rig-v1/bundle/preview.html
+  s_57db2c01e7cdde::t_4796d1b1726e2b 1-51
+art-source/first-level-units/clockwork-infantry-rig-v1/bundle/provenance.json
+  s_57db2c01e7cdde::t_778a855c8263bb 1-124
+art-source/first-level-units/clockwork-infantry-rig-v1/bundle/report.json
+  s_57db2c01e7cdde::t_54fcd8bd8584f4 1-221
+art-source/first-level-units/clockwork-infantry-rig-v1/clockwork_walk_motion.py
+  s_57db2c01e7cdde::t_5f7662eefbf6b1 1-33
+art-source/first-level-units/clockwork-infantry-rig-v1/frames/render-manifest.json
+  s_57db2c01e7cdde::t_af85d5816c11cd 1-270
+art-source/first-level-units/clockwork-infantry-rig-v1/render-source.py
+  s_57db2c01e7cdde::t_d599e9224e34d6 1-88
+art-source/first-level-units/clockwork-infantry-rig-v2/build-source.py
+  s_57db2c01e7cdde::t_11f34841113693 1-194
+art-source/first-level-units/clockwork-infantry-rig-v2/bundle/aseprite.json
+  s_57db2c01e7cdde::t_dcc9ce4c93727c 1-389
+art-source/first-level-units/clockwork-infantry-rig-v2/bundle/grid.json
+  s_57db2c01e7cdde::t_8d3123fa3c55d3 1-20
+art-source/first-level-units/clockwork-infantry-rig-v2/bundle/manifest.json
+  s_57db2c01e7cdde::t_c862475c5a201e 1-186
+art-source/first-level-units/clockwork-infantry-rig-v2/bundle/preview.html
+  s_57db2c01e7cdde::t_a55fe5168eba18 1-51
+art-source/first-level-units/clockwork-infantry-rig-v2/bundle/provenance.json
+  s_57db2c01e7cdde::t_d7dfa82106b897 1-124
+art-source/first-level-units/clockwork-infantry-rig-v2/bundle/report.json
+  s_57db2c01e7cdde::t_1a5443d30009c6 1-221
+art-source/first-level-units/clockwork-infantry-rig-v2/clockwork_walk_motion.py
+  s_57db2c01e7cdde::t_d14c9572ee4166 1-33
+art-source/first-level-units/clockwork-infantry-rig-v2/frames/render-manifest.json
+  s_57db2c01e7cdde::t_341d0b6ad3af38 1-270
+art-source/first-level-units/clockwork-infantry-rig-v2/render-source.py
+  s_57db2c01e7cdde::t_26149c04d481bb 1-88
+art-source/first-level-units/iron-canister-hauler-walk-v1/bundle/aseprite.json
+  s_57db2c01e7cdde::t_93fcccf5ab0875 1-63
+art-source/first-level-units/iron-canister-hauler-walk-v1/bundle/grid.json
+  s_57db2c01e7cdde::t_079c455e4ba65d 1-14
+art-source/first-level-units/iron-canister-hauler-walk-v1/bundle/preview.html
+  s_57db2c01e7cdde::t_72e2f928b45c2b 1-51
+art-source/first-level-units/iron-canister-hauler-walk-v1/bundle/provenance.json
+  s_57db2c01e7cdde::t_6770cb17707778 1-54
+art-source/first-level-units/iron-canister-hauler-walk-v1/bundle/report.json
+  s_57db2c01e7cdde::t_1df2f60f6a40a6 1-41
+assets/resources/level-one/backdrop-budget-v1.jpg.meta
+  s_57db2c01e7cdde::t_f9174217a89dfe 1-134
+assets/resources/level-one/backdrop-plaza-budget-v1.jpg.meta
+  s_57db2c01e7cdde::t_5ffea63fb0016d 1-134
+assets/resources/level-one/backdrop-plaza-v2.jpg.meta
+  s_57db2c01e7cdde::t_9d041d48500a7e 1-134
+assets/resources/level-one/ui.meta
+  s_57db2c01e7cdde::t_a79eb47b2daf7c 1-9
+assets/resources/level-one/ui/core-heart.png.meta
+  s_57db2c01e7cdde::t_8011f62ee9804b 1-134
+assets/resources/level-one/ui/gold-coins.png.meta
+  s_57db2c01e7cdde::t_21d6b62fee7f5e 1-134
+assets/resources/level-one/ui/path-route.png.meta
+  s_57db2c01e7cdde::t_3a58f5b48158e9 1-134
+assets/resources/level-one/ui/quality-v2.meta
+  s_57db2c01e7cdde::t_7dda68df80d86c 1-9
+assets/resources/level-one/ui/quality-v2/button-frame.png.meta
+  s_57db2c01e7cdde::t_056d81b2f66a71 1-134
+assets/resources/level-one/ui/quality-v2/disabled-frame.png.meta
+  s_57db2c01e7cdde::t_a6815f414113ae 1-134
+assets/resources/level-one/ui/quality-v2/hud-frame.png.meta
+  s_57db2c01e7cdde::t_0d7c81d5bf38d3 1-134
+assets/resources/level-one/ui/quality-v2/inspect-frame.png.meta
+  s_57db2c01e7cdde::t_f238cb3ddd4d48 1-134
+assets/resources/level-one/ui/quality-v2/tray-frame.png.meta
+  s_57db2c01e7cdde::t_2bdb6b6865b5fd 1-134
+assets/resources/level-one/ui/quality-v3.meta
+  s_57db2c01e7cdde::t_f7fb428ea8987c 1-9
+assets/resources/level-one/ui/quality-v3/coins-icon.png.meta
+  s_57db2c01e7cdde::t_bd4c71314c4c6d 1-134
+assets/resources/level-one/ui/quality-v3/danger.png.meta
+  s_57db2c01e7cdde::t_1462ee0989155d 1-134
+assets/resources/level-one/ui/quality-v3/defeat-badge.png.meta
+  s_57db2c01e7cdde::t_681b3c5dc817e3 1-134
+assets/resources/level-one/ui/quality-v3/heart-icon.png.meta
+  s_57db2c01e7cdde::t_ae46220f55de62 1-134
+assets/resources/level-one/ui/quality-v3/home-hero.png.meta
+  s_57db2c01e7cdde::t_a2a9517121d365 1-134
+assets/resources/level-one/ui/quality-v3/home-icon.png.meta
+  s_57db2c01e7cdde::t_60b3d4f21d13ed 1-134
+assets/resources/level-one/ui/quality-v3/kill-icon.png.meta
+  s_57db2c01e7cdde::t_4ea3c5294540bc 1-134
+assets/resources/level-one/ui/quality-v3/leak-icon.png.meta
+  s_57db2c01e7cdde::t_1a61e12348b7e7 1-134
+assets/resources/level-one/ui/quality-v3/panel.png.meta
+  s_57db2c01e7cdde::t_1ae64fbaae9f92 1-134
+assets/resources/level-one/ui/quality-v3/pause-icon.png.meta
+  s_57db2c01e7cdde::t_284c007aef2046 1-134
+assets/resources/level-one/ui/quality-v3/play-icon.png.meta
+  s_57db2c01e7cdde::t_7178a7c8a1b988 1-134
+assets/resources/level-one/ui/quality-v3/primary.png.meta
+  s_57db2c01e7cdde::t_f59b0d0bb15733 1-134
+assets/resources/level-one/ui/quality-v3/restart-icon.png.meta
+  s_57db2c01e7cdde::t_e18ae732ee1c8a 1-134
+assets/resources/level-one/ui/quality-v3/secondary.png.meta
+  s_57db2c01e7cdde::t_4bbbb96c6bee13 1-134
+assets/resources/level-one/ui/quality-v3/settings-icon.png.meta
+  s_57db2c01e7cdde::t_43d8a2fb7c4201 1-134
+assets/resources/level-one/ui/quality-v3/time-icon.png.meta
+  s_57db2c01e7cdde::t_3dbdcd644b7a69 1-134
+assets/resources/level-one/ui/quality-v3/tower-icon.png.meta
+  s_57db2c01e7cdde::t_caff0c93cb839c 1-134
+assets/resources/level-one/ui/quality-v3/upgrade-icon.png.meta
+  s_57db2c01e7cdde::t_01ae8db2ec6b56 1-134
+assets/resources/level-one/ui/quality-v3/victory-badge.png.meta
+  s_57db2c01e7cdde::t_2e255baf7b181b 1-134
+assets/resources/level-one/ui/wave-beacon.png.meta
+  s_57db2c01e7cdde::t_1bb99b33f8dc93 1-134
+assets/resources/level-one/units/clockwork-infantry-collapse-rig-budget-v1-layout.json
+  s_57db2c01e7cdde::t_ca24388520229a 1-186
+assets/resources/level-one/units/clockwork-infantry-collapse-rig-budget-v1-layout.json.meta
+  s_57db2c01e7cdde::t_6ace6f03167440 1-11
+assets/resources/level-one/units/clockwork-infantry-collapse-rig-budget-v1.png.meta
+  s_57db2c01e7cdde::t_da940de16668a1 1-42
+assets/resources/level-one/units/clockwork-infantry-collapse-rig-v1-layout.json
+  s_57db2c01e7cdde::t_8ce3597d278df8 1-186
+assets/resources/level-one/units/clockwork-infantry-collapse-rig-v1-layout.json.meta
+  s_57db2c01e7cdde::t_17bb09a73d2d20 1-11
+assets/resources/level-one/units/clockwork-infantry-collapse-rig-v1.png.meta
+  s_57db2c01e7cdde::t_d4ed12d997d7b3 1-42
+assets/resources/level-one/units/clockwork-infantry-collapse-v1.png.meta
+  s_57db2c01e7cdde::t_2020c496ad2d80 1-134
+assets/resources/level-one/units/clockwork-infantry-walk-rig-budget-v1-layout.json
+  s_57db2c01e7cdde::t_f9632cee9aa2f3 1-186
+assets/resources/level-one/units/clockwork-infantry-walk-rig-budget-v1-layout.json.meta
+  s_57db2c01e7cdde::t_9ff8d69d0c9ac6 1-11
+assets/resources/level-one/units/clockwork-infantry-walk-rig-budget-v1.png.meta
+  s_57db2c01e7cdde::t_66031ffa725429 1-42
+assets/resources/level-one/units/clockwork-infantry-walk-rig-v2-layout.json
+  s_57db2c01e7cdde::t_4bf320ff666234 1-186
+assets/resources/level-one/units/clockwork-infantry-walk-rig-v2-layout.json.meta
+  s_57db2c01e7cdde::t_b617df2fccd047 1-11
+assets/resources/level-one/units/clockwork-infantry-walk-rig-v2.png.meta
+  s_57db2c01e7cdde::t_327c95f01f627f 1-42
+assets/resources/level-one/units/iron-canister-hauler-step-b-v1.png.meta
+  s_57db2c01e7cdde::t_6914eececf2806 1-134
+assets/scripts/audio/AudioVoiceBudget.ts.meta
+  s_57db2c01e7cdde::t_65e7926ed80791 1-9
+assets/scripts/audio/BrowserLayeredMusic.ts.meta
+  s_57db2c01e7cdde::t_af9ae24500dec2 1-9
+assets/scripts/audio/FirstLevelCombatSound.ts.meta
+  s_57db2c01e7cdde::t_ba60f24500a297 1-9
+assets/scripts/audio/FirstLevelMusicPolicy.ts.meta
+  s_57db2c01e7cdde::t_85625787405ccf 1-9
+assets/scripts/audio/FirstLevelMusicScore.ts.meta
+  s_57db2c01e7cdde::t_9e4dc554f399e6 1-9
+assets/scripts/audio/FirstLevelSoundRecipes.ts.meta
+  s_57db2c01e7cdde::t_9bb9a653102a95 1-9
+assets/scripts/presentation/CombatFeedbackView.ts.meta
+  s_57db2c01e7cdde::t_f48c1d595975af 1-9
+assets/scripts/presentation/CombatForegroundView.ts.meta
+  s_57db2c01e7cdde::t_548ba9cde4089f 1-9
+assets/scripts/presentation/CoreObjectiveArtView.ts.meta
+  s_57db2c01e7cdde::t_33915cce5a167c 1-9
+assets/scripts/presentation/CoreObjectiveReaction.ts.meta
+  s_57db2c01e7cdde::t_6145dfd490199f 1-9
+assets/scripts/presentation/DirectionalCollapse.ts.meta
+  s_57db2c01e7cdde::t_f735e9aebf9551 1-9
+assets/scripts/presentation/DirectionalSpriteAtlas.ts.meta
+  s_57db2c01e7cdde::t_cfd149e666794d 1-9
+assets/scripts/presentation/DirectionalSpriteLayout.ts.meta
+  s_57db2c01e7cdde::t_5d323060315074 1-9
+assets/scripts/presentation/DirectionalWalk.ts.meta
+  s_57db2c01e7cdde::t_9aa92ca20f0ec8 1-9
+assets/scripts/presentation/DynamicRoadView.ts.meta
+  s_57db2c01e7cdde::t_5a326785cdd1b9 1-9
+assets/scripts/presentation/EnemyArrivalPresentation.ts.meta
+  s_57db2c01e7cdde::t_74bb121bb53484 1-9
+assets/scripts/presentation/EnemyEntryArtView.ts.meta
+  s_57db2c01e7cdde::t_5c56de2628eca0 1-9
+assets/scripts/presentation/EnemyGroundingView.ts.meta
+  s_57db2c01e7cdde::t_f504d281b08f6d 1-9
+assets/scripts/presentation/EnemyHealthBarLayout.ts.meta
+  s_57db2c01e7cdde::t_8221f81fbfd929 1-9
+assets/scripts/presentation/EnemyHealthBarView.ts
+  s_1c2f12735d7b4e::t_17cdf48f6fa957 1-23
+assets/scripts/presentation/EnemyHealthBarView.ts.meta
+  s_57db2c01e7cdde::t_96d1c0407e7770 1-9
+assets/scripts/presentation/EnemyHealthIndicator.ts.meta
+  s_57db2c01e7cdde::t_a22641b8128949 1-9
+assets/scripts/presentation/FirstLevelHomeArtView.ts.meta
+  s_57db2c01e7cdde::t_8e29d878f05714 1-9
+assets/scripts/presentation/FirstLevelPageSkinView.ts.meta
+  s_57db2c01e7cdde::t_9a3d455d3bf642 1-9
+assets/scripts/presentation/FirstLevelResultView.ts.meta
+  s_57db2c01e7cdde::t_70c6916bb89bb2 1-9
+assets/scripts/presentation/FirstLevelSettingsPresentation.ts.meta
+  s_57db2c01e7cdde::t_9c8d787468c05b 1-9
+assets/scripts/presentation/FirstLevelUiGeometry.ts.meta
+  s_57db2c01e7cdde::t_9790aa9d2aae1d 1-9
+assets/scripts/presentation/FirstLevelUiSkinView.ts.meta
+  s_57db2c01e7cdde::t_e1adffb4eac21c 1-9
+assets/scripts/presentation/FirstLevelUiStyle.ts.meta
+  s_57db2c01e7cdde::t_698c7f62cdcb0f 1-9
+assets/scripts/presentation/LayeredTowerGeometry.ts.meta
+  s_57db2c01e7cdde::t_d0b845d2e6cc0f 1-9
+assets/scripts/presentation/RoadSurfaceGeometry.ts.meta
+  s_57db2c01e7cdde::t_fec143424a75cc 1-9
+assets/scripts/presentation/ShotTraceGeometry.ts.meta
+  s_57db2c01e7cdde::t_a2d3a55dbdb426 1-9
+assets/scripts/presentation/TowerAimVisual.ts.meta
+  s_57db2c01e7cdde::t_a41d00a11ee70e 1-9
+assets/scripts/presentation/UnitDisplaySize.ts.meta
+  s_57db2c01e7cdde::t_e55ce58004f70f 1-9
+assets/scripts/presentation/UnitSpriteRegistration.ts.meta
+  s_57db2c01e7cdde::t_44940289a383c7 1-9
+assets/scripts/systems/FirstLevelBestHealthStore.ts.meta
+  s_57db2c01e7cdde::t_796964f35096bc 1-9
+assets/scripts/systems/FirstLevelRecordStorage.ts.meta
+  s_57db2c01e7cdde::t_37a4467385df29 1-9
+assets/scripts/systems/FirstLevelSettingsStore.ts.meta
+  s_57db2c01e7cdde::t_e20cf5f9218e8c 1-9
+docs/design/first-level-quality-v2/design-target.svg
+  s_57db2c01e7cdde::t_3bd794ef0acd3f 1
+docs/design/first-level-quality-v2/pages/confirm-home.svg
+  s_57db2c01e7cdde::t_0a03714f142b5f 1
+docs/design/first-level-quality-v2/pages/confirm-restart.svg
+  s_57db2c01e7cdde::t_e57158931719c4 1
+docs/design/first-level-quality-v2/pages/defeat.svg
+  s_57db2c01e7cdde::t_3dd13a87cc62d1 1
+docs/design/first-level-quality-v2/pages/home-settings.svg
+  s_57db2c01e7cdde::t_3749806a344314 1
+docs/design/first-level-quality-v2/pages/home.svg
+  s_57db2c01e7cdde::t_c5603e1dc0ae69 1
+docs/design/first-level-quality-v2/pages/index.html
+  s_57db2c01e7cdde::t_9fd3495f4fcc92 1
+docs/design/first-level-quality-v2/pages/intermission.svg
+  s_57db2c01e7cdde::t_15bef909f5ee4f 1
+docs/design/first-level-quality-v2/pages/lifecycle.svg
+  s_57db2c01e7cdde::t_7059294f8df982 1
+docs/design/first-level-quality-v2/pages/normal-wave-one-final.json
+  s_57db2c01e7cdde::t_0773be48803c4a 1-35
+docs/design/first-level-quality-v2/pages/orientation.svg
+  s_57db2c01e7cdde::t_8c396e4e0919ad 1
+docs/design/first-level-quality-v2/pages/pause.svg
+  s_57db2c01e7cdde::t_da0a1074232c12 1
+docs/design/first-level-quality-v2/pages/route-error.svg
+  s_57db2c01e7cdde::t_70c7e5630c2b4d 1
+docs/design/first-level-quality-v2/pages/settings.svg
+  s_57db2c01e7cdde::t_a45eb9c3ff30d2 1
+docs/design/first-level-quality-v2/pages/state-index.json
+  s_57db2c01e7cdde::t_96116d611817ea 1-148
+docs/design/first-level-quality-v2/pages/victory.svg
+  s_57db2c01e7cdde::t_c8566c8caff718 1
+docs/design/first-level-quality-v2/slice-manifest.json
+  s_57db2c01e7cdde::t_cfca0e47550884 1-65
+docs/design/first-level-quality-v2/typography.json
+  s_57db2c01e7cdde::t_5ac96a96d44e43 1-288
+docs/design/first-level-quality-v3/home-slice-manifest.json
+  s_57db2c01e7cdde::t_2215f8f4d1f821 1-23
+docs/design/first-level-quality-v3/result-slice-manifest.json
+  s_57db2c01e7cdde::t_e666a7501ac5c5 1-134
+docs/design/first-level-quality-v3/slice-manifest.json
+  s_57db2c01e7cdde::t_cb8e36035c356d 1-181
+docs/poc/phase-a-automated-results.json
+  s_57db2c01e7cdde::t_863a1677c61516 2,11,20,27,34,41,48,55
+docs/poc/phase-c-asset-budget.json
+  s_57db2c01e7cdde::t_6111b357071a4e 1-321
+docs/poc/phase-c-compact-asset-budget.json
+  s_57db2c01e7cdde::t_ac917f05e8ed11 1-455
+docs/poc/phase-c-crowd-spacing-image-budget.json
+  s_57db2c01e7cdde::t_7ee7a091b7dfad 1-455
+docs/poc/phase-c-crowd-spacing-replay.json
+  s_57db2c01e7cdde::t_506ad0adf9786c 1-77
+docs/poc/phase-c-hud-lifecycle-image-budget.json
+  s_57db2c01e7cdde::t_e948b703f70f4d 1-455
+docs/poc/phase-c-label-lifecycle-image-budget.json
+  s_57db2c01e7cdde::t_89f308e122ccfa 1-455
+docs/poc/phase-c-responsive-entry-final-image-budget.json
+  s_57db2c01e7cdde::t_44c4c73edb296e 1-455
+docs/poc/phase-c-responsive-entry-image-budget.json
+  s_57db2c01e7cdde::t_abcbbe63a81728 1-455
+docs/poc/phase-c-route-diagnostics-replay.json
+  s_57db2c01e7cdde::t_6a30804477478a 1-19976
+docs/poc/phase-c-route-guard-image-budget.json
+  s_57db2c01e7cdde::t_4336a5b17b2a04 1-455
+docs/poc/phase-c-small-atlas-image-budget.json
+  s_57db2c01e7cdde::t_ee9a3445317713 1-455
+docs/poc/phase-c-two-lane-traffic-image-budget.json
+  s_57db2c01e7cdde::t_bc877af008dc94 1-455
+docs/poc/phase-c-two-lane-traffic-replay.json
+  s_57db2c01e7cdde::t_040b4d07c64880 1-395
+docs/poc/phase-c-view-lifecycle-image-budget.json
+  s_57db2c01e7cdde::t_4e1c779607f2e7 1-455
+docs/validation.md
+  s_57db2c01e7cdde::t_52669fad4809ef 362-704
+scripts/report-enemy-crowd.cjs
+  s_57db2c01e7cdde::t_aea35f48eab7a9 1-42
+tests/art-profile.test.cjs
+  s_57db2c01e7cdde::t_6b92789477487f 1-61
+tests/art/clockwork-motion.test.cjs
+  s_57db2c01e7cdde::t_6250863a59931c 1-41
+tests/route-diagnostics.test.cjs
+  s_57db2c01e7cdde::t_badba6b8031329 1-204
+tests/support/first-level-replay.cjs
+  s_57db2c01e7cdde::t_58664e097d7d03 21-23,26-27,30,34-40,53,55,71-72,75-78
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "2b16adb92a138a467d87c2771d5f292650b5cc10",
+  "prompts": {},
+  "sessions": {
+    "s_1c2f12735d7b4e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a090f0-76c9-76d2-97fc-7b993757e2e7",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    },
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
