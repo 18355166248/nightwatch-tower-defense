@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "stage": "first-level-finished-visuals",
+  "date": "2026-10-01",
+  "engine": "Cocos Creator 3.8.8",
+  "referenceResolution": [1080, 1920],
+  "approval": { "status": "pending-user", "reviewer": null, "approvedAt": null },
+  "representative": {
+    "id": "battle-art-v2",
+    "source": "art-source/design/first-level-quality-v1/battle-art-v2.png",
+    "sourceDimensions": [941, 1672],
+    "previousDraft": "art-source/design/first-level-quality-v1/battle-art-v1.png",
+    "tool": "OpenAI built-in image_gen",
+    "reference": "art-source/design/first-level-quality-v1/battle-art-v1.png; v1 based on project-owned first-level-backdrop-plaza-v2.png",
+    "role": "composite visual target only",
+    "runtimePath": null,
+    "containsBakedGameplayArt": true,
+    "containsFunctionalText": false,
+    "mayShipAsBattleBackground": false,
+    "approvalStatus": "pending-user"
+  },
+  "states": [
+    { "id": "home", "status": "planned" },
+    { "id": "briefing", "status": "planned" },
+    { "id": "battle", "status": "draft" },
+    { "id": "placement-valid", "status": "planned" },
+    { "id": "placement-blocked", "status": "planned" },
+    { "id": "tower-inspect", "status": "draft" },
+    { "id": "tutorial", "status": "planned" },
+    { "id": "pause-settings", "status": "planned" },
+    { "id": "victory", "status": "planned" },
+    { "id": "defeat", "status": "planned" },
+    { "id": "component-states", "status": "planned" },
+    { "id": "visual-rules", "status": "draft" }
+  ],
+  "families": [
+    { "id": "battlefield", "status": "awaiting-representative-approval", "parts": ["ground", "north-entry", "south-reactor", "side-city"], "functionalContentBaked": false },
+    { "id": "rivet-gun", "status": "awaiting-representative-approval", "levels": [1, 2, 3], "parts": ["base", "head", "shadow"], "anchor": "cell-center", "muzzle": "per-level metadata", "footprintMaxCells": 0.9 },
+    { "id": "frost-coil", "status": "awaiting-representative-approval", "levels": [1, 2, 3], "parts": ["base", "head", "shadow"], "anchor": "cell-center", "muzzle": "per-level metadata", "footprintMaxCells": 0.9 },
+    { "id": "enemy-family", "status": "awaiting-representative-approval", "types": ["clockwork-infantry", "clockwork-runner", "iron-canister-hauler"], "directions": ["down", "left", "up", "right"], "walkFramesPerDirection": 4, "alpha": "required", "anchor": "ground-center shared across frames", "shadow": "separate" },
+    { "id": "hud", "status": "awaiting-representative-approval", "text": "native", "panels": "9-slice or native geometry", "buttonStates": ["normal", "pressed", "disabled", "selected"], "icons": "independent transparent assets or native vectors" },
+    { "id": "feedback", "status": "awaiting-representative-approval", "parts": ["muzzle", "trace", "impact", "frost", "build", "upgrade", "sell", "death", "core-hit"], "poolLimits": "measure peak before implementation", "coordinates": "shared presentation map; logical combat remains grid based" }
+  ],
+  "budgets": { "firstScreenTransferMiB": 3, "residentTextureMiB": 8, "wholeBuildMiB": 20 },
+  "provenance": { "thirdPartyGameScreenshots": "local visual comparison only; not used as generation inputs", "generationTermsReviewedForRelease": false, "rightsApproval": "pending-release-review" }
+}

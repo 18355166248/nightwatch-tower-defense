@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>夜城防线 · 首关战斗设计 v1</title>
+  <link rel="stylesheet" href="review.css">
+  <script src="review.js" defer></script>
+</head>
+<body>
+  <header class="review-bar">
+    <div><strong>夜城防线</strong><span>首关战斗代表稿 · 待确认</span></div>
+    <a href="README.md" target="_blank">差距 / 交付 / 工时</a>
+  </header>
+  <nav class="review-tools" aria-label="设计评审工具">
+    <div class="segmented" aria-label="展示状态">
+      <button type="button" data-mode="battle" aria-pressed="false">战斗</button>
+      <button type="button" data-mode="inspect" aria-pressed="true">选塔</button>
+    </div>
+    <div class="segmented" aria-label="预览宽度">
+      <button type="button" data-width="320" aria-pressed="false">320</button>
+      <button type="button" data-width="390" aria-pressed="true">390</button>
+      <button type="button" data-width="430" aria-pressed="false">430</button>
+    </div>
+    <output id="size-readout" aria-label="实际画面尺寸"></output>
+  </nav>
+  <main>
+    <section class="stage" data-mode="inspect" aria-label="高保真战斗设计稿，静态场景与独立界面层">
+      <img class="battle-art" src="../../../art-source/design/first-level-quality-v1/battle-art-v2.png" alt="原创夜城屋顶战场，黄铜深蓝炮塔、青蓝冷凝塔与三种机械敌人；仅为视觉目标" width="941" height="1672">
+      <svg class="symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="coin-fill" x2="0" y2="1"><stop stop-color="#fff0a6"/><stop offset=".48" stop-color="#eebc58"/><stop offset="1" stop-color="#b57124"/></linearGradient>
+          <linearGradient id="navy-fill" x2="0" y2="1"><stop stop-color="#557184"/><stop offset=".46" stop-color="#2a4154"/><stop offset="1" stop-color="#14283a"/></linearGradient>
+          <linearGradient id="brass-fill" x2="0" y2="1"><stop stop-color="#f0d399"/><stop offset=".4" stop-color="#c99a51"/><stop offset="1" stop-color="#79502c"/></linearGradient>
+          <linearGradient id="cyan-fill" x2="0" y2="1"><stop stop-color="#d9ffff"/><stop offset=".4" stop-color="#78e7ec"/><stop offset="1" stop-color="#278ba7"/></linearGradient>
+          <symbol id="icon-coin" viewBox="0 0 64 64"><ellipse cx="30" cy="53" rx="26" ry="7" fill="#111c25" opacity=".5"/><g stroke="#785022" stroke-width="3"><ellipse cx="30" cy="43" rx="23" ry="10" fill="#b47a2e"/><ellipse cx="30" cy="38" rx="23" ry="10" fill="url(#coin-fill)"/><ellipse cx="36" cy="27" rx="23" ry="11" fill="#b47a2e"/><ellipse cx="36" cy="21" rx="23" ry="11" fill="url(#coin-fill)"/></g><ellipse cx="36" cy="20" rx="15" ry="6" fill="none" stroke="#ffe0a0" stroke-width="2"/></symbol>
+          <symbol id="icon-core" viewBox="0 0 64 64"><path d="M32 58 8 32C-4 15 17-1 32 14 47-1 68 15 56 32Z" fill="#104959" stroke="#b9965d" stroke-width="4"/><path d="m32 48-17-19c-7-10 7-18 17-9 10-9 24-1 17 9Z" fill="url(#cyan-fill)"/><path d="m17 23 15 7 15-7-15 25Z" fill="#42bcc9" opacity=".6"/></symbol>
+          <symbol id="icon-wave" viewBox="0 0 64 64"><path d="M12 50 21 42h22l9 8v6H12Z" fill="url(#brass-fill)" stroke="#332c23" stroke-width="3"/><path d="M25 41V22h14v19" fill="url(#navy-fill)" stroke="#c99a51" stroke-width="3"/><circle cx="32" cy="17" r="8" fill="url(#cyan-fill)"/><path d="M16 9Q4 21 16 33M48 9q12 12 0 24" fill="none" stroke="#70d9df" stroke-width="4" stroke-linecap="round"/></symbol>
+          <symbol id="icon-rivet" viewBox="0 0 112 112"><ellipse cx="55" cy="98" rx="43" ry="10" fill="#101c27" opacity=".5"/><path d="m18 72 13-16h50l13 16-6 27H25Z" fill="url(#brass-fill)" stroke="#382c21" stroke-width="4"/><path d="m28 64 10-12h34l12 12-4 26H32Z" fill="url(#navy-fill)" stroke="#d8b575" stroke-width="3"/><ellipse cx="56" cy="59" rx="25" ry="21" fill="url(#navy-fill)" stroke="#d4af6d" stroke-width="4"/><path d="m45 53-9-36 14-4 11 35" fill="url(#brass-fill)" stroke="#332d25" stroke-width="4"/><ellipse cx="43" cy="16" rx="9" ry="7" fill="#14212c" stroke="#dfbc7b" stroke-width="3"/><path d="M37 70h39" stroke="#6b8898" stroke-width="4"/><circle cx="31" cy="85" r="3" fill="#f1d59c"/><circle cx="83" cy="85" r="3" fill="#f1d59c"/></symbol>
+          <symbol id="icon-frost" viewBox="0 0 112 112"><ellipse cx="55" cy="98" rx="43" ry="10" fill="#101c27" opacity=".5"/><path d="m18 72 13-16h50l13 16-6 27H25Z" fill="url(#navy-fill)" stroke="#c99a51" stroke-width="4"/><path d="M35 38h42v37H35Z" fill="url(#cyan-fill)" stroke="#208eab" stroke-width="3"/><ellipse cx="56" cy="73" rx="21" ry="9" fill="#338ca0" stroke="#bfa05f" stroke-width="4"/><ellipse cx="56" cy="40" rx="21" ry="9" fill="#b0f5f3" stroke="#bfa05f" stroke-width="4"/><path d="M56 42v27" stroke="#e1ffff" stroke-width="4"/><path d="M29 48v25M83 48v25" stroke="#be8f48" stroke-width="9"/><ellipse cx="56" cy="30" rx="13" ry="8" fill="url(#brass-fill)" stroke="#53442d" stroke-width="3"/><path d="M35 90h42" stroke="#547d8d" stroke-width="4"/></symbol>
+          <symbol id="icon-pause" viewBox="0 0 64 64"><path d="M19 15v34M45 15v34" stroke="#f4e9cd" stroke-width="10" stroke-linecap="round"/></symbol>
+          <symbol id="icon-upgrade" viewBox="0 0 64 64"><path d="m12 37 20-18 20 18M12 52l20-18 20 18" fill="none" stroke="currentColor" stroke-width="7" stroke-linejoin="round"/></symbol>
+        </defs>
+      </svg>
+      <div class="hud metal" aria-label="战斗资源">
+        <div class="resource gold"><svg aria-hidden="true"><use href="#icon-coin"/></svg><div><span class="resource-caption">金币</span><strong>54</strong></div></div>
+        <div class="resource"><svg aria-hidden="true"><use href="#icon-wave"/></svg><div><span class="resource-caption">波次</span><strong>6<span class="denominator"> / 8</span></strong></div></div>
+        <div class="resource core"><svg aria-hidden="true"><use href="#icon-core"/></svg><div><span class="resource-caption">核心</span><strong>9<span class="denominator"> / 10</span></strong></div></div>
+        <button class="pause metal-button" type="button" aria-label="预览暂停按钮按下状态"><svg aria-hidden="true"><use href="#icon-pause"/></svg></button>
+      </div>
+      <div class="chapter"><span class="chapter-marker"></span>第一关 · 夜城广场</div>
+      <div class="wave-hint"><span></span>混编来袭</div>
+      <svg class="selection-range" viewBox="0 0 1080 1920" aria-hidden="true"><circle cx="323" cy="894" r="290" fill="#78df9b" fill-opacity=".055" stroke="#84d59c" stroke-opacity=".7" stroke-width="2.5"/><circle cx="323" cy="894" r="285" fill="none" stroke="#8dd6a4" stroke-opacity=".22" stroke-width="1"/></svg>
+      <div class="healthbar healthbar-one" aria-hidden="true"><span style="width:62%"></span></div>
+      <div class="healthbar healthbar-two" aria-hidden="true"><span style="width:34%"></span></div>
+      <section class="inspector metal" aria-label="机枪塔三级属性与操作">
+        <div class="inspect-title"><span class="tiny-emblem">Ⅲ</span><div><h1>机枪塔 <small>Lv.3</small></h1><p>持续火力 · 优先拦截前排</p></div><button class="close-inspector" type="button" aria-label="关闭选塔面板">×</button></div>
+        <div class="inspect-bottom"><div class="upgrade-stats"><p>伤害 <strong>18</strong></p><p>射程 <strong>3.2 格</strong></p></div><button class="sell metal-button" type="button" disabled title="战斗中不可出售，波间可返还67金币">出售 <strong>67</strong></button><button class="upgrade metal-button" type="button" disabled><svg aria-hidden="true"><use href="#icon-upgrade"/></svg><span>已满级</span></button></div>
+      </section>
+      <div class="build-tray metal" aria-label="建塔与战斗操作">
+        <button class="tower-slot" type="button" data-tower="rivet" aria-pressed="false"><svg aria-hidden="true"><use href="#icon-rivet"/></svg><span>机枪塔</span><strong>30</strong></button>
+        <button class="tower-slot" type="button" data-tower="frost" aria-pressed="false"><svg aria-hidden="true"><use href="#icon-frost"/></svg><span>冷凝塔</span><strong>40</strong></button>
+        <div class="combat-controls"><button class="speed metal-button" type="button" aria-label="预览倍速按钮状态"><strong>1×</strong><span>速度</span></button><button class="next-wave metal-button" type="button" disabled><span>下一波</span><strong>战斗中</strong></button></div>
+      </div>
+      <div class="preview-toast" role="status"></div>
+    </section>
+    <footer class="review-note">设计稿 · 静态战斗构图，数值与按钮仅用于视觉评审<br>场景 / 单位 / 特效合成层尚未切图或接入 Cocos</footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,249 @@
+{
+  "date": "2026-10-01",
+  "scope": "design-review-only",
+  "art": "battle-art-v2",
+  "samples": [
+    {
+      "close": {
+        "fontSize": "19.2px",
+        "height": 44,
+        "width": 44,
+        "x": 255.8125,
+        "y": 524.1484375
+      },
+      "documentWidth": 320,
+      "frost": {
+        "fontSize": "16px",
+        "height": 48.2109375,
+        "width": 70.21875,
+        "x": 96.171875,
+        "y": 608.65625
+      },
+      "hud": {
+        "fontSize": "16px",
+        "height": 43.234375,
+        "width": 298.890625,
+        "x": 10.5546875,
+        "y": 106.6796875
+      },
+      "image": {
+        "complete": true,
+        "naturalHeight": 1672,
+        "naturalWidth": 941
+      },
+      "inspector": {
+        "fontSize": "16px",
+        "height": 64.28125,
+        "width": 298.890625,
+        "x": 10.5546875,
+        "y": 530.5078125
+      },
+      "mode": "inspect",
+      "pause": {
+        "fontSize": "16px",
+        "height": 44,
+        "width": 44,
+        "x": 261.0859375,
+        "y": 106.296875
+      },
+      "rivet": {
+        "fontSize": "16px",
+        "height": 48.2109375,
+        "width": 70.21875,
+        "x": 19.5546875,
+        "y": 608.65625
+      },
+      "sellDisabled": true,
+      "speed": {
+        "fontSize": "16px",
+        "height": 45.34375,
+        "width": 44,
+        "x": 172.7890625,
+        "y": 609.609375
+      },
+      "stage": {
+        "fontSize": "16px",
+        "height": 568.8828125,
+        "width": 320,
+        "x": 0,
+        "y": 99
+      },
+      "stat": {
+        "fontSize": "12.96px",
+        "height": 15.2890625,
+        "width": 118.0390625,
+        "x": 20.1875,
+        "y": 564.3203125
+      },
+      "upgradeDisabled": true,
+      "viewport": {
+        "height": 900,
+        "width": 320
+      }
+    },
+    {
+      "close": {
+        "fontSize": "25.8px",
+        "height": 44,
+        "width": 44,
+        "x": 358.703125,
+        "y": 678.0234375
+      },
+      "documentWidth": 430,
+      "frost": {
+        "fontSize": "16px",
+        "height": 64.453125,
+        "width": 94.28125,
+        "x": 129.3125,
+        "y": 784.0078125
+      },
+      "hud": {
+        "fontSize": "16px",
+        "height": 58.09375,
+        "width": 401.625,
+        "x": 14.1875,
+        "y": 109.3125
+      },
+      "image": {
+        "complete": true,
+        "naturalHeight": 1672,
+        "naturalWidth": 941
+      },
+      "inspector": {
+        "fontSize": "16px",
+        "height": 86.375,
+        "width": 401.625,
+        "x": 14.1875,
+        "y": 678.8359375
+      },
+      "mode": "inspect",
+      "pause": {
+        "fontSize": "16px",
+        "height": 44,
+        "width": 55.0390625,
+        "x": 350.671875,
+        "y": 116.359375
+      },
+      "rivet": {
+        "fontSize": "16px",
+        "height": 64.453125,
+        "width": 94.28125,
+        "x": 26.4375,
+        "y": 784.0078125
+      },
+      "sellDisabled": true,
+      "speed": {
+        "fontSize": "16px",
+        "height": 60.5859375,
+        "width": 51.59375,
+        "x": 232.1875,
+        "y": 785.296875
+      },
+      "stage": {
+        "fontSize": "16px",
+        "height": 764.4375,
+        "width": 430,
+        "x": 0,
+        "y": 99
+      },
+      "stat": {
+        "fontSize": "17.415px",
+        "height": 20.546875,
+        "width": 158.2734375,
+        "x": 27.296875,
+        "y": 724.2890625
+      },
+      "upgradeDisabled": true,
+      "viewport": {
+        "height": 932,
+        "width": 430
+      }
+    },
+    {
+      "close": {
+        "fontSize": "23.4px",
+        "height": 44,
+        "width": 44,
+        "x": 321.109375,
+        "y": 614.671875
+      },
+      "documentWidth": 390,
+      "frost": {
+        "fontSize": "16px",
+        "height": 58.5390625,
+        "width": 85.4375,
+        "x": 117.3515625,
+        "y": 712.921875
+      },
+      "hud": {
+        "fontSize": "16px",
+        "height": 52.6875,
+        "width": 364.265625,
+        "x": 12.8671875,
+        "y": 100.859375
+      },
+      "image": {
+        "complete": true,
+        "naturalHeight": 1672,
+        "naturalWidth": 941
+      },
+      "inspector": {
+        "fontSize": "16px",
+        "height": 78.34375,
+        "width": 364.265625,
+        "x": 12.8671875,
+        "y": 617.3984375
+      },
+      "mode": "inspect",
+      "pause": {
+        "fontSize": "16px",
+        "height": 44,
+        "width": 49.9140625,
+        "x": 317.9140625,
+        "y": 105.203125
+      },
+      "rivet": {
+        "fontSize": "16px",
+        "height": 58.5390625,
+        "width": 85.4375,
+        "x": 24.1171875,
+        "y": 712.921875
+      },
+      "sellDisabled": true,
+      "speed": {
+        "fontSize": "16px",
+        "height": 55.0390625,
+        "width": 46.796875,
+        "x": 210.5859375,
+        "y": 714.0859375
+      },
+      "stage": {
+        "fontSize": "16px",
+        "height": 693.328125,
+        "width": 390,
+        "x": 0,
+        "y": 91.5
+      },
+      "stat": {
+        "fontSize": "15.795px",
+        "height": 18.6328125,
+        "width": 143.28125,
+        "x": 24.890625,
+        "y": 658.640625
+      },
+      "upgradeDisabled": true,
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    }
+  ],
+  "interactions": [
+    "battle/inspect",
+    "close inspector",
+    "rivet/frost selected",
+    "speed 1x/2x restored",
+    "pause pressed/restored"
+  ],
+  "consoleErrorsAndWarnings": []
+}
