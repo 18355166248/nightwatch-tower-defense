@@ -1,0 +1,31 @@
+docs/design/first-level-quality-v3/state-index.json
+  s_57db2c01e7cdde::t_42c0dfe4e67dd1 2
+tests/result-label-lifecycle.test.cjs
+  s_57db2c01e7cdde::t_b793625757db01 1-16,22-26,29-31,33-47
+  s_57db2c01e7cdde::t_e6d4ccb42a0a87 17-21,27-28,32
+docs/design/first-level-quality-v3/PRACTICAL-CLOSURE.md
+  s_57db2c01e7cdde::t_7b353c3f13354a 27-28
+  s_57db2c01e7cdde::t_42c0dfe4e67dd1 16-17,32-41
+  s_57db2c01e7cdde::t_cfb4e2bfae4899 30-31
+  s_57db2c01e7cdde::t_f20654ddcda549 1-15,18-26,29
+docs/design/first-level-quality-v3/index.html
+  s_57db2c01e7cdde::t_fb09b429becca6 11
+assets/scripts/presentation/FirstLevelResultView.ts
+  s_57db2c01e7cdde::t_7b5a0689afc371 9,22,63,74-79,96,137,150-156
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "5f70dc0befe2c7e80399263621a0c38a5c8a3e61",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
