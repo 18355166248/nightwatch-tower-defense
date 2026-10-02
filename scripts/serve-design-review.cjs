@@ -20,7 +20,8 @@ createServer(async (request, response) => {
         let file = resolve(project, `.${pathname}`);
         if (!roots.some((root) => file.startsWith(root + sep))) return response.writeHead(403).end('Forbidden');
         const archived = entry(file);
-        if (archived) return response.writeHead(302, { Location: archived.previewUrl, 'Cache-Control': 'no-store' }).end();
+        // 采样评审必须保留获批像素；TinyPNG 预览不能代替原图/B清晰度基线。
+        if (archived) return response.writeHead(302, { Location: pathname.includes('/texture-review-generated/') ? archived.originalUrl : archived.previewUrl, 'Cache-Control': 'no-store' }).end();
         if (statSync(file).isDirectory()) file = resolve(file, 'index.html');
         if (!statSync(file).isFile()) return response.writeHead(404).end('Not found');
         if (extname(file) === '.svg') {

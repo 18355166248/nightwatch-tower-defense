@@ -6,13 +6,13 @@ function render() {
     for (const asset of manifest.assets) {
         const heading=document.createElement('h2'); heading.textContent=asset.label; root.append(heading);
         const row=document.createElement('div'); row.className='row'; root.append(row);
-        for (const item of [{name:'原图',file:asset.original,width:asset.width,height:asset.height,decodedBytes:asset.decodedBytes},...asset.candidates.filter(item=>item.name===candidate)]) {
+        for (const item of [{name:'原图',file:asset.original,url:asset.originalUrl,width:asset.width,height:asset.height,decodedBytes:asset.decodedBytes},...asset.candidates.filter(item=>item.name===candidate)]) {
             const figure=document.createElement('figure'), caption=document.createElement('figcaption');
             caption.textContent=`${item.name} · ${item.width}×${item.height} · ${mib(item.decodedBytes)} MiB`;
             const surface=document.createElement('div');surface.className='surface'+(asset.id==='panel'?' raw':'');
             surface.style.width=`${asset.displayWidth*width/1080}px`;surface.style.height=`${asset.displayHeight*width/1080}px`;
-            const image=new Image(); image.src=`texture-review-generated/${item.file}`; image.alt=`${asset.label} ${item.name}`;
-            image.onerror=()=>{document.getElementById('error').textContent='评审附件缺失：请按 TEXTURE-SAMPLING.md 重新生成。';};
+            const image=new Image(); image.src=item.url || `texture-review-generated/${item.file}`; image.alt=`${asset.label} ${item.name}`;
+            image.onerror=()=>{document.getElementById('error').textContent='评审附件加载失败：检查已验证 CDN 地址，不从运行 B 图重建原图基线。';};
             surface.append(image);figure.append(caption,surface);row.append(figure);
         }
     }

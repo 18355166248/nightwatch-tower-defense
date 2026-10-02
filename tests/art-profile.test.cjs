@@ -43,7 +43,7 @@ test('新底图与atlas不共享旧UUID，线性无mip/禁止动态合图，并�
     const uuids = new Set();
     const original = firstLevelArtProfile('');
     const originalUuids = new Set([...original.backdrops.map(p=>p.replace('/spriteFrame','')),original.infantryWalk,original.infantryCollapse]
-        .map(base=>json('assets/resources/'+base+(base.includes('/units/')?'.png':'.jpg')+'.meta').uuid));
+        .map(base=>json('assets/resources/'+base+(base === 'level-one/backdrop-plaza-v2' ? '.webp' : base.includes('/units/')?'.png':'.jpg')+'.meta').uuid));
     for (const base of [...profile.backdrops.map(p=>p.replace('/spriteFrame','')),profile.infantryWalk,profile.infantryCollapse]) {
         const ext = base.includes('/units/')?'.png':'.jpg';
         const meta = json('assets/resources/'+base+ext+'.meta');
@@ -56,7 +56,10 @@ test('新底图与atlas不共享旧UUID，线性无mip/禁止动态合图，并�
     }
     const manifest = json('art-source/first-level-runtime-budget-v1/profile-manifest.json');
     for (const asset of manifest.assets.filter(a=>a.sourceSha256)) {
-        assert.equal(originalSha256(asset.source),asset.sourceSha256);
+        // 旧低清候选保留生成时原图身份；正式背景 B 接入后，原 JPEG 从评审归档读取。
+        const source = asset.source.endsWith('backdrop-plaza-v2.jpg')
+            ? path.join(root,'docs/design/first-level-quality-v3/texture-review-generated/backdrop-original.jpg') : asset.source;
+        assert.equal(originalSha256(source),asset.sourceSha256);
         assert.deepEqual(asset.size,[768,1365]);
     }
 });

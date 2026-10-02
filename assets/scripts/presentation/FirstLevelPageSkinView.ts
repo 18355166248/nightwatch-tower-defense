@@ -1,6 +1,7 @@
 import { Color, Graphics, isValid, Node, resources, Sprite, SpriteFrame, UITransform } from 'cc';
 import type { PhaseBRect } from './PhaseBLayout';
 import type { FirstLevelPanelTone } from './FirstLevelPanelPainter';
+import { PAGE_PANEL_SOURCE_INSET, pagePanelBorderScale } from './PageSkinSampling';
 
 type PageAsset = 'panel' | 'primary' | 'secondary' | 'danger' | 'pause-icon' | 'play-icon' | 'restart-icon' | 'settings-icon' | 'home-icon';
 type Skin = { readonly node: Node; readonly sprite: Sprite };
@@ -34,7 +35,7 @@ export class FirstLevelPageSkinView {
             if (error || !frame) this.failures.add(name);
             else {
                 if (!name.endsWith('-icon')) {
-                    const inset = name === 'panel' ? 42 : 24;
+                    const inset = name === 'panel' ? PAGE_PANEL_SOURCE_INSET : 24;
                     frame.insetLeft = inset; frame.insetRight = inset;
                     frame.insetTop = inset; frame.insetBottom = inset;
                 }
@@ -66,7 +67,7 @@ export class FirstLevelPageSkinView {
     }
 
     public panel(rect: PhaseBRect, borderWidth?: number): boolean {
-        return this.place('panel', 'panel', rect, '#FFFFFF', borderWidth === undefined ? 1 : borderWidth / 42);
+        return this.place('panel', 'panel', rect, '#FFFFFF', pagePanelBorderScale(borderWidth));
     }
 
     public button(slot: number, rect: PhaseBRect, tone: FirstLevelPanelTone, borderWidth?: number): boolean {

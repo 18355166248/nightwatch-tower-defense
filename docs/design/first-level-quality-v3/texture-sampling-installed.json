@@ -1,0 +1,91 @@
+{
+  "choice": "B",
+  "approval": "用户：那就用B",
+  "operation": "lossless PNG/WebP re-encoding of approved B pixels",
+  "assets": [
+    {
+      "id": "backdrop",
+      "resource": "assets/resources/level-one/backdrop-plaza-v2.webp",
+      "originalSha256": "ce70aeddb7005e3a7416fefb2d3a2483d12fe142c3e9588c1449fe0811155ec9",
+      "approvedSha256": "b4a61e57a6d4d71122cf9940379965e44063a150fd41114af37e6ae2e7cb8dbc",
+      "installedSha256": "5cf86db8173e20fe25817f3aea11f592b03fcaccfdc78ddf2cd9943f7035a945",
+      "originalBytes": 425291,
+      "installedBytes": 785262,
+      "size": [
+        640,
+        1137
+      ],
+      "pixelIdenticalToApprovedB": true
+    },
+    {
+      "id": "hud",
+      "resource": "assets/resources/level-one/ui/quality-v2/hud-frame.png",
+      "originalSha256": "9977223bbfc77b18f683700d2631eec5b76034729464cdcce909ee50542bc8c3",
+      "approvedSha256": "4c5c7519aa67b1a9b452438d3e109bb8c96345a1fb1a274b7c371fb642261235",
+      "installedSha256": "e9c916d1a8693e17c5ea9301ca5f4d0e66a491c038bed4a46f3e00cb9b4d8ed8",
+      "originalBytes": 637720,
+      "installedBytes": 160106,
+      "size": [
+        864,
+        139
+      ],
+      "pixelIdenticalToApprovedB": true
+    },
+    {
+      "id": "tray",
+      "resource": "assets/resources/level-one/ui/quality-v2/tray-frame.png",
+      "originalSha256": "112dee0faf9961bd371677036252d4b7112b0cde625c59c80bc1e8e48b445a3a",
+      "approvedSha256": "25cf095d0604ac8fd17dc7fc25eb9b3a08c6f09b557dbcc430f124835882cbeb",
+      "installedSha256": "1689d969a2cac1c7cf10a0cd7f3d624391cffbc8198160100e91e844e288b595",
+      "originalBytes": 447980,
+      "installedBytes": 135668,
+      "size": [
+        640,
+        147
+      ],
+      "pixelIdenticalToApprovedB": true
+    },
+    {
+      "id": "button",
+      "resource": "assets/resources/level-one/ui/quality-v2/button-frame.png",
+      "originalSha256": "b57341dac0bbf3989bdcaec7f113e4d59e53df50b8e519d0d6366662c336306b",
+      "approvedSha256": "641da2271a2272fcd95f98bf41571a667419f2d932005ee89de0f1b2813c9f1c",
+      "installedSha256": "f6fba35477f6a3de7d6f2e1f542d8b6ad1b6632dda4d344fc22a0ea1b965f7fd",
+      "originalBytes": 232690,
+      "installedBytes": 40475,
+      "size": [
+        160,
+        133
+      ],
+      "pixelIdenticalToApprovedB": true
+    },
+    {
+      "id": "disabled",
+      "resource": "assets/resources/level-one/ui/quality-v2/disabled-frame.png",
+      "originalSha256": "4d6f4541c41b71ee836ebb1bc3fb6cec7db10fb7faeb731e503757ff4971fd3e",
+      "approvedSha256": "aa6a55352fc5cd5b1d134b045dddab6dac83514a3c1a6f7420505586bc8636e0",
+      "installedSha256": "085b6a1f550b1430e4c3220b43c83e194134d7e4617c919df7894ce5621b2187",
+      "originalBytes": 98833,
+      "installedBytes": 41677,
+      "size": [
+        160,
+        144
+      ],
+      "pixelIdenticalToApprovedB": true
+    },
+    {
+      "id": "panel",
+      "resource": "assets/resources/level-one/ui/quality-v3/panel.png",
+      "originalSha256": "246f912263620c9bc9f69c7f209febc990b425e876e8030598d4bb3ed4472079",
+      "approvedSha256": "5d73c4f61a8808790881badd94e6056de49b6f44172374ac10ca45955a006423",
+      "installedSha256": "c47566dc81d2811eb68c06817a4caea01a376ea9e10e8231f5b780af682cf262",
+      "originalBytes": 322375,
+      "installedBytes": 153295,
+      "size": [
+        384,
+        372
+      ],
+      "pixelIdenticalToApprovedB": true
+    }
+  ]
+}

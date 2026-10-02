@@ -44,7 +44,8 @@ async function worker(){while(queue.length){const [hash,task]=queue.shift()!;let
     record={originalSha256:hash,originalBytes:task.bytes.length,originalUrl,previewUrl:originalUrl,previewSha256:hash,previewBytes:task.bytes.length,verifiedAt:new Date().toISOString()};
     // 大图压缩预览，小图保留原字节；原图另存 CDN，避免破坏切图坐标及来源校验。
     if(task.bytes.length>=65536&&!compressionUnavailable){const temp=path.join(work,hash+path.extname(task.file));fs.writeFileSync(temp,task.bytes);
-      try{await compressImage(temp);const preview=fs.readFileSync(temp);if(preview.length<task.bytes.length){record.previewUrl=await verifiedUpload(temp,preview);record.previewSha256=sha(preview);record.previewBytes=preview.length;}}
+      // 压缩服务不是来源归档的必需依赖；超时保留已核对的原字节，避免无限等待与误删。
+      try{await Promise.race([compressImage(temp),new Promise((_,reject)=>setTimeout(()=>reject(new Error('预览压缩超时，保留原图归档')),30000))]);const preview=fs.readFileSync(temp);if(preview.length<task.bytes.length){record.previewUrl=await verifiedUpload(temp,preview);record.previewSha256=sha(preview);record.previewBytes=preview.length;}}
       catch(error){compressionUnavailable=true;console.warn('压缩服务不可用，后续保留原图 CDN；未删除原图。',String((error as Error).message).slice(0,160));}
     }
     known.set(hash,record);

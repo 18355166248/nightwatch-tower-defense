@@ -12,6 +12,23 @@ const RIG_ATLASES = ['level-one/units/clockwork-infantry-walk-rig-v2', 'level-on
     'level-one/units/clockwork-infantry-walk-rig-budget-v1', 'level-one/units/clockwork-infantry-collapse-rig-budget-v1'];
 
 function imageDimensions(bytes) {
+    // 本阶段只发布无损 VP8L；按 RIFF 分块边界读取，截断或未知 WebP 拒绝按零预算放行。
+    if (bytes.length >= 12 && bytes.toString('ascii',0,4) === 'RIFF' && bytes.toString('ascii',8,12) === 'WEBP') {
+        const end = bytes.readUInt32LE(4) + 8;
+        if (end !== bytes.length) throw new Error('WebP RIFF 长度不一致');
+        for (let offset = 12; offset + 8 <= end;) {
+            const length = bytes.readUInt32LE(offset + 4), next = offset + 8 + length;
+            if (next > end) throw new Error('WebP 分块截断');
+            if (bytes.toString('ascii',offset,offset+4) === 'VP8L') {
+                if (length < 5 || bytes[offset+8] !== 0x2f) throw new Error('VP8L 尺寸头无效');
+                const bits = bytes.readUInt32LE(offset+9);
+                if (bits >>> 29) throw new Error('VP8L 版本不支持');
+                return {width:(bits & 0x3fff)+1, height:((bits >>> 14) & 0x3fff)+1};
+            }
+            offset = next + (length & 1);
+        }
+        throw new Error('仅支持无损 VP8L WebP 预算读取');
+    }
     if (bytes.length >= 24 && bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) {
         const width = bytes.readUInt32BE(16);
         const height = bytes.readUInt32BE(20);
@@ -37,7 +54,7 @@ function imageDimensions(bytes) {
             offset += length;
         }
     }
-    throw new Error('无法读取PNG/JPEG尺寸，拒绝把未知格式按0字节预算');
+    throw new Error('无法读取PNG/JPEG/无损WebP尺寸，拒绝把未知格式按0字节预算');
 }
 
 function rgbaBytes(width, height, mipmaps = false) {
@@ -123,7 +140,7 @@ function buildReport(root) {
     for (const loader of walkFiles(path.join(root, 'assets/scripts')).filter(file => file.endsWith('.ts'))) {
         const source = fs.readFileSync(loader, 'utf8');
         for (const base of textureBasesInSource(source)) {
-            if (['.png', '.jpg'].some(ext => fs.existsSync(path.join(resourceRoot, base + ext)))) bases.add(base);
+            if (['.png', '.jpg', '.webp'].some(ext => fs.existsSync(path.join(resourceRoot, base + ext)))) bases.add(base);
             else throw new Error(`${loader}新增未知资源 ${base}，请先更新预算识别规则`);
         }
     }
@@ -132,7 +149,7 @@ function buildReport(root) {
     }
     const buildRoot = path.join(root, 'build/web-mobile');
     const entries = Array.from(bases).map(base => {
-        const ext = ['.png', '.jpg'].find(ext => fs.existsSync(path.join(resourceRoot, base + ext)));
+        const ext = ['.png', '.jpg', '.webp'].find(ext => fs.existsSync(path.join(resourceRoot, base + ext)));
         const sourcePath = path.join(resourceRoot, base + ext);
         const meta = JSON.parse(fs.readFileSync(sourcePath + '.meta', 'utf8'));
         const native = path.join(buildRoot, 'assets/resources/native', meta.uuid.slice(0, 2), meta.uuid + ext);

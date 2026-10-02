@@ -820,15 +820,17 @@ test('五张单位图均导入为 SpriteFrame，避免新增纹理让整层切�
 
 test('新旧首关底图均可作为 SpriteFrame 加载，新候选仍在单图预算内', () => {
     for (const id of ['backdrop-plaza-v2', 'backdrop']) {
-        const asset = resolve(__dirname, `../assets/resources/level-one/${id}.jpg`);
+        const sampled = id === 'backdrop-plaza-v2';
+        const asset = resolve(__dirname, `../assets/resources/level-one/${id}${sampled ? '.webp' : '.jpg'}`);
         const jpg = readFileSync(asset);
         const meta = JSON.parse(readFileSync(`${asset}.meta`, 'utf8'));
-        assert.equal(jpg.readUInt16BE(0), 0xffd8, `${id} 必须是 JPEG`);
+        if (sampled) assert.equal(jpg.toString('ascii',8,12), 'WEBP');
+        else assert.equal(jpg.readUInt16BE(0), 0xffd8, `${id} 必须是 JPEG`);
         assert.ok(jpg.length < 1024 * 1024, `${id} 超出 1 MiB 单图预算`);
         assert.equal(meta.userData.type, 'sprite-frame', id);
         assert.equal(meta.subMetas.f9941.importer, 'sprite-frame', id);
-        assert.equal(meta.subMetas.f9941.userData.width, 941, id);
-        assert.equal(meta.subMetas.f9941.userData.height, 1672, id);
+        assert.equal(meta.subMetas.f9941.userData.width, sampled ? 640 : 941, id);
+        assert.equal(meta.subMetas.f9941.userData.height, sampled ? 1137 : 1672, id);
     }
 });
 

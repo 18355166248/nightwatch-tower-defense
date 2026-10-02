@@ -1,0 +1,204 @@
+{
+  "version": 1,
+  "status": "B-approved-installed-original-review-archived",
+  "originalBytes": 10052000,
+  "assets": [
+    {
+      "id": "backdrop",
+      "label": "夜城背景",
+      "source": "level-one/backdrop-plaza-v2.jpg",
+      "sourceSha256": "ce70aeddb7005e3a7416fefb2d3a2483d12fe142c3e9588c1449fe0811155ec9",
+      "original": "backdrop-original.jpg",
+      "width": 941,
+      "height": 1672,
+      "decodedBytes": 6293408,
+      "displayWidth": 1080,
+      "displayHeight": 1920,
+      "candidates": [
+        {
+          "name": "A",
+          "file": "backdrop-A.png",
+          "width": 768,
+          "height": 1365,
+          "decodedBytes": 4193280,
+          "url": "https://audiopaytest.cos.tx.xmcdn.com/storages/4390-audiotest/78/38/GAqSiIMOlPRvABAAAAACF0bu.png"
+        },
+        {
+          "name": "B",
+          "file": "backdrop-B.png",
+          "width": 640,
+          "height": 1137,
+          "decodedBytes": 2910720,
+          "url": "https://audiopaytest.cos.tx.xmcdn.com/storages/815c-audiotest/30/7B/GAqSiIMOlPRtABAAAAACF0bt.png"
+        }
+      ],
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/a8a6-audiotest/98/7B/GAqSiIMOlMrfAAZ9SwACF0Qo.jpg"
+    },
+    {
+      "id": "hud",
+      "label": "顶部 HUD 铜框",
+      "source": "level-one/ui/quality-v2/hud-frame.png",
+      "sourceSha256": "9977223bbfc77b18f683700d2631eec5b76034729464cdcce909ee50542bc8c3",
+      "original": "hud-original.png",
+      "width": 1440,
+      "height": 232,
+      "decodedBytes": 1336320,
+      "displayWidth": 1032,
+      "displayHeight": 152,
+      "candidates": [
+        {
+          "name": "A",
+          "file": "hud-A.png",
+          "width": 1024,
+          "height": 165,
+          "decodedBytes": 675840,
+          "url": "https://audiopaytest.cos.tx.xmcdn.com/storages/77f3-audiotest/01/86/GAqSiIMOlPRmAASjWQACF0bi.png"
+        },
+        {
+          "name": "B",
+          "file": "hud-B.png",
+          "width": 864,
+          "height": 139,
+          "decodedBytes": 480384,
+          "url": "https://audiopaytest.cos.tx.xmcdn.com/storages/d406-audiotest/76/4D/GAqSoUUOlPRmAANUswACF0bj.png"
+        }
+      ],
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/0b36-audiotest/65/9C/GAqSoUUOlMppAAm7GAACF0OE.png"
+    },
+    {
+      "id": "tray",
+      "label": "底部塔栏铜框",
+      "source": "level-one/ui/quality-v2/tray-frame.png",
+      "sourceSha256": "112dee0faf9961bd371677036252d4b7112b0cde625c59c80bc1e8e48b445a3a",
+      "original": "tray-original.png",
+      "width": 982,
+      "height": 226,
+      "decodedBytes": 887728,
+      "displayWidth": 1032,
+      "displayHeight": 172,
+      "candidates": [
+        {
+          "name": "A",
+          "file": "tray-A.png",
+          "width": 768,
+          "height": 177,
+          "decodedBytes": 543744,
+          "url": "https://audiopaytest.cos.tx.xmcdn.com/storages/ac48-audiotest/96/23/GAqSoUUOlPRmAAP99wACF0bh.png"
+        },
+        {
+          "name": "B",
+          "file": "tray-B.png",
+          "width": 640,
+          "height": 147,
+          "decodedBytes": 376320,
+          "url": "https://audiopaytest.cos.tx.xmcdn.com/storages/c5d3-audiotest/76/74/GAqSiIMOlPRmAALQbQACF0bg.png"
+        }
+      ],
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/44df-audiotest/6A/8C/GAqSoUUOlMpsAAbV7AACF0OG.png"
+    },
+    {
+      "id": "button",
+      "label": "HUD 启用按钮",
+      "source": "level-one/ui/quality-v2/button-frame.png",
+      "sourceSha256": "b57341dac0bbf3989bdcaec7f113e4d59e53df50b8e519d0d6366662c336306b",
+      "original": "button-original.png",
+      "width": 332,
+      "height": 277,
+      "decodedBytes": 367856,
+      "displayWidth": 128,
+      "displayHeight": 120,
+      "candidates": [
+        {
+          "name": "A",
+          "file": "button-A.png",
+          "width": 240,
+          "height": 200,
+          "decodedBytes": 192000,
+          "url": "https://audiopaytest.cos.tx.xmcdn.com/storages/cadd-audiotest/A1/35/GAqSiIMOlPRsAAHCSQACF0bq.png"
+        },
+        {
+          "name": "B",
+          "file": "button-B.png",
+          "width": 160,
+          "height": 133,
+          "decodedBytes": 85120,
+          "url": "https://audiopaytest.cos.tx.xmcdn.com/storages/2c2c-audiotest/3F/34/GAqSoUUOlPRsAADPDQACF0br.png"
+        }
+      ],
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/0b61-audiotest/53/B0/GAqSoUUOlMqVAAOM8gACF0PH.png"
+    },
+    {
+      "id": "disabled",
+      "label": "HUD 禁用按钮",
+      "source": "level-one/ui/quality-v2/disabled-frame.png",
+      "sourceSha256": "4d6f4541c41b71ee836ebb1bc3fb6cec7db10fb7faeb731e503757ff4971fd3e",
+      "original": "disabled-original.png",
+      "width": 205,
+      "height": 184,
+      "decodedBytes": 150880,
+      "displayWidth": 162,
+      "displayHeight": 120,
+      "candidates": [
+        {
+          "name": "A",
+          "file": "disabled-A.png",
+          "width": 192,
+          "height": 172,
+          "decodedBytes": 132096,
+          "url": "https://audiopaytest.cos.tx.xmcdn.com/storages/4bf2-audiotest/8F/AC/GAqSoUUOlPRrAAE2LwACF0bl.png"
+        },
+        {
+          "name": "B",
+          "file": "disabled-B.png",
+          "width": 160,
+          "height": 144,
+          "decodedBytes": 92160,
+          "url": "https://audiopaytest.cos.tx.xmcdn.com/storages/76f2-audiotest/19/22/GAqSoUUOlPRsAADd6QACF0bp.png"
+        }
+      ],
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/96ab-audiotest/7A/4D/GAqSoUUOlMpnAAGCEQACF0N-.png"
+    },
+    {
+      "id": "panel",
+      "label": "共用九宫格面板（仅源纹理对照）",
+      "source": "level-one/ui/quality-v3/panel.png",
+      "sourceSha256": "246f912263620c9bc9f69c7f209febc990b425e876e8030598d4bb3ed4472079",
+      "original": "panel-original.png",
+      "width": 512,
+      "height": 496,
+      "decodedBytes": 1015808,
+      "displayWidth": 900,
+      "displayHeight": 860,
+      "candidates": [
+        {
+          "name": "A",
+          "file": "panel-A.png",
+          "width": 448,
+          "height": 434,
+          "decodedBytes": 777728,
+          "url": "https://audiopaytest.cos.tx.xmcdn.com/storages/46ed-audiotest/4F/CD/GAqSiIMOlPRzAAPiWAACF0by.png"
+        },
+        {
+          "name": "B",
+          "file": "panel-B.png",
+          "width": 384,
+          "height": 372,
+          "decodedBytes": 571392,
+          "url": "https://audiopaytest.cos.tx.xmcdn.com/storages/7549-audiotest/51/50/GAqSiIMOlPUsAALp5QACF0cC.png"
+        }
+      ],
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/313b-audiotest/6B/62/GAqSoUUOlMqkAATrRwACF0Po.png"
+    }
+  ],
+  "operation": "whole-canvas Lanczos3 to PNG, preserve aspect; no art generation",
+  "candidateBytes": {
+    "A": 6514688,
+    "B": 4516096
+  },
+  "limitations": [
+    "未接入Cocos，不是真实GPU测量",
+    "九宫格源图缩放不能证明实际边框还原，接入前须同步边距并截图",
+    "不声称逐像素无损或预算达标，需用户确认清晰度",
+    "生成附件忽略于Git；原图与正式游戏不变"
+  ]
+}

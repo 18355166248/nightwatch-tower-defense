@@ -18,4 +18,5 @@ __pycache__/
 /docs/**/*.png
 /docs/**/*.jpg
 /docs/**/*.jpeg
-docs/design/first-level-quality-v3/texture-review-generated/
+docs/design/first-level-quality-v3/texture-review-generated/*
+!docs/design/first-level-quality-v3/texture-review-generated/manifest.json

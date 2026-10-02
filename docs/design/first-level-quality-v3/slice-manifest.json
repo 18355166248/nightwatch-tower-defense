@@ -15,11 +15,12 @@
         "width": 1184,
         "height": 1146
       },
-      "width": 512,
-      "height": 496,
-      "transparentPixels": 1812,
-      "decodedRgbaBytes": 1015808,
-      "nineSliceInset": 42,
+      "width": 384,
+      "height": 372,
+      "transparentPixels": 1419,
+      "decodedRgbaBytes": 571392,
+      "nineSliceInset": 31.5,
+      "samplingApproval": "用户确认 B；源图 3/4 采样，显示边框仍为原设计尺寸",
       "textBaked": false,
       "generatedWith": "built-in imagegen",
       "visualStatus": "awaiting-runtime-comparison"
@@ -177,5 +178,5 @@
       "visualStatus": "awaiting-runtime-comparison"
     }
   ],
-  "totalDecodedRgbaBytes": 1986560
+  "totalDecodedRgbaBytes": 1542144
 }

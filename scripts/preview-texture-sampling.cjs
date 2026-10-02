@@ -13,6 +13,10 @@ const specs = [
 ];
 
 async function main(sharpModule) {
+    // 接入后源图已经是 B；拒绝再次把 B 当原图采样，否则会污染获批对照基线。
+    if (fs.existsSync(path.join(root,'docs/design/first-level-quality-v3/texture-sampling-installed.json'))) {
+        throw new Error('B 已接入，保留现有原图/A/B评审附件；不能从运行图重新生成原始基线。');
+    }
     const sharp = require(sharpModule);
     const out = path.join(root,'docs/design/first-level-quality-v3/texture-review-generated');
     fs.mkdirSync(out,{recursive:true});

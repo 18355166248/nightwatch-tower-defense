@@ -2,6 +2,15 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { imageDimensions, rgbaBytes, selectTextureSet, textureBasesInSource, budgetPassed } = require('../scripts/report-first-level-budget.cjs');
 
+test('无损 WebP 尺寸计入同一 RGBA 预算，截断与未知版本拒绝放行', () => {
+    const b = Buffer.alloc(26);
+    b.write('RIFF'); b.writeUInt32LE(18,4); b.write('WEBPVP8L',8); b.writeUInt32LE(5,16); b[20] = 0x2f;
+    b.writeUInt32LE(639 | (1136 << 14),21);
+    assert.deepEqual(imageDimensions(b), {width:640,height:1137});
+    assert.throws(() => imageDimensions(b.subarray(0,25)));
+    b[24] |= 0x20; assert.throws(() => imageDimensions(b));
+});
+
 test('纹理预算按RGBA与完整mipmap计数，不用PNG文件压缩体积冒充解码内存', () => {
     assert.equal(rgbaBytes(1024, 1024), 4 * 1024 * 1024);
     assert.equal(rgbaBytes(4, 2, true), 32 + 8 + 4);

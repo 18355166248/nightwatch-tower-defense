@@ -42,8 +42,8 @@ const configs = [
 const frames=[];
 function add(id,name,body,states) {
     // SVG使用相对本地资源，PNG导出时嵌入同一原图，便于离线交叉review。
-    const background=fs.readFileSync(path.join(root,'assets/resources/level-one/backdrop-plaza-v2.jpg')).toString('base64');
-    const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920"><style>text{font-family:'PingFang SC','Microsoft YaHei',sans-serif}</style><image href="data:image/jpeg;base64,${background}" width="1080" height="1920"/><rect width="1080" height="1920" fill="#07101B" opacity=".91"/>${body}</svg>`;
+    const background=fs.readFileSync(path.join(root,'assets/resources/level-one/backdrop-plaza-v2.webp')).toString('base64');
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920"><style>text{font-family:'PingFang SC','Microsoft YaHei',sans-serif}</style><image href="data:image/webp;base64,${background}" width="1080" height="1920"/><rect width="1080" height="1920" fill="#07101B" opacity=".91"/>${body}</svg>`;
     frames.push({id,name,svg,states});
 }
 for(const c of configs) {
