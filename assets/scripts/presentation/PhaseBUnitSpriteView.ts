@@ -272,7 +272,9 @@ export class PhaseBUnitSpriteView {
                     const directionFrame = this.rivetHeadFrames.frame(direction);
                     if (directionFrame) {
                         this.towerDirections.set(key, direction);
-                        emitter = poseDirectionalTowerHead(node, directionFrame, RIVET_HEAD_REGISTRATIONS[direction], point, towerSize, motion);
+                        const muzzles = poseDirectionalTowerHead(node, directionFrame, RIVET_HEAD_REGISTRATIONS[direction], point, towerSize, motion);
+                        emitter = muzzles[0];
+                        this.visualAnchors.emitter(key, muzzles[1], 1);
                         this.towerDirectionSamples.push({ towerKey: key, direction });
                     }
                 }

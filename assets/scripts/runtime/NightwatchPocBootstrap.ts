@@ -587,6 +587,7 @@ export class NightwatchPocBootstrap extends Component {
             // 输入回调内再次以当前阶段提交；倒计时已经开波时窗口变 locked，绝不跨波出售。
             const sold = this.model.sell(cell, towerSaleWindow(this.preparing, this.battle.snapshot.phase, this.guidedIntermissionHeld));
             if (sold) {
+                this.feedback.forgetTower(cell);
                 this.towerInspection.clear();
                 const change = this.routeChange.record(cell, before, this.committedPath());
                 this.statusText = `${window === 'opening' ? '全额撤销' : '波间出售'} · +${refund} 金 · ${routeChangeText(change.delta, change.changed)}`;

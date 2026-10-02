@@ -4,6 +4,39 @@ const { FeedbackVisualOrigins } = require('../.test-dist/presentation/FeedbackVi
 const { CombatFeedbackRuntime } = require('../.test-dist/presentation/CombatFeedbackRuntime.js');
 const { CombatVisualAnchors } = require('../.test-dist/presentation/CombatVisualAnchors.js');
 
+test('实际绘制弹迹、枪口亮点和命中火花读取本发炮管，不串用主炮口', () => {
+    const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm');
+    const ts = require('typescript');
+    const load = require('node:module').createRequire(path.resolve(__dirname,'../.test-dist/presentation/CombatFeedbackView.js'));
+    const module = {exports:{}};
+    const compiled = ts.transpileModule(fs.readFileSync(path.resolve(__dirname,
+        '../assets/scripts/presentation/CombatFeedbackView.ts'),'utf8'),
+        {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
+    vm.runInNewContext(compiled,{module,exports:module.exports,require:name=>name==='cc'?{Color:class Color{}}:load(name)});
+    const circles=[], moves=[];
+    const graphics={circle:(x,y)=>circles.push([x,y]),moveTo:(x,y)=>moves.push([x,y]),lineTo(){},fill(){},stroke(){}};
+    const view = new module.exports.CombatFeedbackView(graphics,{gridPointCenter:p=>({x:p.column*10,y:p.row*10})});
+    const feedback=new CombatFeedbackRuntime();
+    const shot={towerCell:{column:4,row:3},towerId:'rivet-gun',targetId:'enemy-a',
+        targetPoint:{column:3,row:2},damage:7,lethal:false,appliedSlow:false};
+    feedback.consume({shots:[shot,shot],killed:[],leaked:[],spawningCompleted:false});
+    const anchors=new CombatVisualAnchors();
+    anchors.emitter('4,3',{x:10,y:30},0); anchors.emitter('4,3',{x:20,y:30},1);
+    anchors.target('enemy-a',{x:50,y:60});
+    view.drawAboveUnits({grid:{},reducedMotion:false,feedback:feedback.snapshot},10,anchors);
+    assert.deepEqual(Array.from(view.alignmentSamples,s=>[s.barrel,s.origin.x,s.origin.y]),[[0,10,30],[1,20,30]]);
+    assert.ok(circles.some(([x,y])=>x===10&&y===30));
+    assert.ok(circles.some(([x,y])=>x===20&&y===30));
+    // 两次命中各有两道火花；末四次 moveTo 应跟随各自枪口的入射方向。
+    const sparks=moves.slice(-4);
+    for(let barrel=0;barrel<2;barrel++){
+        const direction=Math.atan2(30,50-(barrel===0?10:20));
+        const angle=direction-.4;
+        assert.ok(Math.abs(sparks[barrel*2][0]-(50+Math.cos(angle)*1.3))<1e-9);
+        assert.ok(Math.abs(sparks[barrel*2][1]-(60+Math.sin(angle)*1.3))<1e-9);
+    }
+});
+
 test('实际反馈绘制：击杀圈读取本帧尸影，金币起点在尸影退场后仍固定，范围圈不追敌', () => {
     const fs = require('node:fs');
     const path = require('node:path');

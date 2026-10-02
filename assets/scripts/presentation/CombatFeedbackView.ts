@@ -11,7 +11,7 @@ import { FeedbackVisualOrigins } from './FeedbackVisualOrigins';
 export class CombatFeedbackView {
     private readonly rewardOrigins = new FeedbackVisualOrigins();
     public rewardAlignmentSamples: {enemyId: string; origin: PhaseBPoint; logicalOrigin: PhaseBPoint}[] = [];
-    public alignmentSamples: {targetId:string;origin:PhaseBPoint;target:PhaseBPoint;logicalTarget:PhaseBPoint}[] = [];
+    public alignmentSamples: {targetId:string;barrel:0|1;origin:PhaseBPoint;target:PhaseBPoint;logicalTarget:PhaseBPoint}[] = [];
     public constructor(private readonly graphics: Graphics, private readonly layout: PhaseBLayout) {}
 
     public drawBehindUnits(state: PhaseBSceneState, cellSize: number, anchors?: CombatVisualAnchors): void {
@@ -32,12 +32,12 @@ export class CombatFeedbackView {
     private drawShots(state: PhaseBSceneState, cellSize: number, anchors?: CombatVisualAnchors): void {
         const graphics = this.graphics;
         for (const tracer of state.feedback.tracers) {
-            const origin = anchors?.resolveEmitter(`${tracer.origin.column},${tracer.origin.row}`,this.center(tracer.origin,state.grid))
+            const origin = anchors?.resolveEmitter(`${tracer.origin.column},${tracer.origin.row}`,this.center(tracer.origin,state.grid),tracer.barrel)
                 ?? this.center(tracer.origin,state.grid);
             const logicalTarget = this.center(tracer.point,state.grid);
             const target = anchors?.resolveTarget(tracer.targetId,logicalTarget) ?? logicalTarget;
             // 同一目标ID连接当前身体/短尸影，不把分流中的敌人误连到旧格点；样本来自实际绘制端点。
-            if(this.alignmentSamples.length<6)this.alignmentSamples.push({targetId:tracer.targetId,origin,target,logicalTarget});
+            if(this.alignmentSamples.length<6)this.alignmentSamples.push({targetId:tracer.targetId,barrel:tracer.barrel,origin,target,logicalTarget});
             const life = tracer.remainingSeconds / tracer.durationSeconds;
             const frost = tracer.towerId === 'frost-coil';
             if (frost) {
@@ -106,7 +106,7 @@ export class CombatFeedbackView {
         const graphics = this.graphics;
         for (const impact of state.feedback.impacts) {
             const point = anchors?.resolveTarget(impact.targetId,this.center(impact.point,state.grid)) ?? this.center(impact.point,state.grid);
-            const origin = anchors?.resolveEmitter(`${impact.origin.column},${impact.origin.row}`,this.center(impact.origin,state.grid))
+            const origin = anchors?.resolveEmitter(`${impact.origin.column},${impact.origin.row}`,this.center(impact.origin,state.grid),impact.barrel)
                 ?? this.center(impact.origin,state.grid);
             const progress = 1 - impact.remainingSeconds / impact.durationSeconds;
             const life = 1 - progress;

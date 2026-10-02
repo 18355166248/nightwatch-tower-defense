@@ -10,6 +10,7 @@ export interface TimedFeedback {
 }
 
 export interface TracerFeedback extends TimedFeedback {
+    readonly barrel: 0 | 1;
     readonly origin: GridPoint;
     readonly targetId: string;
     readonly damage: number;
@@ -19,6 +20,7 @@ export interface TracerFeedback extends TimedFeedback {
 }
 
 export interface ImpactFeedback extends TimedFeedback {
+    readonly barrel: 0 | 1;
     readonly targetId: string;
     readonly origin: GridPoint;
     readonly towerId: TowerId;
@@ -90,6 +92,7 @@ export class CombatFeedbackRuntime {
     private activeDeaths: DeathFeedback[] = [];
     private activeRewards: RewardFeedback[] = [];
     private activeCoreHits: TimedFeedback[] = [];
+    private readonly nextBarrels = new Map<string, 0 | 1>();
 
     public get snapshot(): CombatFeedbackSnapshot {
         return {
@@ -104,9 +107,12 @@ export class CombatFeedbackRuntime {
     }
 
     public consume(result: CombatTickResult): void {
-        this.activeTracers.push(...result.shots.map((shot) => this.tracerFor(shot)));
+        const tracers = result.shots.map((shot) => this.tracerFor(shot));
+        this.activeTracers.push(...tracers);
         // 命中只携带已有的射击事实；表现层据此区分铜火花与冷凝晶芒，不反向影响伤害。
-        this.activeImpacts.push(...result.shots.map((shot) => ({
+        this.activeImpacts.push(...result.shots.map((shot, index) => ({
+            // 同一射击只选一次炮管，命中火花不得再次推进交替序列。
+            barrel: tracers[index].barrel,
             ...this.timed(shot.targetPoint, IMPACT_SECONDS),
             origin: { column: shot.towerCell.column, row: shot.towerCell.row },
             towerId: shot.towerId,
@@ -161,6 +167,7 @@ export class CombatFeedbackRuntime {
     }
 
     public clear(): void {
+        this.nextBarrels.clear();
         this.activeTracers = [];
         this.activeImpacts = [];
         this.activeAims = [];
@@ -171,7 +178,12 @@ export class CombatFeedbackRuntime {
     }
 
     private tracerFor(shot: ShotEvent): TracerFeedback {
+        const key = `${shot.towerCell.column},${shot.towerCell.row}`;
+        const barrel = shot.towerId === 'rivet-gun' ? this.nextBarrels.get(key) ?? 0 : 0;
+        // 交替属于表现层；按炮塔隔离，停火/升级不重置，不写回模拟射击事件。
+        if (shot.towerId === 'rivet-gun') this.nextBarrels.set(key, barrel === 0 ? 1 : 0);
         return {
+            barrel,
             ...this.timed(shot.targetPoint, TRACER_SECONDS),
             origin: { column: shot.towerCell.column, row: shot.towerCell.row },
             targetId: shot.targetId,
@@ -180,6 +192,11 @@ export class CombatFeedbackRuntime {
             towerId: shot.towerId,
             appliedSlow: shot.appliedSlow,
         };
+    }
+
+    /** 出售成功后释放该格的序列，原地重建从第一根炮管开始。 */
+    public forgetTower(point: GridPoint): void {
+        this.nextBarrels.delete(`${point.column},${point.row}`);
     }
 
     private timed(point: GridPoint, durationSeconds: number): TimedFeedback {

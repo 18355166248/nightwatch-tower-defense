@@ -3,7 +3,7 @@ export interface BrowserBattleDiagnosticsState {
     readonly towerHeadDirections?: readonly {readonly towerKey: string; readonly direction: string}[];
     readonly combatRewardOrigins?: readonly {readonly enemyId: string; readonly origin: {readonly x: number; readonly y: number}; readonly logicalOrigin: {readonly x: number; readonly y: number}}[];
     readonly combatTargetLocks?: readonly {readonly towerKey:string;readonly towerId:string;readonly targetId:string}[];
-    readonly combatVisualAlignment?: readonly {readonly targetId:string;readonly origin:{readonly x:number;readonly y:number};
+    readonly combatVisualAlignment?: readonly {readonly targetId:string;readonly barrel:0|1;readonly origin:{readonly x:number;readonly y:number};
         readonly target:{readonly x:number;readonly y:number};readonly logicalTarget:{readonly x:number;readonly y:number}}[];
     readonly renderAtlasPolicyStatus: string;
     readonly rendererLabelBudgetSupported: boolean;
