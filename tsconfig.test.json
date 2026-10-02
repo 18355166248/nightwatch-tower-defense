@@ -18,6 +18,8 @@
     "assets/scripts/presentation/**/*.ts"
   ],
   "exclude": [
+    "assets/scripts/presentation/EightDirectionTowerFrames.ts",
+    "assets/scripts/presentation/EightDirectionTowerView.ts",
     "assets/scripts/presentation/FirstLevelCoachView.ts",
     "assets/scripts/presentation/FirstLevelTowerPanelView.ts",
     "assets/scripts/presentation/FirstLevelResultView.ts",

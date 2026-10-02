@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>八方向炮头 · 代表稿审阅</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101720;color:#e8e3d8;font:14px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}main{max-width:1100px;margin:auto;padding:24px}h1{font-size:22px;margin:0 0 10px}h2{font-size:16px;margin:24px 0 10px}p{color:#b9c3cc;max-width:850px}a{color:#9ed8d6}.board{display:block;width:100%;height:auto}.sizes{display:flex;flex-wrap:wrap;gap:24px}.row{display:flex;gap:8px;flex-wrap:wrap;padding:14px;background:#182330;border:1px solid #46505a}.slot{width:var(--size);height:calc(var(--size)*4/3);background-image:url(eight-direction-head-board-v1.png);background-size:calc(var(--size)*4) calc(var(--size)*8/3);background-position:calc(var(--col)*var(--size)*-1) calc(var(--row)*var(--size)*-4/3)}figcaption{color:#b9c3cc;font-size:12px}figure{margin:0}small{color:#b9c3cc}
+</style>
+<main>
+<h1>八方向炮头 · 机枪塔代表稿</h1>
+<p>代表稿已获认可。下方新增八张128×128透明基础切图；目前为生产候选，尚未接入正式游戏。轴点、炮口配准与三级家族仍在制作。</p>
+<h2>透明基础切图 · 小尺寸预览</h2>
+<div id="production-heads" style="display:flex;gap:12px;flex-wrap:wrap;padding:16px;background:#182330"></div>
+<script>
+['N','NE','E','SE','S','SW','W','NW'].forEach((direction,index)=>{
+const figure=document.createElement('figure');const image=document.createElement('img');
+image.src='output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/resized/exec-f9a2a223-c099-4e16-80bb-054fe5103310_'+String(index).padStart(2,'0')+'.png';
+image.width=96;image.height=96;image.alt=direction+'透明炮头';
+const caption=document.createElement('figcaption');caption.textContent=direction;
+figure.append(image,caption);document.getElementById('production-heads').append(figure);
+});
+</script>
+<h2>已认可的独立代表稿</h2>
+<img class="board" src="eight-direction-head-board-v1.png" alt="机枪塔北、东北、东、东南、南、西南、西、西北八方向设计板">
+<h2>小尺寸可读性检查</h2>
+<p>下列按整格宽度 64／96 像素缩放（塔体约占格宽 70%，即约 45／67 像素），不宣称等同最终运行尺寸或已经通过游戏验收。选定后需在实际战场逐方向核对。</p>
+<div class="sizes">
+<figure><div class="row" style="--size:64px">
+<div class="slot" style="--col:0;--row:0"></div><div class="slot" style="--col:1;--row:0"></div><div class="slot" style="--col:2;--row:0"></div><div class="slot" style="--col:3;--row:0"></div><div class="slot" style="--col:0;--row:1"></div><div class="slot" style="--col:1;--row:1"></div><div class="slot" style="--col:2;--row:1"></div><div class="slot" style="--col:3;--row:1"></div>
+</div><figcaption>64 px 格宽 · 小尺寸</figcaption></figure>
+<figure><div class="row" style="--size:96px">
+<div class="slot" style="--col:0;--row:0"></div><div class="slot" style="--col:1;--row:0"></div><div class="slot" style="--col:2;--row:0"></div><div class="slot" style="--col:3;--row:0"></div><div class="slot" style="--col:0;--row:1"></div><div class="slot" style="--col:1;--row:1"></div><div class="slot" style="--col:2;--row:1"></div><div class="slot" style="--col:3;--row:1"></div>
+</div><figcaption>96 px 格宽 · 放大检查</figcaption></figure>
+</div>
+<h2>进入切图前必须修正</h2>
+<p>各方向炮头体量和齿轮位置还需统一；底座只保留一张固定资源，不沿用稿件中的底座差异；示意火花与弹迹不能烘焙进炮头。生产图须独立透明炮头、统一旋转轴点和双炮口坐标，枪口反馈由程序绘制。</p>
+<p><a href="EIGHT-DIRECTION-HEAD.md">规格与提示词</a> · <a href="index.html">回到全页面索引</a></p>
+<small>审稿图片仅用于本地预览，已被 Git 忽略，不进入游戏包。确认后的正式资料按既有 CDN 归档流程处理。</small>
+</main>
+</html>

@@ -23,6 +23,10 @@ import { compatibleDirectionalCollapse, directionalCollapseFrame, directionalCol
 import { ORIGINAL_FIRST_LEVEL_ART, type FirstLevelArtProfile } from './FirstLevelArtProfile';
 import { CombatVisualAnchors } from './CombatVisualAnchors';
 import { layeredTowerEmissionPoint } from './LayeredTowerGeometry';
+import { EightDirectionTowerFrames } from './EightDirectionTowerFrames';
+import { towerHeadDirection, type TowerHeadDirection } from './EightDirectionTowerAim';
+import { RIVET_HEAD_REGISTRATIONS } from './RivetHeadRegistrations';
+import { poseDirectionalTowerHead } from './EightDirectionTowerView';
 
 const UNIT_ASSETS = {
     'rivet-gun': 'level-one/units/rivet-gun/spriteFrame',
@@ -57,6 +61,10 @@ type LayeredTowerId = keyof typeof TOWER_LAYER_ASSETS;
 /** 单位切图层只同步视觉节点；全部资源就绪前由 Graphics 保留灰盒兜底。 */
 export class PhaseBUnitSpriteView {
     public readonly visualAnchors = new CombatVisualAnchors();
+    private readonly rivetHeadFrames: EightDirectionTowerFrames;
+    private readonly towerDirections = new Map<string, TowerHeadDirection>();
+    public towerDirectionSamples: { towerKey: string; direction: TowerHeadDirection }[] = [];
+    public get eightDirectionHeadStatus(): string { return this.rivetHeadFrames.status; }
     private readonly root = new Node('FirstLevelUnitSprites');
     private readonly towerLayer = new Node('TowerSprites');
     private readonly enemyLayer = new Node('EnemySprites');
@@ -92,6 +100,7 @@ export class PhaseBUnitSpriteView {
 
     public constructor(parent: Node, layout: PhaseBLayout, infantryRigCandidate = false, profile: FirstLevelArtProfile = ORIGINAL_FIRST_LEVEL_ART) {
         this.layout = layout;
+        this.rivetHeadFrames = new EightDirectionTowerFrames(this.root);
         this.root.layer = parent.layer;
         this.root.addComponent(UITransform).setContentSize(PHASE_B_DESIGN_WIDTH, PHASE_B_DESIGN_HEIGHT);
         parent.addChild(this.root);
@@ -165,6 +174,8 @@ export class PhaseBUnitSpriteView {
     public get activeDirectionalCollapseCount(): number { return this.renderedDirectionalCollapseCount; }
 
     public dispose(): void {
+        this.rivetHeadFrames.dispose();
+        this.towerDirections.clear();
         this.crowd.reset();
         this.infantryAtlas?.dispose();
         this.infantryCollapseAtlas?.dispose();
@@ -176,6 +187,7 @@ export class PhaseBUnitSpriteView {
 
     public render(state: PhaseBSceneState, runElapsedSeconds: number): void {
         this.visualAnchors.begin();
+        this.towerDirectionSamples = [];
         this.healthGraphics.clear();
         this.renderedHealthBarCount = 0;
         this.displacedHealthBarCount = 0;
@@ -214,6 +226,7 @@ export class PhaseBUnitSpriteView {
     }
 
     private renderTowers(state: PhaseBSceneState): void {
+        this.towerDirectionSamples = [];
         const visible = new Set<string>();
         const towerSize = towerDisplaySize(this.layout.boardMetrics(state.grid).cellSize);
         const recentShots = new Map<string, typeof state.feedback.tracers[number]>();
@@ -251,7 +264,19 @@ export class PhaseBUnitSpriteView {
                     row:aim.point.row-(visualTarget.y-fallbackTarget.y)/cellSize} : cell;
                 const aimAngle = aim ? rivetAimAngleDegrees(aim.origin, aimPoint, aim.remainingSeconds, aim.durationSeconds) : 0;
                 LayeredTowerRig.pose(node, point, towerSize, motion, spec, aimAngle);
-                this.visualAnchors.emitter(key,layeredTowerEmissionPoint(point,towerSize,motion,spec,aimAngle));
+                let emitter = layeredTowerEmissionPoint(point,towerSize,motion,spec,aimAngle);
+                if (towerId === 'rivet-gun') {
+                    this.rivetHeadFrames.request();
+                    const previous = this.towerDirections.get(key) ?? 'north';
+                    const direction = aim ? towerHeadDirection(point, visualTarget, previous) : previous;
+                    const directionFrame = this.rivetHeadFrames.frame(direction);
+                    if (directionFrame) {
+                        this.towerDirections.set(key, direction);
+                        emitter = poseDirectionalTowerHead(node, directionFrame, RIVET_HEAD_REGISTRATIONS[direction], point, towerSize, motion);
+                        this.towerDirectionSamples.push({ towerKey: key, direction });
+                    }
+                }
+                this.visualAnchors.emitter(key, emitter);
             } else {
                 const node = this.ensureNode(this.towers, key, this.towerLayer, frame, towerSize);
                 node.setPosition(point.x + (recoil?.x ?? 0), point.y + 3 + (recoil?.y ?? 0), 0);
@@ -260,6 +285,7 @@ export class PhaseBUnitSpriteView {
             visible.add(key);
         }
         this.removeMissing(this.towers, visible);
+        for (const key of this.towerDirections.keys()) if (!visible.has(key)) this.towerDirections.delete(key);
     }
 
     private renderEnemies(state: PhaseBSceneState, runElapsedSeconds: number): void {

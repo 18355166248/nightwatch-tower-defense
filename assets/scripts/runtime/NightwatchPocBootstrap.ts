@@ -1296,6 +1296,8 @@ export class NightwatchPocBootstrap extends Component {
             combatVisualAlignment: this.foregroundFeedback?.alignmentDiagnostics ?? [],
             combatRewardOrigins: this.foregroundFeedback?.rewardAlignmentDiagnostics ?? [],
             combatTargetLocks: this.combat.lockedTargets,
+            eightDirectionHeadStatus: this.unitSprites?.eightDirectionHeadStatus ?? 'unavailable',
+            towerHeadDirections: this.unitSprites?.towerDirectionSamples ?? [],
             entryMode: this.experience.entryMode,
             gridId: this.selectedGridId,
             columns: this.model.grid.columns,
