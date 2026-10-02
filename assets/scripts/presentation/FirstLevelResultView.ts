@@ -6,6 +6,7 @@ import { PHASE_B_RESULT_HOME_BUTTON, PHASE_B_RESULT_RESTART_BUTTON, PhaseBLayout
 import { resultRevealEase } from './ResultRevealRuntime';
 import { VisibleAsyncAsset } from './VisibleAsyncAsset';
 import { resultAssetNeeded } from './ResultAssetPolicy';
+import { VisibleLabelSlots } from './VisibleLabelSlots';
 
 const ART = ['victory-badge','defeat-badge','kill-icon','leak-icon','heart-icon','coins-icon','time-icon','tower-icon','upgrade-icon'] as const;
 type ResultArt = typeof ART[number];
@@ -18,7 +19,7 @@ export class FirstLevelResultView {
     private readonly skins: FirstLevelPageSkinView;
     private readonly artRoot: Node;
     private readonly textRoot: Node;
-    private readonly labels = new Map<string, Label>();
+    private readonly labels = new VisibleLabelSlots();
     private readonly frames = new Map<ResultArt, SpriteFrame>();
     private readonly sprites = new Map<string, Sprite>();
     private readonly failures = new Set<ResultArt>();
@@ -59,6 +60,7 @@ export class FirstLevelResultView {
         }
         this.root.on(Node.EventType.NODE_DESTROYED, () => {
             this.snapshot = null;
+            this.labels.clear();
             for (const asset of this.assets.values()) asset.setVisible(false);
         });
     }
@@ -69,7 +71,12 @@ export class FirstLevelResultView {
         this.opacity.opacity = Math.round(255 * resultRevealEase(progress));
         // 重开/回首页释放结算独占图；胜败只加载本次真正使用的图片，共用面板饰面仍由原视图持有。
         for (const [name, asset] of this.assets) asset.setVisible(resultAssetNeeded(name, result?.kind ?? null));
-        if (!result) { this.signature = ''; return; }
+        if (!result) {
+            // 隐藏结算根节点不会释放TTF纹理；离页销毁文字槽，重开才不会残留约1.5MiB隐藏分配。
+            this.labels.clear();
+            this.signature = '';
+            return;
+        }
         const signature = JSON.stringify([result,this.layout.safeHalfWidth]);
         if (signature === this.signature) return;
         this.signature = signature; this.draw(result);
@@ -86,6 +93,7 @@ export class FirstLevelResultView {
     }
 
     private draw(result: BattleResultViewModel): void {
+        this.labels.begin();
         this.skins.begin();
         for (const sprite of this.sprites.values()) sprite.node.active = false;
         this.dim.clear(); this.dim.fillColor = new Color(3,8,16,150);
@@ -126,6 +134,7 @@ export class FirstLevelResultView {
             this.skins.icon(`action-${index}`,icon,{left:-140,right:-78,bottom:y-31,top:y+31});
             this.text(`action-${index}`,label,36,45,y,rect.right-rect.left-165,65,'#F4E9CD');
         }
+        this.labels.end();
     }
 
     private art(slot: string, name: ResultArt, rect: PhaseBRect): void {
@@ -138,8 +147,13 @@ export class FirstLevelResultView {
     }
 
     private text(id: string, value: string, size: number, x: number, y: number, width: number, height: number, color: string, bold=false, alignment=HorizontalTextAlignment.CENTER): void {
-        let label=this.labels.get(id);
-        if (!label) { label=this.child(this.textRoot,id).addComponent(Label); label.fontFamily=FIRST_LEVEL_UI_FONT; label.useSystemFont=true; label.horizontalAlign=HorizontalTextAlignment.CENTER; label.verticalAlign=VerticalTextAlignment.CENTER; label.overflow=Label.Overflow.SHRINK; this.labels.set(id,label); }
+        const label=this.labels.acquire(id,()=>{
+            const created=this.child(this.textRoot,id).addComponent(Label);
+            created.fontFamily=FIRST_LEVEL_UI_FONT; created.useSystemFont=true;
+            created.horizontalAlign=HorizontalTextAlignment.CENTER; created.verticalAlign=VerticalTextAlignment.CENTER;
+            created.overflow=Label.Overflow.SHRINK;
+            return created;
+        });
         label.string=value; label.fontSize=size; label.lineHeight=size*1.3; label.color=new Color(color); label.isBold=bold; label.horizontalAlign=alignment;
         label.node.getComponent(UITransform)!.setContentSize(width,height); label.node.setPosition(x,y);
     }
