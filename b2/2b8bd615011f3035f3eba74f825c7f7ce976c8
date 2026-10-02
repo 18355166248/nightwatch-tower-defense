@@ -1,0 +1,41 @@
+docs/design/first-level-quality-v3/state-index.json
+  s_57db2c01e7cdde::t_5792a085df1e75 4,22
+tests/feedback-visual-origins.test.cjs
+  s_57db2c01e7cdde::t_995d3e543287b2 7-26,28-39
+  s_57db2c01e7cdde::t_289fb4b15b5b38 27
+docs/design/first-level-quality-v3/EIGHT-DIRECTION-HEAD.md
+  s_57db2c01e7cdde::t_5792a085df1e75 3-14
+assets/scripts/presentation/CombatFeedbackView.ts
+  s_57db2c01e7cdde::t_61711e7207aa59 14,35,40,109
+assets/scripts/presentation/CombatVisualAnchors.ts
+  s_57db2c01e7cdde::t_61711e7207aa59 9,11-14
+assets/scripts/presentation/CombatFeedbackRuntime.ts
+  s_57db2c01e7cdde::t_61711e7207aa59 13,23,95,110-111,113-115,170,181-184,186,197-199
+  s_57db2c01e7cdde::t_d62999e59afc2c 200-201
+assets/scripts/runtime/NightwatchPocBootstrap.ts
+  s_57db2c01e7cdde::t_61711e7207aa59 590
+assets/scripts/presentation/EightDirectionTowerView.ts
+  s_57db2c01e7cdde::t_61711e7207aa59 8,10,22-26
+assets/scripts/presentation/BrowserBattleDiagnostics.ts
+  s_57db2c01e7cdde::t_61711e7207aa59 6
+assets/scripts/presentation/PhaseBUnitSpriteView.ts
+  s_57db2c01e7cdde::t_61711e7207aa59 275-277
+tests/combat-visual-anchors.test.cjs
+  s_57db2c01e7cdde::t_62da5584eb576f 37-66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "b22b8bd615011f3035f3eba74f825c7f7ce976c8",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
