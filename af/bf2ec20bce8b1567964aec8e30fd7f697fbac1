@@ -1,0 +1,24 @@
+docs/design/first-level-quality-v3/eight-direction-family.html
+  s_57db2c01e7cdde::t_5030f475cd944c 10
+docs/design/first-level-quality-v3/EIGHT-DIRECTION-HEAD.md
+  s_57db2c01e7cdde::t_5030f475cd944c 3-8
+  s_57db2c01e7cdde::t_417b2610e42a63 9-10
+docs/design/first-level-quality-v3/state-index.json
+  s_57db2c01e7cdde::t_80cdbd9a959b4e 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "afbf2ec20bce8b1567964aec8e30fd7f697fbac1",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
