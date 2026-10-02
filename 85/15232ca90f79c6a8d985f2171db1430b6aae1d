@@ -1,0 +1,80 @@
+assets/scripts/presentation/BrowserBattleDiagnostics.ts
+  s_57db2c01e7cdde::t_10edfebfbba083 2-3
+scripts/install-rivet-eight-direction.cjs
+  s_57db2c01e7cdde::t_26eaba6d4dff80 1-35
+tests/eight-direction-tower-aim.test.cjs
+  s_57db2c01e7cdde::t_10edfebfbba083 32-55
+  s_57db2c01e7cdde::t_c921acbc37e37c 1-31,56
+assets/scripts/runtime/NightwatchPocBootstrap.ts
+  s_57db2c01e7cdde::t_10edfebfbba083 1299-1300
+assets/scripts/presentation/EightDirectionTowerView.ts
+  s_57db2c01e7cdde::t_26eaba6d4dff80 1-24
+docs/design/first-level-quality-v3/EIGHT-DIRECTION-HEAD.md
+  s_57db2c01e7cdde::t_4adb189d6a5bd6 45-48
+  s_57db2c01e7cdde::t_6cc1fcb83667cf 3-14
+  s_57db2c01e7cdde::t_095b1efa49dd56 1-2,33-44,49
+  s_57db2c01e7cdde::t_c921acbc37e37c 15-32
+docs/design/first-level-quality-v3/index.html
+  s_57db2c01e7cdde::t_ce46ca7cfff472 11
+assets/scripts/presentation/EightDirectionTowerAim.ts
+  s_57db2c01e7cdde::t_c921acbc37e37c 1-28,30-31,34
+  s_57db2c01e7cdde::t_26eaba6d4dff80 29,32-33
+docs/design/first-level-quality-v3/state-index.json
+  s_57db2c01e7cdde::t_dbfe21c11ec32a 22
+  s_57db2c01e7cdde::t_c921acbc37e37c 5
+  s_57db2c01e7cdde::t_6cc1fcb83667cf 4
+assets/scripts/presentation/RivetHeadRegistrations.ts
+  s_57db2c01e7cdde::t_26eaba6d4dff80 1-17
+docs/design/first-level-quality-v3/eight-direction-head.html
+  s_57db2c01e7cdde::t_b02eeb4904e393 11-23
+  s_57db2c01e7cdde::t_4adb189d6a5bd6 1-10,24-40
+tsconfig.test.json
+  s_57db2c01e7cdde::t_26eaba6d4dff80 21-22
+assets/scripts/presentation/EightDirectionTowerAim.ts.meta
+  s_57db2c01e7cdde::t_c921acbc37e37c 1
+assets/scripts/presentation/EightDirectionTowerFrames.ts
+  s_57db2c01e7cdde::t_26eaba6d4dff80 1-36
+assets/scripts/presentation/PhaseBUnitSpriteView.ts
+  s_57db2c01e7cdde::t_10edfebfbba083 190
+  s_57db2c01e7cdde::t_26eaba6d4dff80 26-29,64-67,103,177-178,229,267-279,288
+assets/resources/level-one/units/rivet-head-eight-v1.meta
+  s_57db2c01e7cdde::t_e82a8e0bb00f77 1-9
+assets/resources/level-one/units/rivet-head-eight-v1/east.png.meta
+  s_57db2c01e7cdde::t_a733e3c44fed79 1-134
+assets/resources/level-one/units/rivet-head-eight-v1/north-east.png.meta
+  s_57db2c01e7cdde::t_19291159f2654a 1-134
+assets/resources/level-one/units/rivet-head-eight-v1/north-west.png.meta
+  s_57db2c01e7cdde::t_9ebbdc6de6ec38 1-134
+assets/resources/level-one/units/rivet-head-eight-v1/north.png.meta
+  s_57db2c01e7cdde::t_cdf7d8a6460e96 1-134
+assets/resources/level-one/units/rivet-head-eight-v1/south-east.png.meta
+  s_57db2c01e7cdde::t_581912ca96534b 1-134
+assets/resources/level-one/units/rivet-head-eight-v1/south-west.png.meta
+  s_57db2c01e7cdde::t_2bf780f20daa93 1-134
+assets/resources/level-one/units/rivet-head-eight-v1/south.png.meta
+  s_57db2c01e7cdde::t_767affa8efd9e2 1-134
+assets/resources/level-one/units/rivet-head-eight-v1/west.png.meta
+  s_57db2c01e7cdde::t_1848af2a46b5da 1-134
+assets/scripts/presentation/EightDirectionTowerFrames.ts.meta
+  s_57db2c01e7cdde::t_d26abb549fc38a 1-9
+assets/scripts/presentation/EightDirectionTowerView.ts.meta
+  s_57db2c01e7cdde::t_0f992e923b3010 1-9
+assets/scripts/presentation/RivetHeadRegistrations.ts.meta
+  s_57db2c01e7cdde::t_cf6770baa5c3bb 1-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "8515232ca90f79c6a8d985f2171db1430b6aae1d",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
