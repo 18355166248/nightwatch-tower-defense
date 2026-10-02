@@ -1,0 +1,23 @@
+docs/design/first-level-quality-v3/LIFECYCLE-EVIDENCE.md
+  s_57db2c01e7cdde::t_0c0d4574ff8abe 1-28
+docs/design/first-level-quality-v3/index.html
+  s_57db2c01e7cdde::t_0c0d4574ff8abe 11
+docs/design/first-level-quality-v3/state-index.json
+  s_57db2c01e7cdde::t_0c0d4574ff8abe 40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "2985b619152c788ccb0ffef2b01a8803205a2d43",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
