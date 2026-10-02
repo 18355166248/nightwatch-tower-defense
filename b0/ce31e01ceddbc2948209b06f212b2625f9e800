@@ -1,0 +1,41 @@
+assets/scripts/systems/TowerTargetLocks.ts
+  s_57db2c01e7cdde::t_ba98f3dfcbf099 1
+  s_57db2c01e7cdde::t_b0e1c9a083f802 2-24
+assets/scripts/systems/TowerTargetLocks.ts.meta
+  s_57db2c01e7cdde::t_b0e1c9a083f802 1
+tests/tower-target-locks.test.cjs
+  s_57db2c01e7cdde::t_f4d4af58228e98 42-43,59
+  s_57db2c01e7cdde::t_bb9c2a75fa27d0 38-39,41
+  s_57db2c01e7cdde::t_5bd8818036c489 47-58,60
+  s_57db2c01e7cdde::t_b0e1c9a083f802 1-37,40,44-46
+assets/scripts/presentation/BrowserBattleDiagnostics.ts
+  s_57db2c01e7cdde::t_b0e1c9a083f802 2
+docs/design/first-level-quality-v3/state-index.json
+  s_57db2c01e7cdde::t_ba98f3dfcbf099 15-17
+assets/scripts/runtime/NightwatchPocBootstrap.ts
+  s_57db2c01e7cdde::t_b0e1c9a083f802 1296
+docs/design/first-level-quality-v3/TARGET-LOCKS.md
+  s_57db2c01e7cdde::t_ba98f3dfcbf099 1-25
+assets/scripts/systems/WaveCombatRuntime.ts
+  s_57db2c01e7cdde::t_bb9c2a75fa27d0 382-387
+  s_57db2c01e7cdde::t_b0e1c9a083f802 8,62,96-97,135,141,302,338,360,381
+  s_57db2c01e7cdde::t_bfd70fafe2a25d 388
+docs/design/first-level-quality-v3/index.html
+  s_57db2c01e7cdde::t_a4aab31abf4fd9 11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "b0ce31e01ceddbc2948209b06f212b2625f9e800",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
