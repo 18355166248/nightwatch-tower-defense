@@ -1,0 +1,44 @@
+docs/design/first-level-quality-v3/KILL-FEEDBACK-ORIGINS.md
+  s_57db2c01e7cdde::t_2d2f9bc0d4b276 1-27
+docs/design/first-level-quality-v3/state-index.json
+  s_57db2c01e7cdde::t_2d2f9bc0d4b276 15-18
+assets/scripts/runtime/NightwatchPocBootstrap.ts
+  s_57db2c01e7cdde::t_7c861a017d154b 1202-1204
+  s_57db2c01e7cdde::t_611d79bc5cc40e 1297
+assets/scripts/presentation/FeedbackVisualOrigins.ts.meta
+  s_57db2c01e7cdde::t_7c861a017d154b 1
+docs/design/first-level-quality-v3/index.html
+  s_57db2c01e7cdde::t_57dbffbbf9e8ff 11
+assets/scripts/presentation/CombatFeedbackView.ts
+  s_57db2c01e7cdde::t_61d544317ec096 13,25,174-176
+  s_57db2c01e7cdde::t_7c861a017d154b 8,12,17,19,29,141,144-145,166,168,170-173
+assets/scripts/presentation/FeedbackVisualOrigins.ts
+  s_57db2c01e7cdde::t_7c861a017d154b 1-21
+assets/scripts/presentation/CombatForegroundView.ts
+  s_57db2c01e7cdde::t_61d544317ec096 22,26
+assets/scripts/presentation/CombatFeedbackRuntime.ts
+  s_57db2c01e7cdde::t_7c861a017d154b 40,145
+assets/scripts/presentation/PhaseBCanvasRenderer.ts
+  s_57db2c01e7cdde::t_7c861a017d154b 11,57,66,99,171
+tests/feedback-visual-origins.test.cjs
+  s_57db2c01e7cdde::t_7c861a017d154b 1-4,46-71
+  s_57db2c01e7cdde::t_f3432e9e967d8a 5-45
+assets/scripts/presentation/BrowserBattleDiagnostics.ts
+  s_57db2c01e7cdde::t_611d79bc5cc40e 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "c6973321f17102e3ffac3b56668191769c5cc9da",
+  "prompts": {},
+  "sessions": {
+    "s_57db2c01e7cdde": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06f75-de58-76b0-97c7-d4f7220e4583",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
