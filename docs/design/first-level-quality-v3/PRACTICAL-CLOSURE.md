@@ -13,7 +13,7 @@
 
 ## 本轮冻结
 
-以下c737记录为修复前诊断快照，不计入修复后的最终三局。当前候选普通入口为 `http://127.0.0.1:4176/?build=quality-v3-result-label-release`，主包SHA256 `f67c02fd176b09b0ee2d5e8dc0bdee5b56a3596fff5e603af0a5f6a258eb891f`；最终普通完整局计数仍为0。
+以下c737记录为修复前诊断快照，不计入修复后的最终三局。当前候选普通入口为 `http://127.0.0.1:4176/?build=quality-v3-result-label-release`，主包SHA256 `f67c02fd176b09b0ee2d5e8dc0bdee5b56a3596fff5e603af0a5f6a258eb891f`；最终普通完整局计数为1/3。
 
 - 普通入口：`http://127.0.0.1:4176/?build=quality-v3-head-path-contract`。
 - 主包SHA256：`c73729b180d2e7c41d78e4b47cc54a202ae3dfb4b6255c44b9e19b6e2b87adb8`。
@@ -38,4 +38,12 @@
 
 f67候选在显式QA入口实测：L进入生命周期暂停，时间4.29999999999999秒；O返回后仍是该时间且需手动继续。K路线异常冻结并显示恢复页；正常按钮恢复战前四塔、路径16、金币0，可再次开波。QA失败结算后重开，隐藏文字纹理为0，GFX恢复9297604字节，无结算文字出现在最大文字纹理列表。QA使用2×加快失败复现，不计入普通1×三局，也不代表真实系统后台事件验证。
 
-新证据：`new-qa-lifecycle.png`、`new-qa-route-fault.png`、`new-qa-defeat.png`、`new-qa-defeat-state.json`、`new-qa-restart-state.json`，位于上述临时证据目录。普通入口已切回无QA；下一步进行同f67三局验收，阶段仍未完成。
+新证据：`new-qa-lifecycle.png`、`new-qa-route-fault.png`、`new-qa-defeat.png`、`new-qa-defeat-state.json`、`new-qa-restart-state.json`，位于上述临时证据目录。普通入口已切回无QA；阶段仍未完成。
+
+## f67最终普通验收 / 第1局已完成
+
+普通引导入口，全程1×真实拖放/点击，无QA采购或隐藏状态调用。八波累计击毁9、18、31、40、49、93、141、212；生成213、漏1、核心9、金币348、用时405.7333秒。第3波普通暂停往返设置，计时39.333333333332384秒及金币12冻结，手动继续后恢复。正常升级两种塔至Lv3、补塔动态改路12→16→18格。
+
+第7/8波实战GFX10102368字节。实际胜利页320×568无截字/重叠，视口已重置。正常重新部署回到四塔、金币10、路径16、1×、时间0、生成0、击毁0；cachedTexture7256320、GFX10063432、隐藏文字40字节，无结算大文字纹理残留。与修复前同布防GFX11654420、隐藏文字1591028相比，分别减少1590988字节；40字节不是结算资源。当前浏览器warn/error为空。该数据证明本局重开修复有效，不冒称三局全部完成。
+
+证据：`frozen1-result.json`、`frozen1-samples.json`、`frozen1-pause.json`、`frozen1-restart.json`、`frozen1-victory.png`、`frozen1-victory-320.png`、`frozen1-wave7.png`、`frozen1-wave8.png`。第2/3局仍待完成，其中需普通失败覆盖及连续回收检查。运行修复提交`5f70dc0`，后续台账提交不改变主包。
