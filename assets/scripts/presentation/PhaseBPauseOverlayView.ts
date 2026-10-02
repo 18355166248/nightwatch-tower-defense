@@ -7,6 +7,7 @@ import { FIRST_LEVEL_UI_FONT, firstLevelFontSize } from './FirstLevelUiStyle';
 import { FirstLevelPageSkinView } from './FirstLevelPageSkinView';
 import { firstLevelSettingsPresentation } from './FirstLevelSettingsPresentation';
 import { firstLevelConfirmationPresentation, firstLevelConfirmationLayout, type FirstLevelConfirmationScreen } from './FirstLevelConfirmationPresentation';
+import { firstLevelPauseMenuPresentation, firstLevelRouteRecoveryPresentation } from './FirstLevelRecoveryPresentation';
 
 interface PauseLabels {
     readonly root: Node;
@@ -66,7 +67,7 @@ export class PhaseBPauseOverlayView {
             this.signature = '';
             return;
         }
-        const signature = [this.layout.safeHalfWidth, this.layout.visibleDesignWidth, state.pause.screen, state.pause.reason, state.pause.canContinue,
+        const signature = [this.layout.safeHalfWidth, this.layout.visibleDesignWidth, state.pause.screen, state.pause.reason, state.pause.canContinue, state.pause.lifecycleRecovery,
             state.wave, state.totalWaves, state.coreHealth, state.soundEnabled, state.volumeStep, state.reducedMotion,
             state.homeSettingsVisible, state.speedMultiplier, state.routeErrorDetail].join('|');
         if (signature === this.signature) return;
@@ -81,7 +82,8 @@ export class PhaseBPauseOverlayView {
         const compact = screen !== 'menu' && screen !== 'settings' || orientationBlocked;
         const fullSettings = screen === 'settings';
         const menu = screen === 'menu' && !orientationBlocked;
-        const confirmation = !orientationBlocked && (screen === 'confirm-restart' || screen === 'confirm-home');
+        // 路线异常与确认页共用已批准的正文/双按钮布局；触控也读取同一份几何。
+        const confirmation = !orientationBlocked && (screen === 'confirm-restart' || screen === 'confirm-home' || screen === 'route-error');
         const panel = confirmation ? firstLevelConfirmationLayout(this.layout.visibleDesignWidth).panel
             : orientationBlocked ? this.layout.orientationPanelRect()
             : this.layout.pausePanelRect(screen);
@@ -101,7 +103,7 @@ export class PhaseBPauseOverlayView {
             return;
         }
         if (confirmation) {
-            this.renderConfirmation(screen as FirstLevelConfirmationScreen, state, labelsView);
+            this.renderConfirmation(screen as FirstLevelConfirmationScreen | 'route-error', state, labelsView);
             this.writeDiagnostics(screen, labelsView);
             return;
         }
@@ -110,7 +112,7 @@ export class PhaseBPauseOverlayView {
         labelsView.subtitle.node.setPosition(menu ? 60 : 0, orientationBlocked ? 95 : compact ? 165 : fullSettings ? 480 : 280, 0);
         labelsView.footer.node.setPosition(0, orientationBlocked ? -255 : compact ? -285 : fullSettings ? -525 : -335, 0);
         // 弹窗用设计稿实际显示字号：390宽约19.5/11.6/10.8px，不复用战斗HUD的二次缩放。
-        labelsView.title.fontSize = menu ? 54 : firstLevelFontSize(orientationBlocked ? 96 : 64);
+        labelsView.title.fontSize = menu ? (firstLevelPauseMenuPresentation(state.pause).smallTitle ? 17 * 1080 / 390 : 54) : firstLevelFontSize(orientationBlocked ? 96 : 64);
         labelsView.subtitle.fontSize = menu ? 32 : firstLevelFontSize(orientationBlocked ? 52 : 32);
         labelsView.footer.fontSize = menu ? 30 : firstLevelFontSize(orientationBlocked ? 48 : 28);
         labelsView.title.horizontalAlign = menu ? HorizontalTextAlignment.LEFT : HorizontalTextAlignment.CENTER;
@@ -126,10 +128,6 @@ export class PhaseBPauseOverlayView {
             labelsView.title.string = '请转回竖屏';
             labels = ['横屏期间战斗已暂停'];
             labelsView.footer.string = '恢复竖屏后，点继续战斗';
-        } else if (screen === 'route-error') {
-            labelsView.title.string = '路线异常 · 已暂停';
-            labels = ['重新部署', '返回首页'];
-            labelsView.footer.string = '本局未判胜负，也没有删除敌人';
         } else if (screen === 'settings') {
             labelsView.title.string = state.homeSettingsVisible ? '游戏设置' : '战斗设置';
             labels = [`声音 · ${state.soundEnabled ? '开' : '关'}`, `音量 · ${state.volumeStep * 25}%`,
@@ -138,9 +136,10 @@ export class PhaseBPauseOverlayView {
                 state.homeSettingsVisible ? '返回首页' : '返回暂停'];
             labelsView.footer.string = '偏好保存在本机；不会改变战斗数值';
         } else {
-            labelsView.title.string = state.pause.reason === 'lifecycle' ? '后台安全暂停' : '战斗暂停';
-            labels = [state.pause.canContinue ? '继续战斗' : '等待返回页面', '回到战前布防', '战斗设置', '返回首页'];
-            labelsView.footer.string = state.pause.canContinue ? '战斗已冻结，继续后恢复' : '返回页面后，手动继续战斗';
+            const copy = firstLevelPauseMenuPresentation(state.pause);
+            labelsView.title.string = copy.title;
+            labels = copy.actions;
+            labelsView.footer.string = copy.footer;
         }
         labelsView.subtitle.string = screen === 'route-error' ? state.routeErrorDetail ?? '诊断已保存，请重新部署'
             : state.homeSettingsVisible ? '第一关 · 画面与声音' : `第 ${state.wave}/${state.totalWaves} 波 · 核心 ${state.coreHealth}/${state.maxCoreHealth}`;
@@ -190,8 +189,8 @@ export class PhaseBPauseOverlayView {
         }));
     }
 
-    private renderConfirmation(screen: FirstLevelConfirmationScreen, state: PhaseBPauseViewState, labels: PauseLabels): void {
-        const copy = firstLevelConfirmationPresentation(screen);
+    private renderConfirmation(screen: FirstLevelConfirmationScreen | 'route-error', state: PhaseBPauseViewState, labels: PauseLabels): void {
+        const copy = screen === 'route-error' ? firstLevelRouteRecoveryPresentation() : firstLevelConfirmationPresentation(screen);
         const layout = firstLevelConfirmationLayout(this.layout.visibleDesignWidth);
         const place = (label: Label, text: string, spec: typeof layout.title, left = true, color = '#F4E9CD', bold = false) => {
             label.node.active = true;
@@ -208,20 +207,23 @@ export class PhaseBPauseOverlayView {
         };
         labels.actions.forEach(label => { label.node.active = false; label.isBold = false; });
         place(labels.title, copy.title, layout.title, true, '#F4E9CD', true);
-        place(labels.subtitle, `第 ${state.wave} / ${state.totalWaves} 波     核心 ${state.coreHealth} / ${state.maxCoreHealth}`, layout.context, true, '#A9BDCA');
+        place(labels.subtitle, screen === 'route-error' ? state.routeErrorDetail ?? '诊断已保存，请重新部署'
+            : `第 ${state.wave} / ${state.totalWaves} 波     核心 ${state.coreHealth} / ${state.maxCoreHealth}`, layout.context, true, '#A9BDCA');
         place(labels.footer, copy.footer, layout.footer, false, '#A9BDCA');
         place(labels.actions[2], copy.kicker, layout.kicker, true, '#C6A876');
         copy.body.forEach((text, index) => place(labels.actions[3 + index], text, layout.body[index], true,
             index === 2 ? '#A9BDCA' : '#F4E9CD'));
         // 获批正文只强调操作后果，分段原生Label保留可编辑文字，不把整行烘焙进图片。
-        const prefix = screen === 'confirm-home' ? '当前战斗将结束，' : '恢复开战前的';
-        const emphasis = screen === 'confirm-home' ? '本局进度不会保存' : '塔位、等级与金币';
-        const body = layout.body[0];
-        const segment = (start: number, count: number) => ({ ...body,
-            rect: { ...body.rect, left: body.rect.left + start * body.size, right: body.rect.left + (start + count) * body.size } });
-        place(labels.actions[3], prefix, segment(0, prefix.length));
-        place(labels.actions[6], emphasis, segment(prefix.length, emphasis.length), true, '#F4E9CD', true);
-        place(labels.actions[7], '。', segment(prefix.length + emphasis.length, 1));
+        if (screen !== 'route-error') {
+            const prefix = screen === 'confirm-home' ? '当前战斗将结束，' : '恢复开战前的';
+            const emphasis = screen === 'confirm-home' ? '本局进度不会保存' : '塔位、等级与金币';
+            const body = layout.body[0];
+            const segment = (start: number, count: number) => ({ ...body,
+                rect: { ...body.rect, left: body.rect.left + start * body.size, right: body.rect.left + (start + count) * body.size } });
+            place(labels.actions[3], prefix, segment(0, prefix.length));
+            place(labels.actions[6], emphasis, segment(prefix.length, emphasis.length), true, '#F4E9CD', true);
+            place(labels.actions[7], '。', segment(prefix.length + emphasis.length, 1));
+        }
         this.skins.icon('header-icon', screen === 'confirm-home' ? 'home-icon' : 'restart-icon', layout.icon);
         // 分隔线是原生几何，正文、图标、面板仍复用已批准的无字图片素材。
         this.skins.bodyDivider(layout.divider.left, layout.divider.right, layout.divider.top, layout.scale);
@@ -229,7 +231,7 @@ export class PhaseBPauseOverlayView {
             const tone = index === 0 ? 'primary' : 'neutral';
             if (!this.skins.button(index, rect, tone, layout.scale * 9)) this.chrome.button(rect, tone);
             place(labels.actions[index], copy.actions[index], { rect, size: layout.actionSize, line: layout.actionLine }, false,
-                screen === 'confirm-home' && index === 1 ? '#D9B2A5' : '#F4E9CD');
+                (screen === 'confirm-home' || screen === 'route-error') && index === 1 ? '#D9B2A5' : '#F4E9CD');
         });
     }
 

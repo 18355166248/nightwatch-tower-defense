@@ -53,6 +53,7 @@ import { firstLevelCoachSkipVisible } from '../presentation/FirstLevelCoachPrese
 import { FirstLevelExperienceView } from '../presentation/FirstLevelExperienceView';
 import { firstLevelSettingsPresentation, type FirstLevelSettingsAction } from '../presentation/FirstLevelSettingsPresentation';
 import { firstLevelConfirmationPresentation } from '../presentation/FirstLevelConfirmationPresentation';
+import { firstLevelPauseMenuPresentation } from '../presentation/FirstLevelRecoveryPresentation';
 import { centerPauseVisible } from '../presentation/FirstLevelControlPolicy';
 import { firstLevelGuidance } from '../presentation/FirstLevelGuidance';
 import {
@@ -1369,6 +1370,7 @@ export class NightwatchPocBootstrap extends Component {
             pauseScreen: this.pauseOverlay.snapshot.visible ? this.pauseOverlay.snapshot.screen : null,
             pauseReason: this.pauseOverlay.snapshot.reason,
             canContinuePause: this.pauseOverlay.snapshot.canContinue,
+            lifecycleRecovery: this.pauseOverlay.snapshot.lifecycleRecovery,
             routeFaultCode: this.routeDiagnostics.fault?.code ?? null,
             routeEventCount: this.routeDiagnostics.eventCount,
             routeRetainedEventCount: this.routeDiagnostics.retainedCount,
@@ -1387,7 +1389,7 @@ export class NightwatchPocBootstrap extends Component {
                     ? `夜城防线路线异常，战斗已冻结，诊断已保存，不能继续；重新部署或返回首页，第${this.battle.snapshot.wave}波，地图版本${this.model.mapVersion}`
                     : this.pauseOverlay.hasReason('orientation')
                     ? `夜城防线横屏安全暂停，请转回竖屏，再点继续战斗。第${this.battle.snapshot.wave}波，核心${this.battle.snapshot.coreHealth}`
-                    : `夜城防线暂停，${this.pauseOverlay.snapshot.screen === 'menu' ? '继续战斗，回到战前布防，战斗设置，返回首页' : this.pauseOverlay.snapshot.screen === 'settings' ? '声音、音量、减弱动态、速度设置，返回暂停' : '请确认或取消'}，第${this.battle.snapshot.wave}波，核心${this.battle.snapshot.coreHealth}`
+                    : `夜城防线暂停，${this.pauseOverlay.snapshot.screen === 'menu' ? firstLevelPauseMenuPresentation(this.pauseOverlay.snapshot).actions.join('，') : this.pauseOverlay.snapshot.screen === 'settings' ? '声音、音量、减弱动态、速度设置，返回暂停' : '请确认或取消'}，第${this.battle.snapshot.wave}波，核心${this.battle.snapshot.coreHealth}`
                 : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，机枪${rivetTowerCount}座，冷凝${frostTowerCount}座，减速中${slowedEnemyCount}名，${this.inputMode === 'idle' ? '未拿起炮塔' : `已拿起${this.selectedTowerLabel()}`}，速度${this.simulationClock.scale}倍，${waveStartAccessibleText}，${saleAccessibleText}${upcomingWave ? `下一波第${upcomingWave.wave}波，${upcomingWave.accessibleLineup}，${upcomingWave.tactic}，` : ''}${guidanceText ? `${guidanceText}，` : ''}${this.statusText}`.replace(/，$/, ''),
         );
     }

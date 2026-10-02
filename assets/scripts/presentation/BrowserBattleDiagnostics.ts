@@ -101,6 +101,7 @@ export interface BrowserBattleDiagnosticsState {
     readonly pauseScreen: string | null;
     readonly pauseReason: string | null;
     readonly canContinuePause: boolean;
+    readonly lifecycleRecovery: boolean;
     readonly routeFaultCode: string | null;
     readonly routeEventCount: number;
     readonly routeRetainedEventCount: number;

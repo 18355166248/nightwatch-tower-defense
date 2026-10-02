@@ -38,7 +38,7 @@ export function phaseBPauseButtons(screen: PauseScreen): readonly PhaseBRect[] {
 }
 
 export function phaseBConfirmationButtons(screen: PauseScreen, visibleWidth: number): readonly PhaseBRect[] {
-    return screen === 'confirm-restart' || screen === 'confirm-home'
+    return screen === 'confirm-restart' || screen === 'confirm-home' || screen === 'route-error'
         ? firstLevelConfirmationLayout(visibleWidth).buttons : phaseBPauseButtons(screen);
 }
 

@@ -6,6 +6,7 @@ export interface PauseOverlaySnapshot {
     readonly screen: PauseScreen;
     readonly reason: PauseReason | null;
     readonly canContinue: boolean;
+    readonly lifecycleRecovery: boolean;
 }
 
 /** 暂停原因可叠加；后台原因解除后仍等待玩家显式继续。 */
@@ -13,6 +14,7 @@ export class PauseOverlayRuntime {
     private readonly reasons = new Set<PauseReason>();
     private needsContinue = false;
     private hidden = false;
+    private lifecycleRecovery = false;
     private currentScreen: PauseScreen = 'menu';
 
     public get snapshot(): PauseOverlaySnapshot {
@@ -23,6 +25,7 @@ export class PauseOverlayRuntime {
                 : this.reasons.has('orientation') ? 'orientation' : this.reasons.has('user') ? 'user' : null,
             canContinue: this.needsContinue && !this.hidden
                 && !this.reasons.has('lifecycle') && !this.reasons.has('orientation') && !this.reasons.has('route-error'),
+            lifecycleRecovery: this.lifecycleRecovery,
         };
     }
 
@@ -48,6 +51,7 @@ export class PauseOverlayRuntime {
         const first = !this.needsContinue;
         this.needsContinue = true;
         this.hidden = true;
+        this.lifecycleRecovery = true;
         this.reasons.add('lifecycle');
         this.currentScreen = this.reasons.has('route-error') ? 'route-error' : 'menu';
         return first;
@@ -56,6 +60,7 @@ export class PauseOverlayRuntime {
     public leaveLifecycle(): void {
         this.hidden = false;
         this.reasons.delete('lifecycle');
+        // 返回后保留恢复来源供UI解释，但不将它作为阻塞原因；只有显式继续/清局才清掉。
         // 后台解除只消除阻塞来源；needsContinue 保留到玩家点继续。
     }
 
@@ -88,6 +93,7 @@ export class PauseOverlayRuntime {
         this.reasons.clear();
         this.needsContinue = false;
         this.hidden = false;
+        this.lifecycleRecovery = false;
         this.currentScreen = 'menu';
     }
 }

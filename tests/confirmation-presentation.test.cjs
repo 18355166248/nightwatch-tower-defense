@@ -43,7 +43,7 @@ test('390与320获批稿文字和几何同比例，两个54高按钮缩放后仍
         assert.ok((layout.buttons[0].top - layout.buttons[0].bottom) * px >= 44);
         assert.ok(layout.buttons[0].bottom > layout.buttons[1].top);
         assert.ok(layout.footer.rect.bottom > layout.panel.bottom);
-        for (const screen of ['confirm-home', 'confirm-restart']) {
+        for (const screen of ['confirm-home', 'confirm-restart', 'route-error']) {
             assert.deepEqual(phaseBConfirmationButtons(screen, width), layout.buttons);
             const hit = new PhaseBLayout();
             hit.setVisibleWidth(width);
@@ -54,5 +54,4 @@ test('390与320获批稿文字和几何同比例，两个54高按钮缩放后仍
         }
     }
     assert.deepEqual(phaseBConfirmationButtons('menu', 1080), phaseBPauseButtons('menu'));
-    assert.deepEqual(phaseBConfirmationButtons('route-error', 1080), phaseBPauseButtons('route-error'));
 });

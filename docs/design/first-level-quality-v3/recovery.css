@@ -1,0 +1,23 @@
+/* 暂停菜单沿用已批准的1080坐标，整张稿件在390基准等比缩放。 */
+.recovery-menu{position:absolute;left:44.06px;top:263.11px;width:301.89px;height:294.31px;border:15.17px solid transparent;border-image:var(--panel) 42 fill stretch}
+.recovery-menu h3{position:absolute;left:52.71px;top:1.08px;width:209.44px;height:36.11px;display:flex;align-items:center;font-size:17px}
+.pause-icon{position:absolute;left:3.97px;top:.72px;width:38.28px;height:38.28px;object-fit:contain}
+.recovery-context{position:absolute;left:52.71px;top:29.97px;font-size:11.56px;line-height:25.28px;color:var(--muted)}
+.menu-divider{position:absolute;top:57.77px;left:2.89px;right:2.89px;height:1px;background:#92754c}
+.menu-button{position:absolute;border:8.67px solid transparent;background:transparent;color:var(--text);font:500 11.56px 'PingFang SC',sans-serif;cursor:pointer}
+.resume{left:3.97px;top:69.69px;width:263.61px;height:55.97px;font-size:14.44px;padding-left:39.72px}
+.redeploy,.settings{top:136.5px;width:127.47px;height:55.97px;padding:0}
+.redeploy{left:3.97px}.settings{left:140.11px}
+.home{left:3.97px;top:201.86px;width:263.61px;height:44.42px;font-size:13px;padding-left:39.72px}
+.recovery-menu button:disabled{filter:brightness(.43);cursor:default}
+.recovery-menu button:disabled span{filter:brightness(2.326)}
+.recovery-footer{position:absolute;top:252.08px;left:-6.5px;width:284.56px;text-align:center;font-size:10.83px;line-height:25.28px;color:var(--muted)}
+.recovery-menu nav{margin-bottom:12px}
+.menu-button img{position:absolute;width:23.83px;height:23.83px;object-fit:contain}
+.resume img,.home img{left:65px;top:calc(50% - 11.915px)}
+.redeploy img,.settings img{left:calc(50% - 11.915px);top:-3.44px}
+.redeploy span,.settings span{position:absolute;left:0;right:0;top:27.63px;line-height:14.44px}
+.menu-button.primary{border-image:var(--primary) 24 fill stretch}
+.menu-button.secondary{border-image:var(--secondary) 24 fill stretch}
+.menu-button.resume:disabled{border-image:var(--secondary) 24 fill stretch}
+.menu-button.home{border-image:url('https://audiopaytest.cos.tx.xmcdn.com/storages/dea3-audiotest/32/6E/GAqSiIMOlMrLAAD4vwACF0QI.png') 24 fill stretch}

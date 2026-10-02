@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第三稿 · 安全恢复独立设计</title><link rel="stylesheet" href="confirmations.css"><link rel="stylesheet" href="recovery.css"></head>
+<body><header><p class="eyebrow">夜城防线 / 第三稿延展</p><h1>暂停原因清楚，恢复结果可预期</h1><p>独立排版稿，复用已确认材质与布局。后台不自动续战；路线异常不伪造胜败、不提供失效的继续按钮。</p>
+<nav aria-label="设计稿显示尺寸"><button data-size="390" aria-pressed="true">390px</button><button data-size="320" aria-pressed="false">320px</button><a href="index.html">返回索引</a></nav></header>
+<main><section><h2>01 / 后台安全暂停</h2><p class="caption">下方切换等待／返回状态，四项操作沿用暂停菜单。</p><nav><button id="waiting" aria-pressed="true">仍在后台</button><button id="returned" aria-pressed="false">已返回页面</button></nav>
+<div class="viewport"><div class="stage"><div class="scene"></div><div class="veil"></div><article class="recovery-menu" aria-label="后台恢复设计稿">
+<img class="pause-icon" src="https://audiopaytest.cos.tx.xmcdn.com/storages/f4b5-audiotest/68/54/GAqSoUUOlMqYAACDbQACF0PP.png" alt="">
+<h3 id="recovery-title">后台安全暂停</h3><p class="recovery-context">第 1/8 波 · 核心 10/10</p><div class="menu-divider"></div>
+<button class="menu-button primary resume" id="resume" disabled><img src="https://audiopaytest.cos.tx.xmcdn.com/storages/429f-audiotest/67/E0/GAqSiIMOlMqXAABTNwACF0PO.png" alt=""><span>等待返回页面</span></button>
+<button class="menu-button secondary redeploy" data-feedback="先进入重新部署确认，不直接清局"><img src="https://audiopaytest.cos.tx.xmcdn.com/storages/d546-audiotest/18/72/GAqSoUUOlMqlAABYLQACF0Pq.png" alt=""><span>回到战前布防</span></button>
+<button class="menu-button secondary settings" data-feedback="打开设置，战斗仍保持暂停"><img src="https://audiopaytest.cos.tx.xmcdn.com/storages/ca6f-audiotest/5B/5B/GAqSoUUOlMrKAABqjQACF0QF.png" alt=""><span>战斗设置</span></button>
+<button class="menu-button secondary home" data-feedback="先进入离开确认，不直接结束本局"><img src="https://audiopaytest.cos.tx.xmcdn.com/storages/14e8-audiotest/4E/06/GAqSiIMOlMrMAABpuwACF0QN.png" alt="">返回首页</button>
+<p class="recovery-footer">返回页面后，手动继续战斗</p></article></div></div><output aria-live="polite"></output></section>
+<section><h2>02 / 路线异常</h2><p class="caption">只提供两种有效恢复出口；诊断信息不抢占标题。</p><div class="viewport"><div class="stage"><div class="scene"></div><div class="veil"></div>
+<article class="dialog" aria-label="路线异常设计稿"><div class="heading"><img src="https://audiopaytest.cos.tx.xmcdn.com/storages/d546-audiotest/18/72/GAqSoUUOlMqlAABYLQACF0Pq.png" alt=""><div><p class="kicker">安全保护 · 战斗已冻结</p><h3>路线异常，暂时停战</h3></div></div>
+<p class="context">第 1 波 · 地图 v4 · 诊断已保存</p><div class="consequence"><p>当前路线无法继续，不会自动判胜负。</p><p>重新部署将恢复战前塔位、等级与金币。</p><p class="muted">敌人、波次与本局统计将重置。</p></div>
+<div class="actions"><button class="primary" data-feedback="恢复战前配置，回到布防；不会直接续战">恢复战前配置 · 重新部署</button><button class="secondary leave" data-feedback="结束本局并返回首页，历史纪录与设置保留">结束本局 · 返回首页</button></div>
+<p class="footnote">历史纪录与设置保留 · 不会自动继续战斗</p></article></div></div><output aria-live="polite"></output></section></main>
+<footer>原生文字与热区；图片仅作面板、按钮和图标饰面，不新增图片资产。示例数值不是真实游戏存档。运行视觉待实测和用户验收。</footer>
+<script src="confirmations.js"></script><script src="recovery.js"></script></body></html>
