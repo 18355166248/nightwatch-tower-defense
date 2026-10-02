@@ -1,0 +1,54 @@
+{
+  "toolVersion": "1.0",
+  "inputMode": "files",
+  "recipe": {
+    "version": 1,
+    "kind": "motion",
+    "title": "铁罐搬运者双帧重步候选",
+    "cell": [
+      128,
+      128
+    ],
+    "anchor": [
+      0.5,
+      0.5
+    ],
+    "resample": "lanczos",
+    "background": "keep",
+    "source": {
+      "provider": "codex-imagegen",
+      "note": "项目自有重装原图为 A 帧编辑目标；B 帧由 OpenAI 内置 image_gen 生成。1.24 fps 对应基础移动约每格一轮，实际游戏按格内进度选帧，减速时自动放慢。"
+    },
+    "states": [
+      {
+        "name": "walk",
+        "directory": "walk",
+        "fps": 1.24,
+        "loop": true
+      }
+    ]
+  },
+  "sourceRoot": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/iron-canister-hauler-walk-v1/input",
+  "inputs": [
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/iron-canister-hauler-walk-v1/input/walk/frame-1.png",
+      "sha256": "b95c09ecbf2d0ec063bafbd37c72e117925f7cfa1142f04a5dadda51618e9142"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/iron-canister-hauler-walk-v1/input/walk/frame-2.png",
+      "sha256": "34fcff599ee74a0451f0f979c86bf040da16760adbde7362fec5255207823a62"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/iron-canister-hauler-walk-v1/recipe.json",
+      "sha256": "d5f1c3320b7f5a88d472850230983cb29281ccebeebd32de190d796910a94614"
+    }
+  ],
+  "reproduce": {
+    "recipe": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/iron-canister-hauler-walk-v1/recipe.json",
+    "input": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/iron-canister-hauler-walk-v1/input",
+    "aseprite": false
+  },
+  "environment": {
+    "pillow": "12.3.0"
+  }
+}

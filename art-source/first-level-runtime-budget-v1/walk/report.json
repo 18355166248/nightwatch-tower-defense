@@ -1,0 +1,221 @@
+{
+  "status": "needs-human-review",
+  "warnings": [],
+  "measurements": [
+    {
+      "label": "walk-down / 1",
+      "bbox": [
+        21,
+        11,
+        59,
+        76
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "walk-down / 2",
+      "bbox": [
+        21,
+        11,
+        59,
+        73
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "walk-down / 3",
+      "bbox": [
+        21,
+        11,
+        59,
+        76
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "walk-down / 4",
+      "bbox": [
+        21,
+        11,
+        59,
+        73
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "walk-left / 1",
+      "bbox": [
+        23,
+        10,
+        60,
+        75
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "walk-left / 2",
+      "bbox": [
+        23,
+        10,
+        60,
+        72
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "walk-left / 3",
+      "bbox": [
+        23,
+        10,
+        60,
+        75
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "walk-left / 4",
+      "bbox": [
+        23,
+        10,
+        60,
+        75
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "walk-up / 1",
+      "bbox": [
+        21,
+        11,
+        59,
+        74
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "walk-up / 2",
+      "bbox": [
+        21,
+        11,
+        59,
+        71
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "walk-up / 3",
+      "bbox": [
+        21,
+        11,
+        59,
+        74
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "walk-up / 4",
+      "bbox": [
+        21,
+        11,
+        59,
+        71
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "walk-right / 1",
+      "bbox": [
+        20,
+        10,
+        57,
+        75
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "walk-right / 2",
+      "bbox": [
+        20,
+        10,
+        57,
+        75
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "walk-right / 3",
+      "bbox": [
+        20,
+        10,
+        57,
+        75
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "walk-right / 4",
+      "bbox": [
+        20,
+        10,
+        57,
+        72
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    }
+  ],
+  "manualChecks": [
+    "角色身份、朝向及跨动作尺寸是否一致",
+    "脚底是否漂移、武器是否裁切；bbox 不是接触点证明",
+    "走跑时左右腿是否交替落地、承重、经过和蹬离；不同图片不等于完整步态",
+    "循环接缝和单次动作的前摇、命中、收招",
+    "在目标游戏运行后另存证据；此处未验证碰撞或命中窗口"
+  ]
+}

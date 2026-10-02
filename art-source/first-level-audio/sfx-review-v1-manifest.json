@@ -1,0 +1,146 @@
+{
+  "source": "Original programmatic synthesis from assets/scripts/audio/FirstLevelSoundRecipes.ts; no external audio samples",
+  "status": "candidate-needs-human-listening",
+  "sampleRate": 48000,
+  "channels": 1,
+  "pcmBits": 16,
+  "durationSeconds": 17.172,
+  "peakDbFS": -28.236801131117907,
+  "bytes": 1648556,
+  "runtimeUsage": "none: offline review artifact, generated from runtime recipes",
+  "limitation": "Offline mathematical oscillator approximation; not a recording of browser output, not a LUFS or dense-mix measurement",
+  "timeline": [
+    {
+      "cue": "pickup",
+      "variant": 0,
+      "atSeconds": 0.4,
+      "durationSeconds": 0.075
+    },
+    {
+      "cue": "place",
+      "variant": 0,
+      "atSeconds": 1.025,
+      "durationSeconds": 0.18
+    },
+    {
+      "cue": "upgrade",
+      "variant": 0,
+      "atSeconds": 1.755,
+      "durationSeconds": 0.32
+    },
+    {
+      "cue": "sell",
+      "variant": 0,
+      "atSeconds": 2.625,
+      "durationSeconds": 0.185
+    },
+    {
+      "cue": "reject",
+      "variant": 0,
+      "atSeconds": 3.36,
+      "durationSeconds": 0.14
+    },
+    {
+      "cue": "rivet-shot",
+      "variant": 0,
+      "atSeconds": 4.05,
+      "durationSeconds": 0.045
+    },
+    {
+      "cue": "rivet-shot",
+      "variant": 1,
+      "atSeconds": 4.645,
+      "durationSeconds": 0.045
+    },
+    {
+      "cue": "rivet-shot",
+      "variant": 2,
+      "atSeconds": 5.24,
+      "durationSeconds": 0.045
+    },
+    {
+      "cue": "frost-shot",
+      "variant": 0,
+      "atSeconds": 5.835,
+      "durationSeconds": 0.12
+    },
+    {
+      "cue": "frost-shot",
+      "variant": 1,
+      "atSeconds": 6.505,
+      "durationSeconds": 0.12
+    },
+    {
+      "cue": "frost-shot",
+      "variant": 2,
+      "atSeconds": 7.175,
+      "durationSeconds": 0.12
+    },
+    {
+      "cue": "metal-hit",
+      "variant": 0,
+      "atSeconds": 7.845,
+      "durationSeconds": 0.052
+    },
+    {
+      "cue": "frost-hit",
+      "variant": 0,
+      "atSeconds": 8.447,
+      "durationSeconds": 0.085
+    },
+    {
+      "cue": "infantry-death",
+      "variant": 0,
+      "atSeconds": 9.082,
+      "durationSeconds": 0.1
+    },
+    {
+      "cue": "runner-death",
+      "variant": 0,
+      "atSeconds": 9.732,
+      "durationSeconds": 0.13
+    },
+    {
+      "cue": "hauler-death",
+      "variant": 0,
+      "atSeconds": 10.412,
+      "durationSeconds": 0.27
+    },
+    {
+      "cue": "core-hit",
+      "variant": 0,
+      "atSeconds": 11.232,
+      "durationSeconds": 0.28
+    },
+    {
+      "cue": "core-critical",
+      "variant": 0,
+      "atSeconds": 12.062,
+      "durationSeconds": 0.47
+    },
+    {
+      "cue": "wave-start",
+      "variant": 0,
+      "atSeconds": 13.082,
+      "durationSeconds": 0.31
+    },
+    {
+      "cue": "wave-clear",
+      "variant": 0,
+      "atSeconds": 13.942,
+      "durationSeconds": 0.33
+    },
+    {
+      "cue": "victory",
+      "variant": 0,
+      "atSeconds": 14.822,
+      "durationSeconds": 0.6799999999999999
+    },
+    {
+      "cue": "defeat",
+      "variant": 0,
+      "atSeconds": 16.052,
+      "durationSeconds": 0.57
+    }
+  ]
+}

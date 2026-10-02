@@ -1,0 +1,77 @@
+{
+  "kind": "fixed-step-replay-anchor-spacing-not-sprite-overlap",
+  "waves": [
+    {
+      "wave": 1,
+      "peakEnemies": 7,
+      "oldClosePairSeconds": 4.19999999999999,
+      "newClosePairSeconds": 0,
+      "oldNearCoincidentPairSeconds": 0,
+      "newNearCoincidentPairSeconds": 0
+    },
+    {
+      "wave": 2,
+      "peakEnemies": 7,
+      "oldClosePairSeconds": 2.2666666666666635,
+      "newClosePairSeconds": 0,
+      "oldNearCoincidentPairSeconds": 0,
+      "newNearCoincidentPairSeconds": 0
+    },
+    {
+      "wave": 3,
+      "peakEnemies": 7,
+      "oldClosePairSeconds": 3.0333333333333274,
+      "newClosePairSeconds": 0.19999999999999998,
+      "oldNearCoincidentPairSeconds": 0.13333333333333333,
+      "newNearCoincidentPairSeconds": 0.03333333333333333
+    },
+    {
+      "wave": 4,
+      "peakEnemies": 5,
+      "oldClosePairSeconds": 1.3666666666666667,
+      "newClosePairSeconds": 0.19999999999999998,
+      "oldNearCoincidentPairSeconds": 0.13333333333333333,
+      "newNearCoincidentPairSeconds": 0
+    },
+    {
+      "wave": 5,
+      "peakEnemies": 8,
+      "oldClosePairSeconds": 140.3833333333372,
+      "newClosePairSeconds": 17.466666666666956,
+      "oldNearCoincidentPairSeconds": 34.83333333333264,
+      "newNearCoincidentPairSeconds": 0.08333333333333333
+    },
+    {
+      "wave": 6,
+      "peakEnemies": 16,
+      "oldClosePairSeconds": 104.49999999999535,
+      "newClosePairSeconds": 32.06666666666613,
+      "oldNearCoincidentPairSeconds": 51.71666666666501,
+      "newNearCoincidentPairSeconds": 0.9166666666666679
+    },
+    {
+      "wave": 7,
+      "peakEnemies": 17,
+      "oldClosePairSeconds": 324.0333333333673,
+      "newClosePairSeconds": 103.23333333332876,
+      "oldNearCoincidentPairSeconds": 39.43333333333238,
+      "newNearCoincidentPairSeconds": 0.26666666666666666
+    },
+    {
+      "wave": 8,
+      "peakEnemies": 25,
+      "oldClosePairSeconds": 1186.5499999992496,
+      "newClosePairSeconds": 520.6666666665218,
+      "oldNearCoincidentPairSeconds": 303.3333333333861,
+      "newNearCoincidentPairSeconds": 5.483333333333319
+    }
+  ],
+  "totals": {
+    "spawned": 213,
+    "killed": 212,
+    "leaked": 1
+  },
+  "coreHealth": 9,
+  "combatSeconds": 414.14999999998656,
+  "gold": 348
+}

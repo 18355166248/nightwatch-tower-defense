@@ -6,6 +6,16 @@
 
 当前完成底图、三种敌人和两种塔的单位切图、两塔分层，以及步兵/疾行机的第二步态帧候选。路线、特效和 HUD 仍是程序化表现；敌人尚缺完整待机/受击/死亡动作，不能称作完整美术落地。
 
+2026-09-27 已制作第一关 HUD 合成方向稿与一枚透明金币切图样本；金币 v2 后续已作为**单张引擎内种子候选**接入，方向稿本身未接入运行时。小屏预览、来源、复用边界及交叉评审点见 `docs/poc/phase-c-hud-direction-v1.md`。合成方向稿改变了原底图细节，不能当作最终背景或直接切图。
+
+同日又以已有金币图标为材质参考，单独制作并接入一枚青蓝铜框“核心生命”透明候选图标；金币与核心的数值仍为动态文字，任一图标未加载时该卡回退到完整资源名。源图、128/32 小图、并排对照、资产契约和浏览器边界见 `docs/poc/phase-c-core-heart-icon-seed-regression.md`。此举只是第二枚单图种子，不代表整套 HUD 切图方向获批；路径和波次图标仍待交叉评审。
+
+同日增补第三枚独立种子：路径长度图标。经过 32×32 原生尺寸比较，弃用轮廓近似问号的 v1 和过扁的 v2，选择紧凑 L 形三节点 v3 接入；数值固定带“格”，图标缺失时回退“路径 N格”。源图、128/32 切图、资产契约和右侧浏览器首塔回归见 `docs/poc/phase-c-path-icon-seed-regression.md`。它仍是候选，波次图标与整套 HUD 尚待交叉评审。
+
+同日以已有三枚本项目图标为材质参考，增加机械信标/双青蓝弧线的波次图标候选。波次仍是动态 `N/8`，缺图退回“波 N/8”；至此四个资源位均有单独图标，但**不是**整套 HUD 美术获批。源图、128/32 切图、提示词、资产契约与右侧浏览器开波检查见 `docs/poc/phase-c-wave-icon-seed-regression.md`。
+
+同日已将方向稿中的深蓝/铜边层级作为程序饰面试点接入，底框绘制抽离为 `FirstLevelHudChromeView`；仍使用原动态 Label 和按钮热区，且未加载上述新图片。右侧浏览器的初始 HUD 与首个落塔检查见 `docs/poc/phase-c-hud-chrome-regression.md`。
+
 2026-09-26 地表视觉迭代：战场不再用高不透明度灰蓝格子覆盖底图。`BattlefieldSurfaceView` 从真实路径快照绘制连续的铜边石路，空格仅保留低对比细线，已建塔和布塔预览保持独立色块。因为路线随布塔动态改变，这里选择无贴图接缝的程序化地表，而不是生成固定路线切图；输入命中仍复用 `PhaseBLayout`。右侧浏览器已验证默认画面、布塔预览和落塔，正式路线材质/动效与单位动作资产仍待制作。
 
 2026-09-27 路线预览对照：合法布塔预览中，从当前真实路线与候选路线的格子差集生成旧路斜线、新路实框；格子是否可建仍由原流场和经济事务判断。旧路上被塔位占据的格子不叠斜线，避免与塔预览相互遮挡。非法预览、取消预览、提交后的稳定画面都不保留差集标记。该表现是帮助首次玩家看懂改路的候选程序化效果，不等于已经通过真人理解率或正式路线材质验收。
@@ -16,12 +26,18 @@
 
 2026-09-26 减速状态补强：被冷凝塔减速的敌人持续显示轻青色身体色调及四刻度冰环，强度随剩余时长淡出；Sprite 和灰盒回退共用冰环画法。第二波密集敌群的右侧浏览器候选可辨，但它仍只是程序反馈，不替代正式受击/移动动画资产。
 
+2026-09-27 密集群控降噪：保留每只敌人的减速状态与冷色身体，同一区域相距不足 0.8 格的减速敌人只画一个冰环。Sprite 和灰盒回退共用只读选择器，避免后段重甲群的多重冰环盖住单位和路线；右侧浏览器在第六、七波检查，证据与边界见 `docs/poc/phase-c-slow-ring-density-regression.md`。
+
+2026-09-27 首关亮度/尺寸试点：减弱底图与棋盘的双重暗罩，提高动态铜边石路对比，并将炮塔和敌人的显示尺寸抽到 `UnitDisplaySize`；显示调整不改变格子、索敌或触控。右侧浏览器首波检查与仍偏暗、空白占比偏大的主观差距见 `docs/poc/phase-c-battlefield-readability-regression.md`。本轮没有制作新切图，不能把显示放大当作正式资产完成。
+
+同日命中反馈分层试点：独立 `CombatFeedbackView` 使用短枪口亮点、机枪前向火花与冷凝四向晶芒区分塔种，并沿现有反馈时间轴自动归零。右侧浏览器前三波与未验收边界见 `docs/poc/phase-c-combat-impact-layer-regression.md`；这是程序化候选效果，不代替正式弹道、受击和死亡切图。
+
 ## 第一张正式候选资产
 
 | 字段 | 值 |
 |---|---|
 | ID | `level-one-backdrop` |
-| 用途 | 第一关非交互底图，位于战场 Graphics 下方 |
+| 用途 | 第一关非交互底图 v1，当前作为 v2 加载失败时的兜底，位于战场 Graphics 下方 |
 | 原图 | `art-source/first-level-backdrop-source.png`，941×1672 PNG |
 | 运行时 | `assets/resources/level-one/backdrop.jpg`，941×1672 JPEG 82 |
 | 来源 | 2026-09-25 OpenAI 内置 image_gen 生成；原始图片在本仓库留档 |
@@ -29,9 +45,15 @@
 | 透明 / 碰撞 | 不透明；无碰撞 |
 | 拉伸 / 加载 / 降级 | 全屏等比例近似拉伸；启动时本地加载；失败时程序化背景继续运行 |
 | 预算 | 单张运行时文件不超过 1 MiB；首屏纹理传输目标 ≤3 MiB |
-| 状态 | 浏览器视觉样板；待主观评审和最终资产验收 |
+| 状态 | 浏览器视觉样板；保留为可回退旧版，待主观评审和最终资产验收 |
 
 生成提示词要点：原创 9:16 夜城屋顶塔防背景；中央 78% 宽、66% 高保持安静、无格线、无路径、无塔和单位；外缘布置铜管、屋顶、暖光窗和少量机械构件；顶部与底部保留 HUD 安全区；无文字、Logo、界面。光从左上方照入。
+
+## 中央石板提亮候选 v2
+
+2026-09-27 用项目自有 v1 原图作为**编辑目标**，只提高中央可玩区域的灰紫石板中间值和细节，保留夜城建筑边框、暖窗、天空、镜头及 HUD 安全区；没有把《Fieldrunners 2》截图交给生成器或复用其素材。源图 `art-source/first-level-backdrop-plaza-v2.png`，原生宽 390 的预览 `art-source/first-level-backdrop-plaza-v2-phone.png`，运行时 `assets/resources/level-one/backdrop-plaza-v2.jpg` 为 941×1672 JPEG 82、约 415 KiB。候选与旧版均按 SpriteFrame 导入；新图加载失败退回旧图，二者都不可用时继续由程序战场兜底。完整来源、提示词及右侧浏览器对照见 `art-source/first-level-backdrop-plaza-v2-manifest.json` 与 `docs/poc/phase-c-plaza-backdrop-v2-regression.md`。
+
+中央取样区平均亮度从源图约 55 提至约 91（RGB 加权亮度，源图像素尺度）；这只描述图片变化，不代表设备实际观感。新图是**浏览器候选**，未获得最终美术、商业权利或首次玩家可读性批准；道路、格线、敌人和炮塔继续由运行时独立绘制。
 
 ## 第一组单位切图样板
 
@@ -97,6 +119,8 @@ Use case: precise-object-edit. Asset type: transparent ANIMATABLE CYAN ENERGY-CO
 - Cocos 按 SpriteFrame 导入；敌人 Sprite 关闭自动裁边，A/B 共用完整 128 方形画布。`enemyGaitFrame` 从格内进度和生成序号选帧，步兵每格两次步态周期、疾行机三次；暂停、减速与格间交接不引入独立动画时钟。B 帧可选加载，任一 B 帧失败只回退对应敌人的原图，不影响战斗或其他单位切图。
 - 浏览器已确认第一至第五波可继续；只读诊断确认两张备用帧均实际加载，第四/五波捕到疾行机同屏画面。但 377×600 单帧截图不能证明玩家实际看到的切帧节奏无抖动，疾行机 `in_engine_reviewed` 暂保留 `false`；两帧步态也不等于正式跑动/受击/死亡全套动作。
 
+2026-09-27 增补铁罐搬运者慢重步候选：以项目自有 `iron-canister-hauler.png` 为 A 帧与唯一编辑目标，`image_gen` 只交换左右前后脚得到 B 帧；1254 方透明原图与完整提示词在 `art-source/first-level-units/iron-canister-hauler-step-b-v1.png`、`iron-canister-hauler-walk-v1/prompt.md`。`character-motion-kit` 将 A/B 统一归一至 128 方 RGBA，产生可复核图集、接触表、预览和检查报告，运行时 B 帧为 `assets/resources/level-one/units/iron-canister-hauler-step-b-v1.png`，约 25 KiB。Cocos 按 SpriteFrame 实际导入，仍用格内进度每格一轮选帧；加载失败只退回重装原图。自动报告提示 B 帧原始边缘有微弱 alpha 像素，128 方有效范围 A `(12,8)-(116,120)`、B `(11,7)-(117,117)`，脚底约 3 像素差异尚需动态/人工修边复核。显式 QA 推荐构筑在右侧浏览器第五波看到重装同屏和 7 名活动敌人，只读诊断 `haulerGaitFrameLoaded=true`，0 error/warn；**这只证明加载与第五波可见，不证明无脚底抖动或正式动作完成**。详情见 `docs/poc/phase-c-heavy-gait-regression.md`。
+
 生成方式：OpenAI 内置 image_gen 图片编辑模式。最终入库的两张 B 帧提示词：
 
 ```text
@@ -107,16 +131,36 @@ Use case: precise-object-edit. Asset type: alternate WALK CYCLE sprite frame for
 Use case: precise-object-edit. Asset type: SECOND FRAME of a two-frame sprint animation, same clockwork-runner robot as the input. The supplied image is the EDIT TARGET. IMPORTANT required pose change: in the input, the long forward turbine boot extends diagonally DOWN-LEFT toward the lower-left edge while the other turbine leg is folded back on the RIGHT. For this alternate frame, make the RIGHT turbine leg extend diagonally DOWN-RIGHT to be the new foreground leading boot, and bend the LEFT leg up and back behind the torso; visibly exchange the front/back legs. Swing the arms opposite to the leg exchange. Keep the same body and head location, identical brass swept helmet, narrow cyan eye slit, two swept-back fins, navy chest with gold gear, cyan wheel-turbine details, painterly copper/navy materials, original 3/4 top-down view, direction and upper-left light. Same full-body scale, same transparent square canvas center and same ground baseline as the input, no jump or camera rotation. One robot only. Genuinely transparent RGBA outside the robot. No scenery, floor, floor shadow, trails, effects, text, UI, border, duplicate frame or watermark.
 ```
 
+2026-09-27 补做重装 B 帧的运行时脚底配准：`UnitSpriteRegistration` 仅对**实际显示的** B 帧按 128 方图的 3 像素差作尺寸缩放偏移；B 帧缺失时保持 A 帧原位。重装身体的程序上下弹幅从 2.5 收到 0.6 设计单位，血条/冰环及模拟位置不动。1× 第五波浏览器连续画面中未见明显整身上跳，但密集敌群与减速环会遮挡落脚点；源图仍需人工修边与动态观感审批。
+
 ## 后续切图契约
 
 | 类型 | 运行时目标 | 锚点 | 状态 |
 |---|---|---|---|
-| 机枪塔 | 底座/炮身分层候选已接入；枪口、瞄准转向与最终修边仍待制作 | 共用透明画布中心，运行时配准 | 浏览器候选 |
+| 机枪塔 | 底座/炮身分层候选已接入；真实开火触发的受限摆头已接入，完整枪口朝向、转轴修边仍待制作 | 底座中心；炮身连接轴约为原 128 方图 `(64,112)`，节点锚点 `(0.5,0.125)` 且零角保留原配准 | 浏览器候选，摆头手感待玩家评审 |
 | 冷凝塔 | 固定机架/能量芯分层候选已接入；脉冲时长与最终修边待评审 | 共用透明画布中心，运行时配准 | 浏览器候选 |
-| 发条步兵 | A/B 两步态候选已接入；正式版仍需待机/受击/死亡及平滑运动评审 | 共用透明画布中心 | 浏览器候选 |
+| 发条步兵 | A/B 两步态和单次两帧倒地候选已接入；正式版仍需待机/受击、死亡修边及平滑运动评审 | 共用透明画布中心 | 浏览器候选，死亡源图边缘待人工复核 |
 | 疾行机 | A/B 两步态候选已接入；正式版仍需跑动多帧/受击/死亡及速度尾迹 | 共用透明画布中心 | 浏览器候选，动态节奏待验 |
+| 铁罐搬运者 | A/B 慢重步候选已接入；正式版仍需修边、脚底配准、受击/死亡与动态节奏评审 | 共用 128 方透明画布中心 | 浏览器候选，自动检查需人工复核 |
 | 路线标记 | 32×32 可着色箭头，不烘焙到地图 | 中心 | 目前程序绘制 |
+| 动态道路 | 石板面/暗槽/铜边/转角/稀疏接缝随当前路径重绘，不能烘焙到静态底图 | 格心连续连接 | 程序化视觉候选已接入；最终材质切图、重复接缝及高密度战斗验色待评审 |
+| 敌军入口 | 铜金/深蓝低矮机械舱口，单张透明地标；不得烘焙敌人或固定道路 | `grid.entry` 格心，显示画布下移 0.08 个尺寸 | 浏览器候选，缺图保留原道路与刷怪；密集刷怪可读性待评审 |
+| 出口核心 | 铜金/深蓝实体反应炉单图，生命状态继续由程序圆环和数字负责 | `grid.exit` 格心，显示画布上移 0.18 个尺寸 | 浏览器候选，缺图保留原目标；正式受损状态与玩家识别仍待评审 |
 | HUD 图标 | 金币、核心、波次、速度；各态独立 | 中心 | 核心生命数字/分格条和出口圆环已程序化接入，正式切图仍待制作 |
 | 命中/减速/漏怪 | 独立帧或粒子参数，不能烘焙进角色 | 效果中心 | 目前程序绘制 |
 
 全部动态文字、路径和塔位由代码维护。正式切图入库前需检查透明边缘、实际手机尺寸可读性、锚点、重复格子的接缝与资源预算。
+
+2026-09-27 表现层补充：机枪短暖色行进弹痕与冷凝细青色束线目前均由独立前景 Graphics 绘制，位于单位 Sprite 上、HUD 下；减速圈保持单位后景。它们是程序化候选，不是最终特效切图。若交叉评审认为小屏仍弱，正式弹丸、枪口闪光、命中/受击帧应按独立效果资源切出，不能烘焙到炮塔或角色原图。
+
+2026-09-27 入场卡补充：普通入口预览直接复用 `rivet-gun`、`frost-coil`、`clockwork-infantry` 的现有 SpriteFrame，没有新生成图片；三图异步加载，缺图时保留底卡和名称，不能阻断“开始布防”。这只是首关单位识别候选，正式首页构图与素材权利仍需交叉评审。
+
+2026-09-27 死亡动作补充：发条步兵以原图 A 帧和新增倒地 B 帧组成 0.3 秒内的单次两帧候选；B 帧缺失时继续走原有程序化倒地，详见 `docs/poc/phase-c-infantry-collapse-regression.md`。素材管线仍为 `needs-human-review`，不能按最终切图或完整死亡动画交付。
+
+2026-09-28 四方向动作闸门：先生成朝下四帧代表种子，两版都保留在 `art-source/first-level-units/clockwork-infantry-down-walk-v1/`、`clockwork-infantry-down-walk-v2/`。共享画布加工、离线图集与 1× 深/浅底逐帧检查已完成，但头部/承重脚注册不稳、低 alpha 边缘有触边警告，因此明确拒收，不接入运行时、不批量扩展其他方向；四方向×四帧仍是缺口。完整记录见 `docs/poc/phase-c-walk-candidate-and-record-capacity-review.md`，不能用四张不同姿态或引擎构建成功替代动作验收。
+
+同日后续代表单位比较：改用项目自有参考、Blender 固定机械模型渲染步兵四方向×四帧，全部姿态共用拟合/地面锚点；v2 的 512 方透明图集和布局在 `?unitArt=rig-candidate` 显式入口加载，默认仍保留上述 A/B 图。character-motion-kit 完成 128 方帧/图集/离线预览和无裁边警告检查；原生 1× 四朝向播放与浅底朝下逐帧已观察，Cocos 实际使用朝下/朝右四帧并验证暂停。它关闭的是代表步兵的固定模型生产/接入链路，不是家族动作、美术质感或主观手感验收；材质比原图简洁，候选没有同模型倒地/受击动作。源码模型、版本快照、复现命令和浏览器证据详见 `docs/poc/phase-c-fixed-rig-directional-walk-review.md`，不要把旧拒收改写为通过。
+
+同日死亡衔接增补：候选入口现在有同一个 v2 源模型的四方向×四帧非循环倾倒，原 0.3 秒反馈寿命不变；宽画布按两倍尺寸恢复同一角色比例，地面锚点转换与所有姿态接地已检查，程序下沉/压扁/旋转不再叠加到模型死亡帧。资源解析/加载与纯选帧抽离复用，缺图不切回旧画风。1024 方透明 PNG 185,341 B、解码约4 MiB，仍是 draft；源 rig、逐帧、图集和现实验证边界见 `docs/poc/phase-c-fixed-rig-collapse-review.md`。此项替代候选的简单死亡淡出，默认旧版本仍保留；同模型受击、其他敌人、材质风格和主观手感尚未获批。
+
+2026-09-28 预算档增补：`artBudget=compact` 显式选择同源全画布尺寸候选，步兵行走/死亡格80/160（32帧、锚点/时长/loop不变），主/回退底图768×1365；原高分源与默认档均保留。已统计图像RGBA集合12.19→7.14 MiB，不等于总显存验收。两档405×900真实布防/首波比较和可重复SHA记录见 `docs/poc/phase-c-compact-art-review.md`，独立 `FirstLevelArtProfile` 统一资源选择，不改玩法。仍draft、待画风/小图画质/权利批准，不据此扩正式家族。

@@ -1,27 +1,18 @@
-const {
-    FIRST_LEVEL_GUIDED_UPGRADES,
-    FIRST_LEVEL_OPENING,
-    FIRST_LEVEL_REINFORCEMENTS,
-} = require('../../.test-dist/config/FirstLevelOpening.js');
+const { FIRST_LEVEL_OPENING } = require('../../.test-dist/config/FirstLevelOpening.js');
+const { PHASE_B_WAVE_ONE } = require('../../.test-dist/config/PhaseBCombatConfig.js');
 
 const allRivets = (entries) => entries.map((entry) => ({ ...entry, towerId: 'rivet-gun' }));
 
-function standardLayout(row = 2) {
-    const opening = FIRST_LEVEL_OPENING.map((entry) => ({ ...entry, cell: { ...entry.cell, row } }));
-    const reinforcements = FIRST_LEVEL_REINFORCEMENTS.map((entry, index) => index < 3
-        ? { ...entry, cell: { ...entry.cell, row } }
+function standardLayout(topRow = 3) {
+    // 只平移上路折线，保留中段火力点；这样两条路线能公平检验第一波冷凝塔价值。
+    const opening = FIRST_LEVEL_OPENING.map((entry, index) => index < 2
+        ? { ...entry, cell: { ...entry.cell, row: topRow } }
         : entry);
-    const upgradesAfterWave = FIRST_LEVEL_GUIDED_UPGRADES.map((entry) => entry.cell.row === 2
-        ? { ...entry, cell: { ...entry.cell, row } }
-        : entry);
-    const shared = { openingCells: opening.map(({ cell }) => cell), upgradesAfterWave };
+    const shared = { reinforcements: [], upgradesAfterWave: [], waves: [PHASE_B_WAVE_ONE] };
     return {
-        mixed: { ...shared, opening, reinforcements },
-        // 纯机枪多补一座，终局累计投入仅比混合构筑少 4 金；同格直接替换会少花 34 金，不够公平。
-        pure: { ...shared, opening: allRivets(opening), reinforcements: [
-            ...allRivets(reinforcements),
-            { afterWave: 6, cell: { column: 7, row: 9 }, towerId: 'rivet-gun' },
-        ] },
+        mixed: { ...shared, opening },
+        // 同格替换后纯机枪还多余 10 金，若仍漏怪则说明中段减速不可由平射直接替代。
+        pure: { ...shared, opening: allRivets(opening) },
     };
 }
 

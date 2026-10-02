@@ -1,0 +1,17 @@
+{
+  "source": "Original score and procedural synthesis in FirstLevelMusicScore.ts; no external samples or melodies",
+  "status": "candidate-needs-human-listening",
+  "bpm": 96,
+  "loopSeconds": 40,
+  "reviewSeconds": 50,
+  "sampleRate": 22050,
+  "channels": 1,
+  "peakDbFS": -35.020199020136815,
+  "bytes": 2205044,
+  "layerStartsAtSeconds": 20,
+  "seamAtSeconds": 40,
+  "runtimeBufferBytes": 7056000,
+  "runtimeUsage": "score generates two buffers after gesture, WAV is review-only and not imported into the game",
+  "rights": "No third-party sampling; human originality and commercial-rights approval remains pending",
+  "limitation": "Offline reference only, not a browser output recording or headphone/speaker loudness approval"
+}

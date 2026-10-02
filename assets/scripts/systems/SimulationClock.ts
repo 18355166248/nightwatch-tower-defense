@@ -41,6 +41,14 @@ export class SimulationClock {
         return this.scale;
     }
 
+    public setScale(scale: number): number {
+        const index = this.scales.indexOf(scale);
+        if (index < 0) throw new RangeError('不支持该战斗倍率');
+        // 只更换统一时钟倍率，不清空积累步长，也不解除暂停。
+        this.scaleIndex = index;
+        return this.scale;
+    }
+
     public gameDeltaSeconds(realDeltaSeconds: number): number {
         if (!Number.isFinite(realDeltaSeconds) || realDeltaSeconds < 0) {
             throw new RangeError('realDeltaSeconds 不能为负数');

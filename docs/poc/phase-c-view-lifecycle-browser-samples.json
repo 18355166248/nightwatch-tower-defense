@@ -1,0 +1,4903 @@
+{
+  "date": "2026-09-28",
+  "scope": "Raw DOM Cocos 3.8.8 GFX samples; not physical GPU/process memory; baseline and intermediate/final builds separated; initial iterator failure explicitly rejected",
+  "samples": [
+    {
+      "label": "before-home",
+      "url": "http://127.0.0.1:4176/?unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-label-baseline-1233",
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 11495972,
+        "rendererTexturePeakBytes": 11495972,
+        "rendererBufferBytes": 7108032,
+        "rendererDrawCalls": 35,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 4009508,
+        "rendererLabelTextureBytes": null,
+        "rendererHiddenLabelTextureBytes": null,
+        "rendererLabelTextureCount": 1,
+        "rendererHiddenLabelTextureCount": 1,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {}
+        ],
+        "rendererDynamicAtlasCount": 1,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 4637.300000000745,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "home",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 140,
+        "mapVersion": 0,
+        "towerCount": 0,
+        "rivetTowerCount": 0,
+        "frostTowerCount": 0,
+        "upgradedTowerCount": 0,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 0,
+        "renderedEnemyHealthBarCount": 0,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 0,
+        "pathLength": 12,
+        "pathDelta": 0,
+        "phase": "preparing",
+        "wave": 0,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 0,
+        "bestTimeSeconds": 414.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": false,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": null,
+        "soundCueCount": 0,
+        "soundCueCounts": {},
+        "soundVoiceCount": 0,
+        "musicReady": false,
+        "musicPlaying": false,
+        "musicVoiceCount": 0,
+        "musicMood": "off",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 0,
+        "musicDucked": false,
+        "musicStartCount": 0,
+        "coreHealth": 10,
+        "activeEnemyCount": 0,
+        "waveSpawnedEnemyCount": 0,
+        "waveTotalEnemyCount": 0,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 0,
+        "defeatedEnemyCount": 0,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 0,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": false,
+        "pauseScreen": null,
+        "pauseReason": null,
+        "canContinuePause": false,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "previewAccepted": null,
+        "status": "拖动底部炮塔，或点塔后双击格子提交"
+      },
+      "evidenceStatus": "rejected-release-iterator-transpile"
+    },
+    {
+      "label": "baseline-valid-home",
+      "url": "http://127.0.0.1:4176/?unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-label-baseline-1234",
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 11495972,
+        "rendererTexturePeakBytes": 11495972,
+        "rendererBufferBytes": 7108032,
+        "rendererDrawCalls": 35,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 4009508,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 2933748,
+        "rendererHiddenLabelTextureBytes": 36,
+        "rendererLabelTextureCount": 32,
+        "rendererHiddenLabelTextureCount": 9,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 462000,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/ExperienceLabel"
+            ]
+          },
+          {
+            "bytes": 393600,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/ExperienceLabel"
+            ]
+          },
+          {
+            "bytes": 290400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/ExperienceLabel"
+            ]
+          },
+          {
+            "bytes": 243200,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 234400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 194560,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/ExperienceLabel"
+            ]
+          },
+          {
+            "bytes": 157040,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          },
+          {
+            "bytes": 144000,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/ExperienceLabel"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 1,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 5659.0999999996275,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "home",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 140,
+        "mapVersion": 0,
+        "towerCount": 0,
+        "rivetTowerCount": 0,
+        "frostTowerCount": 0,
+        "upgradedTowerCount": 0,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 0,
+        "renderedEnemyHealthBarCount": 0,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 0,
+        "pathLength": 12,
+        "pathDelta": 0,
+        "phase": "preparing",
+        "wave": 0,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 0,
+        "bestTimeSeconds": 414.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": false,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": null,
+        "soundCueCount": 0,
+        "soundCueCounts": {},
+        "soundVoiceCount": 0,
+        "musicReady": false,
+        "musicPlaying": false,
+        "musicVoiceCount": 0,
+        "musicMood": "off",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 0,
+        "musicDucked": false,
+        "musicStartCount": 0,
+        "coreHealth": 10,
+        "activeEnemyCount": 0,
+        "waveSpawnedEnemyCount": 0,
+        "waveTotalEnemyCount": 0,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 0,
+        "defeatedEnemyCount": 0,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 0,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": false,
+        "pauseScreen": null,
+        "pauseReason": null,
+        "canContinuePause": false,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "previewAccepted": null,
+        "status": "拖动底部炮塔，或点塔后双击格子提交"
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "baseline-valid-left-home",
+      "url": "http://127.0.0.1:4176/?unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-label-baseline-1234",
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 11525348,
+        "rendererTexturePeakBytes": 11525348,
+        "rendererBufferBytes": 7108032,
+        "rendererDrawCalls": 21,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 4038884,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 2963124,
+        "rendererHiddenLabelTextureBytes": 1876000,
+        "rendererLabelTextureCount": 32,
+        "rendererHiddenLabelTextureCount": 19,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 462000,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/ExperienceLabel"
+            ]
+          },
+          {
+            "bytes": 393600,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/ExperienceLabel"
+            ]
+          },
+          {
+            "bytes": 290400,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/ExperienceLabel"
+            ]
+          },
+          {
+            "bytes": 243200,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 234400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 194560,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/ExperienceLabel"
+            ]
+          },
+          {
+            "bytes": 157040,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          },
+          {
+            "bytes": 144000,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/ExperienceLabel"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 1,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 12292.400000000373,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "guided",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 140,
+        "mapVersion": 0,
+        "towerCount": 0,
+        "rivetTowerCount": 0,
+        "frostTowerCount": 0,
+        "upgradedTowerCount": 0,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 0,
+        "renderedEnemyHealthBarCount": 0,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 0,
+        "pathLength": 12,
+        "pathDelta": 0,
+        "phase": "preparing",
+        "wave": 0,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 0,
+        "bestTimeSeconds": 414.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": true,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": "ui",
+        "soundCueCount": 1,
+        "soundCueCounts": {
+          "ui": 1
+        },
+        "soundVoiceCount": 0,
+        "musicReady": true,
+        "musicPlaying": true,
+        "musicVoiceCount": 2,
+        "musicMood": "calm",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 6.172666666666666,
+        "musicDucked": false,
+        "musicStartCount": 1,
+        "coreHealth": 10,
+        "activeEnemyCount": 0,
+        "waveSpawnedEnemyCount": 0,
+        "waveTotalEnemyCount": 0,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 0,
+        "defeatedEnemyCount": 0,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 0,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": false,
+        "pauseScreen": null,
+        "pauseReason": null,
+        "canContinuePause": false,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 1.0666666666666629,
+          "y": -290.1333333333333
+        },
+        "previewAccepted": null,
+        "status": ""
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "after-home",
+      "url": "http://127.0.0.1:4176/?unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-label-lifecycle-1236",
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 11495972,
+        "rendererTexturePeakBytes": 11495972,
+        "rendererBufferBytes": 7108032,
+        "rendererDrawCalls": 35,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 4009508,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 2933748,
+        "rendererHiddenLabelTextureBytes": 36,
+        "rendererLabelTextureCount": 32,
+        "rendererHiddenLabelTextureCount": 9,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 462000,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Body"
+            ]
+          },
+          {
+            "bytes": 393600,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Title"
+            ]
+          },
+          {
+            "bytes": 290400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Start"
+            ]
+          },
+          {
+            "bytes": 243200,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 234400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 194560,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/BestRecord"
+            ]
+          },
+          {
+            "bytes": 157040,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          },
+          {
+            "bytes": 144000,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Skip"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 1,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 10156.900000000373,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "home",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 140,
+        "mapVersion": 0,
+        "towerCount": 0,
+        "rivetTowerCount": 0,
+        "frostTowerCount": 0,
+        "upgradedTowerCount": 0,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 0,
+        "renderedEnemyHealthBarCount": 0,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 0,
+        "pathLength": 12,
+        "pathDelta": 0,
+        "phase": "preparing",
+        "wave": 0,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 0,
+        "bestTimeSeconds": 414.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": false,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": null,
+        "soundCueCount": 0,
+        "soundCueCounts": {},
+        "soundVoiceCount": 0,
+        "musicReady": false,
+        "musicPlaying": false,
+        "musicVoiceCount": 0,
+        "musicMood": "off",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 0,
+        "musicDucked": false,
+        "musicStartCount": 0,
+        "coreHealth": 10,
+        "activeEnemyCount": 0,
+        "waveSpawnedEnemyCount": 0,
+        "waveTotalEnemyCount": 0,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 0,
+        "defeatedEnemyCount": 0,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 0,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": false,
+        "pauseScreen": null,
+        "pauseReason": null,
+        "canContinuePause": false,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "previewAccepted": null,
+        "status": "拖动底部炮塔，或点塔后双击格子提交"
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "after-left-home",
+      "url": "http://127.0.0.1:4176/?unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-label-lifecycle-1236",
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 9983188,
+        "rendererTexturePeakBytes": 11495972,
+        "rendererBufferBytes": 7108032,
+        "rendererDrawCalls": 21,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 2496724,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 1420964,
+        "rendererHiddenLabelTextureBytes": 333840,
+        "rendererLabelTextureCount": 26,
+        "rendererHiddenLabelTextureCount": 13,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 243200,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 234400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 157040,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          },
+          {
+            "bytes": 128960,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 128960,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 78848,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          },
+          {
+            "bytes": 53728,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          },
+          {
+            "bytes": 44080,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 1,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 17274.5,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "guided",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 140,
+        "mapVersion": 0,
+        "towerCount": 0,
+        "rivetTowerCount": 0,
+        "frostTowerCount": 0,
+        "upgradedTowerCount": 0,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 0,
+        "renderedEnemyHealthBarCount": 0,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 0,
+        "pathLength": 12,
+        "pathDelta": 0,
+        "phase": "preparing",
+        "wave": 0,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 0,
+        "bestTimeSeconds": 414.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": true,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": "ui",
+        "soundCueCount": 1,
+        "soundCueCounts": {
+          "ui": 1
+        },
+        "soundVoiceCount": 0,
+        "musicReady": true,
+        "musicPlaying": true,
+        "musicVoiceCount": 2,
+        "musicMood": "calm",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 6.69,
+        "musicDucked": false,
+        "musicStartCount": 1,
+        "coreHealth": 10,
+        "activeEnemyCount": 0,
+        "waveSpawnedEnemyCount": 0,
+        "waveTotalEnemyCount": 0,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 0,
+        "defeatedEnemyCount": 0,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 0,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": false,
+        "pauseScreen": null,
+        "pauseReason": null,
+        "canContinuePause": false,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 1.0666666666666629,
+          "y": -290.1333333333333
+        },
+        "previewAccepted": null,
+        "status": ""
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "after-wave-one",
+      "url": "http://127.0.0.1:4176/?unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-label-lifecycle-1236",
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 11030420,
+        "rendererTexturePeakBytes": 11495972,
+        "rendererBufferBytes": 25985084,
+        "rendererDrawCalls": 37,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 3543956,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 1419620,
+        "rendererHiddenLabelTextureBytes": 332352,
+        "rendererLabelTextureCount": 27,
+        "rendererHiddenLabelTextureCount": 12,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 243200,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 234400,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 157040,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          },
+          {
+            "bytes": 128960,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 128960,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 64064,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          },
+          {
+            "bytes": 53728,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          },
+          {
+            "bytes": 44080,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 2,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 45908.300000000745,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "guided",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 34,
+        "mapVersion": 4,
+        "towerCount": 4,
+        "rivetTowerCount": 3,
+        "frostTowerCount": 1,
+        "upgradedTowerCount": 0,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 3,
+        "visibleEnemyHealthBarCount": 3,
+        "renderedEnemyHealthBarCount": 3,
+        "displacedEnemyHealthBarCount": 1,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 0,
+        "pathLength": 16,
+        "pathDelta": 4,
+        "phase": "clearing",
+        "wave": 1,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 15.850000000000367,
+        "bestTimeSeconds": 414.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": true,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": "metal-hit",
+        "soundCueCount": 166,
+        "soundCueCounts": {
+          "ui": 1,
+          "pickup": 4,
+          "place": 4,
+          "wave-start": 1,
+          "rivet-shot": 86,
+          "metal-hit": 44,
+          "infantry-death": 6,
+          "frost-shot": 10,
+          "frost-hit": 10
+        },
+        "soundVoiceCount": 0,
+        "musicReady": true,
+        "musicPlaying": true,
+        "musicVoiceCount": 2,
+        "musicMood": "calm",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 35.474000000000004,
+        "musicDucked": false,
+        "musicStartCount": 1,
+        "coreHealth": 10,
+        "activeEnemyCount": 3,
+        "waveSpawnedEnemyCount": 9,
+        "waveTotalEnemyCount": 9,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [
+          "down:0",
+          "down:1",
+          "down:2",
+          "down:3",
+          "right:0",
+          "right:1",
+          "right:2",
+          "right:3"
+        ],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [
+          "down:0",
+          "down:1",
+          "down:2",
+          "down:3",
+          "right:0",
+          "right:1",
+          "right:2",
+          "right:3"
+        ],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": true,
+        "spawnedEnemyCount": 9,
+        "defeatedEnemyCount": 6,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 3,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": false,
+        "pauseScreen": null,
+        "pauseReason": null,
+        "canContinuePause": false,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 340.26666666666665,
+          "y": -812.8
+        },
+        "previewAccepted": null,
+        "status": "击杀 1 名敌人 · +4 金币"
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "after-wave-one-clear",
+      "url": "http://127.0.0.1:4176/?unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-label-lifecycle-1236",
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 11302740,
+        "rendererTexturePeakBytes": 11495972,
+        "rendererBufferBytes": 11827988,
+        "rendererDrawCalls": 25,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 3816276,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 1691940,
+        "rendererHiddenLabelTextureBytes": 405216,
+        "rendererLabelTextureCount": 28,
+        "rendererHiddenLabelTextureCount": 13,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 243200,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 234400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 158080,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 157040,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          },
+          {
+            "bytes": 128960,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 128960,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 127680,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 64064,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 2,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 72841.5,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "guided",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 54,
+        "mapVersion": 4,
+        "towerCount": 4,
+        "rivetTowerCount": 3,
+        "frostTowerCount": 1,
+        "upgradedTowerCount": 0,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 0,
+        "renderedEnemyHealthBarCount": 0,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 8,
+        "pathLength": 16,
+        "pathDelta": 4,
+        "phase": "paused",
+        "wave": 1,
+        "totalWaves": 8,
+        "countdownSeconds": 8,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 32.94999999999941,
+        "bestTimeSeconds": 414.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": true,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": "wave-clear",
+        "soundCueCount": 237,
+        "soundCueCounts": {
+          "ui": 1,
+          "pickup": 4,
+          "place": 4,
+          "wave-start": 1,
+          "rivet-shot": 92,
+          "metal-hit": 50,
+          "infantry-death": 9,
+          "frost-shot": 39,
+          "frost-hit": 36,
+          "wave-clear": 1
+        },
+        "soundVoiceCount": 0,
+        "musicReady": true,
+        "musicPlaying": true,
+        "musicVoiceCount": 2,
+        "musicMood": "calm",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 22.172666666666665,
+        "musicDucked": false,
+        "musicStartCount": 1,
+        "coreHealth": 10,
+        "activeEnemyCount": 0,
+        "waveSpawnedEnemyCount": 9,
+        "waveTotalEnemyCount": 9,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [
+          "down:0",
+          "down:1",
+          "down:2",
+          "down:3",
+          "right:0",
+          "right:1",
+          "right:2",
+          "right:3"
+        ],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [
+          "down:0",
+          "down:1",
+          "down:2",
+          "down:3",
+          "right:0",
+          "right:1",
+          "right:2",
+          "right:3"
+        ],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 9,
+        "defeatedEnemyCount": 9,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 0,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": false,
+        "pauseScreen": null,
+        "pauseReason": null,
+        "canContinuePause": false,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 340.26666666666665,
+          "y": -812.8
+        },
+        "previewAccepted": null,
+        "status": "第 1 波守住 · 本波 +44（清场 +8）"
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "after-return-home-cycle-one",
+      "url": "http://127.0.0.1:4176/?unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-label-lifecycle-1236",
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 14890376,
+        "rendererTexturePeakBytes": 14890376,
+        "rendererBufferBytes": 14187504,
+        "rendererDrawCalls": 35,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 7403912,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 5279576,
+        "rendererHiddenLabelTextureBytes": 2345864,
+        "rendererLabelTextureCount": 36,
+        "rendererHiddenLabelTextureCount": 13,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 462000,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Body"
+            ]
+          },
+          {
+            "bytes": 393600,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Title"
+            ]
+          },
+          {
+            "bytes": 307200,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabel"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabel"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabel"
+            ]
+          },
+          {
+            "bytes": 290400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Start"
+            ]
+          },
+          {
+            "bytes": 243200,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 236160,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabel"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 2,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 94174.70000000112,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "home",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 140,
+        "mapVersion": 0,
+        "towerCount": 0,
+        "rivetTowerCount": 0,
+        "frostTowerCount": 0,
+        "upgradedTowerCount": 0,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 0,
+        "renderedEnemyHealthBarCount": 0,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 0,
+        "pathLength": 12,
+        "pathDelta": 0,
+        "phase": "preparing",
+        "wave": 0,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 0,
+        "bestTimeSeconds": 414.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": true,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": "ui",
+        "soundCueCount": 241,
+        "soundCueCounts": {
+          "ui": 3,
+          "pickup": 4,
+          "place": 4,
+          "wave-start": 2,
+          "rivet-shot": 92,
+          "metal-hit": 50,
+          "infantry-death": 9,
+          "frost-shot": 39,
+          "frost-hit": 36,
+          "wave-clear": 1,
+          "upgrade": 1
+        },
+        "soundVoiceCount": 0,
+        "musicReady": true,
+        "musicPlaying": false,
+        "musicVoiceCount": 0,
+        "musicMood": "off",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 0,
+        "musicDucked": false,
+        "musicStartCount": 1,
+        "coreHealth": 10,
+        "activeEnemyCount": 0,
+        "waveSpawnedEnemyCount": 0,
+        "waveTotalEnemyCount": 0,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 0,
+        "defeatedEnemyCount": 0,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 0,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": false,
+        "pauseScreen": null,
+        "pauseReason": null,
+        "canContinuePause": false,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 1.0666666666666629,
+          "y": 29.866666666666674
+        },
+        "previewAccepted": null,
+        "status": "已重新布防，可以调整路线"
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "final-home-before-settings",
+      "url": "http://127.0.0.1:4176/?unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-view-lifecycle-1239",
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 11495940,
+        "rendererTexturePeakBytes": 11495940,
+        "rendererBufferBytes": 7108032,
+        "rendererDrawCalls": 35,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 4009476,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 2933716,
+        "rendererHiddenLabelTextureBytes": 4,
+        "rendererLabelTextureCount": 24,
+        "rendererHiddenLabelTextureCount": 1,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 462000,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Body"
+            ]
+          },
+          {
+            "bytes": 393600,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Title"
+            ]
+          },
+          {
+            "bytes": 290400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Start"
+            ]
+          },
+          {
+            "bytes": 243200,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 234400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 194560,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/BestRecord"
+            ]
+          },
+          {
+            "bytes": 157040,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          },
+          {
+            "bytes": 144000,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Skip"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 1,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 10685.599999999627,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "home",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 140,
+        "mapVersion": 0,
+        "towerCount": 0,
+        "rivetTowerCount": 0,
+        "frostTowerCount": 0,
+        "upgradedTowerCount": 0,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 0,
+        "renderedEnemyHealthBarCount": 0,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 0,
+        "pathLength": 12,
+        "pathDelta": 0,
+        "phase": "preparing",
+        "wave": 0,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 0,
+        "bestTimeSeconds": 414.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": false,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": null,
+        "soundCueCount": 0,
+        "soundCueCounts": {},
+        "soundVoiceCount": 0,
+        "musicReady": false,
+        "musicPlaying": false,
+        "musicVoiceCount": 0,
+        "musicMood": "off",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 0,
+        "musicDucked": false,
+        "musicStartCount": 0,
+        "coreHealth": 10,
+        "activeEnemyCount": 0,
+        "waveSpawnedEnemyCount": 0,
+        "waveTotalEnemyCount": 0,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 0,
+        "defeatedEnemyCount": 0,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 0,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": false,
+        "pauseScreen": null,
+        "pauseReason": null,
+        "canContinuePause": false,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "previewAccepted": null,
+        "status": "拖动底部炮塔，或点塔后双击格子提交"
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "final-home-settings-open",
+      "url": "http://127.0.0.1:4176/?unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-view-lifecycle-1239",
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 13177864,
+        "rendererTexturePeakBytes": 13177864,
+        "rendererBufferBytes": 9468784,
+        "rendererDrawCalls": 43,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 5691400,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 4615640,
+        "rendererHiddenLabelTextureBytes": 8,
+        "rendererLabelTextureCount": 32,
+        "rendererHiddenLabelTextureCount": 2,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 462000,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Body"
+            ]
+          },
+          {
+            "bytes": 393600,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Title"
+            ]
+          },
+          {
+            "bytes": 307200,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Title"
+            ]
+          },
+          {
+            "bytes": 290400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Start"
+            ]
+          },
+          {
+            "bytes": 243200,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 236160,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action0"
+            ]
+          },
+          {
+            "bytes": 236160,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action1"
+            ]
+          },
+          {
+            "bytes": 236160,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action2"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 1,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 19352.099999999627,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "home",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 140,
+        "mapVersion": 0,
+        "towerCount": 0,
+        "rivetTowerCount": 0,
+        "frostTowerCount": 0,
+        "upgradedTowerCount": 0,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 0,
+        "renderedEnemyHealthBarCount": 0,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 0,
+        "pathLength": 12,
+        "pathDelta": 0,
+        "phase": "preparing",
+        "wave": 0,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 0,
+        "bestTimeSeconds": 414.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": true,
+        "soundReady": true,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": "ui",
+        "soundCueCount": 1,
+        "soundCueCounts": {
+          "ui": 1
+        },
+        "soundVoiceCount": 0,
+        "musicReady": false,
+        "musicPlaying": false,
+        "musicVoiceCount": 0,
+        "musicMood": "off",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 0,
+        "musicDucked": false,
+        "musicStartCount": 0,
+        "coreHealth": 10,
+        "activeEnemyCount": 0,
+        "waveSpawnedEnemyCount": 0,
+        "waveTotalEnemyCount": 0,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 0,
+        "defeatedEnemyCount": 0,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 0,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": false,
+        "pauseScreen": null,
+        "pauseReason": null,
+        "canContinuePause": false,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 321.0666666666667,
+          "y": 398.9333333333334
+        },
+        "previewAccepted": null,
+        "status": "拖动底部炮塔，或点塔后双击格子提交"
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "final-home-settings-closed-one",
+      "url": "http://127.0.0.1:4176/?unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-view-lifecycle-1239",
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 11495940,
+        "rendererTexturePeakBytes": 13177864,
+        "rendererBufferBytes": 9468784,
+        "rendererDrawCalls": 35,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 4009476,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 2933716,
+        "rendererHiddenLabelTextureBytes": 4,
+        "rendererLabelTextureCount": 24,
+        "rendererHiddenLabelTextureCount": 1,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 462000,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Body"
+            ]
+          },
+          {
+            "bytes": 393600,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Title"
+            ]
+          },
+          {
+            "bytes": 290400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Start"
+            ]
+          },
+          {
+            "bytes": 243200,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 234400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 194560,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/BestRecord"
+            ]
+          },
+          {
+            "bytes": 157040,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          },
+          {
+            "bytes": 144000,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Skip"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 1,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 28935.5,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "home",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 140,
+        "mapVersion": 0,
+        "towerCount": 0,
+        "rivetTowerCount": 0,
+        "frostTowerCount": 0,
+        "upgradedTowerCount": 0,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 0,
+        "renderedEnemyHealthBarCount": 0,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 0,
+        "pathLength": 12,
+        "pathDelta": 0,
+        "phase": "preparing",
+        "wave": 0,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 0,
+        "bestTimeSeconds": 414.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": true,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": "ui",
+        "soundCueCount": 2,
+        "soundCueCounts": {
+          "ui": 2
+        },
+        "soundVoiceCount": 0,
+        "musicReady": false,
+        "musicPlaying": false,
+        "musicVoiceCount": 0,
+        "musicMood": "off",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 0,
+        "musicDucked": false,
+        "musicStartCount": 0,
+        "coreHealth": 10,
+        "activeEnemyCount": 0,
+        "waveSpawnedEnemyCount": 0,
+        "waveTotalEnemyCount": 0,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 0,
+        "defeatedEnemyCount": 0,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 0,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": false,
+        "pauseScreen": null,
+        "pauseReason": null,
+        "canContinuePause": false,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 1.0666666666666629,
+          "y": -249.60000000000002
+        },
+        "previewAccepted": null,
+        "status": "拖动底部炮塔，或点塔后双击格子提交"
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "final-home-settings-closed-two",
+      "url": "http://127.0.0.1:4176/?unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-view-lifecycle-1239",
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 11495940,
+        "rendererTexturePeakBytes": 13177864,
+        "rendererBufferBytes": 9468784,
+        "rendererDrawCalls": 35,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 4009476,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 2933716,
+        "rendererHiddenLabelTextureBytes": 4,
+        "rendererLabelTextureCount": 24,
+        "rendererHiddenLabelTextureCount": 1,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 462000,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Body"
+            ]
+          },
+          {
+            "bytes": 393600,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Title"
+            ]
+          },
+          {
+            "bytes": 290400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Start"
+            ]
+          },
+          {
+            "bytes": 243200,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 234400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 194560,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/BestRecord"
+            ]
+          },
+          {
+            "bytes": 157040,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          },
+          {
+            "bytes": 144000,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Skip"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 1,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 46152.300000000745,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "home",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 140,
+        "mapVersion": 0,
+        "towerCount": 0,
+        "rivetTowerCount": 0,
+        "frostTowerCount": 0,
+        "upgradedTowerCount": 0,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 0,
+        "renderedEnemyHealthBarCount": 0,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 0,
+        "pathLength": 12,
+        "pathDelta": 0,
+        "phase": "preparing",
+        "wave": 0,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 0,
+        "bestTimeSeconds": 414.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": true,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": "ui",
+        "soundCueCount": 4,
+        "soundCueCounts": {
+          "ui": 4
+        },
+        "soundVoiceCount": 0,
+        "musicReady": false,
+        "musicPlaying": false,
+        "musicVoiceCount": 0,
+        "musicMood": "off",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 0,
+        "musicDucked": false,
+        "musicStartCount": 0,
+        "coreHealth": 10,
+        "activeEnemyCount": 0,
+        "waveSpawnedEnemyCount": 0,
+        "waveTotalEnemyCount": 0,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 0,
+        "defeatedEnemyCount": 0,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 0,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": false,
+        "pauseScreen": null,
+        "pauseReason": null,
+        "canContinuePause": false,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 1.0666666666666629,
+          "y": -249.60000000000002
+        },
+        "previewAccepted": null,
+        "status": "拖动底部炮塔，或点塔后双击格子提交"
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "final-wave-one-clear",
+      "url": "http://127.0.0.1:4176/?unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-view-lifecycle-1239",
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 11302708,
+        "rendererTexturePeakBytes": 13177864,
+        "rendererBufferBytes": 14187816,
+        "rendererDrawCalls": 25,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 3816244,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 1691908,
+        "rendererHiddenLabelTextureBytes": 405184,
+        "rendererLabelTextureCount": 20,
+        "rendererHiddenLabelTextureCount": 5,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 243200,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 234400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 158080,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 157040,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          },
+          {
+            "bytes": 128960,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 128960,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 127680,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 64064,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 2,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 94886,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "guided",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 54,
+        "mapVersion": 4,
+        "towerCount": 4,
+        "rivetTowerCount": 3,
+        "frostTowerCount": 1,
+        "upgradedTowerCount": 0,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 0,
+        "renderedEnemyHealthBarCount": 0,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 8,
+        "pathLength": 16,
+        "pathDelta": 4,
+        "phase": "paused",
+        "wave": 1,
+        "totalWaves": 8,
+        "countdownSeconds": 8,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 32.94999999999941,
+        "bestTimeSeconds": 414.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": true,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": "wave-clear",
+        "soundCueCount": 241,
+        "soundCueCounts": {
+          "ui": 5,
+          "pickup": 4,
+          "place": 4,
+          "wave-start": 1,
+          "rivet-shot": 92,
+          "metal-hit": 50,
+          "infantry-death": 9,
+          "frost-shot": 39,
+          "frost-hit": 36,
+          "wave-clear": 1
+        },
+        "soundVoiceCount": 0,
+        "musicReady": true,
+        "musicPlaying": true,
+        "musicVoiceCount": 2,
+        "musicMood": "calm",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 8.471333333333334,
+        "musicDucked": false,
+        "musicStartCount": 1,
+        "coreHealth": 10,
+        "activeEnemyCount": 0,
+        "waveSpawnedEnemyCount": 9,
+        "waveTotalEnemyCount": 9,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [
+          "down:0",
+          "down:1",
+          "down:2",
+          "down:3",
+          "right:0",
+          "right:1",
+          "right:2",
+          "right:3"
+        ],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [
+          "down:0",
+          "down:1",
+          "down:2",
+          "down:3",
+          "right:0",
+          "right:1",
+          "right:2",
+          "right:3"
+        ],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 9,
+        "defeatedEnemyCount": 9,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 0,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": false,
+        "pauseScreen": null,
+        "pauseReason": null,
+        "canContinuePause": false,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 340.26666666666665,
+          "y": -812.8
+        },
+        "previewAccepted": null,
+        "status": "第 1 波守住 · 本波 +44（清场 +8）"
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "final-battle-pause-open",
+      "url": "http://127.0.0.1:4176/?unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-view-lifecycle-1239",
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 13464632,
+        "rendererTexturePeakBytes": 13464632,
+        "rendererBufferBytes": 16547332,
+        "rendererDrawCalls": 34,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 5978168,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 3853832,
+        "rendererHiddenLabelTextureBytes": 665348,
+        "rendererLabelTextureCount": 30,
+        "rendererHiddenLabelTextureCount": 9,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 307200,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Title"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action0"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action1"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action2"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action3"
+            ]
+          },
+          {
+            "bytes": 243200,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 234400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 215040,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Footer"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 2,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 118136,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "guided",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 30,
+        "mapVersion": 4,
+        "towerCount": 4,
+        "rivetTowerCount": 3,
+        "frostTowerCount": 1,
+        "upgradedTowerCount": 1,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 0,
+        "renderedEnemyHealthBarCount": 0,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 8,
+        "pathLength": 16,
+        "pathDelta": 4,
+        "phase": "paused",
+        "wave": 2,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 33.1499999999994,
+        "bestTimeSeconds": 414.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": false,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": "wave-start",
+        "soundCueCount": 244,
+        "soundCueCounts": {
+          "ui": 6,
+          "pickup": 4,
+          "place": 4,
+          "wave-start": 2,
+          "rivet-shot": 92,
+          "metal-hit": 50,
+          "infantry-death": 9,
+          "frost-shot": 39,
+          "frost-hit": 36,
+          "wave-clear": 1,
+          "upgrade": 1
+        },
+        "soundVoiceCount": 0,
+        "musicReady": true,
+        "musicPlaying": false,
+        "musicVoiceCount": 0,
+        "musicMood": "paused",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 24.47666666666666,
+        "musicDucked": false,
+        "musicStartCount": 1,
+        "coreHealth": 10,
+        "activeEnemyCount": 1,
+        "waveSpawnedEnemyCount": 1,
+        "waveTotalEnemyCount": 9,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [
+          "down:0",
+          "down:1",
+          "down:2",
+          "down:3",
+          "right:0",
+          "right:1",
+          "right:2",
+          "right:3"
+        ],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [
+          "down:0",
+          "down:1",
+          "down:2",
+          "down:3",
+          "right:0",
+          "right:1",
+          "right:2",
+          "right:3"
+        ],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 10,
+        "defeatedEnemyCount": 9,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 0,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": true,
+        "pauseScreen": "menu",
+        "pauseReason": "user",
+        "canContinuePause": true,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 329.6,
+          "y": -561.0666666666666
+        },
+        "previewAccepted": null,
+        "status": "战斗已暂停"
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "final-battle-pause-after-cancel",
+      "url": "http://127.0.0.1:4176/?unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-view-lifecycle-1239",
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 13700788,
+        "rendererTexturePeakBytes": 13700788,
+        "rendererBufferBytes": 16547332,
+        "rendererDrawCalls": 34,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 6214324,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 4089988,
+        "rendererHiddenLabelTextureBytes": 901504,
+        "rendererLabelTextureCount": 30,
+        "rendererHiddenLabelTextureCount": 9,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 307200,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Title"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action0"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action1"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action2"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action3"
+            ]
+          },
+          {
+            "bytes": 243200,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 236160,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action4"
+            ]
+          },
+          {
+            "bytes": 234400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 2,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 128269.30000000075,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "guided",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 30,
+        "mapVersion": 4,
+        "towerCount": 4,
+        "rivetTowerCount": 3,
+        "frostTowerCount": 1,
+        "upgradedTowerCount": 1,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 0,
+        "renderedEnemyHealthBarCount": 0,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 8,
+        "pathLength": 16,
+        "pathDelta": 4,
+        "phase": "paused",
+        "wave": 2,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 33.1499999999994,
+        "bestTimeSeconds": 414.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": true,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": "ui",
+        "soundCueCount": 245,
+        "soundCueCounts": {
+          "ui": 7,
+          "pickup": 4,
+          "place": 4,
+          "wave-start": 2,
+          "rivet-shot": 92,
+          "metal-hit": 50,
+          "infantry-death": 9,
+          "frost-shot": 39,
+          "frost-hit": 36,
+          "wave-clear": 1,
+          "upgrade": 1
+        },
+        "soundVoiceCount": 0,
+        "musicReady": true,
+        "musicPlaying": false,
+        "musicVoiceCount": 0,
+        "musicMood": "paused",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 24.47666666666666,
+        "musicDucked": false,
+        "musicStartCount": 1,
+        "coreHealth": 10,
+        "activeEnemyCount": 1,
+        "waveSpawnedEnemyCount": 1,
+        "waveTotalEnemyCount": 9,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [
+          "down:0",
+          "down:1",
+          "down:2",
+          "down:3",
+          "right:0",
+          "right:1",
+          "right:2",
+          "right:3"
+        ],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [
+          "down:0",
+          "down:1",
+          "down:2",
+          "down:3",
+          "right:0",
+          "right:1",
+          "right:2",
+          "right:3"
+        ],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 10,
+        "defeatedEnemyCount": 9,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 0,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": true,
+        "pauseScreen": "menu",
+        "pauseReason": "user",
+        "canContinuePause": true,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 1.0666666666666629,
+          "y": -96
+        },
+        "previewAccepted": null,
+        "status": "战斗已暂停"
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "final-battle-resumed",
+      "url": "http://127.0.0.1:4176/?unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-view-lifecycle-1239",
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 11520308,
+        "rendererTexturePeakBytes": 13700788,
+        "rendererBufferBytes": 18906848,
+        "rendererDrawCalls": 28,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 4033844,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 1909508,
+        "rendererHiddenLabelTextureBytes": 835680,
+        "rendererLabelTextureCount": 22,
+        "rendererHiddenLabelTextureCount": 8,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 243200,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 234400,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 158080,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 157040,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          },
+          {
+            "bytes": 128960,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 128960,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 127680,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 108800,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 2,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 156236.19999999925,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "guided",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 62,
+        "mapVersion": 4,
+        "towerCount": 4,
+        "rivetTowerCount": 3,
+        "frostTowerCount": 1,
+        "upgradedTowerCount": 1,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 1,
+        "visibleEnemyHealthBarCount": 1,
+        "renderedEnemyHealthBarCount": 1,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 8,
+        "pathLength": 16,
+        "pathDelta": 4,
+        "phase": "clearing",
+        "wave": 2,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 60.88333333333116,
+        "bestTimeSeconds": 414.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": true,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": "frost-hit",
+        "soundCueCount": 456,
+        "soundCueCounts": {
+          "ui": 8,
+          "pickup": 4,
+          "place": 4,
+          "wave-start": 2,
+          "rivet-shot": 185,
+          "metal-hit": 99,
+          "infantry-death": 17,
+          "frost-shot": 70,
+          "frost-hit": 65,
+          "wave-clear": 1,
+          "upgrade": 1
+        },
+        "soundVoiceCount": 0,
+        "musicReady": true,
+        "musicPlaying": true,
+        "musicVoiceCount": 2,
+        "musicMood": "calm",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 12.164000000000001,
+        "musicDucked": false,
+        "musicStartCount": 2,
+        "coreHealth": 10,
+        "activeEnemyCount": 1,
+        "waveSpawnedEnemyCount": 9,
+        "waveTotalEnemyCount": 9,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [
+          "down:0",
+          "down:1",
+          "down:2",
+          "down:3",
+          "right:0",
+          "right:1",
+          "right:2",
+          "right:3"
+        ],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [
+          "down:0",
+          "down:1",
+          "down:2",
+          "down:3",
+          "right:0",
+          "right:1",
+          "right:2",
+          "right:3"
+        ],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": true,
+        "spawnedEnemyCount": 18,
+        "defeatedEnemyCount": 17,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 1,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": false,
+        "pauseScreen": null,
+        "pauseReason": null,
+        "canContinuePause": false,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 1.0666666666666629,
+          "y": 228.26666666666665
+        },
+        "previewAccepted": null,
+        "status": "击杀 1 名敌人 · +4 金币"
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "final-return-home",
+      "url": "http://127.0.0.1:4176/?unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-view-lifecycle-1239",
+      "viewport": {
+        "height": 900,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 13077252,
+        "rendererTexturePeakBytes": 13700788,
+        "rendererBufferBytes": 14187816,
+        "rendererDrawCalls": 35,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 5590788,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 3466452,
+        "rendererHiddenLabelTextureBytes": 532740,
+        "rendererLabelTextureCount": 28,
+        "rendererHiddenLabelTextureCount": 5,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 462000,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Body"
+            ]
+          },
+          {
+            "bytes": 393600,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Title"
+            ]
+          },
+          {
+            "bytes": 290400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/Start"
+            ]
+          },
+          {
+            "bytes": 243200,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 234400,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 194560,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/FirstLevelExperience/HomeLabels/BestRecord"
+            ]
+          },
+          {
+            "bytes": 158080,
+            "visible": false,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 157040,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 2,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 172019.30000000075,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "home",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 140,
+        "mapVersion": 0,
+        "towerCount": 0,
+        "rivetTowerCount": 0,
+        "frostTowerCount": 0,
+        "upgradedTowerCount": 0,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 0,
+        "renderedEnemyHealthBarCount": 0,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 0,
+        "pathLength": 12,
+        "pathDelta": 0,
+        "phase": "preparing",
+        "wave": 0,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 0,
+        "bestTimeSeconds": 414.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": true,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": "ui",
+        "soundCueCount": 457,
+        "soundCueCounts": {
+          "ui": 9,
+          "pickup": 4,
+          "place": 4,
+          "wave-start": 2,
+          "rivet-shot": 185,
+          "metal-hit": 99,
+          "infantry-death": 17,
+          "frost-shot": 70,
+          "frost-hit": 65,
+          "wave-clear": 1,
+          "upgrade": 1
+        },
+        "soundVoiceCount": 0,
+        "musicReady": true,
+        "musicPlaying": false,
+        "musicVoiceCount": 0,
+        "musicMood": "off",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 0,
+        "musicDucked": false,
+        "musicStartCount": 2,
+        "coreHealth": 10,
+        "activeEnemyCount": 0,
+        "waveSpawnedEnemyCount": 0,
+        "waveTotalEnemyCount": 0,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 0,
+        "defeatedEnemyCount": 0,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 0,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": false,
+        "pauseScreen": null,
+        "pauseReason": null,
+        "canContinuePause": false,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 1.0666666666666629,
+          "y": 29.866666666666674
+        },
+        "previewAccepted": null,
+        "status": "已重新布防，可以调整路线"
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "final-qa-orientation-blocked",
+      "url": "http://127.0.0.1:4176/?qa=1&qaCoarse=1&unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-view-lifecycle-1239",
+      "viewport": {
+        "height": 343,
+        "width": 900
+      },
+      "state": {
+        "rendererTextureBytes": 14434796,
+        "rendererTexturePeakBytes": 14434796,
+        "rendererBufferBytes": 7108452,
+        "rendererDrawCalls": 32,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 6948332,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 4823996,
+        "rendererHiddenLabelTextureBytes": 32,
+        "rendererLabelTextureCount": 24,
+        "rendererHiddenLabelTextureCount": 8,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 1197600,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action0"
+            ]
+          },
+          {
+            "bytes": 1064960,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Title"
+            ]
+          },
+          {
+            "bytes": 737280,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Footer"
+            ]
+          },
+          {
+            "bytes": 737280,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Subtitle"
+            ]
+          },
+          {
+            "bytes": 173740,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          },
+          {
+            "bytes": 173600,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 173600,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/ResultLabel"
+            ]
+          },
+          {
+            "bytes": 157040,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 2,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 14261.900000000373,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "free",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 10,
+        "mapVersion": 4,
+        "towerCount": 4,
+        "rivetTowerCount": 3,
+        "frostTowerCount": 1,
+        "upgradedTowerCount": 0,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 0,
+        "renderedEnemyHealthBarCount": 0,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 0,
+        "pathLength": 16,
+        "pathDelta": 4,
+        "phase": "paused",
+        "wave": 1,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 0.19999999999999998,
+        "bestTimeSeconds": 470.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": false,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": null,
+        "soundCueCount": 0,
+        "soundCueCounts": {},
+        "soundVoiceCount": 0,
+        "musicReady": false,
+        "musicPlaying": false,
+        "musicVoiceCount": 0,
+        "musicMood": "off",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 0,
+        "musicDucked": false,
+        "musicStartCount": 0,
+        "coreHealth": 10,
+        "activeEnemyCount": 1,
+        "waveSpawnedEnemyCount": 1,
+        "waveTotalEnemyCount": 9,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [
+          "down:1",
+          "down:2"
+        ],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 1,
+        "defeatedEnemyCount": 0,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 0,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": true,
+        "pauseMenuVisible": true,
+        "pauseScreen": "menu",
+        "pauseReason": "orientation",
+        "canContinuePause": false,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "previewAccepted": null,
+        "status": "横屏安全暂停：请转回竖屏"
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "final-qa-orientation-restored-paused",
+      "url": "http://127.0.0.1:4176/?qa=1&qaCoarse=1&unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-view-lifecycle-1239",
+      "viewport": {
+        "height": 838,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 12599984,
+        "rendererTexturePeakBytes": 14434796,
+        "rendererBufferBytes": 7108488,
+        "rendererDrawCalls": 35,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 5113520,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 2989184,
+        "rendererHiddenLabelTextureBytes": 20,
+        "rendererLabelTextureCount": 24,
+        "rendererHiddenLabelTextureCount": 5,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 324800,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Title"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action0"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action1"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action2"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action3"
+            ]
+          },
+          {
+            "bytes": 227360,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Footer"
+            ]
+          },
+          {
+            "bytes": 227360,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Subtitle"
+            ]
+          },
+          {
+            "bytes": 173740,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 2,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 29945.299999998882,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "free",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 10,
+        "mapVersion": 4,
+        "towerCount": 4,
+        "rivetTowerCount": 3,
+        "frostTowerCount": 1,
+        "upgradedTowerCount": 0,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 0,
+        "renderedEnemyHealthBarCount": 0,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 0,
+        "pathLength": 16,
+        "pathDelta": 4,
+        "phase": "paused",
+        "wave": 1,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 0.19999999999999998,
+        "bestTimeSeconds": 470.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": false,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": null,
+        "soundCueCount": 0,
+        "soundCueCounts": {},
+        "soundVoiceCount": 0,
+        "musicReady": false,
+        "musicPlaying": false,
+        "musicVoiceCount": 0,
+        "musicMood": "off",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 0,
+        "musicDucked": false,
+        "musicStartCount": 0,
+        "coreHealth": 10,
+        "activeEnemyCount": 1,
+        "waveSpawnedEnemyCount": 1,
+        "waveTotalEnemyCount": 9,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [
+          "down:1",
+          "down:2"
+        ],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 1,
+        "defeatedEnemyCount": 0,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 0,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": true,
+        "pauseScreen": "menu",
+        "pauseReason": null,
+        "canContinuePause": true,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "previewAccepted": null,
+        "status": "已恢复竖屏，请点继续战斗"
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    },
+    {
+      "label": "final-qa-orientation-resumed",
+      "url": "http://127.0.0.1:4176/?qa=1&qaCoarse=1&unitArt=rig-candidate&artBudget=compact&renderBudget=small-atlas&build=phase-c-view-lifecycle-1239",
+      "viewport": {
+        "height": 838,
+        "width": 405
+      },
+      "state": {
+        "rendererTextureBytes": 12599984,
+        "rendererTexturePeakBytes": 14434796,
+        "rendererBufferBytes": 7108488,
+        "rendererDrawCalls": 35,
+        "rendererCachedTextureBytes": 7486464,
+        "rendererUncataloguedTextureBytes": 5113520,
+        "rendererLabelBudgetSupported": true,
+        "rendererLabelTextureBytes": 2989184,
+        "rendererHiddenLabelTextureBytes": 20,
+        "rendererLabelTextureCount": 24,
+        "rendererHiddenLabelTextureCount": 5,
+        "rendererLabelResourceOverlapBytes": 0,
+        "rendererLargestLabelTextures": [
+          {
+            "bytes": 324800,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Title"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action0"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action1"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action2"
+            ]
+          },
+          {
+            "bytes": 301760,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Action3"
+            ]
+          },
+          {
+            "bytes": 227360,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Footer"
+            ]
+          },
+          {
+            "bytes": 227360,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/BattlePauseOverlay/PauseLabels/Subtitle"
+            ]
+          },
+          {
+            "bytes": 173740,
+            "visible": true,
+            "sharedWithResource": false,
+            "paths": [
+              "Main/Canvas/PhaseAProgrammaticLayer/Label"
+            ]
+          }
+        ],
+        "rendererDynamicAtlasCount": 2,
+        "rendererDynamicAtlasSize": 512,
+        "rendererBudgetSampleAtMs": 29945.299999998882,
+        "rendererLargestCachedTextures": [
+          {
+            "name": "",
+            "uuid": "42058b81-cc32-5191-9769-9f47d174b389@6c48a",
+            "width": 768,
+            "height": 1365,
+            "bytes": 4193280
+          },
+          {
+            "name": "",
+            "uuid": "6935f380-ab19-5fff-87f5-57491169ed6f@6c48a",
+            "width": 640,
+            "height": 640,
+            "bytes": 1638400
+          },
+          {
+            "name": "",
+            "uuid": "1916cddc-200a-5819-a57e-392580851634@6c48a",
+            "width": 320,
+            "height": 320,
+            "bytes": 409600
+          },
+          {
+            "name": "",
+            "uuid": "047bc063-1ef7-4346-9799-a11cac591ce8@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0b1ab99c-1e1f-46b9-84ef-af362ad5a79b@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "0e5773a4-78d3-4fd6-8df8-311dc88b40cf@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "115fd738-2591-40c2-8257-32588d485ab5@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          },
+          {
+            "name": "",
+            "uuid": "1424ad8d-5105-45e4-a8fa-85c225dad388@6c48a",
+            "width": 128,
+            "height": 128,
+            "bytes": 65536
+          }
+        ],
+        "renderAtlasPolicyStatus": "small-atlas-applied",
+        "entryMode": "free",
+        "gridId": "grid-9x13",
+        "columns": 9,
+        "rows": 13,
+        "gold": 10,
+        "mapVersion": 4,
+        "towerCount": 4,
+        "rivetTowerCount": 3,
+        "frostTowerCount": 1,
+        "upgradedTowerCount": 0,
+        "selectedTowerId": "rivet-gun",
+        "inspectedTowerCell": null,
+        "inspectedSaleRefund": null,
+        "slowedEnemyCount": 0,
+        "visibleEnemyHealthBarCount": 1,
+        "renderedEnemyHealthBarCount": 1,
+        "displacedEnemyHealthBarCount": 0,
+        "overlappingEnemyHealthBarPairs": 0,
+        "waveRewardTotal": 0,
+        "pathLength": 16,
+        "pathDelta": 4,
+        "phase": "spawning",
+        "wave": 1,
+        "totalWaves": 8,
+        "countdownSeconds": 0,
+        "speedMultiplier": 1,
+        "runElapsedSeconds": 0.39999999999999997,
+        "bestTimeSeconds": 470.15,
+        "bestRemainingHealth": 9,
+        "resultWasNewRecord": false,
+        "resultWasNewHealthRecord": false,
+        "soundEnabled": true,
+        "soundVolumePercent": 100,
+        "reducedMotion": false,
+        "homeSettingsVisible": false,
+        "soundReady": false,
+        "canStartNextWaveEarly": false,
+        "soundLastCue": null,
+        "soundCueCount": 0,
+        "soundCueCounts": {},
+        "soundVoiceCount": 0,
+        "musicReady": false,
+        "musicPlaying": false,
+        "musicVoiceCount": 0,
+        "musicMood": "off",
+        "musicIntensityActive": false,
+        "musicIntensityPending": false,
+        "musicPositionSeconds": 0,
+        "musicDucked": false,
+        "musicStartCount": 0,
+        "coreHealth": 10,
+        "activeEnemyCount": 1,
+        "waveSpawnedEnemyCount": 1,
+        "waveTotalEnemyCount": 9,
+        "infantryGaitFrameLoaded": true,
+        "infantryDirectionalWalkStatus": "ready",
+        "artBudgetProfile": "compact-candidate",
+        "backdropResourcePath": "level-one/backdrop-plaza-budget-v1/spriteFrame",
+        "infantryDirectionalWalkSamples": [
+          "down:0",
+          "down:1",
+          "down:2",
+          "down:3"
+        ],
+        "infantryDirectionalCollapseStatus": "ready",
+        "infantryDirectionalCollapseSamples": [],
+        "activeInfantryDirectionalCollapseCount": 0,
+        "runnerGaitFrameLoaded": true,
+        "haulerGaitFrameLoaded": true,
+        "infantryDeathFrameLoaded": true,
+        "entryArtLoaded": true,
+        "activeInfantryCollapseCount": 0,
+        "spawningCompleted": false,
+        "spawnedEnemyCount": 1,
+        "defeatedEnemyCount": 0,
+        "leakedEnemyCount": 0,
+        "activeFeedbackCount": 3,
+        "resultVisible": false,
+        "retryAvailable": false,
+        "orientationBlocked": false,
+        "pauseMenuVisible": false,
+        "pauseScreen": null,
+        "pauseReason": null,
+        "canContinuePause": false,
+        "inputMode": "idle",
+        "lastInputPoint": {
+          "x": 0,
+          "y": 0
+        },
+        "previewAccepted": null,
+        "status": "已继续第 1 波"
+      },
+      "evidenceStatus": "valid-pinned-label-probe"
+    }
+  ]
+}

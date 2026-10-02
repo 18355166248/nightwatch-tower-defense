@@ -27,6 +27,9 @@ export interface BattleResultContext {
     readonly upgradeCount: number;
     readonly bestSeconds: number | null;
     readonly newRecord: boolean;
+    readonly bestRemainingHealth: number | null;
+    readonly bestCoreHealthCapacity: number;
+    readonly newHealthRecord: boolean;
 }
 
 export function formatRunDuration(seconds: number): string {
@@ -43,7 +46,15 @@ export function buildBattleResultViewModel(
     context: BattleResultContext,
 ): BattleResultViewModel | null {
     if (battle.phase !== 'victory' && battle.phase !== 'defeat') return null;
-    const { initialCoreHealth, totalWaves, elapsedSeconds, towerCount, upgradeCount, bestSeconds, newRecord } = context;
+    const { initialCoreHealth, totalWaves, elapsedSeconds, towerCount, upgradeCount, bestSeconds, newRecord,
+        bestRemainingHealth, bestCoreHealthCapacity, newHealthRecord } = context;
+    const recordLines = [
+        bestSeconds !== null ? `${battle.phase === 'victory' && newRecord ? '新最快' : '最快'} ${formatRunDuration(bestSeconds)}` : null,
+        bestRemainingHealth !== null
+            // 本局生命可能来自失败测试夹具；历史战绩使用自己的标准关卡容量。
+            ? `${battle.phase === 'victory' && newHealthRecord ? '新核心纪录' : '最佳核心'} ${bestRemainingHealth}/${bestCoreHealthCapacity}` : null,
+    ];
+    const recordFootnote = recordLines.filter((line): line is string => line !== null).join(' · ');
     return {
         kind: battle.phase,
         title: battle.phase === 'victory' ? '防线守住了' : '核心失守',
@@ -62,10 +73,7 @@ export function buildBattleResultViewModel(
             { label: '建塔', value: String(towerCount), tone: 'gold' },
             { label: '升级', value: String(upgradeCount), tone: 'gold' },
         ],
-        footnote: battle.phase === 'victory'
-            ? newRecord ? `新最快纪录 · ${formatRunDuration(elapsedSeconds)}`
-                : bestSeconds !== null ? `本机最快 · ${formatRunDuration(bestSeconds)}` : '首关已守住'
-            : bestSeconds !== null ? `本机最快 · ${formatRunDuration(bestSeconds)}` : '调整布防后可再次挑战',
+        footnote: recordFootnote || (battle.phase === 'victory' ? '首关已守住' : '调整布防后可再次挑战'),
         actionLabel: '重新部署',
         homeActionLabel: '返回首页',
     };

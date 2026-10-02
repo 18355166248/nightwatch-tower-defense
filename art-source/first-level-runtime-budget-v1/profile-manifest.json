@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "status": "draft",
+  "assets": [
+    {
+      "id": "clockwork-infantry-walk-rig-budget-v1",
+      "source": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v2",
+      "recipe": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-runtime-budget-v1/walk-recipe.json",
+      "bundle": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-runtime-budget-v1/walk",
+      "runtime": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/assets/resources/level-one/units/clockwork-infantry-walk-rig-budget-v1.png",
+      "cell": [
+        80,
+        80
+      ],
+      "frames": 16,
+      "anchor": [
+        0.5,
+        0.82830057
+      ],
+      "status": "needs-human-and-runtime-review"
+    },
+    {
+      "id": "clockwork-infantry-collapse-rig-budget-v1",
+      "source": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1",
+      "recipe": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-runtime-budget-v1/collapse-recipe.json",
+      "bundle": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-runtime-budget-v1/collapse",
+      "runtime": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/assets/resources/level-one/units/clockwork-infantry-collapse-rig-budget-v1.png",
+      "cell": [
+        160,
+        160
+      ],
+      "frames": 16,
+      "anchor": [
+        0.5,
+        0.6641503
+      ],
+      "status": "needs-human-and-runtime-review"
+    },
+    {
+      "id": "backdrop-plaza-budget-v1",
+      "source": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/assets/resources/level-one/backdrop-plaza-v2.jpg",
+      "sourceSha256": "ce70aeddb7005e3a7416fefb2d3a2483d12fe142c3e9588c1449fe0811155ec9",
+      "runtime": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/assets/resources/level-one/backdrop-plaza-budget-v1.jpg",
+      "size": [
+        768,
+        1365
+      ],
+      "operation": "whole-canvas Lanczos, JPEG quality90",
+      "provenance": "derived from existing project candidate; original rights review remains pending",
+      "status": "needs-human-and-runtime-review"
+    },
+    {
+      "id": "backdrop-budget-v1",
+      "source": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/assets/resources/level-one/backdrop.jpg",
+      "sourceSha256": "0f1e3c485eb6fdd8571b833740363b324b12f81929351fdb936a867193cc4ea7",
+      "runtime": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/assets/resources/level-one/backdrop-budget-v1.jpg",
+      "size": [
+        768,
+        1365
+      ],
+      "operation": "whole-canvas Lanczos, JPEG quality90",
+      "provenance": "derived from existing project candidate; original rights review remains pending",
+      "status": "needs-human-and-runtime-review"
+    }
+  ],
+  "locks": "same sources, full canvases, normalized anchors, all frames, durations and loops; no rule change",
+  "pipeline": "/Users/xmly/Swell/code/game-workspace/ai-asset-pipeline",
+  "pillow": "12.3.0",
+  "installed": true
+}

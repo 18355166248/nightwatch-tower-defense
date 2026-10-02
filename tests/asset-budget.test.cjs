@@ -1,0 +1,58 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { imageDimensions, rgbaBytes, selectTextureSet, textureBasesInSource, budgetPassed } = require('../scripts/report-first-level-budget.cjs');
+
+test('纹理预算按RGBA与完整mipmap计数，不用PNG文件压缩体积冒充解码内存', () => {
+    assert.equal(rgbaBytes(1024, 1024), 4 * 1024 * 1024);
+    assert.equal(rgbaBytes(4, 2, true), 32 + 8 + 4);
+    assert.throws(() => rgbaBytes(NaN, 128));
+    assert.throws(() => rgbaBytes(1.5, 128));
+    assert.throws(() => rgbaBytes(Number.MAX_SAFE_INTEGER, 128));
+});
+
+test('低占用常驻集合与旧高分比较图互斥；指定档位也不能绕过整包预算', () => {
+    const bases = ['level-one/backdrop', 'level-one/backdrop-plaza-v2', 'level-one/backdrop-plaza-budget-v1',
+        'level-one/backdrop-budget-v1', 'level-one/units/clockwork-infantry',
+        'level-one/units/clockwork-infantry-walk-rig-v2', 'level-one/units/clockwork-infantry-collapse-rig-v1',
+        'level-one/units/clockwork-infantry-walk-rig-budget-v1', 'level-one/units/clockwork-infantry-collapse-rig-budget-v1'];
+    assert.equal(selectTextureSet(bases,true,false,true).length,4);
+    assert.ok(!selectTextureSet(bases,true,false,true).includes('level-one/units/clockwork-infantry-walk-rig-v2'));
+    assert.ok(selectTextureSet(bases,true,true,true).includes('level-one/backdrop-budget-v1'));
+    const report = { wholeBuildWithin20MiB:true, variants:{ rigCandidate:{residentTexturesWithin8MiB:false,firstScreenTexturesWithin3MiB:true},
+        compactRigCandidate:{residentTexturesWithin8MiB:true,firstScreenTexturesWithin3MiB:true} } };
+    assert.equal(budgetPassed(report),false);
+    assert.equal(budgetPassed(report,'compact'),true);
+    assert.equal(budgetPassed({...report,wholeBuildWithin20MiB:false},'compact'),false);
+    assert.throws(()=>budgetPassed(report,'unknown'));
+});
+
+test('预算读取PNG尺寸头，无效尺寸与未知格式不以0字节放行', () => {
+    const png = Buffer.alloc(24);
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]).copy(png);
+    png.writeUInt32BE(512, 16); png.writeUInt32BE(1024, 20);
+    assert.deepEqual(imageDimensions(png), { width: 512, height: 1024 });
+    assert.throws(() => imageDimensions(Buffer.from('not-an-image')));
+    png.writeUInt32BE(0, 16); assert.throws(() => imageDimensions(png));
+});
+
+test('源码资源发现不漏下划线或数字路径，只移除Cocos子资源后缀', () => {
+    assert.deepEqual(textureBasesInSource(`const p = 'level-one/units/rig_v3/texture';
+        const q = "level-one/ui/icon-2/spriteFrame"; const unrelated = 'other/icon';`),
+        ['level-one/units/rig_v3', 'level-one/ui/icon-2']);
+});
+
+test('JPEG尺寸读SOF，不依赖系统图片工具或扩展名猜测', () => {
+    const jpg = Buffer.from([255, 216, 255, 224, 0, 4, 0, 0, 255, 192, 0, 8, 8, 6, 136, 3, 173, 1, 255, 217]);
+    assert.deepEqual(imageDimensions(jpg), { width: 941, height: 1672 });
+    assert.throws(() => imageDimensions(jpg.subarray(0, 13)));
+});
+
+test('候选额外图集与原A/B同时计入；主背景和回退背景不能重复算常驻', () => {
+    const bases = ['level-one/backdrop', 'level-one/backdrop-plaza-v2', 'level-one/units/clockwork-infantry',
+        'level-one/units/clockwork-infantry-walk-rig-v2', 'level-one/units/clockwork-infantry-collapse-rig-v1'];
+    assert.deepEqual(selectTextureSet(bases, false), ['level-one/backdrop-plaza-v2', 'level-one/units/clockwork-infantry']);
+    const rig = selectTextureSet(bases, true);
+    assert.equal(rig.length, 4); assert.ok(rig.includes('level-one/units/clockwork-infantry'));
+    const fallback = selectTextureSet(bases, true, true);
+    assert.ok(fallback.includes('level-one/backdrop')); assert.ok(!fallback.includes('level-one/backdrop-plaza-v2'));
+});

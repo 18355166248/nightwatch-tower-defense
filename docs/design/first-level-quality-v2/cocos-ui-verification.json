@@ -1,0 +1,216 @@
+{
+  "url": "http://127.0.0.1:4176/?build=quality-v2-integrated-1313",
+  "status": "ui-smoke-passed-not-full-stage-acceptance",
+  "ruleTests": {
+    "passed": 190,
+    "total": 190
+  },
+  "designTests": {
+    "passed": 2,
+    "total": 2
+  },
+  "runtimeTypeCheck": "passed with ES2020,DOM lib",
+  "webBuild": "release verified in browser",
+  "viewportSamples": [
+    {
+      "goldFontPixels": 11.733333333333333,
+      "minHitPixels": 44.44444444444444,
+      "nextText": "开始\n第一波",
+      "overflow": false,
+      "textScale": 0.72,
+      "viewport": [
+        320,
+        844
+      ]
+    },
+    {
+      "goldFontPixels": 14.3,
+      "minHitPixels": 54.166666666666664,
+      "nextText": "开始\n第一波",
+      "overflow": false,
+      "textScale": 0.72,
+      "viewport": [
+        390,
+        844
+      ]
+    },
+    {
+      "goldFontPixels": 15.766666666666667,
+      "minHitPixels": 59.72222222222222,
+      "nextText": "开始\n第一波",
+      "overflow": false,
+      "textScale": 0.72,
+      "viewport": [
+        430,
+        844
+      ]
+    }
+  ],
+  "smokeChecks": [
+    "build and dynamic routing",
+    "Lv1→Lv2: 110→86 gold",
+    "Lv2→Lv3: 86→44 gold",
+    "opening undo Lv2: 86→140 gold, path14→12",
+    "insufficient gold does not debit",
+    "max level does not debit",
+    "tower panel close",
+    "two transparent tower cards",
+    "start first wave",
+    "pause and resume",
+    "speed1→2→1",
+    "battle sale disabled retains inspected tower and gold",
+    "restart restores opening deployment"
+  ],
+  "finalFrozenBuildChecks": [
+    "Lv1→Lv2→Lv3",
+    "max-level rejection",
+    "frost build",
+    "wave start",
+    "battle sale rejection preserves inspected cell4,5 and gold4",
+    "pause and restore opening deployment"
+  ],
+  "consoleIssuesSinceFinalReload": [],
+  "final": {
+    "performance": {
+      "drawCalls": 26,
+      "textureBytes": 30586580
+    },
+    "state": {
+      "gold": 70,
+      "inspectedCell": "4,7",
+      "phase": "preparing",
+      "speed": 1,
+      "towers": 2,
+      "wave": 0
+    },
+    "ui": {
+      "labels": [
+        {
+          "fontSize": 28.8,
+          "key": "gold-caption",
+          "text": "金币"
+        },
+        {
+          "fontSize": 39.6,
+          "key": "gold",
+          "text": "70"
+        },
+        {
+          "fontSize": 28.8,
+          "key": "wave-caption",
+          "text": "波次"
+        },
+        {
+          "fontSize": 39.6,
+          "key": "wave",
+          "text": "0 / 8"
+        },
+        {
+          "fontSize": 28.8,
+          "key": "core-caption",
+          "text": "核心"
+        },
+        {
+          "fontSize": 39.6,
+          "key": "core",
+          "text": "10 / 10"
+        },
+        {
+          "fontSize": 64,
+          "key": "pause",
+          "text": "Ⅱ"
+        },
+        {
+          "fontSize": 28.8,
+          "key": "chapter",
+          "text": "夜城广场"
+        },
+        {
+          "fontSize": 31.68,
+          "key": "rivet",
+          "text": "机枪塔"
+        },
+        {
+          "fontSize": 34.56,
+          "key": "rivet-price",
+          "text": "30"
+        },
+        {
+          "fontSize": 31.68,
+          "key": "frost",
+          "text": "冷凝塔"
+        },
+        {
+          "fontSize": 34.56,
+          "key": "frost-price",
+          "text": "40"
+        },
+        {
+          "fontSize": 33.12,
+          "key": "speed",
+          "text": "1×"
+        },
+        {
+          "fontSize": 25.92,
+          "key": "next",
+          "text": "开始\n第一波"
+        },
+        {
+          "fontSize": 33.12,
+          "key": "inspect-title",
+          "text": "冷凝塔  Lv.1"
+        },
+        {
+          "fontSize": 28.8,
+          "key": "inspect-stats",
+          "text": "减速 75% · 射程 3"
+        },
+        {
+          "fontSize": 60,
+          "key": "close",
+          "text": "×"
+        },
+        {
+          "fontSize": 25.92,
+          "key": "sell",
+          "text": "撤销 40"
+        },
+        {
+          "fontSize": 25.92,
+          "key": "upgrade",
+          "text": "升级 32"
+        }
+      ],
+      "loadedFrames": [
+        "frost-coil",
+        "rivet-gun",
+        "tray-frame",
+        "inspect-frame",
+        "disabled-frame",
+        "button-frame",
+        "hud-frame",
+        "core-heart",
+        "wave-beacon",
+        "gold-coins"
+      ],
+      "textScale": 0.72,
+      "version": "quality-v2"
+    }
+  },
+  "unverified": [
+    "three ordinary1x complete eight-wave runs",
+    "full design restoration for battlefield and all other screens",
+    "texture budget acceptance",
+    "user visual acceptance"
+  ],
+  "buildWarnings": [
+    "Creator editor preference layout/window JSON parse warning observed; successful fresh Web output and browser run confirmed; preferences not modified"
+  ],
+  "committed": false,
+  "pushed": false,
+  "mainBundleSha256": "146eabd1be0c2ab2c473e6c7c97eea756ecd4e712a006b1b9acf4ab60ff23b76",
+  "notes": [
+    "All input smoke checks performed on equivalent geometry; final text-only rebuild preserves explicit two-line wave button labels. Final bundle verified: two tower builds, inspected frost properties, three widths, resources, console.",
+    "Three complete normal1x eight-wave runs not performed."
+  ]
+}

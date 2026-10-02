@@ -1,0 +1,20 @@
+{
+  "sheet": "atlas.png",
+  "columns": 4,
+  "rows": 4,
+  "cellWidth": 160,
+  "cellHeight": 160,
+  "rowOrder": [
+    "collapse-down",
+    "collapse-left",
+    "collapse-up",
+    "collapse-right"
+  ],
+  "frameCounts": {
+    "collapse-down": 4,
+    "collapse-left": 4,
+    "collapse-up": 4,
+    "collapse-right": 4
+  },
+  "padding": "repeat-last; use manifest for timing and true frame counts"
+}

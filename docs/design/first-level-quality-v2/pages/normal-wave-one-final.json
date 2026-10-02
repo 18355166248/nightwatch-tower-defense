@@ -1,0 +1,35 @@
+{
+  "build": "8bcd3ff76d8dcbf801fe22f6a055d6d9ac3c9e5231372894e39e224e216abbdf",
+  "mode": "normal guided 1x; one wave only",
+  "phase": "paused",
+  "wave": 1,
+  "gold": 54,
+  "core": 10,
+  "labels": [
+    {
+      "key": "chapter",
+      "text": "下一波 · 第 2 波",
+      "fontSize": 28.8
+    },
+    {
+      "key": "next",
+      "text": "开始\n下一波",
+      "fontSize": 25.92
+    },
+    {
+      "key": "event",
+      "text": "步兵×9",
+      "fontSize": 23.04
+    },
+    {
+      "key": "tactic",
+      "text": "机枪守线 · 留意改路",
+      "fontSize": 20.88
+    },
+    {
+      "key": "guidance",
+      "text": "强化中段机枪 · 升到 Lv2\n再点右下“开始下一波”",
+      "fontSize": 25.92
+    }
+  ]
+}

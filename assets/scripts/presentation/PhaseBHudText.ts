@@ -7,6 +7,14 @@ export interface WaveStartButtonViewModel {
     readonly active: boolean;
 }
 
+const FIRST_WAVE_START_LABEL = '开始\n第一波';
+const NEXT_WAVE_START_LABEL = '开始\n下一波';
+
+/** 教学指向当前真实按钮文案；开波按钮改名时不留下旧的图标指令。 */
+export function waveStartActionText(kind: 'first' | 'next'): string {
+    return `点右下“${(kind === 'first' ? FIRST_WAVE_START_LABEL : NEXT_WAVE_START_LABEL).replace('\n', '')}”`;
+}
+
 /** 同一按钮在首波、自然波间和教学待命中分别承担开波动作，文案与可用态必须同步。 */
 export function waveStartButtonViewModel(
     phase: BattlePhase,
@@ -15,16 +23,21 @@ export function waveStartButtonViewModel(
     countdownSeconds: number,
 ): WaveStartButtonViewModel {
     if (phase === 'preparing') return firstWaveReady
-        ? { label: '开始\n第一波', active: true }
+        ? { label: FIRST_WAVE_START_LABEL, active: true }
         : { label: '第一波\n先布防', active: false };
     if (phase === 'countdown') return { label: `提前开波\n${Math.ceil(countdownSeconds)} 秒`, active: true };
-    if (phase === 'paused' && guidedIntermissionHeld) return { label: '开始\n下一波', active: true };
+    if (phase === 'paused' && guidedIntermissionHeld) return { label: NEXT_WAVE_START_LABEL, active: true };
     return { label: '提前开波\n等待中', active: false };
 }
 
 /** 金币已有独立数值卡片，事件行只保留发生了什么，避免短屏顶部重复挤字。 */
 export function hudEventText(statusText: string): string {
     return statusText.replace(/\s*·\s*(?:剩余)?金币\s*\d+\s*$/, '');
+}
+
+/** 图标只增强识别；单张资源加载失败时，数值卡仍须自带资源名。 */
+export function resourceCardValueText(label: string, value: number | string, iconReady: boolean, unit = ''): string {
+    return iconReady ? `${value}${unit}` : `${label} ${value}${unit}`;
 }
 
 /** 塔属性留在单行事件槽；撤销限制与升级操作分别由帮助行和按钮承载。 */

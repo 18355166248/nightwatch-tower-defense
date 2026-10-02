@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>夜城防线 · UI 精修 v2</title><link rel="stylesheet" href="review.css"><script src="review.js" type="module"></script></head>
+<body>
+<header><div><strong>夜城防线 · UI 精修 v2</strong><span>独立设计稿 → 可交互还原 · 待视觉确认</span></div><a href="README.md">差距与验证</a></header>
+<nav aria-label="评审视图"><button data-view="implementation" aria-pressed="true">还原页面</button><button data-view="design" aria-pressed="false">设计原稿</button><button data-view="overlay" aria-pressed="false">半透明叠图</button><a href="pages/index.html">全页面与弹窗设计</a><a href="../first-level-quality-v1/index.html">旧版 v1</a></nav>
+<nav aria-label="画面宽度"><button data-width="320" aria-pressed="false">320</button><button data-width="390" aria-pressed="true">390</button><button data-width="430" aria-pressed="false">430</button><output id="readout"></output></nav>
+<nav aria-label="操作状态"><button data-state="battle">战斗中</button><button data-state="ready">波间可升级</button><button data-state="poor">金币不足</button><button data-state="max" aria-pressed="true">满级</button></nav>
+<main>
+<section class="stage" data-view="implementation" data-mode="inspect" aria-label="首关 UI 精修对照">
+  <img class="battle-art" src="https://audiopaytest.cos.tx.xmcdn.com/storages/c9ca-audiotest/06/31/GAqSiIMOlMnHAAzc4AACF0Ia.png" alt="原创战斗构图，非运行中的关卡">
+  <svg class="range" viewBox="0 0 1080 1920" aria-hidden="true"><circle cx="323" cy="894" r="290" fill="#78df9b" fill-opacity=".04" stroke="#84d59c" stroke-opacity=".6" stroke-width="2.5"/></svg>
+  <div class="hud frame" aria-label="战斗资源">
+    <div class="resource"><img src="https://audiopaytest.cos.tx.xmcdn.com/storages/0518-audiotest/FA/8A/GAqSiIMOlMnDAABbywACF0IY.png" alt=""><div><span>金币</span><strong class="gold">54</strong></div></div>
+    <div class="resource"><img src="https://audiopaytest.cos.tx.xmcdn.com/storages/0317-audiotest/9B/0B/GAqSiIMOlMnIAABoKAACF0Ic.png" alt=""><div><span>波次</span><strong>6<small>/ 8</small></strong></div></div>
+    <div class="resource"><img src="https://audiopaytest.cos.tx.xmcdn.com/storages/a85a-audiotest/8F/4E/GAqSiIMOlMnWAABY3wACF0Ir.png" alt=""><div><span>核心</span><strong class="cyan">9<small>/ 10</small></strong></div></div>
+    <button class="pause art-button" aria-label="暂停预览" aria-pressed="false">Ⅱ</button>
+  </div>
+  <div class="chapter">夜城广场</div>
+  <section class="inspector frame" aria-label="选塔属性">
+    <img class="portrait inspect-portrait" src="https://audiopaytest.cos.tx.xmcdn.com/storages/281e-audiotest/A9/96/GAqSiIMOlMqVAADwZwACF0PG.png" alt="机枪塔肖像">
+    <div class="inspect-copy"><h1>机枪塔 <small>Lv.3</small></h1><p>伤害 18 · 射程 3.2</p></div>
+    <button class="close" aria-label="关闭选塔面板">×</button>
+    <div class="inspect-row"><button class="sell disabled-button">出售 67</button><button class="upgrade disabled-button" disabled>已满级</button></div>
+  </section>
+  <div class="tray frame" aria-label="建塔和战斗操作">
+    <button class="tower" data-tower="rivet" aria-pressed="false"><img class="portrait" src="https://audiopaytest.cos.tx.xmcdn.com/storages/281e-audiotest/A9/96/GAqSiIMOlMqVAADwZwACF0PG.png" alt=""><span>机枪塔<strong>30</strong></span></button>
+    <button class="tower" data-tower="frost" aria-pressed="false"><img class="portrait" src="https://audiopaytest.cos.tx.xmcdn.com/storages/e696-audiotest/65/04/GAqSoUUOlMpnAAD3IgACF0N8.png" alt=""><span>冷凝塔<strong>40</strong></span></button>
+    <button class="speed art-button" aria-label="切换预览倍速"><strong>1×</strong></button>
+    <button class="next disabled-button"><span>下一波</span></button>
+  </div>
+  <div class="paused" role="status" hidden>暂停预览</div>
+  <img class="design-reference" src="design-target.svg" alt="独立制作的1080×1920高保真UI设计原稿，静态视觉目标">
+</section>
+<p class="notice">原稿为独立 SVG 设计文件，不是运行截图。本页战场为静态构图，不是试玩入口。<br>战斗UI及既有页面已接入Cocos；全页面设计与实际截图见上方索引。视觉仍待确认，未宣称首关完成。</p>
+</main>
+</body></html>

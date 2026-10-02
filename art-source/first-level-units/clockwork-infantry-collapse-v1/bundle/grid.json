@@ -1,0 +1,14 @@
+{
+  "sheet": "atlas.png",
+  "columns": 2,
+  "rows": 1,
+  "cellWidth": 128,
+  "cellHeight": 128,
+  "rowOrder": [
+    "death"
+  ],
+  "frameCounts": {
+    "death": 2
+  },
+  "padding": "repeat-last; use manifest for timing and true frame counts"
+}

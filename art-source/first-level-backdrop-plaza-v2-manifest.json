@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "art_direction_brief": "docs/first-level-art.md",
+  "assets": [
+    {
+      "id": "level-one-backdrop-plaza-v2",
+      "role": "non-interactive first-level city rooftop background; all routes, towers, enemies and HUD remain dynamic",
+      "path": "assets/resources/level-one/backdrop-plaza-v2.jpg",
+      "source_path": "art-source/first-level-backdrop-plaza-v2.png",
+      "preview_path": "art-source/first-level-backdrop-plaza-v2-phone.png",
+      "fallback_path": "assets/resources/level-one/backdrop.jpg",
+      "status": "browser-candidate",
+      "technical": {
+        "dimensions": "941x1672",
+        "alpha": false,
+        "anchor": "center",
+        "frames": 1,
+        "filtering": "linear",
+        "collision_role": "none",
+        "native_display_size": "1080x1920 design units",
+        "max_runtime_bytes": 1048576
+      },
+      "visual_locks": [
+        "original perimeter buildings and warm windows",
+        "top-down painterly toy-mechanical city",
+        "open unobstructed central playfield",
+        "no baked path, grid, towers, enemies or UI"
+      ],
+      "source": {
+        "kind": "controlled edit of project-owned backdrop source",
+        "url_or_tool": "OpenAI built-in image_gen",
+        "creator": "OpenAI built-in image_gen",
+        "created_at": "2026-09-27",
+        "license": "AI-edited candidate; commercial rights review pending",
+        "attribution": "source, exact prompt and original retained in repository",
+        "prompt_or_source_record": "docs/poc/phase-c-plaza-backdrop-v2-regression.md"
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "approved_by": ""
+      }
+    }
+  ]
+}

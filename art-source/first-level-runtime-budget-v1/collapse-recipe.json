@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "motion",
+  "title": "同模型机械步兵 · 四方向单次倾倒候选 · runtime-budget-v1",
+  "cell": [
+    160,
+    160
+  ],
+  "anchor": [
+    0.5,
+    0.6641503
+  ],
+  "resample": "lanczos",
+  "background": "keep",
+  "source": {
+    "provider": "project-authored-blender",
+    "note": "源 rig 与行走一致；四真实倾倒姿态，75ms/帧，非循环。画布/镜头扩大两倍但模型世界比例不变，消费端以2倍画布显示恢复像素比例。；仅全画布统一缩放，无逐帧裁切；高分源未修改。"
+  },
+  "states": [
+    {
+      "name": "collapse-down",
+      "fps": 13.333333333333334,
+      "loop": false
+    },
+    {
+      "name": "collapse-left",
+      "fps": 13.333333333333334,
+      "loop": false
+    },
+    {
+      "name": "collapse-up",
+      "fps": 13.333333333333334,
+      "loop": false
+    },
+    {
+      "name": "collapse-right",
+      "fps": 13.333333333333334,
+      "loop": false
+    }
+  ]
+}

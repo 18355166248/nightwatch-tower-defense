@@ -1,6 +1,3 @@
-const { readFileSync } = require('node:fs');
-const { resolve } = require('node:path');
-
 const { PHASE_A_GRIDS } = require('../../.test-dist/config/PhaseAGrids.js');
 const { FIRST_LEVEL_GUIDED_UPGRADES, FIRST_LEVEL_OPENING, FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_STARTING_GOLD } = require('../../.test-dist/config/FirstLevelOpening.js');
 const { PHASE_B_TOWERS, PHASE_B_WAVES } = require('../../.test-dist/config/PhaseBCombatConfig.js');
@@ -12,8 +9,6 @@ const { WaveCombatRuntime } = require('../../.test-dist/systems/WaveCombatRuntim
 const { WaveRewardRuntime } = require('../../.test-dist/systems/WaveRewardRuntime.js');
 const { towerInvestment } = require('../../.test-dist/systems/TowerLevelRules.js');
 
-const fixtures = JSON.parse(readFileSync(resolve(__dirname, '../../docs/poc/phase-a-fixtures.json'), 'utf8'));
-
 function replayFirstLevel({
     opening = FIRST_LEVEL_OPENING,
     openingCells = null,
@@ -23,16 +18,26 @@ function replayFirstLevel({
     upgradesAfterWave = FIRST_LEVEL_GUIDED_UPGRADES,
     frameDeltaSeconds = 1 / 30,
     speedScale = 1,
+    onCombatStep = null,
+    traffic = undefined,
+    routeDiagnostics = null,
 } = {}) {
     const grid = PHASE_A_GRIDS['grid-9x13'];
-    const shortCells = openingCells ?? fixtures.fixtures.find((item) => item.gridId === 'grid-9x13').shortFold.towerCells
-        .map(([column, row]) => ({ column, row }));
+    // 回放默认使用实际推荐配置；Phase A 的旧短折线只在明确传入时作为独立 fixture。
+    const shortCells = openingCells ?? opening.map(({ cell }) => cell);
     const economy = new EconomyLedger(FIRST_LEVEL_STARTING_GOLD);
     const model = new PlacementModel(grid, economy, towers);
-    const combat = new WaveCombatRuntime(grid, towers);
+    const combat = new WaveCombatRuntime(grid, towers, traffic);
     const clock = new SimulationClock();
     if (speedScale === 2) clock.cycleScale();
     const rewards = new WaveRewardRuntime();
+    let simulationSeconds = 0;
+    let currentWave = 0;
+    const routeContext = () => ({ seconds: simulationSeconds, wave: currentWave, mapVersion: model.mapVersion, flow: model.flowField });
+    if (routeDiagnostics) {
+        routeDiagnostics.reset(routeContext(), model.deployments);
+        model.observeMutations(event => routeDiagnostics.placement(event, routeContext(), model.deployments));
+    }
     for (const cell of shortCells) {
         const towerId = opening.find((item) => cellKey(item.cell) === cellKey(cell))?.towerId;
         if (!towerId) throw new Error(`开局缺少塔位 ${cellKey(cell)}`);
@@ -45,7 +50,9 @@ function replayFirstLevel({
     const waveResults = [];
     const telemetry = [];
     for (const wave of waves) {
+        currentWave = wave.wave;
         combat.start(wave);
+        routeDiagnostics?.wave(routeContext());
         let killed = 0;
         let leaked = 0;
         let spawnSeconds = 0;
@@ -61,8 +68,14 @@ function replayFirstLevel({
             clock.advance(frameDeltaSeconds, (deltaSeconds) => {
                 if (combat.isSpawningComplete && combat.enemies.length === 0) return;
                 combatSeconds += deltaSeconds;
+                simulationSeconds += deltaSeconds;
+                routeDiagnostics?.inspect(combat.enemies, routeContext());
                 if (!combat.isSpawningComplete) spawnSeconds += deltaSeconds;
                 const result = combat.tick(deltaSeconds, model.flowField, model.deployments);
+                routeDiagnostics?.departed('killed', result.killed, routeContext());
+                routeDiagnostics?.departed('leaked', result.leaked, routeContext());
+                routeDiagnostics?.inspect(combat.enemies, routeContext());
+                if (onCombatStep) onCombatStep({ wave: wave.wave, deltaSeconds, enemies: combat.enemies });
                 for (const shot of result.shots) {
                     shotsByTower[shot.towerId] += 1;
                     const key = cellKey(shot.towerCell);

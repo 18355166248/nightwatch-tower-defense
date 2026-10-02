@@ -1,0 +1,181 @@
+{
+  "selectedConcept": 3,
+  "date": "2026-10-01",
+  "sourceMock": "concepts/pause-quiet-enamel.png",
+  "scope": "shared page material family, no whole-screen rasterization",
+  "rights": "Original generated assets; review provider terms before commercial distribution.",
+  "assets": [
+    {
+      "id": "panel",
+      "runtime": "assets/resources/level-one/ui/quality-v3/panel.png",
+      "source": "art-source/design/first-level-quality-v3/panel-source.png",
+      "crop": {
+        "left": 35,
+        "top": 53,
+        "width": 1184,
+        "height": 1146
+      },
+      "width": 512,
+      "height": 496,
+      "transparentPixels": 1812,
+      "decodedRgbaBytes": 1015808,
+      "nineSliceInset": 42,
+      "textBaked": false,
+      "generatedWith": "built-in imagegen",
+      "visualStatus": "awaiting-runtime-comparison"
+    },
+    {
+      "id": "primary",
+      "runtime": "assets/resources/level-one/ui/quality-v3/primary.png",
+      "source": "art-source/design/first-level-quality-v3/primary-source.png",
+      "crop": {
+        "left": 47,
+        "top": 214,
+        "width": 1808,
+        "height": 383
+      },
+      "width": 512,
+      "height": 108,
+      "transparentPixels": 451,
+      "decodedRgbaBytes": 221184,
+      "nineSliceInset": 24,
+      "textBaked": false,
+      "generatedWith": "built-in imagegen",
+      "visualStatus": "awaiting-runtime-comparison"
+    },
+    {
+      "id": "secondary",
+      "runtime": "assets/resources/level-one/ui/quality-v3/secondary.png",
+      "source": "art-source/design/first-level-quality-v3/secondary-source.png",
+      "crop": {
+        "left": 67,
+        "top": 178,
+        "width": 1807,
+        "height": 419
+      },
+      "width": 512,
+      "height": 119,
+      "transparentPixels": 335,
+      "decodedRgbaBytes": 243712,
+      "nineSliceInset": 24,
+      "textBaked": false,
+      "generatedWith": "built-in imagegen",
+      "visualStatus": "awaiting-runtime-comparison"
+    },
+    {
+      "id": "danger",
+      "runtime": "assets/resources/level-one/ui/quality-v3/danger.png",
+      "source": "art-source/design/first-level-quality-v3/danger-source.png",
+      "crop": {
+        "left": 62,
+        "top": 262,
+        "width": 1768,
+        "height": 302
+      },
+      "width": 512,
+      "height": 87,
+      "transparentPixels": 210,
+      "decodedRgbaBytes": 178176,
+      "nineSliceInset": 24,
+      "textBaked": false,
+      "generatedWith": "built-in imagegen",
+      "visualStatus": "awaiting-runtime-comparison"
+    },
+    {
+      "id": "pause-icon",
+      "runtime": "assets/resources/level-one/ui/quality-v3/pause-icon.png",
+      "source": "art-source/design/first-level-quality-v3/icons-source.png",
+      "crop": {
+        "left": 11,
+        "top": 188,
+        "width": 390,
+        "height": 392
+      },
+      "width": 128,
+      "height": 128,
+      "transparentPixels": 4705,
+      "decodedRgbaBytes": 65536,
+      "nineSliceInset": 0,
+      "textBaked": false,
+      "generatedWith": "built-in imagegen",
+      "visualStatus": "awaiting-runtime-comparison"
+    },
+    {
+      "id": "play-icon",
+      "runtime": "assets/resources/level-one/ui/quality-v3/play-icon.png",
+      "source": "art-source/design/first-level-quality-v3/icons-source.png",
+      "crop": {
+        "left": 491,
+        "top": 259,
+        "width": 216,
+        "height": 258
+      },
+      "width": 128,
+      "height": 128,
+      "transparentPixels": 8663,
+      "decodedRgbaBytes": 65536,
+      "nineSliceInset": 0,
+      "textBaked": false,
+      "generatedWith": "built-in imagegen",
+      "visualStatus": "awaiting-runtime-comparison"
+    },
+    {
+      "id": "restart-icon",
+      "runtime": "assets/resources/level-one/ui/quality-v3/restart-icon.png",
+      "source": "art-source/design/first-level-quality-v3/icons-source.png",
+      "crop": {
+        "left": 798,
+        "top": 243,
+        "width": 330,
+        "height": 302
+      },
+      "width": 128,
+      "height": 128,
+      "transparentPixels": 9333,
+      "decodedRgbaBytes": 65536,
+      "nineSliceInset": 0,
+      "textBaked": false,
+      "generatedWith": "built-in imagegen",
+      "visualStatus": "awaiting-runtime-comparison"
+    },
+    {
+      "id": "settings-icon",
+      "runtime": "assets/resources/level-one/ui/quality-v3/settings-icon.png",
+      "source": "art-source/design/first-level-quality-v3/icons-source.png",
+      "crop": {
+        "left": 1229,
+        "top": 234,
+        "width": 307,
+        "height": 316
+      },
+      "width": 128,
+      "height": 128,
+      "transparentPixels": 7080,
+      "decodedRgbaBytes": 65536,
+      "nineSliceInset": 0,
+      "textBaked": false,
+      "generatedWith": "built-in imagegen",
+      "visualStatus": "awaiting-runtime-comparison"
+    },
+    {
+      "id": "home-icon",
+      "runtime": "assets/resources/level-one/ui/quality-v3/home-icon.png",
+      "source": "art-source/design/first-level-quality-v3/icons-source.png",
+      "crop": {
+        "left": 1632,
+        "top": 239,
+        "width": 312,
+        "height": 299
+      },
+      "width": 128,
+      "height": 128,
+      "transparentPixels": 6868,
+      "decodedRgbaBytes": 65536,
+      "nineSliceInset": 0,
+      "textBaked": false,
+      "generatedWith": "built-in imagegen",
+      "visualStatus": "awaiting-runtime-comparison"
+    }
+  ],
+  "totalDecodedRgbaBytes": 1986560
+}

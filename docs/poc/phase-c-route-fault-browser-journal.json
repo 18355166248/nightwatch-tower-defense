@@ -1,0 +1,761 @@
+{
+  "schema": 1,
+  "scope": "bounded-route-tail",
+  "dropped": 0,
+  "map": {
+    "grid": "grid-9x13",
+    "version": 4,
+    "towers": [
+      {
+        "cell": {
+          "column": 4,
+          "row": 3
+        },
+        "towerId": "rivet-gun",
+        "level": 1
+      },
+      {
+        "cell": {
+          "column": 5,
+          "row": 3
+        },
+        "towerId": "rivet-gun",
+        "level": 1
+      },
+      {
+        "cell": {
+          "column": 4,
+          "row": 7
+        },
+        "towerId": "frost-coil",
+        "level": 1
+      },
+      {
+        "cell": {
+          "column": 3,
+          "row": 7
+        },
+        "towerId": "rivet-gun",
+        "level": 1
+      }
+    ]
+  },
+  "maps": [
+    {
+      "version": 0,
+      "blocked": []
+    },
+    {
+      "version": 1,
+      "blocked": [
+        "4,3"
+      ]
+    },
+    {
+      "version": 2,
+      "blocked": [
+        "4,3",
+        "5,3"
+      ]
+    },
+    {
+      "version": 3,
+      "blocked": [
+        "4,3",
+        "4,7",
+        "5,3"
+      ]
+    },
+    {
+      "version": 4,
+      "blocked": [
+        "3,7",
+        "4,3",
+        "4,7",
+        "5,3"
+      ]
+    }
+  ],
+  "events": [
+    {
+      "kind": "reset",
+      "seq": 1,
+      "seconds": 0,
+      "mapVersion": 0,
+      "wave": 0
+    },
+    {
+      "kind": "build",
+      "to": "4,3",
+      "tower": "rivet-gun",
+      "level": 1,
+      "gold": 110,
+      "seq": 2,
+      "seconds": 0,
+      "mapVersion": 1,
+      "wave": 0
+    },
+    {
+      "kind": "build",
+      "to": "5,3",
+      "tower": "rivet-gun",
+      "level": 1,
+      "gold": 80,
+      "seq": 3,
+      "seconds": 0,
+      "mapVersion": 2,
+      "wave": 0
+    },
+    {
+      "kind": "build",
+      "to": "4,7",
+      "tower": "frost-coil",
+      "level": 1,
+      "gold": 40,
+      "seq": 4,
+      "seconds": 0,
+      "mapVersion": 3,
+      "wave": 0
+    },
+    {
+      "kind": "build",
+      "to": "3,7",
+      "tower": "rivet-gun",
+      "level": 1,
+      "gold": 10,
+      "seq": 5,
+      "seconds": 0,
+      "mapVersion": 4,
+      "wave": 0
+    },
+    {
+      "kind": "wave",
+      "seq": 6,
+      "seconds": 0,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "spawn",
+      "actor": "enemy-1",
+      "from": "4,0",
+      "to": "4,1",
+      "lane": 0,
+      "seq": 7,
+      "seconds": 0.016666666666666666,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "spawn",
+      "actor": "enemy-2",
+      "from": "4,0",
+      "to": "4,1",
+      "lane": 1,
+      "seq": 8,
+      "seconds": 0.8000000000000008,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-1",
+      "from": "4,1",
+      "to": "4,2",
+      "lane": 0,
+      "seq": 9,
+      "seconds": 1.0000000000000013,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "spawn",
+      "actor": "enemy-3",
+      "from": "4,0",
+      "to": "4,1",
+      "lane": 0,
+      "seq": 10,
+      "seconds": 1.5999999999999992,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-2",
+      "from": "4,1",
+      "to": "4,2",
+      "lane": 1,
+      "seq": 11,
+      "seconds": 1.7999999999999985,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-1",
+      "from": "4,2",
+      "to": "5,2",
+      "lane": 0,
+      "seq": 12,
+      "seconds": 1.9999999999999978,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "spawn",
+      "actor": "enemy-4",
+      "from": "4,0",
+      "to": "4,1",
+      "lane": 1,
+      "seq": 13,
+      "seconds": 2.3999999999999964,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "killed",
+      "actor": "enemy-1",
+      "from": "4,2",
+      "to": "5,2",
+      "seq": 14,
+      "seconds": 2.499999999999996,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-3",
+      "from": "4,1",
+      "to": "4,2",
+      "lane": 0,
+      "seq": 15,
+      "seconds": 2.5999999999999956,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-2",
+      "from": "4,2",
+      "to": "5,2",
+      "lane": 1,
+      "seq": 16,
+      "seconds": 2.799999999999995,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "spawn",
+      "actor": "enemy-5",
+      "from": "4,0",
+      "to": "4,1",
+      "lane": 0,
+      "seq": 17,
+      "seconds": 3.1999999999999935,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-4",
+      "from": "4,1",
+      "to": "4,2",
+      "lane": 1,
+      "seq": 18,
+      "seconds": 3.399999999999993,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-3",
+      "from": "4,2",
+      "to": "5,2",
+      "lane": 0,
+      "seq": 19,
+      "seconds": 3.599999999999992,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-2",
+      "from": "5,2",
+      "to": "6,2",
+      "lane": 1,
+      "seq": 20,
+      "seconds": 3.7999999999999914,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "spawn",
+      "actor": "enemy-6",
+      "from": "4,0",
+      "to": "4,1",
+      "lane": 1,
+      "seq": 21,
+      "seconds": 3.9999999999999907,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-5",
+      "from": "4,1",
+      "to": "4,2",
+      "lane": 0,
+      "seq": 22,
+      "seconds": 4.19999999999999,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-4",
+      "from": "4,2",
+      "to": "5,2",
+      "lane": 1,
+      "seq": 23,
+      "seconds": 4.39999999999999,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-3",
+      "from": "5,2",
+      "to": "6,2",
+      "lane": 0,
+      "seq": 24,
+      "seconds": 4.599999999999989,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "killed",
+      "actor": "enemy-2",
+      "from": "6,2",
+      "to": "6,3",
+      "seq": 25,
+      "seconds": 4.799999999999988,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "spawn",
+      "actor": "enemy-7",
+      "from": "4,0",
+      "to": "4,1",
+      "lane": 0,
+      "seq": 26,
+      "seconds": 4.799999999999988,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-6",
+      "from": "4,1",
+      "to": "4,2",
+      "lane": 1,
+      "seq": 27,
+      "seconds": 4.999999999999988,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-5",
+      "from": "4,2",
+      "to": "5,2",
+      "lane": 0,
+      "seq": 28,
+      "seconds": 5.199999999999987,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-4",
+      "from": "5,2",
+      "to": "6,2",
+      "lane": 1,
+      "seq": 29,
+      "seconds": 5.399999999999986,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-3",
+      "from": "6,2",
+      "to": "6,3",
+      "lane": 0,
+      "seq": 30,
+      "seconds": 5.599999999999985,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "spawn",
+      "actor": "enemy-8",
+      "from": "4,0",
+      "to": "4,1",
+      "lane": 1,
+      "seq": 31,
+      "seconds": 5.599999999999985,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-7",
+      "from": "4,1",
+      "to": "4,2",
+      "lane": 0,
+      "seq": 32,
+      "seconds": 5.799999999999985,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-6",
+      "from": "4,2",
+      "to": "5,2",
+      "lane": 1,
+      "seq": 33,
+      "seconds": 5.999999999999984,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-5",
+      "from": "5,2",
+      "to": "6,2",
+      "lane": 0,
+      "seq": 34,
+      "seconds": 6.199999999999983,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-4",
+      "from": "6,2",
+      "to": "6,3",
+      "lane": 1,
+      "seq": 35,
+      "seconds": 6.399999999999983,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "spawn",
+      "actor": "enemy-9",
+      "from": "4,0",
+      "to": "4,1",
+      "lane": 0,
+      "seq": 36,
+      "seconds": 6.399999999999983,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-3",
+      "from": "6,3",
+      "to": "6,4",
+      "lane": 0,
+      "seq": 37,
+      "seconds": 6.599999999999982,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-8",
+      "from": "4,1",
+      "to": "4,2",
+      "lane": 1,
+      "seq": 38,
+      "seconds": 6.599999999999982,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-7",
+      "from": "4,2",
+      "to": "5,2",
+      "lane": 0,
+      "seq": 39,
+      "seconds": 6.799999999999981,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-6",
+      "from": "5,2",
+      "to": "6,2",
+      "lane": 1,
+      "seq": 40,
+      "seconds": 6.9999999999999805,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "killed",
+      "actor": "enemy-3",
+      "from": "6,3",
+      "to": "6,4",
+      "seq": 41,
+      "seconds": 7.04999999999998,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-5",
+      "from": "6,2",
+      "to": "6,3",
+      "lane": 0,
+      "seq": 42,
+      "seconds": 7.19999999999998,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-4",
+      "from": "6,3",
+      "to": "6,4",
+      "lane": 1,
+      "seq": 43,
+      "seconds": 7.399999999999979,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "center",
+      "actor": "enemy-9",
+      "from": "4,1",
+      "to": "4,2",
+      "lane": 0,
+      "seq": 44,
+      "seconds": 7.399999999999979,
+      "mapVersion": 4,
+      "wave": 1
+    },
+    {
+      "kind": "fault",
+      "actor": "enemy-4",
+      "code": "missing-next",
+      "seq": 45,
+      "seconds": 7.4666666666666455,
+      "mapVersion": 4,
+      "wave": 1
+    }
+  ],
+  "fault": {
+    "code": "missing-next",
+    "mapVersion": 4,
+    "wave": 1,
+    "seconds": 7.4666666666666455,
+    "actor": "enemy-4",
+    "from": "6,3",
+    "to": "6,4",
+    "previous": "6,2",
+    "idleSeconds": 0.016666666666666607,
+    "localFlow": [
+      {
+        "cell": "5,3",
+        "distance": -1,
+        "blocked": true,
+        "next": null
+      },
+      {
+        "cell": "6,3",
+        "distance": 11,
+        "blocked": false,
+        "next": "6,4"
+      },
+      {
+        "cell": "7,3",
+        "distance": 12,
+        "blocked": false,
+        "next": "7,4"
+      },
+      {
+        "cell": "5,4",
+        "distance": 9,
+        "blocked": false,
+        "next": "5,5"
+      },
+      {
+        "cell": "6,4",
+        "distance": 10,
+        "blocked": false,
+        "next": null
+      },
+      {
+        "cell": "7,4",
+        "distance": 11,
+        "blocked": false,
+        "next": "7,5"
+      },
+      {
+        "cell": "5,5",
+        "distance": 8,
+        "blocked": false,
+        "next": "5,6"
+      },
+      {
+        "cell": "6,5",
+        "distance": 9,
+        "blocked": false,
+        "next": "6,6"
+      },
+      {
+        "cell": "7,5",
+        "distance": 10,
+        "blocked": false,
+        "next": "7,6"
+      }
+    ],
+    "recent": [
+      {
+        "kind": "center",
+        "actor": "enemy-5",
+        "from": "5,2",
+        "to": "6,2",
+        "lane": 0,
+        "seq": 34,
+        "seconds": 6.199999999999983,
+        "mapVersion": 4,
+        "wave": 1
+      },
+      {
+        "kind": "center",
+        "actor": "enemy-4",
+        "from": "6,2",
+        "to": "6,3",
+        "lane": 1,
+        "seq": 35,
+        "seconds": 6.399999999999983,
+        "mapVersion": 4,
+        "wave": 1
+      },
+      {
+        "kind": "spawn",
+        "actor": "enemy-9",
+        "from": "4,0",
+        "to": "4,1",
+        "lane": 0,
+        "seq": 36,
+        "seconds": 6.399999999999983,
+        "mapVersion": 4,
+        "wave": 1
+      },
+      {
+        "kind": "center",
+        "actor": "enemy-3",
+        "from": "6,3",
+        "to": "6,4",
+        "lane": 0,
+        "seq": 37,
+        "seconds": 6.599999999999982,
+        "mapVersion": 4,
+        "wave": 1
+      },
+      {
+        "kind": "center",
+        "actor": "enemy-8",
+        "from": "4,1",
+        "to": "4,2",
+        "lane": 1,
+        "seq": 38,
+        "seconds": 6.599999999999982,
+        "mapVersion": 4,
+        "wave": 1
+      },
+      {
+        "kind": "center",
+        "actor": "enemy-7",
+        "from": "4,2",
+        "to": "5,2",
+        "lane": 0,
+        "seq": 39,
+        "seconds": 6.799999999999981,
+        "mapVersion": 4,
+        "wave": 1
+      },
+      {
+        "kind": "center",
+        "actor": "enemy-6",
+        "from": "5,2",
+        "to": "6,2",
+        "lane": 1,
+        "seq": 40,
+        "seconds": 6.9999999999999805,
+        "mapVersion": 4,
+        "wave": 1
+      },
+      {
+        "kind": "killed",
+        "actor": "enemy-3",
+        "from": "6,3",
+        "to": "6,4",
+        "seq": 41,
+        "seconds": 7.04999999999998,
+        "mapVersion": 4,
+        "wave": 1
+      },
+      {
+        "kind": "center",
+        "actor": "enemy-5",
+        "from": "6,2",
+        "to": "6,3",
+        "lane": 0,
+        "seq": 42,
+        "seconds": 7.19999999999998,
+        "mapVersion": 4,
+        "wave": 1
+      },
+      {
+        "kind": "center",
+        "actor": "enemy-4",
+        "from": "6,3",
+        "to": "6,4",
+        "lane": 1,
+        "seq": 43,
+        "seconds": 7.399999999999979,
+        "mapVersion": 4,
+        "wave": 1
+      },
+      {
+        "kind": "center",
+        "actor": "enemy-9",
+        "from": "4,1",
+        "to": "4,2",
+        "lane": 0,
+        "seq": 44,
+        "seconds": 7.399999999999979,
+        "mapVersion": 4,
+        "wave": 1
+      },
+      {
+        "kind": "fault",
+        "actor": "enemy-4",
+        "code": "missing-next",
+        "seq": 45,
+        "seconds": 7.4666666666666455,
+        "mapVersion": 4,
+        "wave": 1
+      }
+    ]
+  }
+}

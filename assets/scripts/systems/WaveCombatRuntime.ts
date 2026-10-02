@@ -3,6 +3,8 @@ import { sameCell, type EnemyRouteState, type GridCell, type GridDefinition } fr
 import { FlowField } from './FlowField';
 import type { TowerDeployment } from './PlacementModel';
 import { towerAtLevel } from './TowerLevelRules';
+import { trafficEntryLane, trafficMove, type EnemyTrafficSettings, type TrafficLane } from './EnemyTrafficRules';
+import { RouteMovementError } from './RouteDiagnostics';
 
 export interface CombatEnemy {
     readonly id: string;
@@ -14,6 +16,8 @@ export interface CombatEnemy {
     readonly spawnOrder: number;
     slowMultiplier: number;
     slowRemainingSeconds: number;
+    trafficLane?: TrafficLane;
+    trafficWaiting?: boolean;
 }
 
 export interface GridPoint {
@@ -72,7 +76,11 @@ export class WaveCombatRuntime {
     public constructor(
         private readonly grid: GridDefinition,
         towerSource: TowerArchetype | readonly TowerArchetype[],
+        private readonly traffic?: EnemyTrafficSettings,
     ) {
+        if (traffic && (!Number.isFinite(traffic.headwayCells) || traffic.headwayCells <= 0 || traffic.headwayCells > 1)) {
+            throw new RangeError('队列间距须大于0且不超过一格');
+        }
         const towers = Array.isArray(towerSource) ? towerSource : [towerSource];
         if (towers.length === 0) throw new Error('战斗运行时至少需要一种炮塔');
         for (const tower of towers) this.towersById.set(tower.id, tower);
@@ -149,6 +157,18 @@ export class WaveCombatRuntime {
         towerSource: ReadonlySet<string> | readonly TowerDeployment[],
     ): CombatTickResult {
         if (!Number.isFinite(deltaSeconds) || deltaSeconds < 0) throw new RangeError('deltaSeconds 不能为负数');
+        if (this.traffic && deltaSeconds > 1 / 60 + 1e-9) {
+            if (deltaSeconds > 1) throw new RangeError('队列单次推进不得超过一秒，请使用固定步进');
+            // 长帧也先逐固定步进生成/移动/射击，不能一次刷出多人再在入口强行叠放。
+            const shots: ShotEvent[] = [], killed: CombatEnemy[] = [], leaked: CombatEnemy[] = [];
+            let spawningCompleted = false;
+            for (let remaining = deltaSeconds; remaining > 1e-9; remaining -= 1 / 60) {
+                const result = this.tick(Math.min(remaining, 1 / 60), flowField, towerSource);
+                shots.push(...result.shots); killed.push(...result.killed); leaked.push(...result.leaked);
+                spawningCompleted ||= result.spawningCompleted;
+            }
+            return { shots, killed, leaked, spawningCompleted };
+        }
         const spawningWasComplete = this.spawningCompleted;
         const spawnedTravelSeconds = this.spawn(deltaSeconds, flowField);
         const leaked = this.moveEnemies(deltaSeconds, flowField, spawnedTravelSeconds);
@@ -175,7 +195,15 @@ export class WaveCombatRuntime {
         while (this.spawnCountdown <= 0 && !this.spawningCompleted) {
             const group = wave.groups[this.groupIndex];
             const next = flowField.nextCell(this.grid.entry);
-            if (!next) throw new Error('入口无可用路径，无法生成敌人');
+            if (!next) throw new RouteMovementError('入口无可用路径，无法生成敌人');
+            const trafficLane = this.traffic ? trafficEntryLane({ id: `enemy-${this.nextEnemyId}`,
+                spawnOrder: this.nextSpawnOrder, fromCell: this.grid.entry, toCell: next, progress: 0 },
+                this.activeEnemies, flowField, this.traffic) : undefined;
+            if (trafficLane === null) {
+                // 两列入口都满时待进场数量仍留在波表，不能算已生成或清场；不累积负余量造成后续爆发刷怪。
+                this.spawnCountdown = 0;
+                break;
+            }
             const id = `enemy-${this.nextEnemyId++}`;
             // 倒计时的负余量是本帧刷出后真正经过的时间；不能让新敌人白走整帧。
             spawnedTravelSeconds.set(id, Math.min(deltaSeconds, Math.max(0, -this.spawnCountdown)));
@@ -189,6 +217,7 @@ export class WaveCombatRuntime {
                 spawnOrder: this.nextSpawnOrder++,
                 slowMultiplier: 1,
                 slowRemainingSeconds: 0,
+                ...(this.traffic ? { trafficLane: trafficLane as TrafficLane, trafficWaiting: false } : {}),
             });
             this.spawnedCount += 1;
             this.waveSpawnedCount += 1;
@@ -209,7 +238,10 @@ export class WaveCombatRuntime {
 
     private moveEnemies(deltaSeconds: number, flowField: FlowField, spawnedTravelSeconds: ReadonlyMap<string, number>): CombatEnemy[] {
         const leaked: CombatEnemy[] = [];
-        for (const enemy of this.activeEnemies) {
+        const movementOrder = this.traffic ? Array.from(this.activeEnemies).sort((a, b) =>
+            (flowField.distanceAt(a.toCell) + 1 - a.progress) - (flowField.distanceAt(b.toCell) + 1 - b.progress)
+            || a.spawnOrder - b.spawnOrder) : this.activeEnemies;
+        for (const enemy of movementOrder) {
             const travelDeltaSeconds = spawnedTravelSeconds.get(enemy.id) ?? deltaSeconds;
             // 状态恰好在长帧中到期时分段积分，避免整帧都按减速或原速计算造成帧率差异。
             const slowedSeconds = Math.min(travelDeltaSeconds, enemy.slowRemainingSeconds);
@@ -217,14 +249,17 @@ export class WaveCombatRuntime {
             const travelSeconds = slowedSeconds * enemy.slowMultiplier + normalSeconds;
             enemy.slowRemainingSeconds = Math.max(0, enemy.slowRemainingSeconds - travelDeltaSeconds);
             if (enemy.slowRemainingSeconds === 0) enemy.slowMultiplier = 1;
-            enemy.progress += travelSeconds * enemy.archetype.speedCellsPerSecond;
+            const desiredDistance = travelSeconds * enemy.archetype.speedCellsPerSecond;
+            const movement = this.traffic ? trafficMove(enemy, desiredDistance, this.activeEnemies, flowField, this.traffic) : null;
+            if (movement) { enemy.trafficLane = movement.lane; enemy.trafficWaiting = movement.waiting; }
+            enemy.progress += movement?.distance ?? desiredDistance;
             while (enemy.progress >= 1) {
                 if (sameCell(enemy.toCell, this.grid.exit)) {
                     leaked.push(enemy);
                     break;
                 }
                 const next = flowField.nextCell(enemy.toCell, enemy.fromCell);
-                if (!next) throw new Error(`敌人 ${enemy.id} 抵达格心后无非回头路线`);
+                if (!next) throw new RouteMovementError(`敌人 ${enemy.id} 抵达格心后无非回头路线`, enemy);
                 enemy.fromCell = enemy.toCell;
                 enemy.toCell = next;
                 enemy.progress -= 1;

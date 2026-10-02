@@ -1,0 +1,149 @@
+{
+  "stage": "selected-concept-runtime-integration-in-progress",
+  "selectedConcept": 3,
+  "selectionEvidence": "User replied 3 on 2026-10-01; resolved to third displayed generated image, pause-quiet-enamel.png.",
+  "date": "2026-10-01",
+  "generation": "built-in-imagegen-three-independent-calls",
+  "referenceViewport": {
+    "width": 390,
+    "height": 844,
+    "imageFit": "contain"
+  },
+  "visualAcceptance": "direction-selected-runtime-fidelity-pending",
+  "runtimeIntegration": "home-briefing-pause-settings-and-results-integrated-seven-other-page-families-pending",
+  "homeBuild": {
+    "url": "http://127.0.0.1:4176/?build=quality-v3-home-fidelity-1950",
+    "mainSha256": "9516ede077bdd41e48b615f2b35360bbe58bc4a08e5778403800598bc8f4d06d",
+    "source": "concepts/home-quiet-enamel.png",
+    "comparison": "home-fidelity-comparison.png",
+    "focusedComparison": "home-controls-comparison.png",
+    "screenshots": [
+      "runtime-home-390-final.png",
+      "runtime-home-320-final.png",
+      "runtime-home-320x900-final.png",
+      "browser-home-handoff.png"
+    ],
+    "rules": "195/195",
+    "resourceErrors": [],
+    "visualAcceptance": "runtime-compared-font-and-ornament-differences-pending-user-acceptance",
+    "completeEightWaveAcceptance": "not-run-this-build",
+    "review": "HOME.md"
+  },
+  "settingsBuild": {
+    "url": "http://127.0.0.1:4176/?build=quality-v3-settings-reviewed-1855",
+    "mainSha256": "c905abb8325f6120c653991681083c285484b8b0a7a5a944b904a219ab753123",
+    "source": "concepts/settings-quiet-enamel.png",
+    "comparison": "settings-fidelity-comparison.png",
+    "screenshots": [
+      "runtime-home-settings-390-final.png",
+      "runtime-home-settings-320-final.png",
+      "runtime-battle-settings-390-final.png",
+      "runtime-battle-settings-320-final.png"
+    ],
+    "rules": "195/195",
+    "artContracts": "5/5",
+    "runtimeTypes": "passed",
+    "resourceErrors": [],
+    "freezeElapsedBefore": 0.016666666666666666,
+    "freezeElapsedAfter": 0.016666666666666666,
+    "completeEightWaveAcceptance": "not-run-this-build",
+    "visualAcceptance": "runtime-compared-user-acceptance-pending"
+  },
+  "runtimeBuild": {
+    "url": "http://127.0.0.1:4176/?build=quality-v3-pause-restored-1816",
+    "mainSha256": "28f535ac52569ac8a625cea05f1554b132d27363186231b4f43de2209e7f5094",
+    "screenshots": [
+      "runtime-pause-390-final.png",
+      "runtime-pause-320-final.png"
+    ],
+    "state": "normal-one-times-wave-one-user-pause-core-ten",
+    "rules": "192/192",
+    "runtimeTypes": "passed",
+    "resourceErrors": [],
+    "completeEightWaveAcceptance": "not-run-this-build",
+    "fullPageVisualAcceptance": "pending"
+  },
+  "sliceExport": "shared-material-family-exported-see-slice-manifest",
+  "displayOrder": [
+    {
+      "number": 1,
+      "file": "concepts/pause-command-console.png"
+    },
+    {
+      "number": 2,
+      "file": "concepts/pause-watchtower-badge.png"
+    },
+    {
+      "number": 3,
+      "file": "concepts/pause-quiet-enamel.png"
+    }
+  ],
+  "pageFamilies": [
+    "home-briefing",
+    "home-settings",
+    "pause",
+    "battle-settings",
+    "confirm-restart",
+    "confirm-home",
+    "lifecycle",
+    "orientation",
+    "route-error",
+    "victory",
+    "defeat",
+    "teaching-intermission",
+    "placement-inspector"
+  ],
+  "review": "AUDIT.md",
+  "prompts": "GENERATION.md",
+  "knownConceptDeviation": "Third concept generated locked tower slots that are not a feature and must not be implemented; all background gameplay and dynamic text must come from runtime.",
+  "previewVerification": {
+    "browser": "Codex in-app browser",
+    "url": "http://127.0.0.1:4190/docs/design/first-level-quality-v3/index.html",
+    "conceptsLoaded": [
+      1,
+      2,
+      3
+    ],
+    "previewWidthsChecked": [
+      390,
+      320
+    ],
+    "imageFit": "contain",
+    "consoleErrorsObserved": [],
+    "comparisonScreenshot": "browser-comparison-390.png",
+    "notGameAcceptance": true
+  },
+  "resultBuild": {
+    "url": "http://127.0.0.1:4176/?build=quality-v3-result-fidelity",
+    "mainSha256": "4c3e42caae9d8afd58b8c0c6bb6d6cac229fc3fb359c79c7418a96ab864ec649",
+    "sources": [
+      "concepts/victory-quiet-enamel.png",
+      "concepts/defeat-quiet-enamel.png"
+    ],
+    "comparison": "defeat-fidelity-comparison.png",
+    "screenshots": [
+      "runtime-defeat-390-final.png",
+      "runtime-defeat-320-final.png"
+    ],
+    "rules": "196/196",
+    "artContracts": "7/7",
+    "runtimeTypes": "passed",
+    "resourceErrors": [],
+    "normalOneTimesDefeat": {
+      "wave": 2,
+      "coreHealth": "0/10",
+      "killed": 2,
+      "spawned": 18,
+      "leaked": 10,
+      "gold": 66,
+      "duration": "00:43",
+      "towerCount": 3,
+      "upgradeCount": 0
+    },
+    "normalRestart": "restores-3-towers-path-14-gold-50-one-times-preparing",
+    "victoryAcceptance": "implemented-actual-victory-capture-pending",
+    "completeEightWaveAcceptance": "not-run-this-build",
+    "visualAcceptance": "compared-font-badge-and-ornament-differences-pending-user-acceptance",
+    "review": "RESULTS.md"
+  }
+}

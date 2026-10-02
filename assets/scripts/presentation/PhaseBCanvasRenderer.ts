@@ -5,10 +5,15 @@ import { cellKey, type GridDefinition } from '../core/GridTypes';
 import type { BattleResultViewModel } from './BattleResultViewModel';
 import type { PhaseBSceneState } from './PhaseBSceneState';
 import { CoreObjectiveView } from './CoreObjectiveView';
+import { FirstLevelHudChromeView } from './FirstLevelHudChromeView';
 import { BattlefieldSurfaceView } from './BattlefieldSurfaceView';
+import { CombatFeedbackView } from './CombatFeedbackView';
 import { EnemySlowIndicatorView } from './EnemySlowIndicatorView';
-import { enemyDeathPose, enemySlowVisualStrength } from './UnitVisualMotion';
-import { resultRevealEase } from './ResultRevealRuntime';
+import { enemyHealthBarRatio } from './EnemyHealthIndicator';
+import { layoutEnemyHealthBars, type EnemyHealthBarCandidate } from './EnemyHealthBarLayout';
+import { drawEnemyHealthBars } from './EnemyHealthBarView';
+import { visibleSlowIndicatorIds } from './EnemySlowIndicatorSelection';
+import { enemySlowVisualStrength } from './UnitVisualMotion';
 import {
     PHASE_B_GRID_TABS,
     PHASE_B_FROST_BUTTON,
@@ -18,7 +23,7 @@ import {
     PHASE_B_SOUND_BUTTON,
     PHASE_B_SPEED_BUTTON,
     PHASE_B_RESET_BUTTON,
-    PHASE_B_PLAY_BUTTON,
+    PHASE_B_CENTER_PAUSE_BUTTON,
     PHASE_B_RIVET_BUTTON,
     PHASE_B_SELL_BUTTON,
     PHASE_B_UPGRADE_BUTTON,
@@ -35,6 +40,8 @@ import {
 export class PhaseBCanvasRenderer {
     private readonly coreObjective: CoreObjectiveView;
     private readonly battlefieldSurface: BattlefieldSurfaceView;
+    private readonly combatFeedback: CombatFeedbackView;
+    private readonly hudChrome: FirstLevelHudChromeView;
 
     public constructor(
         private readonly graphics: Graphics,
@@ -42,38 +49,21 @@ export class PhaseBCanvasRenderer {
     ) {
         this.coreObjective = new CoreObjectiveView(graphics, layout);
         this.battlefieldSurface = new BattlefieldSurfaceView(graphics, layout);
+        this.combatFeedback = new CombatFeedbackView(graphics, layout);
+        this.hudChrome = new FirstLevelHudChromeView(graphics, layout);
     }
 
     public render(state: PhaseBSceneState): void {
         const graphics = this.graphics;
         graphics.clear();
-        graphics.fillColor = new Color(9, 15, 26, 65);
+        // 外缘仍保留夜城氛围，但避免与棋盘局部罩色叠加后把战斗单位压成暗斑。
+        graphics.fillColor = new Color(9, 15, 26, 48);
         graphics.rect(-540, -960, 1080, 1920);
         graphics.fill();
-        this.drawInterfacePanels();
+        if (state.qaMode) this.hudChrome.draw(state.coreHealth);
         if (state.qaMode) this.drawTabs(state);
-        else this.drawLevelBanner();
         this.drawBoard(state);
         this.drawControls(state);
-        this.drawResultOverlay(state.result, state.resultRevealProgress);
-    }
-
-    private drawInterfacePanels(): void {
-        const graphics = this.graphics;
-        const safeHalf = this.layout.safeHalfWidth;
-        // 文字永远压在低对比面板上，避免底图时钟和屋檐抢掉状态信息。
-        graphics.fillColor = new Color(13, 24, 38, 190);
-        graphics.roundRect(-Math.min(485, safeHalf), 712, Math.min(970, safeHalf * 2), 215, 25);
-        graphics.fill();
-        // 四项常驻资源各占固定视觉槽，长事件文案不再把关键数字挤成一行小字。
-        for (const rect of this.layout.hudCardRects()) {
-            graphics.fillColor = new Color(35, 55, 73, 228);
-            graphics.roundRect(rect.left, rect.bottom, rect.right - rect.left, rect.top - rect.bottom, 14);
-            graphics.fill();
-        }
-        graphics.fillColor = new Color(13, 24, 38, 168);
-        graphics.roundRect(-Math.min(500, safeHalf), -950, Math.min(1000, safeHalf * 2), 465, 25);
-        graphics.fill();
     }
 
     private drawTabs(state: PhaseBSceneState): void {
@@ -139,6 +129,8 @@ export class PhaseBCanvasRenderer {
         this.drawPlacementRange(state, metrics.cellSize);
         this.coreObjective.draw(state.grid, state.coreHealth, state.maxCoreHealth);
 
+        const slowRingIds = state.useUnitSprites ? null : visibleSlowIndicatorIds(state.enemies);
+        const healthBars: EnemyHealthBarCandidate[] = [];
         for (const enemy of state.enemies) {
             const from = this.center(enemy.fromCell, state.grid);
             const to = this.center(enemy.toCell, state.grid);
@@ -159,21 +151,23 @@ export class PhaseBCanvasRenderer {
                 else graphics.circle(x, y, metrics.cellSize * 0.25);
                 graphics.stroke();
             }
-            if (!state.useUnitSprites && enemy.slowRemainingSeconds > 0) {
+            if (!state.useUnitSprites && slowRingIds?.has(enemy.id)) {
                 const strength = enemySlowVisualStrength(enemy.slowRemainingSeconds, FROST_COIL.effect?.durationSeconds ?? 0);
                 EnemySlowIndicatorView.draw(graphics, x, y, metrics.cellSize * 0.31, strength);
             }
             if (!state.useUnitSprites) {
-                const healthWidth = metrics.cellSize * 0.62;
-                graphics.fillColor = new Color('#35262C');
-                graphics.rect(x - healthWidth / 2, y + metrics.cellSize * 0.42, healthWidth, 7);
-                graphics.fill();
-                graphics.fillColor = new Color('#69D391');
-                graphics.rect(x - healthWidth / 2, y + metrics.cellSize * 0.42, healthWidth * Math.max(0, enemy.health / enemy.archetype.maxHealth), 7);
-                graphics.fill();
+                const ratio = enemyHealthBarRatio(enemy.health, enemy.archetype.maxHealth);
+                if (ratio !== null) {
+                    healthBars.push({ id: enemy.id, spawnOrder: enemy.spawnOrder, x, y: y + metrics.cellSize * 0.42,
+                        width: metrics.cellSize * 0.62, ratio });
+                }
             }
         }
-        this.drawCombatFeedback(state, metrics.cellSize);
+        if (!state.useUnitSprites) drawEnemyHealthBars(graphics, layoutEnemyHealthBars(healthBars, {
+            left: metrics.left + 4, right: metrics.left + metrics.width - 4,
+            bottom: metrics.bottom + 4, top: metrics.bottom + metrics.height - 4,
+        }));
+        this.combatFeedback.drawBehindUnits(state, metrics.cellSize);
     }
 
     private drawTower(center: PhaseBPoint, cellSize: number, frost: boolean): void {
@@ -287,167 +281,15 @@ export class PhaseBCanvasRenderer {
         graphics.stroke();
     }
 
-    private drawCombatFeedback(state: PhaseBSceneState, cellSize: number): void {
-        const graphics = this.graphics;
-        for (const tracer of state.feedback.tracers) {
-            const origin = this.center(tracer.origin, state.grid);
-            const target = this.center(tracer.point, state.grid);
-            const life = tracer.remainingSeconds / tracer.durationSeconds;
-            graphics.strokeColor = tracer.towerId === 'frost-coil'
-                ? new Color(139, 232, 244, Math.round(235 * life))
-                : tracer.lethal
-                    ? new Color(255, 244, 188, Math.round(255 * life))
-                    : new Color(255, 205, 105, Math.round(225 * life));
-            graphics.lineWidth = tracer.lethal ? 9 : 6;
-            graphics.moveTo(origin.x, origin.y);
-            graphics.lineTo(target.x, target.y);
-            graphics.stroke();
-            graphics.fillColor = tracer.towerId === 'frost-coil'
-                ? new Color(190, 248, 255, Math.round(230 * life))
-                : new Color(255, 239, 169, Math.round(230 * life));
-            graphics.circle(origin.x, origin.y, cellSize * (0.08 + 0.07 * life));
-            graphics.fill();
-        }
-        for (const pulse of state.feedback.slowPulses) {
-            const point = this.center(pulse.point, state.grid);
-            const progress = 1 - pulse.remainingSeconds / pulse.durationSeconds;
-            const easeOut = 1 - Math.pow(1 - progress, 3);
-            const radius = cellSize * pulse.radiusCells * (0.58 + 0.42 * easeOut);
-            const life = 1 - progress;
-            // 脉冲与短弹道独立衰减；淡色底面交代覆盖范围，轮廓只在真正减速时出现。
-            graphics.fillColor = new Color(89, 208, 231, Math.round(25 * life));
-            graphics.circle(point.x, point.y, radius);
-            graphics.fill();
-            graphics.strokeColor = new Color(131, 242, 255,
-                Math.round((pulse.affectedEnemyCount > 1 ? 205 : 130) * life));
-            graphics.lineWidth = pulse.affectedEnemyCount > 1 ? 8 : 6;
-            graphics.circle(point.x, point.y, radius);
-            graphics.stroke();
-        }
-        for (const impact of state.feedback.impacts) {
-            const point = this.center(impact.point, state.grid);
-            const progress = 1 - impact.remainingSeconds / impact.durationSeconds;
-            graphics.strokeColor = new Color(255, 241, 207, Math.round(230 * (1 - progress)));
-            graphics.lineWidth = 5;
-            graphics.circle(point.x, point.y, cellSize * (0.1 + progress * 0.2));
-            graphics.stroke();
-        }
-        for (const death of state.feedback.deaths) {
-            const point = this.center(death.point, state.grid);
-            const pose = enemyDeathPose(death.archetypeId, death.remainingSeconds, death.durationSeconds, death.spawnOrder);
-            const heavy = death.archetypeId === 'iron-canister-hauler';
-            const runner = death.archetypeId === 'clockwork-runner';
-            const accent = heavy ? [255, 198, 104] : runner ? [125, 226, 244] : [240, 143, 113];
-            graphics.strokeColor = new Color(accent[0], accent[1], accent[2], pose.ringOpacity);
-            graphics.lineWidth = heavy ? 9 : runner ? 5 : 3;
-            graphics.circle(point.x, point.y, cellSize * pose.ringRadiusCells);
-            graphics.stroke();
-            // 普通敌人高频击杀只留弱环；低频重装才有放射火花，保护后段路径可读性。
-            for (let ray = 0; ray < pose.rays; ray += 1) {
-                const angle = ray * Math.PI * 2 / pose.rays;
-                const inner = cellSize * pose.ringRadiusCells * 0.75;
-                const outer = cellSize * pose.ringRadiusCells * 1.35;
-                graphics.moveTo(point.x + Math.cos(angle) * inner, point.y + Math.sin(angle) * inner);
-                graphics.lineTo(point.x + Math.cos(angle) * outer, point.y + Math.sin(angle) * outer);
-            }
-            if (pose.rays > 0) graphics.stroke();
-        }
-        for (const reward of state.feedback.rewards) {
-            const point = this.center(reward.point, state.grid);
-            const progress = 1 - reward.remainingSeconds / reward.durationSeconds;
-            const y = point.y + cellSize * (0.35 + progress * 0.55);
-            const alpha = Math.round(255 * Math.min(1, reward.remainingSeconds / 0.2));
-            graphics.fillColor = new Color(244, 198, 82, alpha);
-            for (let coin = 0; coin < Math.min(4, reward.amount); coin += 1) {
-                graphics.circle(point.x + (coin - 1.5) * cellSize * 0.11, y, cellSize * 0.055);
-                graphics.fill();
-            }
-        }
-        for (const coreHit of state.feedback.coreHits) {
-            const exit = this.center(state.grid.exit, state.grid);
-            const progress = 1 - coreHit.remainingSeconds / coreHit.durationSeconds;
-            graphics.strokeColor = new Color(255, 82, 82, Math.round(245 * (1 - progress)));
-            graphics.lineWidth = 12;
-            graphics.circle(exit.x, exit.y, cellSize * (0.35 + progress * 0.45));
-            graphics.stroke();
-        }
-    }
-
-    private drawResultOverlay(result: BattleResultViewModel | null, progress: number): void {
-        if (!result) return;
-        const graphics = this.graphics;
-        const reveal = resultRevealEase(progress);
-        const alpha = (opacity: number) => Math.round(opacity * reveal);
-        const panel = this.layout.resultPanelRect();
-        const accent = result.kind === 'victory' ? new Color(121, 224, 173, alpha(255)) : new Color(255, 133, 128, alpha(255));
-        graphics.fillColor = new Color(7, 12, 21, 232);
-        graphics.rect(-540, -960, 1080, 1920);
-        graphics.fill();
-        graphics.fillColor = new Color(23, 38, 58, alpha(250));
-        graphics.roundRect(panel.left, panel.bottom, panel.right - panel.left, panel.top - panel.bottom, 34);
-        graphics.fill();
-        graphics.fillColor = result.kind === 'victory'
-            ? new Color(47, 158, 114, alpha(255)) : new Color(184, 79, 80, alpha(255));
-        graphics.rect(panel.left, 430, panel.right - panel.left, 60);
-        graphics.fill();
-        // 胜败只在非交互元素上做短暂入场；按钮始终保持原位并沿用既有命中框。
-        graphics.fillColor = accent;
-        graphics.circle(0, 393, 26 + 12 * reveal);
-        graphics.fill();
-        graphics.strokeColor = new Color(16, 40, 55, alpha(255));
-        graphics.lineWidth = 9;
-        if (result.kind === 'victory') {
-            graphics.moveTo(-17, 393);
-            graphics.lineTo(-4, 379);
-            graphics.lineTo(20, 407);
-        } else {
-            graphics.moveTo(-14, 379);
-            graphics.lineTo(14, 407);
-            graphics.moveTo(-14, 407);
-            graphics.lineTo(14, 379);
-        }
-        graphics.stroke();
-        graphics.strokeColor = new Color(116, 155, 177, alpha(130));
-        graphics.lineWidth = 3;
-        graphics.moveTo(panel.left + 40, 175);
-        graphics.lineTo(panel.right - 40, 175);
-        graphics.stroke();
-        for (const rect of [...this.layout.resultStatRects(), ...this.layout.resultDetailRects()]) {
-            graphics.fillColor = new Color(34, 55, 75, alpha(235));
-            graphics.roundRect(rect.left, rect.bottom, rect.right - rect.left, rect.top - rect.bottom, 17);
-            graphics.fill();
-            graphics.strokeColor = new Color(116, 155, 177, alpha(105));
-            graphics.lineWidth = 2;
-            graphics.roundRect(rect.left, rect.bottom, rect.right - rect.left, rect.top - rect.bottom, 17);
-            graphics.stroke();
-        }
-        graphics.fillColor = accent;
-        graphics.roundRect(
-            PHASE_B_RESULT_RESTART_BUTTON.left,
-            PHASE_B_RESULT_RESTART_BUTTON.bottom,
-            PHASE_B_RESULT_RESTART_BUTTON.right - PHASE_B_RESULT_RESTART_BUTTON.left,
-            PHASE_B_RESULT_RESTART_BUTTON.top - PHASE_B_RESULT_RESTART_BUTTON.bottom,
-            24,
-        );
-        graphics.fill();
-        graphics.fillColor = new Color(51, 72, 92, alpha(255));
-        graphics.roundRect(
-            PHASE_B_RESULT_HOME_BUTTON.left,
-            PHASE_B_RESULT_HOME_BUTTON.bottom,
-            PHASE_B_RESULT_HOME_BUTTON.right - PHASE_B_RESULT_HOME_BUTTON.left,
-            PHASE_B_RESULT_HOME_BUTTON.top - PHASE_B_RESULT_HOME_BUTTON.bottom,
-            24,
-        );
-        graphics.fill();
-    }
-
     private drawControls(state: PhaseBSceneState): void {
+        // 普通模式的底板已由独立设计版视图持有；这里不能再画旧按钮造成覆盖和位置误导。
+        if (!state.qaMode) return;
         const graphics = this.graphics;
-        const soundRect = this.layout.safeRect(PHASE_B_SOUND_BUTTON);
+        const soundRect = this.layout.fitRect(PHASE_B_SOUND_BUTTON);
         const speedRect = this.layout.safeRect(PHASE_B_SPEED_BUTTON);
         const earlyRect = this.layout.safeRect(PHASE_B_EARLY_WAVE_BUTTON);
         const resetRect = this.layout.safeRect(PHASE_B_RESET_BUTTON);
-        const playRect = this.layout.safeRect(PHASE_B_PLAY_BUTTON);
+        const pauseRect = this.layout.safeRect(PHASE_B_CENTER_PAUSE_BUTTON);
         graphics.fillColor = new Color(state.soundEnabled ? '#2C605E' : '#354355');
         graphics.roundRect(
             soundRect.left,
@@ -457,16 +299,16 @@ export class PhaseBCanvasRenderer {
             17,
         );
         graphics.fill();
-        this.drawButton(resetRect.left, resetRect.bottom, resetRect.right - resetRect.left, resetRect.top - resetRect.bottom);
-        this.drawButton(playRect.left, playRect.bottom, playRect.right - playRect.left, playRect.top - playRect.bottom);
+        this.drawSecondaryControl(resetRect);
+        if (state.showCenterPause) this.drawSecondaryControl(pauseRect);
         if (state.qaMode) {
             this.drawButton(-440, -700, 280, 90);
             this.drawButton(160, -700, 280, 90);
             this.drawRouteIcon(-300, -655, false);
             this.drawRouteIcon(300, -655, true);
         }
-        this.drawResetIcon(-270, -558);
-        this.drawPhaseIcon(270, -558, state.showPlayControl);
+        this.drawResetIcon((resetRect.left + resetRect.right) / 2, -558);
+        if (state.showCenterPause) this.drawPauseIcon((pauseRect.left + pauseRect.right) / 2, -558);
         graphics.fillColor = new Color('#29405C');
         graphics.roundRect(
             speedRect.left,
@@ -476,6 +318,7 @@ export class PhaseBCanvasRenderer {
             20,
         );
         graphics.fill();
+        this.drawControlRim(speedRect, '#7BB9D5');
         graphics.fillColor = state.waveStartButton.active ? new Color('#2F9E72') : new Color('#354355');
         graphics.roundRect(
             earlyRect.left,
@@ -485,6 +328,7 @@ export class PhaseBCanvasRenderer {
             20,
         );
         graphics.fill();
+        this.drawControlRim(earlyRect, state.waveStartButton.active ? '#A6E6B5' : '#657A88');
         this.drawTowerButton(PHASE_B_RIVET_BUTTON, state.gold >= RIVET_GUN.cost, state.activePlacementTowerId === RIVET_GUN.id, '#D5A84B');
         this.drawTowerButton(PHASE_B_FROST_BUTTON, state.gold >= FROST_COIL.cost, state.activePlacementTowerId === FROST_COIL.id, '#62BCD0');
         const upgrade = state.inspectedTower;
@@ -507,14 +351,21 @@ export class PhaseBCanvasRenderer {
 
     private drawTowerButton(rect: { left: number; right: number; bottom: number; top: number }, affordable: boolean, selected: boolean, color: string): void {
         const graphics = this.graphics;
-        graphics.fillColor = new Color(affordable ? color : '#596273');
+        graphics.fillColor = new Color(selected ? color : affordable ? '#1B2D40' : '#343E4D');
         graphics.roundRect(rect.left, rect.bottom, rect.right - rect.left, rect.top - rect.bottom, 16);
         graphics.fill();
-        if (!selected) return;
-        graphics.strokeColor = new Color('#FFF1CF');
-        graphics.lineWidth = 8;
-        graphics.roundRect(rect.left + 5, rect.bottom + 5, rect.right - rect.left - 10, rect.top - rect.bottom - 10, 13);
+        graphics.strokeColor = new Color(selected ? '#FFF1CF' : affordable ? color : '#596273');
+        graphics.lineWidth = selected ? 8 : 4;
+        graphics.roundRect(rect.left + 4, rect.bottom + 4, rect.right - rect.left - 8, rect.top - rect.bottom - 8, 13);
         graphics.stroke();
+    }
+
+    private drawControlRim(rect: { left: number; right: number; bottom: number; top: number }, color: string): void {
+        this.graphics.strokeColor = new Color(color);
+        this.graphics.lineWidth = 4;
+        this.graphics.roundRect(rect.left + 3, rect.bottom + 3,
+            rect.right - rect.left - 6, rect.top - rect.bottom - 6, 17);
+        this.graphics.stroke();
     }
 
     private drawGridCode(centerX: number, centerY: number, digits: readonly number[]): void {
@@ -574,21 +425,20 @@ export class PhaseBCanvasRenderer {
         graphics.fill();
     }
 
-    private drawPhaseIcon(x: number, y: number, showPlay: boolean): void {
+    private drawPauseIcon(x: number, y: number): void {
         const graphics = this.graphics;
         graphics.fillColor = new Color('#F2E4BF');
-        if (showPlay) {
-            graphics.moveTo(x - 24, y - 36);
-            graphics.lineTo(x + 40, y);
-            graphics.lineTo(x - 24, y + 36);
-            graphics.close();
-            graphics.fill();
-            return;
-        }
         graphics.rect(x - 30, y - 36, 19, 72);
         graphics.fill();
         graphics.rect(x + 11, y - 36, 19, 72);
         graphics.fill();
+    }
+
+    private drawSecondaryControl(rect: { left: number; right: number; bottom: number; top: number }): void {
+        this.graphics.fillColor = new Color('#23384F');
+        this.graphics.roundRect(rect.left, rect.bottom, rect.right - rect.left, rect.top - rect.bottom, 16);
+        this.graphics.fill();
+        this.drawControlRim(rect, '#718FA5');
     }
 
     private drawRouteIcon(x: number, y: number, long: boolean): void {

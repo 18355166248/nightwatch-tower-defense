@@ -1,0 +1,23 @@
+{
+  "source": "concepts/home-quiet-enamel.png",
+  "sourceSha256": "32ab55ee5f5251d35f1d49489195fa0f3904ede5fdab3e64f72e6fbd5e5e8c4c",
+  "assets": [
+    {
+      "id": "home-hero",
+      "runtime": "assets/resources/level-one/ui/quality-v3/home-hero.png",
+      "crop": {
+        "left": 89,
+        "top": 295,
+        "width": 764,
+        "height": 450
+      },
+      "width": 764,
+      "height": 450,
+      "decodedRgbaBytes": 1375200,
+      "textBaked": false
+    }
+  ],
+  "sharedChrome": "slice-manifest.json",
+  "unitThumbnails": "existing rivet-gun and frost-coil spriteFrames",
+  "rights": "Original built-in imagegen concept; provider terms review before commercial distribution."
+}

@@ -1,0 +1,186 @@
+{
+  "version": 1,
+  "toolVersion": "1.0",
+  "kind": "motion",
+  "title": "固定模型机械步兵 v2 · 四方向四帧候选 · runtime-budget-v1",
+  "source": {
+    "provider": "project-authored-blender",
+    "note": "项目自有参考，本地Blender5.2脚本建模/机械关节；所有方向共享模型、光、相机与全姿态拟合。原生alpha，无每帧裁切/归一化，背部结构为原创推定。仅候选。；仅全画布统一缩放，无逐帧裁切；高分源未修改。"
+  },
+  "release": {
+    "status": "draft",
+    "runtimeEvidence": null
+  },
+  "atlas": "atlas.png",
+  "anchor": [
+    0.5,
+    0.82830057
+  ],
+  "anchorConvention": "normalized-from-top-left; metadata only, no automatic foot alignment",
+  "states": [
+    {
+      "name": "walk-down",
+      "loop": true,
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 80,
+          "h": 80,
+          "durationMs": 125
+        },
+        {
+          "x": 80,
+          "y": 0,
+          "w": 80,
+          "h": 80,
+          "durationMs": 125
+        },
+        {
+          "x": 160,
+          "y": 0,
+          "w": 80,
+          "h": 80,
+          "durationMs": 125
+        },
+        {
+          "x": 240,
+          "y": 0,
+          "w": 80,
+          "h": 80,
+          "durationMs": 125
+        }
+      ],
+      "sourceFrames": [
+        "walk-down/frame-1.png",
+        "walk-down/frame-2.png",
+        "walk-down/frame-3.png",
+        "walk-down/frame-4.png"
+      ]
+    },
+    {
+      "name": "walk-left",
+      "loop": true,
+      "frames": [
+        {
+          "x": 0,
+          "y": 80,
+          "w": 80,
+          "h": 80,
+          "durationMs": 125
+        },
+        {
+          "x": 80,
+          "y": 80,
+          "w": 80,
+          "h": 80,
+          "durationMs": 125
+        },
+        {
+          "x": 160,
+          "y": 80,
+          "w": 80,
+          "h": 80,
+          "durationMs": 125
+        },
+        {
+          "x": 240,
+          "y": 80,
+          "w": 80,
+          "h": 80,
+          "durationMs": 125
+        }
+      ],
+      "sourceFrames": [
+        "walk-left/frame-1.png",
+        "walk-left/frame-2.png",
+        "walk-left/frame-3.png",
+        "walk-left/frame-4.png"
+      ]
+    },
+    {
+      "name": "walk-up",
+      "loop": true,
+      "frames": [
+        {
+          "x": 0,
+          "y": 160,
+          "w": 80,
+          "h": 80,
+          "durationMs": 125
+        },
+        {
+          "x": 80,
+          "y": 160,
+          "w": 80,
+          "h": 80,
+          "durationMs": 125
+        },
+        {
+          "x": 160,
+          "y": 160,
+          "w": 80,
+          "h": 80,
+          "durationMs": 125
+        },
+        {
+          "x": 240,
+          "y": 160,
+          "w": 80,
+          "h": 80,
+          "durationMs": 125
+        }
+      ],
+      "sourceFrames": [
+        "walk-up/frame-1.png",
+        "walk-up/frame-2.png",
+        "walk-up/frame-3.png",
+        "walk-up/frame-4.png"
+      ]
+    },
+    {
+      "name": "walk-right",
+      "loop": true,
+      "frames": [
+        {
+          "x": 0,
+          "y": 240,
+          "w": 80,
+          "h": 80,
+          "durationMs": 125
+        },
+        {
+          "x": 80,
+          "y": 240,
+          "w": 80,
+          "h": 80,
+          "durationMs": 125
+        },
+        {
+          "x": 160,
+          "y": 240,
+          "w": 80,
+          "h": 80,
+          "durationMs": 125
+        },
+        {
+          "x": 240,
+          "y": 240,
+          "w": 80,
+          "h": 80,
+          "durationMs": 125
+        }
+      ],
+      "sourceFrames": [
+        "walk-right/frame-1.png",
+        "walk-right/frame-2.png",
+        "walk-right/frame-3.png",
+        "walk-right/frame-4.png"
+      ]
+    }
+  ],
+  "exports": [
+    "aseprite.json",
+    "grid.json"
+  ]
+}

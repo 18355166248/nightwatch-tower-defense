@@ -1,6 +1,11 @@
 import type { PhaseBPoint } from './PhaseBLayout';
 import type { EnemyId } from '../config/PhaseBCombatConfig';
 
+/** 正交战场以脚下地面决定前后，位置相同时保持出生序；姿态和血条不参与排序。 */
+export function compareEnemyGroundDepth(a: { readonly y: number; readonly spawnOrder: number }, b: { readonly y: number; readonly spawnOrder: number }): number {
+    return b.y - a.y || a.spawnOrder - b.spawnOrder;
+}
+
 const ENEMY_LANES: readonly PhaseBPoint[] = [
     { x: -0.17, y: -0.08 },
     { x: 0.17, y: 0.08 },
@@ -34,7 +39,8 @@ export function enemyStridePose(archetypeId: EnemyId, progress: number, spawnOrd
     const compression = Math.cos(phase) * (heavy ? 0.012 : runner ? 0.045 : 0.032);
     return {
         x: 0,
-        y: bounce * (heavy ? 2.5 : runner ? 8 : 6),
+        // 重装的双帧已经画出了换脚；身体只保留极轻的起伏，避免切帧时前脚悬空。
+        y: bounce * (heavy ? 0.6 : runner ? 8 : 6),
         scaleX: 1 + compression,
         scaleY: 1 - compression,
         angle: stride * (heavy ? 0.8 : runner ? 4 : 2.5),
@@ -97,6 +103,13 @@ export function enemyDeathFeedbackSeconds(archetypeId: EnemyId): number {
     return archetypeId === 'iron-canister-hauler' ? 0.52 : archetypeId === 'clockwork-runner' ? 0.34 : 0.3;
 }
 
+/** 两帧倒地只从死亡反馈的已逝时间选帧；暂停和重渲染不另开动画计时器。 */
+export function enemyDeathArtFrame(archetypeId: EnemyId, remainingSeconds: number, durationSeconds: number): 0 | 1 {
+    if (archetypeId !== 'clockwork-infantry' || !Number.isFinite(remainingSeconds)
+        || !Number.isFinite(durationSeconds) || durationSeconds <= 0) return 0;
+    return durationSeconds - remainingSeconds >= 0.133 ? 1 : 0;
+}
+
 export interface EnemyDeathPose {
     readonly y: number;
     readonly scaleX: number;
@@ -109,7 +122,7 @@ export interface EnemyDeathPose {
 }
 
 /** 死亡姿态由反馈快照直接求值；暂停、重开或低帧率都不需要额外 Tween 状态。 */
-export function enemyDeathPose(archetypeId: EnemyId, remainingSeconds: number, durationSeconds: number, spawnOrder: number): EnemyDeathPose {
+export function enemyDeathPose(archetypeId: EnemyId, remainingSeconds: number, durationSeconds: number, spawnOrder: number, authoredCollapse = false): EnemyDeathPose {
     const progress = durationSeconds > 0 ? Math.max(0, Math.min(1, 1 - remainingSeconds / durationSeconds)) : 1;
     const easeOut = 1 - (1 - progress) * (1 - progress);
     const heavy = archetypeId === 'iron-canister-hauler';
@@ -118,8 +131,9 @@ export function enemyDeathPose(archetypeId: EnemyId, remainingSeconds: number, d
     return {
         y: -(heavy ? 13 : 8) * easeOut,
         scaleX: 1 + (heavy ? 0.13 : 0.07) * easeOut,
-        scaleY: 1 - (heavy ? 0.48 : 0.58) * easeOut,
-        angle: sign * (heavy ? 13 : runner ? 24 : 18) * easeOut,
+        // 已画好的倒地帧本身变矮，不再叠加旧版整身压扁和大角度旋转。
+        scaleY: 1 - (authoredCollapse && archetypeId === 'clockwork-infantry' ? 0.12 : heavy ? 0.48 : 0.58) * easeOut,
+        angle: sign * (authoredCollapse && archetypeId === 'clockwork-infantry' ? 5 : heavy ? 13 : runner ? 24 : 18) * easeOut,
         opacity: Math.round(255 * Math.pow(1 - progress, heavy ? 1.15 : 1.7)),
         ringRadiusCells: (heavy ? 0.3 : 0.19) + (heavy ? 0.55 : 0.26) * easeOut,
         ringOpacity: Math.round((heavy ? 225 : runner ? 125 : 75) * Math.pow(1 - progress, 1.4)),

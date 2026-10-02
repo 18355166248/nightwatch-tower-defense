@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>首关全页面重设计 · 第3稿落地中</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101720;color:#e8e3d8;font:14px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}main{max-width:1000px;padding:24px;margin:auto}h1{font-size:22px;line-height:1.4;margin:0 0 8px}p{margin:8px 0;color:#b9c3cc}a{color:#9ed8d6}nav{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}button{font:inherit;padding:10px 16px;background:#22323e;border:1px solid #5b6d78;border-radius:4px;color:inherit;min-height:44px;cursor:pointer}button[aria-pressed="true"]{background:#235650;border-color:#85c6b4}.compare{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}figure{margin:0}figcaption{margin:0 0 8px;color:#e8e3d8}.viewport{width:min(var(--preview-width,390px),calc(100vw - 48px));aspect-ratio:390/844;display:flex;align-items:center;justify-content:center;background:#0d141d;overflow:hidden}.viewport img{display:block;width:100%;height:100%;object-fit:contain}small{display:block;margin:16px 0;color:#b9c3cc}footer{padding:16px 0} .note{max-width:850px}
+</style>
+<main>
+<h1>首关全页面重设计 · 第3稿落地中</h1>
+<p class="note">已选第3稿。首页简报、暂停及首页／战斗设置已接入独立材质和原生文字；结算、确认、异常等其余页面仍在开发。下方有设计／实装对照，不是把整张图片贴进游戏。</p>
+<nav aria-label="代表稿切换"><button type="button" data-concept="0" aria-pressed="false">1</button><button type="button" data-concept="1" aria-pressed="false">2</button><button type="button" data-concept="2" aria-pressed="true">3</button></nav>
+<nav aria-label="显示宽度"><button type="button" data-width="390" aria-pressed="true">390px</button><button type="button" data-width="320" aria-pressed="false">320px</button></nav>
+<div class="compare">
+<figure><figcaption>当前版本 · 历史运行截图</figcaption><div class="viewport"><img src="https://audiopaytest.cos.tx.xmcdn.com/storages/5587-audiotest/9D/AE/GAqSiIMOlMp6AABqNgACF0Oc.jpg" alt="当前暂停弹窗历史截图"></div></figure>
+<figure><figcaption id="concept-title">代表稿 3 · 方向已选</figcaption><div class="viewport"><img id="concept-image" src="https://audiopaytest.cos.tx.xmcdn.com/storages/a731-audiotest/95/C3/GAqSiIMOlMq4AAmfDAACF0P3.png" alt="暂停弹窗代表稿3"></div></figure>
+</div>
+<small class="note">画面等比包含在390×844参考视口内，不拉伸。背景敌群、塔位及数值仅作视觉情景示意；第3稿错误生成的底栏锁定槽位不属于现有功能，接入时必须剔除。全部文字最终以原生标签渲染并校验，而不是使用生图文字。</small>
+<h2 style="font-size:18px">已选稿 / 实际暂停页 · 同尺寸对照</h2>
+<p class="note">左为独立稿，右为普通1×第1波核心10/10实际截图。背景由真实游戏决定，不复制概念稿敌群和错误锁定槽。全页面视觉验收尚未完成。</p>
+<a href="https://audiopaytest.cos.tx.xmcdn.com/storages/242d-audiotest/F3/1A/GAqSoUUOlMqjAAO7qQACF0Pm.png"><img style="display:block;width:min(790px,100%);height:auto" src="https://audiopaytest.cos.tx.xmcdn.com/storages/242d-audiotest/F3/1A/GAqSoUUOlMqjAAO7qQACF0Pm.png" alt="第3稿与实际暂停页的等比对照"></a>
+<h2 style="font-size:18px">设置独立稿 / 实装 · 同尺寸对照</h2>
+<p class="note">左为第3稿家族的独立设置稿，右为普通1×第1波暂停设置。音量整行保证窄屏热区；正文装饰图标尚未复制，文字按实际小字号原生渲染。该差异不以“像素一致”掩盖。</p>
+<a href="https://audiopaytest.cos.tx.xmcdn.com/storages/17a5-audiotest/9D/7C/GAqSiIMOlMqmAAOnywACF0Pt.png"><img style="display:block;width:min(790px,100%);height:auto" src="https://audiopaytest.cos.tx.xmcdn.com/storages/17a5-audiotest/9D/7C/GAqSiIMOlMqmAAOnywACF0Pt.png" alt="独立设置稿与实装对照"></a>
+<h2 style="font-size:18px">首页独立稿 / 实装 · 同尺寸对照</h2>
+<p class="note">只将无字插画切入游戏；标题、任务、纪录及入口原生。主视觉比例与首次加载图层经过实测修正，小字号依用户要求保留。字体重心、分隔装饰及外围城市氛围仍待精修与视觉验收。</p>
+<a href="https://audiopaytest.cos.tx.xmcdn.com/storages/d1e3-audiotest/07/8C/GAqSiIMOlMrUAANxbgACF0QZ.png"><img style="display:block;width:min(790px,100%);height:auto" src="https://audiopaytest.cos.tx.xmcdn.com/storages/d1e3-audiotest/07/8C/GAqSiIMOlMrUAANxbgACF0QZ.png" alt="首页独立稿与实际首页同尺寸对照"></a>
+<footer><a href="AUDIT.md">全页面审查、固定清单与工作量估计</a> · <a href="GENERATION.md">来源与完整提示词</a> · <a href="SETTINGS.md">设置页审查</a> · <a href="HOME.md">首页审查与提示词</a> · <a href="slice-manifest.json">共用切图</a> · <a href="home-slice-manifest.json">首页切图</a> · <a href="state-index.json">状态进度</a></footer>
+<h2 style="font-size:18px">胜利 / 失败独立稿 · 第3稿家族</h2>
+<p>两张独立稿共用结算布局，示例数据不是游戏存档。实装仍需同尺寸截图审查，不代表视觉验收通过。</p>
+<div class="compare"><figure><figcaption>胜利设计稿</figcaption><div class="viewport"><img src="https://audiopaytest.cos.tx.xmcdn.com/storages/815d-audiotest/B5/46/GAqSoUUOlMrLAAmirgACF0QH.png" alt="胜利独立设计稿"></div></figure><figure><figcaption>失败设计稿</figcaption><div class="viewport"><img src="https://audiopaytest.cos.tx.xmcdn.com/storages/d9af-audiotest/55/5D/GAqSoUUOlMq7AAl54gACF0P5.png" alt="失败独立设计稿"></div></figure></div>
+<p><a href="RESULTS.md">结算页设计、实现边界与提示词</a> · <a href="result-slice-manifest.json">结算无字切图索引</a></p>
+<h2 id="results" style="font-size:18px">失败独立稿 / 普通1×实装 · 同尺寸对照</h2>
+<p>左为独立稿，右为最终fidelity构建第2波真实失败。标题及正文按小字号要求调整；背景和数值来自真实游戏。已修正背景过暗、标题字重与统计对齐；徽章和分隔装饰仍有差异，胜利状态尚缺实际截图。</p>
+<a href="https://audiopaytest.cos.tx.xmcdn.com/storages/273f-audiotest/E8/93/GAqSiIMOlMqtAAPcOAACF0Pz.png"><img style="display:block;width:min(790px,100%);height:auto" src="https://audiopaytest.cos.tx.xmcdn.com/storages/273f-audiotest/E8/93/GAqSiIMOlMqtAAPcOAACF0Pz.png" alt="失败设计稿与普通1倍实装对照"></a>
+</main>
+<script>
+const conceptFiles=['https://audiopaytest.cos.tx.xmcdn.com/storages/2452-audiotest/66/68/GAqSoUUOlMrJAAj0WAACF0QD.png','https://audiopaytest.cos.tx.xmcdn.com/storages/79da-audiotest/DD/10/GAqSoUUOlMrMAAnt9QACF0QL.png','https://audiopaytest.cos.tx.xmcdn.com/storages/a731-audiotest/95/C3/GAqSiIMOlMq4AAmfDAACF0P3.png'];
+document.querySelectorAll('[data-concept]').forEach(button=>button.addEventListener('click',()=>{
+  const index=Number(button.dataset.concept);
+  document.querySelectorAll('[data-concept]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
+  const image=document.getElementById('concept-image');
+  image.src=conceptFiles[index];image.alt='暂停弹窗代表稿'+(index+1);
+  document.getElementById('concept-title').textContent='代表稿 '+(index+1)+(index===2?' · 方向已选':' · 留档备选');
+}));
+document.querySelectorAll('[data-width]').forEach(button=>button.addEventListener('click',()=>{
+  document.documentElement.style.setProperty('--preview-width',button.dataset.width+'px');
+  document.querySelectorAll('[data-width]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
+}));
+</script>
+</html>

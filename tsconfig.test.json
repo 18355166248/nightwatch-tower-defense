@@ -18,15 +18,34 @@
     "assets/scripts/presentation/**/*.ts"
   ],
   "exclude": [
+    "assets/scripts/presentation/FirstLevelResultView.ts",
+    "assets/scripts/presentation/FirstLevelHomeArtView.ts",
+    "assets/scripts/presentation/FirstLevelPageSkinView.ts",
+    "assets/scripts/presentation/FirstLevelPanelPainter.ts",
+    "assets/scripts/presentation/FirstLevelResultPainter.ts",
+    "assets/scripts/presentation/FirstLevelUiSkinView.ts",
+    "assets/scripts/presentation/VisibleHudLabel.ts",
+    "assets/scripts/presentation/CocosRenderBudgetProbe.ts",
+    "assets/scripts/presentation/EnemyHealthBarView.ts",
+    "assets/scripts/presentation/DirectionalSpriteAtlas.ts",
     "assets/scripts/presentation/PhaseBHudView.ts",
     "assets/scripts/presentation/PhaseBPauseOverlayView.ts",
     "assets/scripts/presentation/PhaseBBackdropView.ts",
     "assets/scripts/presentation/PhaseBUnitSpriteView.ts",
     "assets/scripts/presentation/FirstLevelExperienceView.ts",
+    "assets/scripts/presentation/FirstLevelIntroArtView.ts",
     "assets/scripts/presentation/PhaseBCanvasRenderer.ts",
+    "assets/scripts/presentation/CombatFeedbackView.ts",
+    "assets/scripts/presentation/CombatForegroundView.ts",
+    "assets/scripts/presentation/FirstLevelHudChromeView.ts",
+    "assets/scripts/presentation/HudResourceIconView.ts",
     "assets/scripts/presentation/BattlefieldSurfaceView.ts",
+    "assets/scripts/presentation/DynamicRoadView.ts",
     "assets/scripts/presentation/EnemySlowIndicatorView.ts",
     "assets/scripts/presentation/LayeredTowerRig.ts",
-    "assets/scripts/presentation/CoreObjectiveView.ts"
+    "assets/scripts/presentation/CoreObjectiveView.ts",
+    "assets/scripts/presentation/CoreObjectiveArtView.ts",
+    "assets/scripts/presentation/EnemyEntryArtView.ts",
+    "assets/scripts/presentation/EnemyGroundingView.ts"
   ]
 }

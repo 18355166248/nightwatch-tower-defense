@@ -1,0 +1,10 @@
+Use case: ui-mockup. Asset type: text-free reusable UI art seed for a portrait steampunk tower-defense game, not a complete screen.
+Reference image: existing original night-city battle art, used only for material, palette and lighting consistency.
+Create a polished 2D game UI asset board on a genuinely transparent background, canvas landscape 3:2. No labels or numbers anywhere. Six isolated assets with generous transparent gaps:
+Top row: one wide navy enamel and warm brushed-brass HUD frame, front orthographic, approx 900x120 proportions, blank interior, chamfered corners, double inset border, restrained four screws, readable calm matte interior.
+Middle row: one wide selected-tower inspector frame 900x190 proportions, same finish, blank interior; one square navy/brass button frame.
+Bottom row: one wide build toolbar frame 900x160 proportions, same finish, blank interior; one small green/brass primary button frame; one small muted navy/brass disabled button frame.
+Style: premium shipped mobile strategy game UI, hand-painted 2.5D metal volume, navy #192c3b, brass #be8f48, cream highlights #f4e9cd. Light from upper left. Border silhouette decisive at 390px screen width, decorative detail restrained. Corners stay angular, not generic rounded web cards. All interiors empty: no icons, no words, no ornaments filling blank centers. No battle scenery, no characters, no UI text, no watermark. Transparent empty canvas around every element. This is ONE representative UI material seed, not an approved production family.
+
+Cleanup edit:
+Remove ONLY the entire background between and outside all six metal frames, including gaps and soft background glows. Output genuinely transparent alpha background. Preserve navy blank interiors, brass borders, screws, proportions, position, canvas size and paint details unchanged. No text. Background extraction only.

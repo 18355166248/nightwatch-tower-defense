@@ -6,6 +6,8 @@
   "scripts": {
     "check": "tsc -p tsconfig.test.json --noEmit",
     "test": "npm run test:rules",
+    "test:art": "node --test tests/art/*.test.cjs",
+    "report:assets": "node scripts/report-first-level-budget.cjs",
     "test:rules": "tsc -p tsconfig.test.json && node --test tests/*.test.cjs",
     "verify": "npm run check && npm run test:rules",
     "poc:automated": "tsc -p tsconfig.test.json && node scripts/run-phase-a-poc.cjs",

@@ -1,0 +1,206 @@
+[
+  {
+    "buttons": [
+      {
+        "disabled": true,
+        "height": 44,
+        "role": "sell",
+        "text": "战斗中不可出售",
+        "width": 94.8203125
+      },
+      {
+        "disabled": false,
+        "height": 44,
+        "role": "upgrade",
+        "text": "升级 42",
+        "width": 100.75
+      },
+      {
+        "disabled": true,
+        "height": 44,
+        "role": "next",
+        "text": "来袭中",
+        "width": 48
+      }
+    ],
+    "closeUpgradeOverlap": false,
+    "labels": [
+      "金币",
+      "54",
+      "波次",
+      "6",
+      "/ 8",
+      "核心",
+      "9",
+      "/ 10",
+      "Ⅱ",
+      "夜城广场",
+      "机枪塔",
+      "Lv.2",
+      "伤害 11 · 射程 2.8",
+      "×",
+      "战斗中不可出售",
+      "升级 42",
+      "机枪塔",
+      "30",
+      "冷凝塔",
+      "40",
+      "1×",
+      "来袭中"
+    ],
+    "state": "battle"
+  },
+  {
+    "buttons": [
+      {
+        "disabled": false,
+        "height": 44,
+        "role": "sell",
+        "text": "出售 37",
+        "width": 94.8203125
+      },
+      {
+        "disabled": false,
+        "height": 44,
+        "role": "upgrade",
+        "text": "升级 42",
+        "width": 100.75
+      },
+      {
+        "disabled": false,
+        "height": 44,
+        "role": "next",
+        "text": "下一波",
+        "width": 48
+      }
+    ],
+    "closeUpgradeOverlap": false,
+    "labels": [
+      "金币",
+      "90",
+      "波次",
+      "6",
+      "/ 8",
+      "核心",
+      "9",
+      "/ 10",
+      "Ⅱ",
+      "夜城广场",
+      "机枪塔",
+      "Lv.2",
+      "伤害 11 · 射程 2.8",
+      "×",
+      "出售 37",
+      "升级 42",
+      "机枪塔",
+      "30",
+      "冷凝塔",
+      "40",
+      "1×",
+      "下一波"
+    ],
+    "state": "ready"
+  },
+  {
+    "buttons": [
+      {
+        "disabled": false,
+        "height": 44,
+        "role": "sell",
+        "text": "出售 37",
+        "width": 94.8203125
+      },
+      {
+        "disabled": true,
+        "height": 44,
+        "role": "upgrade",
+        "text": "需 42 金币",
+        "width": 100.75
+      },
+      {
+        "disabled": false,
+        "height": 44,
+        "role": "next",
+        "text": "下一波",
+        "width": 48
+      }
+    ],
+    "closeUpgradeOverlap": false,
+    "labels": [
+      "金币",
+      "24",
+      "波次",
+      "6",
+      "/ 8",
+      "核心",
+      "9",
+      "/ 10",
+      "Ⅱ",
+      "夜城广场",
+      "机枪塔",
+      "Lv.2",
+      "伤害 11 · 射程 2.8",
+      "×",
+      "出售 37",
+      "需 42 金币",
+      "机枪塔",
+      "30",
+      "冷凝塔",
+      "40",
+      "1×",
+      "下一波"
+    ],
+    "state": "poor"
+  },
+  {
+    "buttons": [
+      {
+        "disabled": false,
+        "height": 44,
+        "role": "sell",
+        "text": "出售 67",
+        "width": 94.8203125
+      },
+      {
+        "disabled": true,
+        "height": 44,
+        "role": "upgrade",
+        "text": "已满级",
+        "width": 100.75
+      },
+      {
+        "disabled": false,
+        "height": 44,
+        "role": "next",
+        "text": "下一波",
+        "width": 48
+      }
+    ],
+    "closeUpgradeOverlap": false,
+    "labels": [
+      "金币",
+      "54",
+      "波次",
+      "6",
+      "/ 8",
+      "核心",
+      "9",
+      "/ 10",
+      "Ⅱ",
+      "夜城广场",
+      "机枪塔",
+      "Lv.3",
+      "伤害 18 · 射程 3.2",
+      "×",
+      "出售 67",
+      "已满级",
+      "机枪塔",
+      "30",
+      "冷凝塔",
+      "40",
+      "1×",
+      "下一波"
+    ],
+    "state": "max"
+  }
+]

@@ -1,5 +1,5 @@
-export type PauseReason = 'user' | 'lifecycle' | 'orientation';
-export type PauseScreen = 'menu' | 'settings' | 'confirm-restart' | 'confirm-home';
+export type PauseReason = 'user' | 'lifecycle' | 'orientation' | 'route-error';
+export type PauseScreen = 'menu' | 'settings' | 'confirm-restart' | 'confirm-home' | 'route-error';
 
 export interface PauseOverlaySnapshot {
     readonly visible: boolean;
@@ -19,10 +19,10 @@ export class PauseOverlayRuntime {
         return {
             visible: this.needsContinue,
             screen: this.currentScreen,
-            reason: this.reasons.has('lifecycle') ? 'lifecycle'
+            reason: this.reasons.has('route-error') ? 'route-error' : this.reasons.has('lifecycle') ? 'lifecycle'
                 : this.reasons.has('orientation') ? 'orientation' : this.reasons.has('user') ? 'user' : null,
             canContinue: this.needsContinue && !this.hidden
-                && !this.reasons.has('lifecycle') && !this.reasons.has('orientation'),
+                && !this.reasons.has('lifecycle') && !this.reasons.has('orientation') && !this.reasons.has('route-error'),
         };
     }
 
@@ -30,11 +30,17 @@ export class PauseOverlayRuntime {
         return this.reasons.has(reason);
     }
 
+    public enterRouteError(): void {
+        this.needsContinue = true;
+        this.reasons.add('route-error');
+        this.currentScreen = 'route-error';
+    }
+
     public enterUser(): boolean {
         const first = !this.needsContinue;
         this.needsContinue = true;
         this.reasons.add('user');
-        this.currentScreen = 'menu';
+        this.currentScreen = this.reasons.has('route-error') ? 'route-error' : 'menu';
         return first;
     }
 
@@ -43,7 +49,7 @@ export class PauseOverlayRuntime {
         this.needsContinue = true;
         this.hidden = true;
         this.reasons.add('lifecycle');
-        this.currentScreen = 'menu';
+        this.currentScreen = this.reasons.has('route-error') ? 'route-error' : 'menu';
         return first;
     }
 
@@ -57,7 +63,7 @@ export class PauseOverlayRuntime {
         const first = !this.needsContinue;
         this.needsContinue = true;
         this.reasons.add('orientation');
-        this.currentScreen = 'menu';
+        this.currentScreen = this.reasons.has('route-error') ? 'route-error' : 'menu';
         return first;
     }
 
@@ -67,11 +73,11 @@ export class PauseOverlayRuntime {
     }
 
     public show(screen: PauseScreen): void {
-        if (this.needsContinue) this.currentScreen = screen;
+        if (this.needsContinue) this.currentScreen = this.reasons.has('route-error') ? 'route-error' : screen;
     }
 
     public continue(): boolean {
-        if (!this.needsContinue || this.hidden || this.reasons.has('lifecycle') || this.reasons.has('orientation')) return false;
+        if (!this.needsContinue || this.hidden || this.reasons.has('lifecycle') || this.reasons.has('orientation') || this.reasons.has('route-error')) return false;
         this.reasons.delete('user');
         if (this.reasons.size > 0) return false;
         this.clear();

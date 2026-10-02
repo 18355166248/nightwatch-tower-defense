@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-01",
+  "visualAcceptance": "pending-user-review",
+  "finalBuildSha256": "8bcd3ff76d8dcbf801fe22f6a055d6d9ac3c9e5231372894e39e224e216abbdf",
+  "earlierBuildSha256": "7ec043e074e0cb35d8255fe654c872b085884108f0128b240ebba76f8774968c",
+  "checks": {"rulesPassed": 192, "designContractsPassed": 3, "runtimeTypeScript": "passed", "diffWhitespace": "passed", "observedConsoleErrors": 0},
+  "pages": {
+    "home": {"status": "final-build-browser-smoke", "screenshot": "runtime-home-restored-final-390.jpg", "coverage": "首页、390回场卡面恢复；此前320首页及进入教学"},
+    "home-settings": {"status": "earlier-build-browser-smoke", "screenshot": "runtime-home-settings-320.jpg", "coverage": "打开、声音关闭/恢复、返回首页、320宽"},
+    "pause": {"status": "final-build-browser-smoke", "screenshot": "runtime-pause-restored-390.jpg", "coverage": "暂停、390竖屏恢复仍待玩家继续"},
+    "settings": {"status": "earlier-build-browser-smoke", "screenshot": "runtime-settings.jpg", "coverage": "五项文案、打开/返回暂停"},
+    "confirm-restart": {"status": "earlier-build-browser-smoke", "screenshot": "runtime-confirm-restart.jpg", "coverage": "打开、取消；部署恢复另经失败和异常路径验证"},
+    "confirm-home": {"status": "earlier-build-browser-smoke", "screenshot": "runtime-confirm-home-320.jpg", "coverage": "打开、320确认返回；最终构建390再次返回首页"},
+    "lifecycle": {"status": "final-build-explicit-qa-fixture", "screenshot": "runtime-lifecycle-fixture.jpg", "coverage": "L进入后台入口、继续拒绝、O解除；不代表真实切后台"},
+    "orientation": {"status": "final-build-explicit-coarse-qa", "screenshot": "runtime-orientation-qa.jpg", "coverage": "横屏阻断、390竖屏恢复、显式继续"},
+    "route-error": {"status": "earlier-build-explicit-qa-fixture", "screenshot": "runtime-route-error-qa.jpg", "coverage": "K触发真实诊断、异常页、重新部署"},
+    "victory": {"status": "earlier-build-qa-2x-eight-waves", "screenshot": "runtime-victory-qa.jpg", "coverage": "八波胜利、212击毁/1漏怪/9核心、新最快文案、返回首页"},
+    "defeat": {"status": "earlier-build-qa-2x-failure", "screenshot": "runtime-defeat-qa.jpg", "coverage": "止步2波、七项统计、旧纪录文案、恢复战前布防"},
+    "intermission": {"status": "final-build-normal-1x-one-wave", "screenshot": "runtime-intermission-final.jpg", "coverage": "四塔亲手布防、首波清场、真实敌情与教学建议、开波入口"}
+  },
+  "notVerified": ["最终构建普通1x连续三局八波", "真实浏览器后台事件触发", "全部数值与纪录组合", "用户视觉批准", "原有纹理预算达标"],
+  "battleStates": {"guidedUpgrade": "final build; Lv1 to Lv2; 54 to 30 gold; runtime-guided-upgrade-final.jpg", "poorInspector": "final build; 30 gold against 42 cost; runtime-inspector-poor-final.jpg", "closeInspector": "final build; guidance restored after close"},
+  "androidTesting": "excluded-by-user",
+  "commit": "not-committed; no push"
+}

@@ -1,0 +1,124 @@
+{
+  "toolVersion": "1.0",
+  "inputMode": "files",
+  "recipe": {
+    "version": 1,
+    "kind": "motion",
+    "title": "固定模型机械步兵 · 四方向四帧候选",
+    "cell": [
+      128,
+      128
+    ],
+    "anchor": [
+      0.5,
+      0.78452727
+    ],
+    "resample": "lanczos",
+    "background": "keep",
+    "source": {
+      "provider": "project-authored-blender",
+      "note": "项目自有铜蓝步兵参考，本地脚本几何/机械关节建模，Blender5.2输出。同一GLB/正交镜头/全方向并集归一化，未使用视频抽帧或逐帧生成。背部细节为原创推定。"
+    },
+    "states": [
+      {
+        "name": "walk-down",
+        "fps": 8,
+        "loop": true
+      },
+      {
+        "name": "walk-left",
+        "fps": 8,
+        "loop": true
+      },
+      {
+        "name": "walk-up",
+        "fps": 8,
+        "loop": true
+      },
+      {
+        "name": "walk-right",
+        "fps": 8,
+        "loop": true
+      }
+    ]
+  },
+  "sourceRoot": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames",
+  "inputs": [
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames/walk-down/frame-1.png",
+      "sha256": "96e9caab949171cb6ccda8adeef863b5fbeb676a6981132fda02bd266b9b458a"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames/walk-down/frame-2.png",
+      "sha256": "9986b5d2d561a0ca93f91bd3159cf4cb005e031dcefb50c422feab1f52ba77af"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames/walk-down/frame-3.png",
+      "sha256": "89be118ebfe1e058c08c3e9e7b2fe9f5d8441a54eadc91d425fa4cc3b93e94f6"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames/walk-down/frame-4.png",
+      "sha256": "1e58ce5fab9af3fa7e2b3d497cb5d4ef762f208090c78d29dc2a3b79ec030f49"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames/walk-left/frame-1.png",
+      "sha256": "bde3f901885fbc13d19268f44e47d018e84b4a8cc06fb6291e7c5b42c08eafcb"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames/walk-left/frame-2.png",
+      "sha256": "dc3c1a95dc83c736ac7e03dc5939174245201f5983ff14273ea34c19d8aed814"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames/walk-left/frame-3.png",
+      "sha256": "236fe332ceeacf1eff015a9584087142dbcbb99341b0b716e102610805e450a9"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames/walk-left/frame-4.png",
+      "sha256": "75f0a670f2de649744deea1a932b6edf75c9a16d9015b852be263fc5e45e0ae6"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames/walk-right/frame-1.png",
+      "sha256": "3adcc24a45a6d4893dca01937ddb69e9dcc94dd8ef0303655c1058c6e2c31018"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames/walk-right/frame-2.png",
+      "sha256": "7e9e6c88fca9f8fe24e7738d891a32f254ff2790a7d23aba895935216ac75afa"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames/walk-right/frame-3.png",
+      "sha256": "591fa7e696d930ba365695039d2f165547986c2a9764a86db9116fc0b7a3ffcd"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames/walk-right/frame-4.png",
+      "sha256": "a76c7fe28d2e08588f64769fc4510aa3f2c003735530210e87b96aa1125fbe61"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames/walk-up/frame-1.png",
+      "sha256": "31fe97f6049a8c2e0cef4ec3c74d4f08735dbff8f2f1502572ed6ee580a413d6"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames/walk-up/frame-2.png",
+      "sha256": "79e72de4a0696e1027c3b137169d3ed71999ac0bfe951bddde8993e24a2a3555"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames/walk-up/frame-3.png",
+      "sha256": "066e2b5ffb73cca97602b4c1970d56529b93c73abd4f86dd7b6ef7fbb77b9e69"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames/walk-up/frame-4.png",
+      "sha256": "fa4af21f81f012f3105528c22a1438667d6248c71e3be31ede2ee0d154fe2b8d"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/recipe.json",
+      "sha256": "14b565db43ba67f3d863952a43792ab02474c75e87082123a4be7089fe826ff5"
+    }
+  ],
+  "reproduce": {
+    "recipe": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/recipe.json",
+    "input": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/frames",
+    "aseprite": false
+  },
+  "environment": {
+    "pillow": "12.3.0"
+  }
+}

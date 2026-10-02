@@ -1,0 +1,221 @@
+{
+  "status": "needs-human-review",
+  "warnings": [],
+  "measurements": [
+    {
+      "label": "collapse-down / 1",
+      "bbox": [
+        61,
+        51,
+        99,
+        116
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "collapse-down / 2",
+      "bbox": [
+        61,
+        63,
+        99,
+        116
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "collapse-down / 3",
+      "bbox": [
+        61,
+        81,
+        99,
+        121
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "collapse-down / 4",
+      "bbox": [
+        61,
+        85,
+        99,
+        136
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "collapse-left / 1",
+      "bbox": [
+        63,
+        50,
+        100,
+        115
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "collapse-left / 2",
+      "bbox": [
+        42,
+        50,
+        90,
+        111
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "collapse-left / 3",
+      "bbox": [
+        21,
+        61,
+        87,
+        111
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "collapse-left / 4",
+      "bbox": [
+        13,
+        74,
+        83,
+        112
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "collapse-up / 1",
+      "bbox": [
+        61,
+        51,
+        99,
+        114
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "collapse-up / 2",
+      "bbox": [
+        61,
+        36,
+        99,
+        106
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "collapse-up / 3",
+      "bbox": [
+        61,
+        36,
+        99,
+        105
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "collapse-up / 4",
+      "bbox": [
+        61,
+        48,
+        99,
+        107
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "collapse-right / 1",
+      "bbox": [
+        60,
+        50,
+        97,
+        115
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "collapse-right / 2",
+      "bbox": [
+        70,
+        50,
+        118,
+        114
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "collapse-right / 3",
+      "bbox": [
+        73,
+        56,
+        139,
+        113
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    },
+    {
+      "label": "collapse-right / 4",
+      "bbox": [
+        77,
+        67,
+        147,
+        113
+      ],
+      "alphaRange": [
+        0,
+        255
+      ]
+    }
+  ],
+  "manualChecks": [
+    "角色身份、朝向及跨动作尺寸是否一致",
+    "脚底是否漂移、武器是否裁切；bbox 不是接触点证明",
+    "走跑时左右腿是否交替落地、承重、经过和蹬离；不同图片不等于完整步态",
+    "循环接缝和单次动作的前摇、命中、收招",
+    "在目标游戏运行后另存证据；此处未验证碰撞或命中窗口"
+  ]
+}

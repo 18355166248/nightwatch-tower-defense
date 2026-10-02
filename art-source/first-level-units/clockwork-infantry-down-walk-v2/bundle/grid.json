@@ -1,0 +1,14 @@
+{
+  "sheet": "atlas.png",
+  "columns": 4,
+  "rows": 1,
+  "cellWidth": 128,
+  "cellHeight": 128,
+  "rowOrder": [
+    "walk-down"
+  ],
+  "frameCounts": {
+    "walk-down": 4
+  },
+  "padding": "repeat-last; use manifest for timing and true frame counts"
+}

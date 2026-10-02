@@ -1,0 +1,51 @@
+{
+  "build": "7ec043e074e0cb35d8255fe654c872b085884108f0128b240ebba76f8774968c",
+  "mode": "qa=1; 2x; A opening and B purchases; not normal acceptance",
+  "trace": [
+    {
+      "wave": 1,
+      "phase": "paused",
+      "core": 10,
+      "gold": 54
+    },
+    {
+      "wave": 2,
+      "phase": "paused",
+      "core": 10,
+      "gold": 42
+    },
+    {
+      "wave": 4,
+      "phase": "paused",
+      "core": 9,
+      "gold": 91
+    },
+    {
+      "wave": 5,
+      "phase": "paused",
+      "core": 9,
+      "gold": 90
+    },
+    {
+      "wave": 6,
+      "phase": "paused",
+      "core": 9,
+      "gold": 160
+    },
+    {
+      "wave": 7,
+      "phase": "paused",
+      "core": 9,
+      "gold": 176
+    }
+  ],
+  "result": {
+    "wave": 8,
+    "phase": "victory",
+    "coreHealth": 9,
+    "killed": 212,
+    "leaked": 1,
+    "elapsedSeconds": 405.733333333293,
+    "newTimeRecord": true
+  }
+}

@@ -28,6 +28,7 @@ export interface PhaseBSceneState {
         readonly toCell: GridCell;
         readonly progress: number;
         readonly slowRemainingSeconds: number;
+        readonly trafficLane?: 0 | 1;
     }[];
     readonly feedback: CombatFeedbackSnapshot;
     readonly routeChange: RouteChangeSnapshot | null;
@@ -36,10 +37,11 @@ export interface PhaseBSceneState {
     readonly maxCoreHealth: number;
     readonly speedMultiplier: number;
     readonly soundEnabled: boolean;
+    readonly reducedMotion: boolean;
     /** 仅操作已拿起炮塔时才高亮卡片；记住上次塔类型不等于正在放置。 */
     readonly activePlacementTowerId: TowerId | null;
     readonly waveStartButton: WaveStartButtonViewModel;
-    readonly showPlayControl: boolean;
+    readonly showCenterPause: boolean;
     readonly result: BattleResultViewModel | null;
     readonly resultRevealProgress: number;
 }

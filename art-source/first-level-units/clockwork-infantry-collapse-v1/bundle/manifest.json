@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "toolVersion": "1.0",
+  "kind": "motion",
+  "title": "发条步兵两帧倒地候选",
+  "source": {
+    "provider": "codex-imagegen",
+    "note": "项目自有原图为首帧与唯一编辑目标；第二帧由 OpenAI 内置 image_gen 编辑。源画布保持 1254 方形；死亡事件时长由游戏控制。"
+  },
+  "release": {
+    "status": "draft",
+    "runtimeEvidence": null
+  },
+  "atlas": "atlas.png",
+  "anchor": [
+    0.5,
+    0.5
+  ],
+  "anchorConvention": "normalized-from-top-left; metadata only, no automatic foot alignment",
+  "states": [
+    {
+      "name": "death",
+      "loop": false,
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 128,
+          "h": 128,
+          "durationMs": 133
+        },
+        {
+          "x": 128,
+          "y": 0,
+          "w": 128,
+          "h": 128,
+          "durationMs": 133
+        }
+      ],
+      "sourceFrames": [
+        "death/frame-1.png",
+        "death/frame-2.png"
+      ]
+    }
+  ],
+  "exports": [
+    "aseprite.json",
+    "grid.json"
+  ]
+}

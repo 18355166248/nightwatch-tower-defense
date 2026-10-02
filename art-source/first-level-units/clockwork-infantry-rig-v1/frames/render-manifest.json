@@ -1,0 +1,270 @@
+{
+  "sourceModel": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-v1/model/clockwork-infantry-walk.glb",
+  "blender": "5.2.0 LTS",
+  "sourceFrameSize": 256,
+  "cameraElevation": 35,
+  "directionRows": [
+    "down",
+    "left",
+    "up",
+    "right"
+  ],
+  "frameCount": 16,
+  "animationRange": [
+    1,
+    13
+  ],
+  "sharedFit": {
+    "unionLow": [
+      -0.612,
+      -0.612,
+      0.0
+    ],
+    "unionHigh": [
+      0.612,
+      0.612,
+      2.312
+    ],
+    "scale": 0.444695,
+    "screenSpan": [
+      1.224,
+      2.5959
+    ],
+    "frame": [
+      1.48,
+      1.48
+    ],
+    "sharedFit": true
+  },
+  "groundAnchor": [
+    0.5,
+    0.78452727
+  ],
+  "frames": [
+    {
+      "direction": "down",
+      "frame": 0,
+      "sampleFrame": 1,
+      "groundAnchor": [
+        0.5,
+        0.78452727
+      ],
+      "soleHeights": [
+        0.0,
+        0.007292
+      ],
+      "file": "walk-down/frame-1.png"
+    },
+    {
+      "direction": "down",
+      "frame": 1,
+      "sampleFrame": 4,
+      "groundAnchor": [
+        0.5,
+        0.78452727
+      ],
+      "soleHeights": [
+        0.0,
+        0.132708
+      ],
+      "file": "walk-down/frame-2.png"
+    },
+    {
+      "direction": "down",
+      "frame": 2,
+      "sampleFrame": 7,
+      "groundAnchor": [
+        0.5,
+        0.78452727
+      ],
+      "soleHeights": [
+        0.007292,
+        0.0
+      ],
+      "file": "walk-down/frame-3.png"
+    },
+    {
+      "direction": "down",
+      "frame": 3,
+      "sampleFrame": 10,
+      "groundAnchor": [
+        0.5,
+        0.78452727
+      ],
+      "soleHeights": [
+        0.132708,
+        0.0
+      ],
+      "file": "walk-down/frame-4.png"
+    },
+    {
+      "direction": "left",
+      "frame": 0,
+      "sampleFrame": 1,
+      "groundAnchor": [
+        0.5,
+        0.78452727
+      ],
+      "soleHeights": [
+        0.0,
+        0.007292
+      ],
+      "file": "walk-left/frame-1.png"
+    },
+    {
+      "direction": "left",
+      "frame": 1,
+      "sampleFrame": 4,
+      "groundAnchor": [
+        0.5,
+        0.78452727
+      ],
+      "soleHeights": [
+        0.0,
+        0.132708
+      ],
+      "file": "walk-left/frame-2.png"
+    },
+    {
+      "direction": "left",
+      "frame": 2,
+      "sampleFrame": 7,
+      "groundAnchor": [
+        0.5,
+        0.78452727
+      ],
+      "soleHeights": [
+        0.007292,
+        0.0
+      ],
+      "file": "walk-left/frame-3.png"
+    },
+    {
+      "direction": "left",
+      "frame": 3,
+      "sampleFrame": 10,
+      "groundAnchor": [
+        0.5,
+        0.78452727
+      ],
+      "soleHeights": [
+        0.132708,
+        0.0
+      ],
+      "file": "walk-left/frame-4.png"
+    },
+    {
+      "direction": "up",
+      "frame": 0,
+      "sampleFrame": 1,
+      "groundAnchor": [
+        0.5,
+        0.78452727
+      ],
+      "soleHeights": [
+        0.0,
+        0.007292
+      ],
+      "file": "walk-up/frame-1.png"
+    },
+    {
+      "direction": "up",
+      "frame": 1,
+      "sampleFrame": 4,
+      "groundAnchor": [
+        0.5,
+        0.78452727
+      ],
+      "soleHeights": [
+        0.0,
+        0.132708
+      ],
+      "file": "walk-up/frame-2.png"
+    },
+    {
+      "direction": "up",
+      "frame": 2,
+      "sampleFrame": 7,
+      "groundAnchor": [
+        0.5,
+        0.78452727
+      ],
+      "soleHeights": [
+        0.007292,
+        0.0
+      ],
+      "file": "walk-up/frame-3.png"
+    },
+    {
+      "direction": "up",
+      "frame": 3,
+      "sampleFrame": 10,
+      "groundAnchor": [
+        0.5,
+        0.78452727
+      ],
+      "soleHeights": [
+        0.132708,
+        0.0
+      ],
+      "file": "walk-up/frame-4.png"
+    },
+    {
+      "direction": "right",
+      "frame": 0,
+      "sampleFrame": 1,
+      "groundAnchor": [
+        0.5,
+        0.78452727
+      ],
+      "soleHeights": [
+        0.0,
+        0.007292
+      ],
+      "file": "walk-right/frame-1.png"
+    },
+    {
+      "direction": "right",
+      "frame": 1,
+      "sampleFrame": 4,
+      "groundAnchor": [
+        0.5,
+        0.78452727
+      ],
+      "soleHeights": [
+        0.0,
+        0.132708
+      ],
+      "file": "walk-right/frame-2.png"
+    },
+    {
+      "direction": "right",
+      "frame": 2,
+      "sampleFrame": 7,
+      "groundAnchor": [
+        0.5,
+        0.78452727
+      ],
+      "soleHeights": [
+        0.007292,
+        0.0
+      ],
+      "file": "walk-right/frame-3.png"
+    },
+    {
+      "direction": "right",
+      "frame": 3,
+      "sampleFrame": 10,
+      "groundAnchor": [
+        0.5,
+        0.78452727
+      ],
+      "soleHeights": [
+        0.132708,
+        0.0
+      ],
+      "file": "walk-right/frame-4.png"
+    }
+  ],
+  "status": "candidate-needs-native-scale-and-runtime-review"
+}

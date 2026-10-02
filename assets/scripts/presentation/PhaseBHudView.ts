@@ -3,22 +3,27 @@ import {
     HorizontalTextAlignment,
     Label,
     Node,
-    UIOpacity,
     UITransform,
     VerticalTextAlignment,
 } from 'cc';
 import type { BattleResultViewModel } from './BattleResultViewModel';
 import { FROST_COIL, RIVET_GUN, type TowerId } from '../config/PhaseBCombatConfig';
 import type { BattlePhase } from '../systems/BattleStateMachine';
+import type { FirstLevelEntryMode } from './FirstLevelExperience';
 import { firstLevelWaveBanner } from './FirstLevelWaveBanner';
-import { hudEventText, type WaveStartButtonViewModel } from './PhaseBHudText';
-import { resultRevealEase } from './ResultRevealRuntime';
+import { hudEventText, resourceCardValueText, type WaveStartButtonViewModel } from './PhaseBHudText';
+import { HudResourceIconView } from './HudResourceIconView';
+import { FirstLevelResultView } from './FirstLevelResultView';
+import { VisibleHudLabel } from './VisibleHudLabel';
+import { FirstLevelUiSkinView } from './FirstLevelUiSkinView';
+import { FIRST_LEVEL_UI_FONT, firstLevelFontSize } from './FirstLevelUiStyle';
 import type { UpcomingWaveBriefing } from './WaveBriefing';
-import { PHASE_B_EARLY_WAVE_BUTTON, PHASE_B_RESULT_HOME_BUTTON, PHASE_B_RESULT_RESTART_BUTTON, PHASE_B_SOUND_BUTTON, PHASE_B_SPEED_BUTTON,
-    PHASE_B_SELL_BUTTON, PHASE_B_UPGRADE_BUTTON, PHASE_B_UPGRADE_FULL_BUTTON, PhaseBLayout } from './PhaseBLayout';
+import { PHASE_B_EARLY_WAVE_BUTTON, PHASE_B_SOUND_BUTTON, PHASE_B_SPEED_BUTTON,
+    PHASE_B_SELL_BUTTON, PHASE_B_UPGRADE_BUTTON, PHASE_B_UPGRADE_FULL_BUTTON, PhaseBLayout, type PhaseBRect } from './PhaseBLayout';
 
 export interface PhaseBHudState {
     readonly qaMode: boolean;
+    readonly entryMode: FirstLevelEntryMode;
     readonly guidanceText: string;
     readonly statusText: string;
     readonly gold: number;
@@ -26,6 +31,8 @@ export interface PhaseBHudState {
     readonly wave: number;
     readonly totalWaves: number;
     readonly coreHealth: number;
+    readonly maxCoreHealth: number;
+    readonly showPause: boolean;
     readonly phaseText: string;
     readonly phase: BattlePhase;
     readonly waveSpawned: number;
@@ -36,7 +43,7 @@ export interface PhaseBHudState {
     readonly soundReady: boolean;
     readonly waveStartButton: WaveStartButtonViewModel;
     readonly activePlacementTowerId: TowerId | null;
-    readonly inspectedUpgrade: { readonly level: number; readonly cost: number | null; readonly saleRefund: number | null } | null;
+    readonly inspectedUpgrade: { readonly towerId: TowerId; readonly level: number; readonly cost: number | null; readonly saleRefund: number | null } | null;
     readonly upcomingWave: UpcomingWaveBriefing | null;
     readonly result: BattleResultViewModel | null;
     readonly resultRevealProgress: number;
@@ -44,38 +51,42 @@ export interface PhaseBHudState {
 
 /** 管理程序化 HUD 节点与结算文案，Bootstrap 只提供展示快照。 */
 export class PhaseBHudView {
+    private readonly skins: FirstLevelUiSkinView;
+    private readonly resultView: FirstLevelResultView;
+    private readonly legacyRoot: Node;
     private renderedSignature = '';
     private renderedSafeHalfWidth = Number.NaN;
     private renderedSaleVisible = false;
     private readonly titleLabel: Label;
     private readonly statusLabel: Label;
     private readonly goldLabel: Label;
+    private readonly goldIcon: HudResourceIconView;
     private readonly pathLabel: Label;
+    private readonly pathIcon: HudResourceIconView;
     private readonly waveLabel: Label;
+    private readonly waveIcon: HudResourceIconView;
     private readonly coreLabel: Label;
-    private readonly levelLabel: Label;
-    private readonly upcomingLineupLabel: Label;
-    private readonly upcomingTacticLabel: Label;
-    private readonly guidanceLabel: Label;
-    private readonly helpLabel: Label;
+    private readonly coreIcon: HudResourceIconView;
+    private readonly levelLabel: VisibleHudLabel;
+    private readonly upcomingLineupLabel: VisibleHudLabel;
+    private readonly upcomingTacticLabel: VisibleHudLabel;
+    private readonly guidanceLabel: VisibleHudLabel;
+    private readonly helpLabel: VisibleHudLabel;
     private readonly speedLabel: Label;
     private readonly soundLabel: Label;
     private readonly earlyWaveLabel: Label;
     private readonly rivetLabel: Label;
     private readonly frostLabel: Label;
-    private readonly upgradeLabel: Label;
-    private readonly sellLabel: Label;
-    private readonly resultRoot: Node;
-    private readonly resultOpacity: UIOpacity;
-    private readonly resultTitleLabel: Label;
-    private readonly resultSubtitleLabel: Label;
-    private readonly resultStatLabels: readonly { readonly value: Label; readonly caption: Label }[];
-    private readonly resultDetailLabels: readonly { readonly value: Label; readonly caption: Label }[];
-    private readonly resultActionLabel: Label;
-    private readonly resultHomeLabel: Label;
-    private readonly resultFooterLabel: Label;
+    private readonly upgradeLabel: VisibleHudLabel;
+    private readonly sellLabel: VisibleHudLabel;
 
     public constructor(parent: Node, private readonly layout: PhaseBLayout) {
+        // 饰面先入树，原生文字后入树；透明边缘不能遮住数值与升级文案。
+        this.skins = new FirstLevelUiSkinView(parent);
+        this.legacyRoot = new Node('LegacyQaHud');
+        this.legacyRoot.layer = parent.layer;
+        parent.addChild(this.legacyRoot);
+        parent = this.legacyRoot;
         this.titleLabel = this.createLabel(parent, 46, new Color('#F4D58D'), 875);
         this.statusLabel = this.createLabel(parent, 34, new Color('#D7E6F5'), 805);
         // 事件行只占一行；超长文案截在自身槽内，不能挤进下方金币等关键资源卡。
@@ -84,60 +95,54 @@ export class PhaseBHudView {
         this.statusLabel.overflow = Label.Overflow.CLAMP;
         this.statusLabel.enableWrapText = false;
         this.goldLabel = this.createHudValueLabel(parent, -358, new Color('#F4D58D'));
+        this.goldIcon = new HudResourceIconView(parent, 'level-one/ui/gold-coins/spriteFrame', 'GoldCoinsIcon', () => this.invalidateResourceLayout());
         this.pathLabel = this.createHudValueLabel(parent, -120, new Color('#D7E6F5'));
+        this.pathIcon = new HudResourceIconView(parent, 'level-one/ui/path-route/spriteFrame', 'PathRouteIcon', () => this.invalidateResourceLayout());
         this.waveLabel = this.createHudValueLabel(parent, 120, new Color('#D7E6F5'));
+        this.waveIcon = new HudResourceIconView(parent, 'level-one/ui/wave-beacon/spriteFrame', 'WaveBeaconIcon', () => this.invalidateResourceLayout());
         this.coreLabel = this.createHudValueLabel(parent, 358, new Color('#79E0AD'));
-        this.levelLabel = this.createCenteredLabel(parent, 35, new Color('#F4D58D'), 655, 760, 80);
-        this.upcomingLineupLabel = this.createCenteredLabel(parent, 34, new Color('#F4D58D'), 675, 760, 42);
-        this.upcomingTacticLabel = this.createCenteredLabel(parent, 29, new Color('#9DE2CB'), 635, 760, 42);
-        this.upcomingLineupLabel.enableWrapText = false;
-        this.upcomingTacticLabel.enableWrapText = false;
-        this.guidanceLabel = this.createCenteredLabel(parent, 42, new Color('#D7E6F5'), -655, 920, 125);
-        // 竖屏实际可见宽度仅约 360–430 px，开局指令固定两行并保留完整字号，不压缩成细小单行。
-        this.guidanceLabel.lineHeight = 50;
-        this.guidanceLabel.enableWrapText = true;
-        this.helpLabel = this.createLabel(parent, 28, new Color('#A9C4DB'), -920);
+        this.coreIcon = new HudResourceIconView(parent, 'level-one/ui/core-heart/spriteFrame', 'CoreHeartIcon', () => this.invalidateResourceLayout());
+        this.levelLabel = new VisibleHudLabel(() => this.createCenteredLabel(parent, 35, new Color('#F4D58D'), 655, 760, 80), 'WaveBanner');
+        this.upcomingLineupLabel = new VisibleHudLabel(() => {
+            const label = this.createCenteredLabel(parent, 38, new Color('#F4D58D'), 680, 760, 52);
+            label.enableWrapText = false;
+            return label;
+        }, 'UpcomingLineup');
+        this.upcomingTacticLabel = new VisibleHudLabel(() => {
+            const label = this.createCenteredLabel(parent, 29, new Color('#9DE2CB'), 635, 760, 42);
+            label.enableWrapText = false;
+            return label;
+        }, 'UpcomingTactic');
+        // 把操作指引放在重置按钮右侧，不再额外占用一整条底栏；两行仍按手机字号保留。
+        this.guidanceLabel = new VisibleHudLabel(() => {
+            const label = this.createCenteredLabel(parent, 43, new Color('#D7E6F5'), -560, 700, 100);
+            label.lineHeight = 50;
+            label.enableWrapText = true;
+            return label;
+        }, 'BattleGuidance');
+        this.helpLabel = new VisibleHudLabel(() => this.createLabel(parent, 28, new Color('#A9C4DB'), -920), 'BattleHelp');
         this.speedLabel = this.createControlLabel(parent, -340, -812);
         this.soundLabel = this.createCenteredLabel(parent, 27, new Color('#E9FFF4'), 845, 170, 105);
         this.soundLabel.node.setPosition(395, 845, 0);
         this.earlyWaveLabel = this.createControlLabel(parent, 340, -812);
         this.rivetLabel = this.createTowerLabel(parent, -89, -854);
         this.frostLabel = this.createTowerLabel(parent, 89, -854);
-        this.upgradeLabel = this.createCenteredLabel(parent, 29, new Color('#18283A'),
-            (PHASE_B_UPGRADE_BUTTON.bottom + PHASE_B_UPGRADE_BUTTON.top) / 2, 680, 80);
-        this.sellLabel = this.createCenteredLabel(parent, 29, new Color('#FFF0E6'),
-            (PHASE_B_SELL_BUTTON.bottom + PHASE_B_SELL_BUTTON.top) / 2, 330, 80);
-        this.resultRoot = new Node('ResultContent');
-        this.resultRoot.layer = parent.layer;
-        this.resultRoot.addComponent(UITransform).setContentSize(1080, 1920);
-        this.resultOpacity = this.resultRoot.addComponent(UIOpacity);
-        parent.addChild(this.resultRoot);
-        this.resultTitleLabel = this.createCenteredLabel(this.resultRoot, 64, new Color('#79E0AD'), 300, 760, 100);
-        this.resultSubtitleLabel = this.createCenteredLabel(this.resultRoot, 32, new Color('#D7E6F5'), 214, 760, 64);
-        this.resultStatLabels = Array.from({ length: 4 }, () => ({
-            value: this.createCenteredLabel(this.resultRoot, 48, new Color('#F4D58D'), 0, 360, 58),
-            caption: this.createCenteredLabel(this.resultRoot, 26, new Color('#A9C4DB'), 0, 360, 36),
-        }));
-        this.resultDetailLabels = Array.from({ length: 3 }, () => ({
-            value: this.createCenteredLabel(this.resultRoot, 41, new Color('#F4D58D'), 0, 250, 52),
-            caption: this.createCenteredLabel(this.resultRoot, 25, new Color('#A9C4DB'), 0, 250, 36),
-        }));
-        const actionY = (PHASE_B_RESULT_RESTART_BUTTON.bottom + PHASE_B_RESULT_RESTART_BUTTON.top) / 2;
-        this.resultActionLabel = this.createCenteredLabel(this.resultRoot, 37, new Color('#101827'), actionY, 360, 110);
-        this.resultHomeLabel = this.createCenteredLabel(this.resultRoot, 37, new Color('#D7E6F5'), actionY, 360, 110);
-        this.resultActionLabel.node.setPosition((PHASE_B_RESULT_RESTART_BUTTON.left + PHASE_B_RESULT_RESTART_BUTTON.right) / 2, actionY, 0);
-        this.resultHomeLabel.node.setPosition((PHASE_B_RESULT_HOME_BUTTON.left + PHASE_B_RESULT_HOME_BUTTON.right) / 2, actionY, 0);
-        this.resultFooterLabel = this.createCenteredLabel(this.resultRoot, 29, new Color('#A9C4DB'), -477, 760, 55);
-        this.resultRoot.active = false;
+        this.upgradeLabel = new VisibleHudLabel(() => this.createCenteredLabel(parent, 29, new Color('#18283A'),
+            (PHASE_B_UPGRADE_BUTTON.bottom + PHASE_B_UPGRADE_BUTTON.top) / 2, 680, 80), 'TowerUpgrade');
+        this.sellLabel = new VisibleHudLabel(() => this.createCenteredLabel(parent, 29, new Color('#FFF0E6'),
+            (PHASE_B_SELL_BUTTON.bottom + PHASE_B_SELL_BUTTON.top) / 2, 330, 80), 'TowerSell');
+        this.resultView = new FirstLevelResultView(this.legacyRoot.parent!,layout);
     }
 
     public render(state: PhaseBHudState): void {
+        this.skins.render(state);
+        this.resultView.render(state.result,state.resultRevealProgress);
+        // 结算由独立视图持有，QA 旧 HUD 也不能与它叠加。
+        this.legacyRoot.active = state.qaMode && !state.result;
+        if (!this.legacyRoot.active) return;
         this.syncResponsiveLayout(state.inspectedUpgrade?.saleRefund !== null && Boolean(state.inspectedUpgrade));
-        // 入场插值不进入文字签名：文字保持事件驱动，只有结算容器的透明度按真实时间收敛。
-        this.resultRoot.active = Boolean(state.result);
-        this.resultOpacity.opacity = Math.round(255 * resultRevealEase(state.resultRevealProgress));
         const signature = [
-            state.qaMode, state.guidanceText, state.statusText, state.gold, state.pathLength, state.wave, state.totalWaves,
+            state.qaMode, state.entryMode, state.guidanceText, state.statusText, state.gold, state.pathLength, state.wave, state.totalWaves,
             state.coreHealth, state.phaseText, state.phase, state.waveSpawned, state.waveTotal, state.activeEnemyCount,
             state.speedMultiplier, state.soundEnabled, state.soundReady, state.waveStartButton.label,
             state.waveStartButton.active, state.activePlacementTowerId, state.inspectedUpgrade?.level ?? 0,
@@ -151,96 +156,78 @@ export class PhaseBHudView {
         this.renderedSignature = signature;
         const result = state.result;
         this.titleLabel.node.active = !result;
-        this.statusLabel.node.active = !result;
+        this.statusLabel.node.active = !result && Boolean(state.statusText);
         this.goldLabel.node.active = !result;
+        this.goldIcon.setVisible(!result);
         this.pathLabel.node.active = !result;
+        this.pathIcon.setVisible(!result);
         this.waveLabel.node.active = !result;
+        this.waveIcon.setVisible(!result);
         this.coreLabel.node.active = !result;
-        this.levelLabel.node.active = !result && !state.qaMode && !state.upcomingWave;
-        this.upcomingLineupLabel.node.active = !result && !state.qaMode && Boolean(state.upcomingWave);
-        this.upcomingTacticLabel.node.active = !result && !state.qaMode && Boolean(state.upcomingWave);
+        this.coreIcon.setVisible(!result);
+        this.levelLabel.setVisible(!result && !state.qaMode && !state.upcomingWave);
+        this.upcomingLineupLabel.setVisible(!result && !state.qaMode && Boolean(state.upcomingWave));
+        this.upcomingTacticLabel.setVisible(!result && !state.qaMode && Boolean(state.upcomingWave));
         // 点选炮塔后，升级按钮接管引导区；塔属性缩成上方单行事件，不遮挡资源。
-        this.guidanceLabel.node.active = !result && !state.qaMode && !state.inspectedUpgrade;
-        this.helpLabel.node.active = !result;
+        // 战斗时右侧切成暂停热区；布防提示只在无暂停按钮的阶段出现，避免字压在可点按钮上。
+        const guidanceVisible = !result && !state.qaMode && !state.inspectedUpgrade
+            && (state.phase === 'preparing' || state.phase === 'paused');
+        this.guidanceLabel.setVisible(guidanceVisible);
+        // 教学主提示已承担下一步指令；底部小字仅在自由模式或主提示让位时保留，避免首屏三处重复说教。
+        this.helpLabel.setVisible(!result && !(state.entryMode === 'guided' && guidanceVisible));
         this.speedLabel.node.active = !result;
         this.soundLabel.node.active = !result;
         this.earlyWaveLabel.node.active = !result;
         this.rivetLabel.node.active = !result;
         this.frostLabel.node.active = !result;
-        this.upgradeLabel.node.active = !result && Boolean(state.inspectedUpgrade);
-        this.sellLabel.node.active = !result && state.inspectedUpgrade?.saleRefund !== null && Boolean(state.inspectedUpgrade);
-        this.resultTitleLabel.node.active = Boolean(result);
-        this.resultSubtitleLabel.node.active = Boolean(result);
-        this.resultActionLabel.node.active = Boolean(result);
-        this.resultHomeLabel.node.active = Boolean(result);
-        this.resultFooterLabel.node.active = Boolean(result);
-        for (const pair of [...this.resultStatLabels, ...this.resultDetailLabels]) {
-            pair.value.node.active = Boolean(result);
-            pair.caption.node.active = Boolean(result);
-        }
+        this.upgradeLabel.setVisible(!result && Boolean(state.inspectedUpgrade));
+        this.sellLabel.setVisible(!result && state.inspectedUpgrade?.saleRefund !== null && Boolean(state.inspectedUpgrade));
 
         if (!result) {
             this.titleLabel.string = state.qaMode ? '夜城防线 · Phase B 八波灰盒' : '夜城防线';
             this.statusLabel.string = hudEventText(state.statusText);
-            this.goldLabel.string = `金币 ${state.gold}`;
-            this.pathLabel.string = `路径 ${state.pathLength}`;
-            this.waveLabel.string = `波 ${state.wave}/${state.totalWaves}`;
-            this.coreLabel.string = `核心 ${state.coreHealth}`;
+            this.goldLabel.string = resourceCardValueText('金币', state.gold, this.goldIcon.ready);
+            this.pathLabel.string = resourceCardValueText('路径', state.pathLength, this.pathIcon.ready, '格');
+            this.waveLabel.string = resourceCardValueText('波', `${state.wave}/${state.totalWaves}`, this.waveIcon.ready);
+            this.coreLabel.string = resourceCardValueText('核心', state.coreHealth, this.coreIcon.ready);
             this.coreLabel.color = new Color(state.coreHealth <= 3 ? '#FF8580' : '#79E0AD');
-            this.levelLabel.string = firstLevelWaveBanner({
+            this.levelLabel.setText(firstLevelWaveBanner({
                 wave: state.wave,
                 spawned: state.waveSpawned,
                 total: state.waveTotal,
                 activeEnemies: state.activeEnemyCount,
                 phase: state.phase,
-            });
+            }));
             if (state.upcomingWave) {
-                this.upcomingLineupLabel.string = `第 ${state.upcomingWave.wave} 波 · ${state.upcomingWave.lineup}`;
-                this.upcomingTacticLabel.string = state.upcomingWave.tactic;
+                this.upcomingLineupLabel.setText(`第 ${state.upcomingWave.wave} 波 · ${state.upcomingWave.lineup}`);
+                this.upcomingTacticLabel.setText(state.upcomingWave.tactic);
             }
-            this.guidanceLabel.string = state.guidanceText;
-            this.speedLabel.string = `速度\n${state.speedMultiplier}×`;
-            this.soundLabel.string = state.soundEnabled ? `音效\n${state.soundReady ? '开' : '待启用'}` : '音效\n关';
+            this.guidanceLabel.setText(state.guidanceText);
+            this.speedLabel.string = `${state.speedMultiplier}×`;
+            this.soundLabel.string = state.soundEnabled ? `声音\n${state.soundReady ? '开' : '待启用'}` : '声音\n关';
             this.earlyWaveLabel.string = state.waveStartButton.label;
             this.earlyWaveLabel.color = new Color(state.waveStartButton.active ? '#E9FFF4' : '#718197');
             this.rivetLabel.string = `机枪\n${RIVET_GUN.cost}`;
             this.frostLabel.string = `冷凝\n${FROST_COIL.cost}`;
             this.rivetLabel.color = new Color(state.activePlacementTowerId === 'rivet-gun' ? '#101827' : '#F2E4BF');
             this.frostLabel.color = new Color(state.activePlacementTowerId === 'frost-coil' ? '#101827' : '#DDFBFF');
-            this.upgradeLabel.string = state.inspectedUpgrade?.cost === null
-                ? `已满级 · 当前 Lv${state.inspectedUpgrade?.level}`
-                : state.inspectedUpgrade?.saleRefund === null
-                    ? `升级至 Lv${(state.inspectedUpgrade?.level ?? 1) + 1} · ${state.inspectedUpgrade?.cost} 金币`
-                    : `升级 Lv${(state.inspectedUpgrade?.level ?? 1) + 1} · ${state.inspectedUpgrade?.cost}金`;
-            this.upgradeLabel.color = new Color(state.inspectedUpgrade?.cost !== null && state.gold >= (state.inspectedUpgrade?.cost ?? Infinity) ? '#18283A' : '#D9E3E9');
-            this.sellLabel.string = state.inspectedUpgrade?.saleRefund === null ? ''
-                : `${state.phase === 'preparing' ? '全额撤销' : '出售'} +${state.inspectedUpgrade?.saleRefund}金`;
-            this.helpLabel.string = state.qaMode
+            // 没有点选塔就不生成升级/出售文案，避免隐藏标签持有无效的 undefined 文本纹理。
+            const inspected = state.inspectedUpgrade;
+            if (inspected) {
+                this.upgradeLabel.setText(inspected.cost === null
+                    ? '已满级'
+                    : `${state.gold >= inspected.cost ? '升级' : '需'} ${inspected.cost}`,
+                    new Color(inspected.cost !== null && state.gold >= inspected.cost ? '#F4E9CD' : '#AEBBC2'));
+                if (inspected.saleRefund !== null) this.sellLabel.setText(
+                    `${state.phase === 'preparing' ? '撤销' : '出售'} ${inspected.saleRefund}`);
+            }
+            this.helpLabel.setText(state.qaMode
                 ? 'A开局 B补塔 Q/W选塔 X切速 R重置'
                 : state.phaseText === '准备态'
                     ? '拖塔落位；点塔查看，再点按钮撤销'
-                    : '波间可出售，战斗中仅可升级';
+                    : '波间可出售，战斗中仅可升级');
             return;
         }
-        this.resultTitleLabel.string = result.title;
-        this.resultTitleLabel.color = new Color(result.kind === 'victory' ? '#79E0AD' : '#FF8580');
-        this.resultSubtitleLabel.string = result.subtitle;
-        this.resultFooterLabel.string = result.footnote;
-        result.stats.forEach((stat, index) => {
-            const pair = this.resultStatLabels[index];
-            if (!pair) return;
-            pair.value.string = stat.value;
-            pair.value.color = new Color(stat.tone === 'danger' ? '#FF8580' : stat.tone === 'success' ? '#79E0AD' : '#F4D58D');
-            pair.caption.string = stat.label;
-        });
-        result.runDetails.forEach((stat, index) => {
-            const pair = this.resultDetailLabels[index];
-            if (!pair) return;
-            pair.value.string = stat.value;
-            pair.caption.string = stat.label;
-        });
-        this.resultActionLabel.string = result.actionLabel;
-        this.resultHomeLabel.string = result.homeActionLabel;
     }
 
     private syncResponsiveLayout(saleVisible: boolean): void {
@@ -249,57 +236,69 @@ export class PhaseBHudView {
         this.renderedSafeHalfWidth = safeHalf;
         this.renderedSaleVisible = saleVisible;
         // 标签、底板与触控热区使用 PhaseBLayout 同一窄屏边界；缩放时不靠裁切藏文字。
-        for (const label of [this.titleLabel, this.statusLabel, this.helpLabel]) {
+        for (const label of [this.titleLabel, this.statusLabel]) {
             label.node.setPosition(-safeHalf, label.node.position.y, 0);
-            label.node.getComponent(UITransform)?.setContentSize(safeHalf * 2, label === this.helpLabel ? 50 : 80);
+            label.node.getComponent(UITransform)?.setContentSize(safeHalf * 2, 80);
         }
-        this.statusLabel.node.getComponent(UITransform)?.setContentSize(Math.min(755, safeHalf * 2), 52);
-        this.guidanceLabel.node.getComponent(UITransform)?.setContentSize(Math.min(920, safeHalf * 2), 125);
+        this.helpLabel.setLayout(label => {
+            label.node.setPosition(-safeHalf, label.node.position.y, 0);
+            label.node.getComponent(UITransform)?.setContentSize(safeHalf * 2, 50);
+        });
+        const soundRect = this.layout.fitRect(PHASE_B_SOUND_BUTTON);
+        this.statusLabel.node.getComponent(UITransform)?.setContentSize(Math.min(755, soundRect.left + safeHalf - 16), 52);
+        const guidance = this.layout.guidanceRect();
+        this.guidanceLabel.setLayout(label => {
+            label.node.setPosition((guidance.left + guidance.right) / 2,
+                (guidance.bottom + guidance.top) / 2, 0);
+            label.node.getComponent(UITransform)?.setContentSize(guidance.right - guidance.left,
+                guidance.top - guidance.bottom);
+        });
         const upgradeRect = this.layout.safeRect(saleVisible ? PHASE_B_UPGRADE_BUTTON : PHASE_B_UPGRADE_FULL_BUTTON);
-        this.upgradeLabel.node.setPosition((upgradeRect.left + upgradeRect.right) / 2, this.upgradeLabel.node.position.y, 0);
-        this.upgradeLabel.node.getComponent(UITransform)?.setContentSize(upgradeRect.right - upgradeRect.left, 80);
+        this.upgradeLabel.setLayout(label => {
+            label.node.setPosition((upgradeRect.left + upgradeRect.right) / 2, label.node.position.y, 0);
+            label.node.getComponent(UITransform)?.setContentSize(upgradeRect.right - upgradeRect.left, 80);
+        });
         const sellRect = this.layout.safeRect(PHASE_B_SELL_BUTTON);
-        this.sellLabel.node.setPosition((sellRect.left + sellRect.right) / 2, this.sellLabel.node.position.y, 0);
-        this.sellLabel.node.getComponent(UITransform)?.setContentSize(sellRect.right - sellRect.left, 80);
-        for (const label of [this.upcomingLineupLabel, this.upcomingTacticLabel]) {
-            label.node.getComponent(UITransform)?.setContentSize(Math.min(760, safeHalf * 2), 42);
-        }
+        this.sellLabel.setLayout(label => {
+            label.node.setPosition((sellRect.left + sellRect.right) / 2, label.node.position.y, 0);
+            label.node.getComponent(UITransform)?.setContentSize(sellRect.right - sellRect.left, 80);
+        });
+        this.upcomingLineupLabel.setLayout(label => label.node.getComponent(UITransform)?.setContentSize(Math.min(760, safeHalf * 2), 52));
+        this.upcomingTacticLabel.setLayout(label => label.node.getComponent(UITransform)?.setContentSize(Math.min(760, safeHalf * 2), 42));
+        this.levelLabel.setLayout(label => label.node.getComponent(UITransform)?.setContentSize(Math.min(760, safeHalf * 2), 80));
         const cards = this.layout.hudCardRects();
         [this.goldLabel, this.pathLabel, this.waveLabel, this.coreLabel].forEach((label, index) => {
             const rect = cards[index];
             label.node.setPosition((rect.left + rect.right) / 2, label.node.position.y, 0);
             label.node.getComponent(UITransform)?.setContentSize(rect.right - rect.left, 64);
         });
+        this.layoutResourceCard(this.goldIcon, this.goldLabel, cards[0]);
+        this.layoutResourceCard(this.pathIcon, this.pathLabel, cards[1]);
+        this.layoutResourceCard(this.waveIcon, this.waveLabel, cards[2]);
+        this.layoutResourceCard(this.coreIcon, this.coreLabel, cards[3]);
         for (const [label, button] of [
             [this.speedLabel, PHASE_B_SPEED_BUTTON],
             [this.earlyWaveLabel, PHASE_B_EARLY_WAVE_BUTTON],
             [this.soundLabel, PHASE_B_SOUND_BUTTON],
         ] as const) {
-            const rect = this.layout.safeRect(button);
+            const rect = button === PHASE_B_SOUND_BUTTON ? soundRect : this.layout.safeRect(button);
             label.node.setPosition((rect.left + rect.right) / 2, label.node.position.y, 0);
             label.node.getComponent(UITransform)?.setContentSize(rect.right - rect.left, rect.top - rect.bottom);
         }
-        const resultPanel = this.layout.resultPanelRect();
-        const resultWidth = resultPanel.right - resultPanel.left - 64;
-        for (const label of [this.resultTitleLabel, this.resultSubtitleLabel, this.resultFooterLabel]) {
-            label.node.getComponent(UITransform)?.setContentSize(Math.min(760, resultWidth), label.node.getComponent(UITransform)!.contentSize.height);
-        }
-        this.layout.resultStatRects().forEach((rect, index) => {
-            const pair = this.resultStatLabels[index];
-            const centerX = (rect.left + rect.right) / 2;
-            pair.value.node.setPosition(centerX, rect.bottom + 60, 0);
-            pair.caption.node.setPosition(centerX, rect.bottom + 22, 0);
-            pair.value.node.getComponent(UITransform)?.setContentSize(rect.right - rect.left - 12, 58);
-            pair.caption.node.getComponent(UITransform)?.setContentSize(rect.right - rect.left - 12, 36);
-        });
-        this.layout.resultDetailRects().forEach((rect, index) => {
-            const pair = this.resultDetailLabels[index];
-            const centerX = (rect.left + rect.right) / 2;
-            pair.value.node.setPosition(centerX, rect.bottom + 75, 0);
-            pair.caption.node.setPosition(centerX, rect.bottom + 29, 0);
-            pair.value.node.getComponent(UITransform)?.setContentSize(rect.right - rect.left - 12, 52);
-            pair.caption.node.getComponent(UITransform)?.setContentSize(rect.right - rect.left - 12, 36);
-        });
+    }
+
+    private invalidateResourceLayout(): void {
+        // 资源异步加载成功时只重排对应数值卡，展示签名失效后仍由下一帧统一刷新。
+        this.renderedSafeHalfWidth = Number.NaN;
+        this.renderedSignature = '';
+    }
+
+    private layoutResourceCard(icon: HudResourceIconView, label: Label, rect: PhaseBRect): void {
+        icon.setCardRect(rect);
+        if (!icon.ready) return;
+        // 图标只占左侧，动态数值保留三位宽度；纯文字回退由上方统一居中。
+        label.node.setPosition((rect.left + rect.right) / 2 + 28, label.node.position.y, 0);
+        label.node.getComponent(UITransform)?.setContentSize(rect.right - rect.left - 58, 64);
     }
 
     private createTowerLabel(parent: Node, x: number, y: number): Label {
@@ -332,8 +331,9 @@ export class PhaseBHudView {
         // Label 挂载时会初始化 UITransform，尺寸必须在挂载后设置，否则 SHRINK 会把按钮字压成细线。
         transform.setContentSize(920, 80);
         transform.setAnchorPoint(0, 0.5);
-        label.fontSize = fontSize;
-        label.lineHeight = Math.round(fontSize * 1.25);
+        label.fontFamily = FIRST_LEVEL_UI_FONT;
+        label.fontSize = firstLevelFontSize(fontSize);
+        label.lineHeight = Math.round(label.fontSize * 1.25);
         label.color = color;
         label.overflow = Label.Overflow.NONE;
         parent.addChild(node);
@@ -348,8 +348,9 @@ export class PhaseBHudView {
         const transform = node.getComponent(UITransform) ?? node.addComponent(UITransform);
         transform.setContentSize(width, height);
         transform.setAnchorPoint(0.5, 0.5);
-        label.fontSize = fontSize;
-        label.lineHeight = Math.round(fontSize * 1.35);
+        label.fontFamily = FIRST_LEVEL_UI_FONT;
+        label.fontSize = firstLevelFontSize(fontSize);
+        label.lineHeight = Math.round(label.fontSize * 1.35);
         label.color = color;
         label.horizontalAlign = HorizontalTextAlignment.CENTER;
         label.verticalAlign = VerticalTextAlignment.CENTER;

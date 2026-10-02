@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "kind": "motion",
+  "title": "铁罐搬运者双帧重步候选",
+  "cell": [128, 128],
+  "anchor": [0.5, 0.5],
+  "resample": "lanczos",
+  "background": "keep",
+  "source": {
+    "provider": "codex-imagegen",
+    "note": "项目自有重装原图为 A 帧编辑目标；B 帧由 OpenAI 内置 image_gen 生成。1.24 fps 对应基础移动约每格一轮，实际游戏按格内进度选帧，减速时自动放慢。"
+  },
+  "states": [
+    { "name": "walk", "directory": "walk", "fps": 1.24, "loop": true }
+  ]
+}

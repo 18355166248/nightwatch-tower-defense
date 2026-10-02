@@ -5,3 +5,16 @@ node_modules/
 temp/
 .test-dist/
 *.log
+__pycache__/
+*.pyc
+.cdn-upload-work/
+.cdn-cache/
+.xmly-skills/.env
+.xmly-skills/history/
+# 非运行图片必须先归档 CDN；避免恢复源图或生成评审图时再次提交大文件。
+/art-source/**/*.png
+/art-source/**/*.jpg
+/art-source/**/*.jpeg
+/docs/**/*.png
+/docs/**/*.jpg
+/docs/**/*.jpeg

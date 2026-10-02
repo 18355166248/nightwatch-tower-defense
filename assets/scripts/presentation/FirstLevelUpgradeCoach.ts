@@ -2,6 +2,7 @@ import { FIRST_LEVEL_GUIDED_UPGRADES } from '../config/FirstLevelOpening';
 import { FROST_COIL, RIVET_GUN } from '../config/PhaseBCombatConfig';
 import { cellKey, type GridCell } from '../core/GridTypes';
 import { nextUpgradeCost } from '../systems/TowerLevelRules';
+import { waveStartActionText } from './PhaseBHudText';
 
 export interface GuidedUpgradeContext {
     readonly wave: number;
@@ -27,7 +28,7 @@ export function nextGuidedUpgrade(context: GuidedUpgradeContext): GuidedUpgradeH
         const cost = nextUpgradeCost(tower, level);
         if (cost === null || context.gold < cost) continue;
         return { cell: entry.cell,
-            guidanceText: `第 ${context.wave} 波清场 · ${entry.coachHint}，点塔升至 Lv${level + 1} 后再点 ▶` };
+            guidanceText: `${entry.coachHint} · 升到 Lv${level + 1}\n再${waveStartActionText('next')}` };
     }
     return null;
 }

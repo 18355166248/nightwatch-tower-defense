@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "motion",
+  "title": "固定模型机械步兵 · 四方向四帧候选",
+  "cell": [128, 128],
+  "anchor": [0.5, 0.78452727],
+  "resample": "lanczos",
+  "background": "keep",
+  "source": {
+    "provider": "project-authored-blender",
+    "note": "项目自有铜蓝步兵参考，本地脚本几何/机械关节建模，Blender5.2输出。同一GLB/正交镜头/全方向并集归一化，未使用视频抽帧或逐帧生成。背部细节为原创推定。"
+  },
+  "states": [
+    {"name":"walk-down", "fps":8, "loop":true},
+    {"name":"walk-left", "fps":8, "loop":true},
+    {"name":"walk-up", "fps":8, "loop":true},
+    {"name":"walk-right", "fps":8, "loop":true}
+  ]
+}

@@ -21,6 +21,15 @@ export interface TowerDeployment {
 
 type PlacementTower = UpgradeTower;
 
+export interface PlacementMutation {
+    readonly kind: 'build' | 'sell' | 'upgrade';
+    readonly cell: GridCell;
+    readonly towerId: TowerId;
+    readonly level: number;
+    readonly gold: number;
+    readonly mapVersion: number;
+}
+
 export type UpgradeRejectReason = 'not-found' | 'max-level' | 'insufficient-gold';
 export interface UpgradeResult {
     readonly accepted: boolean;
@@ -56,6 +65,10 @@ export class PlacementModel {
     private currentMapVersion = 0;
     private readonly economy: EconomyLedger;
     private currentFlowField: FlowField;
+    private mutationObserver: ((event: PlacementMutation) => void) | null = null;
+
+    /** 可选只读诊断入口；观察器不得改模型或抛异常，事务已完成才通知。 */
+    public observeMutations(observer: ((event: PlacementMutation) => void) | null): void { this.mutationObserver = observer; }
 
     public constructor(
         public readonly grid: GridDefinition,
@@ -139,6 +152,7 @@ export class PlacementModel {
         this.towerLevelsByCell.set(key, 1);
         this.currentMapVersion += 1;
         this.currentFlowField = fresh.flowField;
+        this.mutationObserver?.({ kind: 'build', cell: { ...preview.cell }, towerId: preview.towerId, level: 1, gold: this.gold, mapVersion: this.mapVersion });
         return { accepted: true, mapVersion: this.currentMapVersion, gold: this.gold };
     }
 
@@ -152,6 +166,7 @@ export class PlacementModel {
         // 扣费成功后才推进等级；升级不改变占格/流场，不使玩家正在预览的路径失效。
         if (!this.economy.trySpend(cost)) return { accepted: false, reason: 'insufficient-gold', level, gold: this.gold };
         this.towerLevelsByCell.set(key, level + 1);
+        this.mutationObserver?.({ kind: 'upgrade', cell: { ...cell }, towerId, level: level + 1, gold: this.gold, mapVersion: this.mapVersion });
         return { accepted: true, level: level + 1, gold: this.gold };
     }
 
@@ -168,12 +183,15 @@ export class PlacementModel {
         const refund = this.saleQuote(cell, window);
         if (refund === null) return false;
         const key = cellKey(cell);
+        const towerId = this.towerIdsByCell.get(key)!;
+        const level = this.towerLevelsByCell.get(key) ?? 1;
         this.towerCells.delete(key);
         this.towerIdsByCell.delete(key);
         this.towerLevelsByCell.delete(key);
         this.economy.credit(refund);
         this.currentMapVersion += 1;
         this.currentFlowField = new FlowField(this.grid, this.towerCells);
+        this.mutationObserver?.({ kind: 'sell', cell: { ...cell }, towerId, level, gold: this.gold, mapVersion: this.mapVersion });
         return true;
     }
 

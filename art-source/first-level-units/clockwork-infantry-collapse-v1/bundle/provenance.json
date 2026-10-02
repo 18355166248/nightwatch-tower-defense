@@ -1,0 +1,54 @@
+{
+  "toolVersion": "1.0",
+  "inputMode": "files",
+  "recipe": {
+    "version": 1,
+    "kind": "motion",
+    "title": "发条步兵两帧倒地候选",
+    "cell": [
+      128,
+      128
+    ],
+    "anchor": [
+      0.5,
+      0.5
+    ],
+    "resample": "lanczos",
+    "background": "keep",
+    "source": {
+      "provider": "codex-imagegen",
+      "note": "项目自有原图为首帧与唯一编辑目标；第二帧由 OpenAI 内置 image_gen 编辑。源画布保持 1254 方形；死亡事件时长由游戏控制。"
+    },
+    "states": [
+      {
+        "name": "death",
+        "directory": "death",
+        "fps": 7.5,
+        "loop": false
+      }
+    ]
+  },
+  "sourceRoot": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-collapse-v1/input",
+  "inputs": [
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-collapse-v1/input/death/frame-1.png",
+      "sha256": "07235e90f45398a73cdebc2907f18114b7a9013081fc989112ed6ff681f7d18b"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-collapse-v1/input/death/frame-2.png",
+      "sha256": "95e82e07c8f9695139476166453a05351ac6c9201edf67f80f1efd91e7156311"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-collapse-v1/recipe.json",
+      "sha256": "62f6f9a01c353ab50b625f8a32a9f705cf688093f77cdc3b3ad0627d97dfcfcd"
+    }
+  ],
+  "reproduce": {
+    "recipe": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-collapse-v1/recipe.json",
+    "input": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-collapse-v1/input",
+    "aseprite": false
+  },
+  "environment": {
+    "pillow": "12.3.0"
+  }
+}

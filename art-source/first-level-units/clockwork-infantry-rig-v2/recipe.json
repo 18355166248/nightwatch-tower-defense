@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "motion",
+  "title": "固定模型机械步兵 v2 · 四方向四帧候选",
+  "cell": [128, 128],
+  "anchor": [0.5, 0.82830057],
+  "resample": "lanczos",
+  "background": "keep",
+  "source": {
+    "provider": "project-authored-blender",
+    "note": "项目自有参考，本地Blender5.2脚本建模/机械关节；所有方向共享模型、光、相机与全姿态拟合。原生alpha，无每帧裁切/归一化，背部结构为原创推定。仅候选。"
+  },
+  "states": [
+    {"name":"walk-down", "fps":8, "loop":true},
+    {"name":"walk-left", "fps":8, "loop":true},
+    {"name":"walk-up", "fps":8, "loop":true},
+    {"name":"walk-right", "fps":8, "loop":true}
+  ]
+}

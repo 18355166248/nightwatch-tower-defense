@@ -1,0 +1,395 @@
+{
+  "basis": "same-config-fixed-step-replay",
+  "limitations": [
+    "共享有向路段的同列队距，不是所有异列/转弯Sprite的像素遮挡面积",
+    "脚点对秒是对数乘时间，不是墙钟拥挤时长",
+    "没有替代浏览器、真人胜率、三局压力或设备性能"
+  ],
+  "profiles": [
+    {
+      "name": "1312-legacy-with-visual-avoidance",
+      "traffic": null,
+      "totals": {
+        "spawned": 213,
+        "killed": 212,
+        "leaked": 1
+      },
+      "coreHealth": 9,
+      "gold": 348,
+      "combatSeconds": 414.14999999998656,
+      "naturalCountdownSeconds": 56,
+      "waves": [
+        {
+          "wave": 1,
+          "peakEnemies": 7,
+          "waitingEnemySeconds": 0,
+          "sameLaneHeadwayViolations": null,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0,
+          "combatSeconds": 32.94999999999941,
+          "spawnSeconds": 6.399999999999983,
+          "leaked": 0
+        },
+        {
+          "wave": 2,
+          "peakEnemies": 7,
+          "waitingEnemySeconds": 0,
+          "sameLaneHeadwayViolations": null,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0,
+          "combatSeconds": 14.16666666666695,
+          "spawnSeconds": 5.199999999999987,
+          "leaked": 0
+        },
+        {
+          "wave": 3,
+          "peakEnemies": 7,
+          "waitingEnemySeconds": 0,
+          "sameLaneHeadwayViolations": null,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0.03333333333333333,
+          "closeAnchorPairSeconds": 0.19999999999999998,
+          "combatSeconds": 16.116666666667033,
+          "spawnSeconds": 9.300000000000042,
+          "leaked": 0
+        },
+        {
+          "wave": 4,
+          "peakEnemies": 5,
+          "waitingEnemySeconds": 0,
+          "sameLaneHeadwayViolations": null,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0.19999999999999998,
+          "combatSeconds": 17.68333333333361,
+          "spawnSeconds": 6.433333333333316,
+          "leaked": 1
+        },
+        {
+          "wave": 5,
+          "peakEnemies": 8,
+          "waitingEnemySeconds": 0,
+          "sameLaneHeadwayViolations": null,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0.08333333333333333,
+          "closeAnchorPairSeconds": 17.466666666666956,
+          "combatSeconds": 70.99999999999726,
+          "spawnSeconds": 9.200000000000037,
+          "leaked": 0
+        },
+        {
+          "wave": 6,
+          "peakEnemies": 16,
+          "waitingEnemySeconds": 0,
+          "sameLaneHeadwayViolations": null,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0.9166666666666679,
+          "closeAnchorPairSeconds": 32.06666666666613,
+          "combatSeconds": 81.26666666666334,
+          "spawnSeconds": 33.53333333333271,
+          "leaked": 0
+        },
+        {
+          "wave": 7,
+          "peakEnemies": 17,
+          "waitingEnemySeconds": 0,
+          "sameLaneHeadwayViolations": null,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0.26666666666666666,
+          "closeAnchorPairSeconds": 103.23333333332876,
+          "combatSeconds": 73.08333333333047,
+          "spawnSeconds": 32.14999999999946,
+          "leaked": 0
+        },
+        {
+          "wave": 8,
+          "peakEnemies": 25,
+          "waitingEnemySeconds": 0,
+          "sameLaneHeadwayViolations": null,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 5.483333333333319,
+          "closeAnchorPairSeconds": 520.6666666665218,
+          "combatSeconds": 107.8833333333285,
+          "spawnSeconds": 44.583333333332085,
+          "leaked": 0
+        }
+      ]
+    },
+    {
+      "name": "two-lane-no-passing",
+      "traffic": {
+        "headwayCells": 0.7,
+        "allowPassing": false
+      },
+      "totals": {
+        "spawned": 213,
+        "killed": 212,
+        "leaked": 1
+      },
+      "coreHealth": 9,
+      "gold": 348,
+      "combatSeconds": 408.41666666665355,
+      "naturalCountdownSeconds": 56,
+      "waves": [
+        {
+          "wave": 1,
+          "peakEnemies": 7,
+          "waitingEnemySeconds": 1.7833333333333319,
+          "sameLaneHeadwayViolations": 0,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0,
+          "combatSeconds": 24.549999999999887,
+          "spawnSeconds": 6.399999999999983,
+          "leaked": 0
+        },
+        {
+          "wave": 2,
+          "peakEnemies": 7,
+          "waitingEnemySeconds": 0.7999999999999999,
+          "sameLaneHeadwayViolations": 0,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0,
+          "combatSeconds": 14.466666666666965,
+          "spawnSeconds": 5.199999999999987,
+          "leaked": 0
+        },
+        {
+          "wave": 3,
+          "peakEnemies": 7,
+          "waitingEnemySeconds": 4.51666666666666,
+          "sameLaneHeadwayViolations": 0,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0,
+          "combatSeconds": 15.883333333333702,
+          "spawnSeconds": 9.300000000000042,
+          "leaked": 0
+        },
+        {
+          "wave": 4,
+          "peakEnemies": 5,
+          "waitingEnemySeconds": 0,
+          "sameLaneHeadwayViolations": 0,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0,
+          "combatSeconds": 17.68333333333361,
+          "spawnSeconds": 6.433333333333316,
+          "leaked": 1
+        },
+        {
+          "wave": 5,
+          "peakEnemies": 8,
+          "waitingEnemySeconds": 33.799999999999834,
+          "sameLaneHeadwayViolations": 0,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0,
+          "combatSeconds": 57.94999999999799,
+          "spawnSeconds": 9.200000000000037,
+          "leaked": 0
+        },
+        {
+          "wave": 6,
+          "peakEnemies": 16,
+          "waitingEnemySeconds": 110.0999999999976,
+          "sameLaneHeadwayViolations": 0,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0,
+          "combatSeconds": 83.1333333333299,
+          "spawnSeconds": 33.53333333333271,
+          "leaked": 0
+        },
+        {
+          "wave": 7,
+          "peakEnemies": 17,
+          "waitingEnemySeconds": 196.33333333333616,
+          "sameLaneHeadwayViolations": 0,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0.03333333333333333,
+          "combatSeconds": 84.03333333332985,
+          "spawnSeconds": 32.14999999999946,
+          "leaked": 0
+        },
+        {
+          "wave": 8,
+          "peakEnemies": 22,
+          "waitingEnemySeconds": 568.100000000009,
+          "sameLaneHeadwayViolations": 0,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0.21666666666666665,
+          "combatSeconds": 110.71666666666167,
+          "spawnSeconds": 46.7166666666653,
+          "leaked": 0
+        }
+      ]
+    },
+    {
+      "name": "two-lane-default",
+      "traffic": {
+        "headwayCells": 0.7,
+        "allowPassing": true
+      },
+      "totals": {
+        "spawned": 213,
+        "killed": 212,
+        "leaked": 1
+      },
+      "coreHealth": 9,
+      "gold": 348,
+      "combatSeconds": 405.7333333333204,
+      "naturalCountdownSeconds": 56,
+      "waves": [
+        {
+          "wave": 1,
+          "peakEnemies": 7,
+          "waitingEnemySeconds": 1.7833333333333319,
+          "sameLaneHeadwayViolations": 0,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0,
+          "combatSeconds": 24.549999999999887,
+          "spawnSeconds": 6.399999999999983,
+          "leaked": 0
+        },
+        {
+          "wave": 2,
+          "peakEnemies": 7,
+          "waitingEnemySeconds": 0.7999999999999999,
+          "sameLaneHeadwayViolations": 0,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0,
+          "combatSeconds": 14.466666666666965,
+          "spawnSeconds": 5.199999999999987,
+          "leaked": 0
+        },
+        {
+          "wave": 3,
+          "peakEnemies": 7,
+          "waitingEnemySeconds": 4.51666666666666,
+          "sameLaneHeadwayViolations": 0,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0,
+          "combatSeconds": 15.883333333333702,
+          "spawnSeconds": 9.300000000000042,
+          "leaked": 0
+        },
+        {
+          "wave": 4,
+          "peakEnemies": 5,
+          "waitingEnemySeconds": 0,
+          "sameLaneHeadwayViolations": 0,
+          "laneChanges": 0,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0,
+          "combatSeconds": 17.68333333333361,
+          "spawnSeconds": 6.433333333333316,
+          "leaked": 1
+        },
+        {
+          "wave": 5,
+          "peakEnemies": 8,
+          "waitingEnemySeconds": 33.7666666666665,
+          "sameLaneHeadwayViolations": 0,
+          "laneChanges": 3,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0,
+          "combatSeconds": 57.94999999999799,
+          "spawnSeconds": 9.200000000000037,
+          "leaked": 0
+        },
+        {
+          "wave": 6,
+          "peakEnemies": 16,
+          "waitingEnemySeconds": 99.31666666666489,
+          "sameLaneHeadwayViolations": 0,
+          "laneChanges": 1,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0,
+          "combatSeconds": 81.28333333333,
+          "spawnSeconds": 33.53333333333271,
+          "leaked": 0
+        },
+        {
+          "wave": 7,
+          "peakEnemies": 17,
+          "waitingEnemySeconds": 182.35000000000016,
+          "sameLaneHeadwayViolations": 0,
+          "laneChanges": 17,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0,
+          "combatSeconds": 84.11666666666318,
+          "spawnSeconds": 32.14999999999946,
+          "leaked": 0
+        },
+        {
+          "wave": 8,
+          "peakEnemies": 22,
+          "waitingEnemySeconds": 622.9333333333569,
+          "sameLaneHeadwayViolations": 0,
+          "laneChanges": 3,
+          "nearAnchorPairSeconds": 0,
+          "closeAnchorPairSeconds": 0.21666666666666665,
+          "combatSeconds": 109.79999999999505,
+          "spawnSeconds": 46.7166666666653,
+          "leaked": 0
+        }
+      ]
+    }
+  ],
+  "firstWaveStrategies": [
+    {
+      "row": 2,
+      "name": "mixed",
+      "totals": {
+        "spawned": 9,
+        "killed": 8,
+        "leaked": 1
+      },
+      "coreHealth": 9,
+      "combatSeconds": 41.28333333333227
+    },
+    {
+      "row": 2,
+      "name": "pure",
+      "totals": {
+        "spawned": 9,
+        "killed": 5,
+        "leaked": 4
+      },
+      "coreHealth": 6,
+      "combatSeconds": 22.40000000000001
+    },
+    {
+      "row": 3,
+      "name": "mixed",
+      "totals": {
+        "spawned": 9,
+        "killed": 9,
+        "leaked": 0
+      },
+      "coreHealth": 10,
+      "combatSeconds": 24.549999999999887
+    },
+    {
+      "row": 3,
+      "name": "pure",
+      "totals": {
+        "spawned": 9,
+        "killed": 5,
+        "leaked": 4
+      },
+      "coreHealth": 6,
+      "combatSeconds": 22.40000000000001
+    }
+  ]
+}

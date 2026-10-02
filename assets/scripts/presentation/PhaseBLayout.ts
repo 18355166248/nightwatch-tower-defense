@@ -8,30 +8,39 @@ export const PHASE_B_RIVET_BUTTON = { left: -170, right: -8, bottom: -890, top: 
 export const PHASE_B_FROST_BUTTON = { left: 8, right: 170, bottom: -890, top: -735 } as const;
 export const PHASE_B_SPEED_BUTTON = { left: -480, right: -200, bottom: -890, top: -735 } as const;
 export const PHASE_B_EARLY_WAVE_BUTTON = { left: 200, right: 480, bottom: -890, top: -735 } as const;
-export const PHASE_B_RESET_BUTTON = { left: -440, right: -100, bottom: -600, top: -515 } as const;
-export const PHASE_B_PLAY_BUTTON = { left: 100, right: 440, bottom: -600, top: -515 } as const;
-export const PHASE_B_RESULT_RESTART_BUTTON = { left: -390, right: -20, bottom: -410, top: -275 } as const;
-export const PHASE_B_RESULT_HOME_BUTTON = { left: 20, right: 390, bottom: -410, top: -275 } as const;
+export const PHASE_B_RESET_BUTTON = { left: -440, right: -220, bottom: -610, top: -510 } as const;
+export const PHASE_B_CENTER_PAUSE_BUTTON = { left: 220, right: 440, bottom: -610, top: -510 } as const;
+export const PHASE_B_RESULT_RESTART_BUTTON = { left: -365, right: 365, bottom: -485, top: -330 } as const;
+export const PHASE_B_RESULT_HOME_BUTTON = { left: -365, right: 365, bottom: -650, top: -495 } as const;
 export const PHASE_B_PAUSE_BUTTONS = [
-    { left: -340, right: 340, bottom: 165, top: 290 },
-    { left: -340, right: 340, bottom: 5, top: 130 },
-    { left: -340, right: 340, bottom: -155, top: -30 },
-    { left: -340, right: 340, bottom: -315, top: -190 },
+    { left: -365, right: 365, bottom: 50, top: 205 },
+    { left: -365, right: -12, bottom: -135, top: 20 },
+    { left: 12, right: 365, bottom: -135, top: 20 },
+    { left: -365, right: 365, bottom: -300, top: -145 },
 ] as const;
 const PHASE_B_PAUSE_SETTINGS_BUTTONS = [
-    { left: -340, right: 340, bottom: 30, top: 130 },
-    { left: -340, right: 340, bottom: -100, top: 0 },
-    { left: -340, right: 340, bottom: -230, top: -130 },
+    { left: -340, right: 340, bottom: 275, top: 430 },
+    { left: -340, right: 340, bottom: 95, top: 250 },
+    { left: -340, right: 340, bottom: -85, top: 70 },
+    { left: -340, right: 340, bottom: -265, top: -110 },
+    { left: -340, right: 340, bottom: -445, top: -290 },
 ] as const;
 const PHASE_B_PAUSE_CONFIRM_BUTTONS = [
-    { left: -340, right: 340, bottom: -20, top: 80 },
-    { left: -340, right: 340, bottom: -145, top: -45 },
+    { left: -340, right: 340, bottom: -55, top: 100 },
+    { left: -340, right: 340, bottom: -235, top: -80 },
 ] as const;
 
 /** 暂停页绘制和命中必须从同一份屏幕几何读取，避免精修版式后按钮错位。 */
 export function phaseBPauseButtons(screen: PauseScreen): readonly PhaseBRect[] {
     return screen === 'menu' ? PHASE_B_PAUSE_BUTTONS
         : screen === 'settings' ? PHASE_B_PAUSE_SETTINGS_BUTTONS : PHASE_B_PAUSE_CONFIRM_BUTTONS;
+}
+
+/** 首页不显示局内速度，但保留动作索引4给返回，避免布局压缩后分发到错误设置。 */
+export function phaseBSettingsButtons(fromHome: boolean): readonly PhaseBRect[] {
+    // 设置行独立于暂停页的双列按钮；保留索引4返回，不随暂停版式变化而串错动作。
+    return fromHome ? [PHASE_B_PAUSE_SETTINGS_BUTTONS[0], PHASE_B_PAUSE_SETTINGS_BUTTONS[1], PHASE_B_PAUSE_SETTINGS_BUTTONS[2],
+        PHASE_B_PAUSE_SETTINGS_BUTTONS[3], PHASE_B_PAUSE_SETTINGS_BUTTONS[3]] : PHASE_B_PAUSE_SETTINGS_BUTTONS;
 }
 export const PHASE_B_SOUND_BUTTON = { left: 310, right: 480, bottom: 790, top: 900 } as const;
 export const PHASE_B_UPGRADE_BUTTON = { left: -350, right: -10, bottom: -710, top: -625 } as const;
@@ -93,6 +102,14 @@ export class PhaseBLayout {
         return { ...rect, left: Math.max(rect.left, -this.safeHalfWidth), right: Math.min(rect.right, this.safeHalfWidth) };
     }
 
+    /** 独立边缘按钮要整体内移，而不是被裁成细条；绘制、文字和命中共用返回值。 */
+    public fitRect(rect: PhaseBRect, inset = 0): PhaseBRect {
+        const half = Math.max(0, this.safeHalfWidth - inset);
+        const width = Math.min(rect.right - rect.left, half * 2);
+        const left = Math.min(Math.max(rect.left, -half), half - width);
+        return { ...rect, left, right: left + width };
+    }
+
     public hudCardRects(): readonly PhaseBRect[] {
         const span = Math.min(938, this.safeHalfWidth * 2);
         const width = Math.min(222, (span - 48) / 4);
@@ -102,16 +119,25 @@ export class PhaseBLayout {
         });
     }
 
+    /** 中央行左侧保留重置热区，右侧给两行布防提示；窄屏不让文案压住按钮。 */
+    public guidanceRect(): PhaseBRect {
+        const right = this.safeHalfWidth - 12;
+        // 极长窄屏允许自然换成四行；升级区只在点塔时占用，此时引导已隐藏，不会相互覆盖。
+        return { left: -190, right, bottom: right + 190 < 550 ? -715 : -610, top: -510 };
+    }
+
     /** 结算统计和底板共用窄屏安全宽度，触控按钮继续使用独立命中矩形。 */
     public resultPanelRect(): PhaseBRect {
         const width = Math.min(860, this.safeHalfWidth * 2);
-        return { left: -width / 2, right: width / 2, bottom: -540, top: 490 };
+        return { left: -width / 2, right: width / 2, bottom: -690, top: 565 };
     }
 
     public pausePanelRect(screen: PauseScreen = 'menu'): PhaseBRect {
-        const width = Math.min(860, this.safeHalfWidth * 2);
-        return screen === 'menu'
-            ? { left: -width / 2, right: width / 2, bottom: -465, top: 475 }
+        const width = Math.min(screen === 'menu' ? 836 : 860, this.safeHalfWidth * 2);
+        return screen === 'settings'
+            ? { left: -width / 2, right: width / 2, bottom: -640, top: 660 }
+            : screen === 'menu'
+            ? { left: -width / 2, right: width / 2, bottom: -375, top: 440 }
             : { left: -width / 2, right: width / 2, bottom: -330, top: 330 };
     }
 
@@ -129,10 +155,10 @@ export class PhaseBLayout {
         const left = panel.left + padding;
         const right = left + width + gap;
         return [
-            { left, right: left + width, bottom: 38, top: 138 },
-            { left: right, right: right + width, bottom: 38, top: 138 },
-            { left, right: left + width, bottom: -80, top: 20 },
-            { left: right, right: right + width, bottom: -80, top: 20 },
+            { left, right: left + width, bottom: 95, top: 245 },
+            { left: right, right: right + width, bottom: 95, top: 245 },
+            { left, right: left + width, bottom: -75, top: 75 },
+            { left: right, right: right + width, bottom: -75, top: 75 },
         ];
     }
 
@@ -143,12 +169,14 @@ export class PhaseBLayout {
         const width = (panel.right - panel.left - padding * 2 - gap * 2) / 3;
         return Array.from({ length: 3 }, (_, index) => {
             const left = panel.left + padding + index * (width + gap);
-            return { left, right: left + width, bottom: -238, top: -115 };
+            return { left, right: left + width, bottom: -235, top: -105 };
         });
     }
 
     public boardMetrics(grid: GridDefinition): PhaseBBoardMetrics {
-        const cellSize = Math.floor(Math.min(BOARD_MAX_WIDTH / grid.columns, BOARD_MAX_HEIGHT / grid.rows));
+        // 仅显示格宽随极长窄屏收敛；逻辑仍按格坐标运行，输入、塔/敌人和高亮共用这份换算。
+        const boardWidth = Math.min(BOARD_MAX_WIDTH, this.safeHalfWidth * 2);
+        const cellSize = Math.floor(Math.min(boardWidth / grid.columns, BOARD_MAX_HEIGHT / grid.rows));
         const width = cellSize * grid.columns;
         const height = cellSize * grid.rows;
         return { cellSize, width, height, left: -width / 2, bottom: BOARD_TOP - height };

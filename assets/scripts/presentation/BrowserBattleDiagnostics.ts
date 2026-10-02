@@ -1,4 +1,24 @@
 export interface BrowserBattleDiagnosticsState {
+    readonly renderAtlasPolicyStatus: string;
+    readonly rendererLabelBudgetSupported: boolean;
+    readonly rendererLabelTextureBytes: number | null;
+    readonly rendererHiddenLabelTextureBytes: number | null;
+    readonly rendererLabelTextureCount: number | null;
+    readonly rendererHiddenLabelTextureCount: number | null;
+    readonly rendererLabelResourceOverlapBytes: number | null;
+    readonly rendererLargestLabelTextures: readonly { readonly bytes: number; readonly visible: boolean;
+        readonly sharedWithResource: boolean; readonly paths: readonly string[] }[];
+    readonly rendererTextureBytes: number | null;
+    readonly rendererTexturePeakBytes: number | null;
+    readonly rendererBufferBytes: number | null;
+    readonly rendererDrawCalls: number | null;
+    readonly rendererCachedTextureBytes: number | null;
+    readonly rendererUncataloguedTextureBytes: number | null;
+    readonly rendererDynamicAtlasCount: number | null;
+    readonly rendererDynamicAtlasSize: number | null;
+    readonly rendererBudgetSampleAtMs: number | null;
+    readonly rendererLargestCachedTextures: readonly { readonly name: string; readonly uuid: string;
+        readonly width: number; readonly height: number; readonly bytes: number }[];
     readonly entryMode: string;
     readonly gridId: string;
     readonly columns: number;
@@ -13,6 +33,13 @@ export interface BrowserBattleDiagnosticsState {
     readonly inspectedTowerCell: string | null;
     readonly inspectedSaleRefund: number | null;
     readonly slowedEnemyCount: number;
+    readonly visibleEnemyHealthBarCount: number;
+    readonly renderedEnemyHealthBarCount: number;
+    readonly displacedEnemyHealthBarCount: number;
+    readonly overlappingEnemyHealthBarPairs: number;
+    readonly nearCoincidentEnemyAnchorPairs: number;
+    readonly enemyTrafficProfile: string;
+    readonly waitingEnemyCount: number;
     readonly waveRewardTotal: number;
     readonly pathLength: number;
     readonly pathDelta: number;
@@ -23,16 +50,45 @@ export interface BrowserBattleDiagnosticsState {
     readonly speedMultiplier: number;
     readonly runElapsedSeconds: number;
     readonly bestTimeSeconds: number | null;
+    readonly bestRemainingHealth: number | null;
     readonly resultWasNewRecord: boolean;
+    readonly resultWasNewHealthRecord: boolean;
     readonly soundEnabled: boolean;
+    readonly soundVolumePercent: number;
+    readonly reducedMotion: boolean;
+    readonly homeSettingsVisible: boolean;
     readonly soundReady: boolean;
+    readonly soundLastCue: string | null;
+    readonly soundCueCount: number;
+    readonly soundCueCounts: Readonly<Record<string, number>>;
+    readonly soundVoiceCount: number;
+    readonly musicReady: boolean;
+    readonly musicPlaying: boolean;
+    readonly musicVoiceCount: number;
+    readonly musicMood: string;
+    readonly musicIntensityActive: boolean;
+    readonly musicIntensityPending: boolean;
+    readonly musicPositionSeconds: number;
+    readonly musicDucked: boolean;
+    readonly musicStartCount: number;
     readonly canStartNextWaveEarly: boolean;
     readonly coreHealth: number;
     readonly activeEnemyCount: number;
     readonly waveSpawnedEnemyCount: number;
     readonly waveTotalEnemyCount: number;
     readonly infantryGaitFrameLoaded: boolean;
+    readonly infantryDirectionalWalkStatus: string;
+    readonly artBudgetProfile: string;
+    readonly backdropResourcePath: string | null;
+    readonly infantryDirectionalWalkSamples: readonly string[];
+    readonly infantryDirectionalCollapseStatus: string;
+    readonly infantryDirectionalCollapseSamples: readonly string[];
+    readonly activeInfantryDirectionalCollapseCount: number;
     readonly runnerGaitFrameLoaded: boolean;
+    readonly haulerGaitFrameLoaded: boolean;
+    readonly infantryDeathFrameLoaded: boolean;
+    readonly entryArtLoaded: boolean;
+    readonly activeInfantryCollapseCount: number;
     readonly spawningCompleted: boolean;
     readonly spawnedEnemyCount: number;
     readonly defeatedEnemyCount: number;
@@ -45,7 +101,11 @@ export interface BrowserBattleDiagnosticsState {
     readonly pauseScreen: string | null;
     readonly pauseReason: string | null;
     readonly canContinuePause: boolean;
+    readonly routeFaultCode: string | null;
+    readonly routeEventCount: number;
+    readonly routeRetainedEventCount: number;
     readonly inputMode: string;
+    readonly lastInputPoint: { readonly x: number; readonly y: number };
     readonly previewAccepted: boolean | null;
     readonly status: string;
 }
@@ -53,6 +113,10 @@ export interface BrowserBattleDiagnosticsState {
 /** 浏览器 QA 适配层只发布只读状态，不向玩法层暴露跳过输入的修改接口。 */
 export class BrowserBattleDiagnostics {
     private publishedDiagnostics = '';
+
+    public publishRouteJournal(journal: unknown): void {
+        if (typeof document !== 'undefined') document.querySelector('canvas')?.setAttribute('data-route-journal', JSON.stringify(journal));
+    }
 
     public publish(state: BrowserBattleDiagnosticsState, ariaLabel: string): void {
         if (typeof document === 'undefined') return;

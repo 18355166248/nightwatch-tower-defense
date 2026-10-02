@@ -1,0 +1,148 @@
+[
+  {
+    "id": "pause",
+    "name": "战斗暂停",
+    "states": [],
+    "source": "pause.svg",
+    "preview": "pause.png",
+    "runtimeAcceptance": "final-build-browser-smoke",
+    "runtimeScreenshot": "runtime-pause-restored-390.jpg",
+    "visualAcceptance": "pending-user-review"
+  },
+  {
+    "id": "lifecycle",
+    "name": "后台安全暂停",
+    "states": [],
+    "source": "lifecycle.svg",
+    "preview": "lifecycle.png",
+    "runtimeAcceptance": "final-build-explicit-qa-fixture",
+    "runtimeScreenshot": "runtime-lifecycle-fixture.jpg",
+    "visualAcceptance": "pending-user-review"
+  },
+  {
+    "id": "settings",
+    "name": "战斗设置",
+    "states": [
+      "声音开/关",
+      "音量25/50/75/100%",
+      "减弱动态开/关",
+      "速度1/2×"
+    ],
+    "source": "settings.svg",
+    "preview": "settings.png",
+    "runtimeAcceptance": "earlier-build-browser-smoke",
+    "runtimeScreenshot": "runtime-settings.jpg",
+    "visualAcceptance": "pending-user-review"
+  },
+  {
+    "id": "home-settings",
+    "name": "首页设置",
+    "states": [],
+    "source": "home-settings.svg",
+    "preview": "home-settings.png",
+    "runtimeAcceptance": "earlier-build-browser-smoke",
+    "runtimeScreenshot": "runtime-home-settings-320.jpg",
+    "visualAcceptance": "pending-user-review"
+  },
+  {
+    "id": "confirm-restart",
+    "name": "重新部署确认",
+    "states": [],
+    "source": "confirm-restart.svg",
+    "preview": "confirm-restart.png",
+    "runtimeAcceptance": "earlier-build-browser-smoke",
+    "runtimeScreenshot": "runtime-confirm-restart.jpg",
+    "visualAcceptance": "pending-user-review"
+  },
+  {
+    "id": "confirm-home",
+    "name": "返回首页确认",
+    "states": [],
+    "source": "confirm-home.svg",
+    "preview": "confirm-home.png",
+    "runtimeAcceptance": "earlier-build-browser-smoke",
+    "runtimeScreenshot": "runtime-confirm-home-320.jpg",
+    "visualAcceptance": "pending-user-review"
+  },
+  {
+    "id": "route-error",
+    "name": "路线异常恢复",
+    "states": [],
+    "source": "route-error.svg",
+    "preview": "route-error.png",
+    "runtimeAcceptance": "earlier-build-explicit-qa-fixture",
+    "runtimeScreenshot": "runtime-route-error-qa.jpg",
+    "visualAcceptance": "pending-user-review"
+  },
+  {
+    "id": "home",
+    "name": "首页 / 首关简报",
+    "states": [
+      "无历史纪录",
+      "已有最快/核心纪录"
+    ],
+    "source": "home.svg",
+    "preview": "home.png",
+    "runtimeAcceptance": "final-build-browser-smoke",
+    "runtimeScreenshot": "runtime-home-restored-final-390.jpg",
+    "visualAcceptance": "pending-user-review"
+  },
+  {
+    "id": "victory",
+    "name": "胜利结算",
+    "states": [
+      "新纪录",
+      "未刷新纪录",
+      "重新部署",
+      "返回首页"
+    ],
+    "source": "victory.svg",
+    "preview": "victory.png",
+    "runtimeAcceptance": "earlier-build-qa-2x-eight-waves",
+    "runtimeScreenshot": "runtime-victory-qa.jpg",
+    "visualAcceptance": "pending-user-review"
+  },
+  {
+    "id": "defeat",
+    "name": "失败结算",
+    "states": [
+      "新纪录",
+      "未刷新纪录",
+      "重新部署",
+      "返回首页"
+    ],
+    "source": "defeat.svg",
+    "preview": "defeat.png",
+    "runtimeAcceptance": "earlier-build-qa-2x-failure",
+    "runtimeScreenshot": "runtime-defeat-qa.jpg",
+    "visualAcceptance": "pending-user-review"
+  },
+  {
+    "id": "orientation",
+    "name": "横屏阻断",
+    "states": [
+      "横屏阻断",
+      "竖屏恢复后仍暂停"
+    ],
+    "source": "orientation.svg",
+    "preview": "orientation.png",
+    "runtimeAcceptance": "final-build-explicit-coarse-qa",
+    "runtimeScreenshot": "runtime-orientation-qa.jpg",
+    "visualAcceptance": "pending-user-review"
+  },
+  {
+    "id": "intermission",
+    "name": "教学波间 / 下波敌情",
+    "states": [
+      "推荐补塔",
+      "推荐升级",
+      "可提前开波",
+      "三类混编预告"
+    ],
+    "source": "intermission.svg",
+    "preview": "intermission.png",
+    "runtimeAcceptance": "final-build-normal-1x-one-wave",
+    "runtimeScreenshot": "runtime-intermission-final.jpg",
+    "visualAcceptance": "pending-user-review"
+  }
+]

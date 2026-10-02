@@ -1,5 +1,6 @@
 import type { CombatEnemy, CombatTickResult, GridPoint, ShotEvent } from '../systems/WaveCombatRuntime';
 import type { TowerId } from '../config/PhaseBCombatConfig';
+import type { BattlePhase } from '../systems/BattleStateMachine';
 import { enemyDeathFeedbackSeconds } from './UnitVisualMotion';
 
 export interface TimedFeedback {
@@ -15,6 +16,17 @@ export interface TracerFeedback extends TimedFeedback {
     readonly lethal: boolean;
     readonly towerId: TowerId;
     readonly appliedSlow: boolean;
+}
+
+export interface ImpactFeedback extends TimedFeedback {
+    readonly origin: GridPoint;
+    readonly towerId: TowerId;
+    readonly lethal: boolean;
+}
+
+export interface TowerAimFeedback extends TimedFeedback {
+    readonly origin: GridPoint;
+    readonly towerId: TowerId;
 }
 
 export interface SlowPulseFeedback extends TimedFeedback {
@@ -34,23 +46,32 @@ export interface DeathFeedback extends TimedFeedback {
 
 export interface CombatFeedbackSnapshot {
     readonly tracers: readonly TracerFeedback[];
-    readonly impacts: readonly TimedFeedback[];
+    readonly impacts: readonly ImpactFeedback[];
+    readonly aims: readonly TowerAimFeedback[];
     readonly slowPulses: readonly SlowPulseFeedback[];
     readonly deaths: readonly DeathFeedback[];
     readonly rewards: readonly RewardFeedback[];
     readonly coreHits: readonly TimedFeedback[];
 }
 
-const TRACER_SECONDS = 0.1;
+// 双倍速下仍保留约 0.08 秒真实可见时间；短弹迹只属于表现层，不延迟已经发生的命中。
+const TRACER_SECONDS = 0.16;
 const IMPACT_SECONDS = 0.16;
+// 略长于机枪基础射击间隔；连射可持续摆头，停火后自行回正。
+const TOWER_AIM_SECONDS = 0.48;
 // 与 0.1 秒弹道分离：2× 战斗时仍给范围圈约 0.25 秒真实可见时间。
 const SLOW_PULSE_SECONDS = 0.5;
 const REWARD_SECONDS = 0.7;
 const CORE_HIT_SECONDS = 0.28;
 const MAX_FEEDBACK_PER_CHANNEL = 64;
 
+/** 教学波间只暂停战斗以便布防；若没有真正的暂停菜单，短反馈仍须自行收尾。 */
+export function shouldAdvanceFeedbackWhileGuidedHold(phase: BattlePhase, guidedIntermissionHeld: boolean, pauseVisible: boolean): boolean {
+    return phase === 'paused' && guidedIntermissionHeld && !pauseVisible;
+}
+
 export function countCombatFeedback(snapshot: CombatFeedbackSnapshot): number {
-    return snapshot.tracers.length + snapshot.impacts.length + snapshot.slowPulses.length + snapshot.deaths.length
+    return snapshot.tracers.length + snapshot.impacts.length + snapshot.aims.length + snapshot.slowPulses.length + snapshot.deaths.length
         + snapshot.rewards.length + snapshot.coreHits.length;
 }
 
@@ -60,7 +81,8 @@ export function countCombatFeedback(snapshot: CombatFeedbackSnapshot): number {
  */
 export class CombatFeedbackRuntime {
     private activeTracers: TracerFeedback[] = [];
-    private activeImpacts: TimedFeedback[] = [];
+    private activeImpacts: ImpactFeedback[] = [];
+    private activeAims: TowerAimFeedback[] = [];
     private activeSlowPulses: SlowPulseFeedback[] = [];
     private activeDeaths: DeathFeedback[] = [];
     private activeRewards: RewardFeedback[] = [];
@@ -70,6 +92,7 @@ export class CombatFeedbackRuntime {
         return {
             tracers: this.activeTracers,
             impacts: this.activeImpacts,
+            aims: this.activeAims,
             slowPulses: this.activeSlowPulses,
             deaths: this.activeDeaths,
             rewards: this.activeRewards,
@@ -79,7 +102,27 @@ export class CombatFeedbackRuntime {
 
     public consume(result: CombatTickResult): void {
         this.activeTracers.push(...result.shots.map((shot) => this.tracerFor(shot)));
-        this.activeImpacts.push(...result.shots.map((shot) => this.timed(shot.targetPoint, IMPACT_SECONDS)));
+        // 命中只携带已有的射击事实；表现层据此区分铜火花与冷凝晶芒，不反向影响伤害。
+        this.activeImpacts.push(...result.shots.map((shot) => ({
+            ...this.timed(shot.targetPoint, IMPACT_SECONDS),
+            origin: { column: shot.towerCell.column, row: shot.towerCell.row },
+            towerId: shot.towerId,
+            lethal: shot.lethal,
+        })));
+        if (result.shots.length > 0) {
+            const latestByTower = new Map<string, TowerAimFeedback>(this.activeAims.map((aim) => [`${aim.origin.column},${aim.origin.row}`, aim]));
+            for (const shot of result.shots) {
+                if (shot.towerId !== 'rivet-gun') continue;
+                const aim: TowerAimFeedback = {
+                    ...this.timed(shot.targetPoint, TOWER_AIM_SECONDS),
+                    origin: { column: shot.towerCell.column, row: shot.towerCell.row },
+                    towerId: shot.towerId,
+                };
+                latestByTower.set(`${aim.origin.column},${aim.origin.row}`, aim);
+            }
+            // 同一炮塔只保留最近一次瞄准，连续开火不累积旧目标或额外节点。
+            this.activeAims = Array.from(latestByTower.values());
+        }
         this.activeSlowPulses.push(...result.shots.flatMap((shot) => {
             const affectedEnemyCount = shot.slowedEnemyIds?.length ?? Number(shot.appliedSlow);
             if (!shot.appliedSlow || !shot.slowRadiusCells || affectedEnemyCount === 0) return [];
@@ -104,6 +147,7 @@ export class CombatFeedbackRuntime {
         if (!Number.isFinite(deltaSeconds) || deltaSeconds < 0) throw new RangeError('deltaSeconds 不能为负数');
         this.activeTracers = this.decay(this.activeTracers, deltaSeconds);
         this.activeImpacts = this.decay(this.activeImpacts, deltaSeconds);
+        this.activeAims = this.decay(this.activeAims, deltaSeconds);
         this.activeSlowPulses = this.decay(this.activeSlowPulses, deltaSeconds);
         this.activeDeaths = this.decay(this.activeDeaths, deltaSeconds);
         this.activeRewards = this.decay(this.activeRewards, deltaSeconds);
@@ -113,6 +157,7 @@ export class CombatFeedbackRuntime {
     public clear(): void {
         this.activeTracers = [];
         this.activeImpacts = [];
+        this.activeAims = [];
         this.activeSlowPulses = [];
         this.activeDeaths = [];
         this.activeRewards = [];
@@ -151,6 +196,7 @@ export class CombatFeedbackRuntime {
     private trimChannels(): void {
         this.activeTracers = this.activeTracers.slice(-MAX_FEEDBACK_PER_CHANNEL);
         this.activeImpacts = this.activeImpacts.slice(-MAX_FEEDBACK_PER_CHANNEL);
+        this.activeAims = this.activeAims.slice(-MAX_FEEDBACK_PER_CHANNEL);
         this.activeSlowPulses = this.activeSlowPulses.slice(-MAX_FEEDBACK_PER_CHANNEL);
         this.activeDeaths = this.activeDeaths.slice(-MAX_FEEDBACK_PER_CHANNEL);
         this.activeRewards = this.activeRewards.slice(-MAX_FEEDBACK_PER_CHANNEL);

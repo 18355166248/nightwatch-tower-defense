@@ -2,7 +2,8 @@ import { EventKeyboard, input, Input, KeyCode } from 'cc';
 
 export type PhaseBDebugAction = 'reset' | 'apply-short' | 'apply-long' | 'apply-failure'
     | 'apply-mixed' | 'apply-guided-opening' | 'apply-guided-purchases' | 'select-rivet' | 'select-frost'
-    | 'toggle-battle' | 'toggle-speed' | 'start-next-wave' | 'restart-run';
+    | 'toggle-battle' | 'toggle-speed' | 'start-next-wave' | 'restart-run' | 'inject-route-fault'
+    | 'enter-background' | 'leave-background';
 
 /**
  * 浏览器灰盒的键盘适配层。这里只把物理按键翻译成动作，不依赖关卡或战斗实现。
@@ -36,6 +37,9 @@ export class PhaseBDebugInput {
         else if (event.keyCode === KeyCode.KEY_W) this.dispatch('select-frost');
         else if (event.keyCode === KeyCode.KEY_X) this.dispatch('toggle-speed');
         else if (event.keyCode === KeyCode.KEY_N) this.dispatch('start-next-wave');
+        else if (event.keyCode === KeyCode.KEY_K) this.dispatch('inject-route-fault');
+        else if (event.keyCode === KeyCode.KEY_L) this.dispatch('enter-background');
+        else if (event.keyCode === KeyCode.KEY_O) this.dispatch('leave-background');
         else if (event.keyCode === KeyCode.ENTER) this.dispatch('restart-run');
         else if (event.keyCode === KeyCode.SPACE) this.dispatch('toggle-battle');
     }

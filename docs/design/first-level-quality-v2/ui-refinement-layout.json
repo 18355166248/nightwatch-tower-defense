@@ -1,0 +1,74 @@
+[
+  {
+    "controls": [
+      {
+        "height": 43.996395111083984,
+        "role": "sell",
+        "width": 94.81370544433594
+      },
+      {
+        "height": 43.996395111083984,
+        "role": "upgrade",
+        "width": 100.75120544433594
+      },
+      {
+        "height": 43.996395111083984,
+        "role": "next",
+        "width": 47.99879837036133
+      }
+    ],
+    "labelCount": 22,
+    "overflow": false,
+    "overlap": false,
+    "stageWidth": 320,
+    "viewportWidth": 320
+  },
+  {
+    "controls": [
+      {
+        "height": 51.99519348144531,
+        "role": "sell",
+        "width": 115.55889892578124
+      },
+      {
+        "height": 51.99519348144531,
+        "role": "upgrade",
+        "width": 122.78846740722656
+      },
+      {
+        "height": 43.996395111083984,
+        "role": "next",
+        "width": 58.497596740722656
+      }
+    ],
+    "labelCount": 22,
+    "overflow": false,
+    "overlap": false,
+    "stageWidth": 389.9939880371094,
+    "viewportWidth": 390
+  },
+  {
+    "controls": [
+      {
+        "height": 57.331729888916016,
+        "role": "sell",
+        "width": 127.40985870361328
+      },
+      {
+        "height": 57.331729888916016,
+        "role": "upgrade",
+        "width": 135.37860107421875
+      },
+      {
+        "height": 47.77644348144531,
+        "role": "next",
+        "width": 64.49519348144531
+      }
+    ],
+    "labelCount": 22,
+    "overflow": false,
+    "overlap": false,
+    "stageWidth": 430,
+    "viewportWidth": 430
+  }
+]

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "art_direction_brief": "docs/first-level-art.md",
+  "assets": [
+    {
+      "id": "enemy-entry-hatch-v1",
+      "role": "first-level world-space enemy spawn landmark",
+      "path": "assets/resources/level-one/units/enemy-entry-hatch-v1.png",
+      "source_path": "art-source/first-level-objective/enemy-entry-hatch-source-v1.png",
+      "preview_path": "art-source/first-level-objective/enemy-entry-hatch-preview-32-v1.png",
+      "status": "browser-candidate",
+      "technical": {
+        "dimensions": "128x128",
+        "alpha": true,
+        "anchor": "transparent canvas center, located from grid.entry",
+        "frames": 1,
+        "filtering": "linear",
+        "collision_role": "none; grid.entry remains the gameplay source",
+        "native_display_size": "1.55 board cells, lowered 0.08 sprite heights",
+        "fallback": "dynamic road entrance and enemy spawning remain active if SpriteFrame is unavailable",
+        "budget": "20,952 B runtime PNG, below 32 KiB target"
+      },
+      "visual_locks": [
+        "one low-profile dark enemy hatch",
+        "copper and navy frame with restrained cyan accents",
+        "transparent outside hatch",
+        "no text, enemies, floor, or static route"
+      ],
+      "source": {
+        "kind": "AI-generated original single-sprite candidate from project-owned style references",
+        "url_or_tool": "OpenAI built-in image_gen",
+        "creator": "OpenAI built-in image_gen",
+        "created_at": "2026-09-27",
+        "reference_paths": [
+          "assets/resources/level-one/units/core-reactor-v1.png",
+          "assets/resources/level-one/units/rivet-gun.png"
+        ],
+        "license": "AI-generated candidate; commercial rights review pending",
+        "attribution": "raw output, prompt and deterministic resize notes retained in repository",
+        "prompt_or_source_record": "docs/poc/phase-c-entry-hatch-regression.md#source"
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "approved_by": ""
+      }
+    }
+  ]
+}

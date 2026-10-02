@@ -1,0 +1,54 @@
+{
+  "toolVersion": "1.0",
+  "inputMode": "aseprite",
+  "recipe": {
+    "version": 1,
+    "kind": "motion",
+    "title": "步兵朝下四帧行走 v2 · 基线不合格的 review 候选",
+    "cell": [
+      128,
+      128
+    ],
+    "anchor": [
+      0.5,
+      0.84
+    ],
+    "resample": "lanczos",
+    "background": "keep",
+    "source": {
+      "provider": "codex-imagegen",
+      "cost": "platform-included-or-unknown",
+      "note": "2x2 原始 RGBA 网格均匀切格，保留全部四帧，无独立裁切/缩放。只供 review；源图注册和完整步态尚未通过，不是运行时正式素材。"
+    },
+    "states": [
+      {
+        "name": "walk-down",
+        "fps": 8,
+        "loop": true
+      }
+    ]
+  },
+  "sourceRoot": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-down-walk-v2/source-grid.json",
+  "inputs": [
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-down-walk-v2/recipe.json",
+      "sha256": "e059a79563c4fb95fdd417395850cd4b327a15c30275a4d951cfe65b90955629"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-down-walk-v2/source-grid.json",
+      "sha256": "e022a0848ba872c59a8934977c1d22a1768f60e43b797320438ae2e5e6e54805"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-down-walk-v2/source.png",
+      "sha256": "44d3b8c4a5193d03d49415fe9e708eca924d41e91368968f24ca8b7912410ca0"
+    }
+  ],
+  "reproduce": {
+    "recipe": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-down-walk-v2/recipe.json",
+    "input": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-down-walk-v2/source-grid.json",
+    "aseprite": true
+  },
+  "environment": {
+    "pillow": "12.3.0"
+  }
+}

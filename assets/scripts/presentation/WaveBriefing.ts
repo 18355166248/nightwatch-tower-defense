@@ -19,6 +19,12 @@ const SHORT_ENEMY_NAMES: Record<EnemyId, string> = {
     'iron-canister-hauler': '重装',
 };
 
+const DENSE_ENEMY_NAMES: Record<EnemyId, string> = {
+    'clockwork-infantry': '步兵',
+    'clockwork-runner': '疾行',
+    'iron-canister-hauler': '重甲',
+};
+
 function countedEnemies(wave: WaveDefinition): readonly CountedEnemy[] {
     const counts = new Map<EnemyId, CountedEnemy>();
     for (const group of wave.groups) {
@@ -36,9 +42,13 @@ export function waveLineup(wave: WaveDefinition): string {
 
 /** 波间预告与辅助描述共用真实编队；短标签留给窄屏，完整敌名留给朗读。 */
 export function upcomingWaveBriefing(wave: WaveDefinition): UpcomingWaveBriefing {
+    const enemies = countedEnemies(wave);
     return {
         wave: wave.wave,
-        lineup: countedEnemies(wave).map(({ id, count }) => `${SHORT_ENEMY_NAMES[id]}×${count}`).join(' · '),
+        // 三种敌人的完整名称会在手机顶栏挤小字号；已逐波介绍过的终局混编用短名，朗读仍保留全称。
+        lineup: enemies.length >= 3
+            ? enemies.map(({ id, count }) => `${DENSE_ENEMY_NAMES[id]}${count}`).join(' · ')
+            : enemies.map(({ id, count }) => `${SHORT_ENEMY_NAMES[id]}×${count}`).join(' · '),
         tactic: waveThreatHint(wave),
         accessibleLineup: waveLineup(wave),
     };

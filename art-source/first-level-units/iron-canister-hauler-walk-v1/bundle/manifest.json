@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "toolVersion": "1.0",
+  "kind": "motion",
+  "title": "铁罐搬运者双帧重步候选",
+  "source": {
+    "provider": "codex-imagegen",
+    "note": "项目自有重装原图为 A 帧编辑目标；B 帧由 OpenAI 内置 image_gen 生成。1.24 fps 对应基础移动约每格一轮，实际游戏按格内进度选帧，减速时自动放慢。"
+  },
+  "release": {
+    "status": "draft",
+    "runtimeEvidence": "docs/poc/phase-c-heavy-gait-regression.md"
+  },
+  "atlas": "atlas.png",
+  "anchor": [
+    0.5,
+    0.5
+  ],
+  "anchorConvention": "normalized-from-top-left; metadata only, no automatic foot alignment",
+  "states": [
+    {
+      "name": "walk",
+      "loop": true,
+      "frames": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 128,
+          "h": 128,
+          "durationMs": 806
+        },
+        {
+          "x": 128,
+          "y": 0,
+          "w": 128,
+          "h": 128,
+          "durationMs": 806
+        }
+      ],
+      "sourceFrames": [
+        "walk/frame-1.png",
+        "walk/frame-2.png"
+      ]
+    }
+  ],
+  "exports": [
+    "aseprite.json",
+    "grid.json"
+  ]
+}

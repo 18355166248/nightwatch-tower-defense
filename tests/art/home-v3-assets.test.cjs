@@ -1,0 +1,22 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const crypto=require('node:crypto');
+const {originalSha256}=require('../../scripts/design-image-store.cjs');
+const root=path.resolve(__dirname,'../..');
+test('首页切图来自独立稿的无字插画，规格与实际PNG一致，复用真实炮塔资源',()=>{
+    const dir=path.join(root,'docs/design/first-level-quality-v3');
+    const manifest=JSON.parse(fs.readFileSync(path.join(dir,'home-slice-manifest.json')));
+    assert.equal(originalSha256(path.join(dir,manifest.source)),manifest.sourceSha256);
+    assert.equal(manifest.assets.length,1);
+    const asset=manifest.assets[0];
+    assert.equal(asset.textBaked,false);
+    const png=fs.readFileSync(path.join(root,asset.runtime));
+    assert.equal(png.readUInt32BE(16),asset.width);
+    assert.equal(png.readUInt32BE(20),asset.height);
+    assert.equal(asset.decodedRgbaBytes,asset.width*asset.height*4);
+    assert.ok(asset.crop.top>250&&asset.crop.top+asset.crop.height<790,'裁切只在无字主视觉内');
+    assert.ok(JSON.parse(fs.readFileSync(path.join(root,asset.runtime+'.meta'))).uuid);
+    for(const name of ['rivet-gun','frost-coil']) assert.ok(fs.existsSync(path.join(root,'assets/resources/level-one/units',name+'.png')));
+});

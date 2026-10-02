@@ -1,0 +1,124 @@
+{
+  "toolVersion": "1.0",
+  "inputMode": "files",
+  "recipe": {
+    "version": 1,
+    "kind": "motion",
+    "title": "同模型机械步兵 · 四方向单次倾倒候选 · runtime-budget-v1",
+    "cell": [
+      160,
+      160
+    ],
+    "anchor": [
+      0.5,
+      0.6641503
+    ],
+    "resample": "lanczos",
+    "background": "keep",
+    "source": {
+      "provider": "project-authored-blender",
+      "note": "源 rig 与行走一致；四真实倾倒姿态，75ms/帧，非循环。画布/镜头扩大两倍但模型世界比例不变，消费端以2倍画布显示恢复像素比例。；仅全画布统一缩放，无逐帧裁切；高分源未修改。"
+    },
+    "states": [
+      {
+        "name": "collapse-down",
+        "fps": 13.333333333333334,
+        "loop": false
+      },
+      {
+        "name": "collapse-left",
+        "fps": 13.333333333333334,
+        "loop": false
+      },
+      {
+        "name": "collapse-up",
+        "fps": 13.333333333333334,
+        "loop": false
+      },
+      {
+        "name": "collapse-right",
+        "fps": 13.333333333333334,
+        "loop": false
+      }
+    ]
+  },
+  "sourceRoot": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames",
+  "inputs": [
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-runtime-budget-v1/collapse-recipe.json",
+      "sha256": "d0569ebc18e16147db01b7edf17687a1031b38bbfaba390024b9f9de8f473f85"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames/collapse-down/frame-1.png",
+      "sha256": "745b18afd53f18b51be54cca7c23481cd2c7a938a89833f0e6e6db779bfbbf3d"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames/collapse-down/frame-2.png",
+      "sha256": "e79bc95630197562d4f93afab57ae471c72413b8bef1e22efac8a06401faacc6"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames/collapse-down/frame-3.png",
+      "sha256": "efe93ee82ccbab553bdac920f37c20159d6912074c3ea17142b20bf256048793"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames/collapse-down/frame-4.png",
+      "sha256": "eaf92e284c45d53fbabe7eeaa8d859aad9bde1534c12010dcb9e529a1e462cb0"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames/collapse-left/frame-1.png",
+      "sha256": "851ecb376bd280bcf1cfc44901404c84efcf2524f498a2f2e8cc632a244ade64"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames/collapse-left/frame-2.png",
+      "sha256": "d83ab1ef888bcd9266184bf91ac1ea15171d8c35d67669fe56b4663f6f107a46"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames/collapse-left/frame-3.png",
+      "sha256": "986aac5432612219a8289c696aee4d1ecfbe4f0dae96db080c75b7afc1a57f8a"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames/collapse-left/frame-4.png",
+      "sha256": "aa59073e42798d663aede9dba3fc5270929df94523d6df841b1fd91de1353523"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames/collapse-right/frame-1.png",
+      "sha256": "3f71bff4ecc18268910e68b62240e50b54aa984a9abb745f48a28d376ed19c10"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames/collapse-right/frame-2.png",
+      "sha256": "f75c886edc33390845441520ce1994aa773c56358bd103546b208c59db4ee9ab"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames/collapse-right/frame-3.png",
+      "sha256": "21e058c39ae25db94564008b6486d7136d5160f9da2d0b5e0d9439eed115f6ec"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames/collapse-right/frame-4.png",
+      "sha256": "19a218238f7ac134d0c7ba0b689257e0fd6fa8d9dd30a515a28cc967a002e43f"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames/collapse-up/frame-1.png",
+      "sha256": "4f8558a408c5395198d26f782777c46cb522b04f99dbd0a9942fe57f7b972102"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames/collapse-up/frame-2.png",
+      "sha256": "9ba2cb5b85e1142c57d44f7e67ef2bc54435ae3e69ebf0a0d10ef4dfde3ec5f7"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames/collapse-up/frame-3.png",
+      "sha256": "9ba0744dc5b76305809b93c68afe21b5ddbfe23f357093c9daa293f4bf05c09c"
+    },
+    {
+      "path": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames/collapse-up/frame-4.png",
+      "sha256": "ba89060de6d51dab36e771d22009186e8bdcedf71b379ecac7745c5453203f90"
+    }
+  ],
+  "reproduce": {
+    "recipe": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-runtime-budget-v1/collapse-recipe.json",
+    "input": "/Users/xmly/Swell/code/game-workspace/nightwatch-tower-defense/art-source/first-level-units/clockwork-infantry-rig-collapse-v1/render/frames",
+    "aseprite": false
+  },
+  "environment": {
+    "pillow": "12.3.0"
+  }
+}

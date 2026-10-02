@@ -1,0 +1,65 @@
+{
+  "status": "pending-user-review",
+  "source": "art-source/design/first-level-quality-v2/ui-material-board.png",
+  "frameCropRects": {
+    "hud-frame.png": [
+      48,
+      80,
+      1440,
+      232
+    ],
+    "inspect-frame.png": [
+      48,
+      348,
+      1092,
+      310
+    ],
+    "tray-frame.png": [
+      44,
+      720,
+      982,
+      226
+    ],
+    "button-frame.png": [
+      1160,
+      366,
+      332,
+      277
+    ],
+    "disabled-frame.png": [
+      1284,
+      740,
+      205,
+      184
+    ]
+  },
+  "coordinateSpace": [
+    1080,
+    1920
+  ],
+  "panels": {
+    "hud": [
+      24,
+      24,
+      1032,
+      152
+    ],
+    "inspector": [
+      24,
+      1440,
+      1032,
+      264
+    ],
+    "tray": [
+      24,
+      1724,
+      1032,
+      172
+    ]
+  },
+  "portraits": "Cropped concept cards only, not transparent battlefield units",
+  "text": "Native labels; no rasterized dynamic values",
+  "cocosIntegrated": true,
+  "integrationScope": "Battle HUD, tower tray and inspector only; battlefield and other pages still pending",
+  "integrationRecord": "COCOS-INTEGRATION.md"
+}

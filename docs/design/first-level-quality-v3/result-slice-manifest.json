@@ -1,0 +1,134 @@
+{
+  "source": "art-source/design/first-level-quality-v3/result-icons-source.png",
+  "sourceSha256": "54948b116572429f7fcb397545a5a3637ce23972fcf692df422afe9c4e882870",
+  "assets": [
+    {
+      "id": "victory-badge",
+      "runtime": "assets/resources/level-one/ui/quality-v3/victory-badge.png",
+      "crop": {
+        "left": 0,
+        "top": 0,
+        "width": 425,
+        "height": 447
+      },
+      "width": 256,
+      "height": 256,
+      "decodedRgbaBytes": 262144,
+      "textBaked": false
+    },
+    {
+      "id": "defeat-badge",
+      "runtime": "assets/resources/level-one/ui/quality-v3/defeat-badge.png",
+      "crop": {
+        "left": 425,
+        "top": 0,
+        "width": 398,
+        "height": 447
+      },
+      "width": 256,
+      "height": 256,
+      "decodedRgbaBytes": 262144,
+      "textBaked": false
+    },
+    {
+      "id": "kill-icon",
+      "runtime": "assets/resources/level-one/ui/quality-v3/kill-icon.png",
+      "crop": {
+        "left": 823,
+        "top": 0,
+        "width": 431,
+        "height": 447
+      },
+      "width": 128,
+      "height": 128,
+      "decodedRgbaBytes": 65536,
+      "textBaked": false
+    },
+    {
+      "id": "leak-icon",
+      "runtime": "assets/resources/level-one/ui/quality-v3/leak-icon.png",
+      "crop": {
+        "left": 0,
+        "top": 447,
+        "width": 425,
+        "height": 343
+      },
+      "width": 128,
+      "height": 128,
+      "decodedRgbaBytes": 65536,
+      "textBaked": false
+    },
+    {
+      "id": "heart-icon",
+      "runtime": "assets/resources/level-one/ui/quality-v3/heart-icon.png",
+      "crop": {
+        "left": 425,
+        "top": 447,
+        "width": 398,
+        "height": 343
+      },
+      "width": 128,
+      "height": 128,
+      "decodedRgbaBytes": 65536,
+      "textBaked": false
+    },
+    {
+      "id": "coins-icon",
+      "runtime": "assets/resources/level-one/ui/quality-v3/coins-icon.png",
+      "crop": {
+        "left": 823,
+        "top": 447,
+        "width": 431,
+        "height": 343
+      },
+      "width": 128,
+      "height": 128,
+      "decodedRgbaBytes": 65536,
+      "textBaked": false
+    },
+    {
+      "id": "time-icon",
+      "runtime": "assets/resources/level-one/ui/quality-v3/time-icon.png",
+      "crop": {
+        "left": 0,
+        "top": 790,
+        "width": 425,
+        "height": 464
+      },
+      "width": 128,
+      "height": 128,
+      "decodedRgbaBytes": 65536,
+      "textBaked": false
+    },
+    {
+      "id": "tower-icon",
+      "runtime": "assets/resources/level-one/ui/quality-v3/tower-icon.png",
+      "crop": {
+        "left": 425,
+        "top": 790,
+        "width": 398,
+        "height": 464
+      },
+      "width": 128,
+      "height": 128,
+      "decodedRgbaBytes": 65536,
+      "textBaked": false
+    },
+    {
+      "id": "upgrade-icon",
+      "runtime": "assets/resources/level-one/ui/quality-v3/upgrade-icon.png",
+      "crop": {
+        "left": 823,
+        "top": 790,
+        "width": 431,
+        "height": 464
+      },
+      "width": 128,
+      "height": 128,
+      "decodedRgbaBytes": 65536,
+      "textBaked": false
+    }
+  ],
+  "rights": "Original built-in imagegen. Review provider commercial terms before release.",
+  "sharedChrome": "slice-manifest.json"
+}

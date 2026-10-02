@@ -1,0 +1,9 @@
+# 铁罐搬运者双帧重步候选
+
+日期：2026-09-27。来源：OpenAI 内置 `image_gen` 编辑模式，输入 `../iron-canister-hauler.png` 为唯一编辑目标。A 帧使用项目现有原图，B 帧原始生成图保存在 `../iron-canister-hauler-step-b-v1.png`，不覆盖 A 帧。
+
+```text
+Use case: precise-object-edit. Asset type: one transparent alternate WALK STEP frame for the EXISTING Nightwatch Tower Defense iron-canister hauler enemy. The supplied image is the EDIT TARGET, not a style reference. Keep exactly the same one squat copper-and-deep-navy boiler robot identity, 3/4 top-down camera and forward facing, round central canister body, small recessed two-amber-eye visor, two large dark navy side tanks, broad shoulder armor, rivets, pipes, thick arms, warm upper-left light, painterly toy-mechanical finish, outer silhouette size, torso and head position. Change ONLY the walking pose: in the input the RIGHT boot extends farther down toward the lower-right and the LEFT boot is farther back. In this alternate frame move the LEFT boot forward and downward toward lower-left as the planted leading leg, and bend the RIGHT leg visibly backward and upward toward lower-right; exchange front/back legs with modest opposite arm swing. Convey slow heavy weight, not a leap. Keep the character centered and full body at nearly identical scale on the same square canvas, with the same ground baseline for the planted boot. The new leg exchange must be clear at an 80×80 gameplay preview while head, tanks, torso, colors and perspective remain unchanged. Genuinely transparent RGBA background and clean alpha. Exactly one robot. No floor, scenery, floor shadow, smoke, trails, other props, text, UI, border, duplicate frames, watermark, or cropped parts.
+```
+
+本候选不使用《Fieldrunners 2》截图作为生成输入，也不宣称素材商业权利已审批。动作图集由 `character-motion-kit` 的本地 `asset_bundle.py` 从 `input/walk/frame-1.png` 与 `frame-2.png` 加工；这两帧是同 1254 方画布的 A/B，不作逐帧裁切或单独缩放。引擎内仍需检查步态衔接、脚底抖动和小尺寸可读性。
