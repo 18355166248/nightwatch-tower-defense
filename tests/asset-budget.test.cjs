@@ -47,6 +47,15 @@ test('JPEG尺寸读SOF，不依赖系统图片工具或扩展名猜测', () => {
     assert.throws(() => imageDimensions(jpg.subarray(0, 13)));
 });
 
+test('资源预算展开页面与结算模板路径，不漏动态九宫格；未知集合拒绝放行', () => {
+    const source = "const ASSETS=['panel','primary'] as const; for(const name of ASSETS) resources.load(`level-one/ui/quality-v3/${name}/spriteFrame`); for(const name of ['gold-coins'])resources.load(`level-one/ui/${name}/spriteFrame`);";
+    assert.deepEqual(textureBasesInSource(source), ['level-one/ui/quality-v3/panel', 'level-one/ui/quality-v3/primary', 'level-one/ui/gold-coins']);
+    assert.throws(() => textureBasesInSource('resources.load(`level-one/ui/${unknown}/spriteFrame`)'), /无法静态展开/);
+    assert.throws(() => textureBasesInSource('for(const name of getNames())resources.load(`level-one/ui/${name}/spriteFrame`)'), /无法静态展开/);
+    assert.deepEqual(textureBasesInSource("function a(){const ART=['a'];for(const name of ART)load(`level-one/ui/${name}/spriteFrame`)} function b(){const ART=['b'];for(const name of ART)load(`level-one/ui/${name}/spriteFrame`)}"), ['level-one/ui/a','level-one/ui/b']);
+    assert.throws(() => textureBasesInSource("let ART=['a'];for(const name of ART)load(`level-one/ui/${name}/spriteFrame`)"), /无法静态展开/);
+});
+
 test('候选额外图集与原A/B同时计入；主背景和回退背景不能重复算常驻', () => {
     const bases = ['level-one/backdrop', 'level-one/backdrop-plaza-v2', 'level-one/units/clockwork-infantry',
         'level-one/units/clockwork-infantry-walk-rig-v2', 'level-one/units/clockwork-infantry-collapse-rig-v1'];

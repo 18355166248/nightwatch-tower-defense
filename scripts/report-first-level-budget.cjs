@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const ts = require('typescript');
 
 const MIB = 1024 * 1024;
 const BACKDROPS = ['level-one/backdrop-plaza-v2', 'level-one/backdrop',
@@ -55,8 +56,48 @@ function rgbaBytes(width, height, mipmaps = false) {
 }
 
 function textureBasesInSource(source) {
-    return Array.from(source.matchAll(/['"](level-one\/[^'"]+)['"]/g), match =>
+    const bases = Array.from(source.matchAll(/['"](level-one\/[^'"]+)['"]/g), match =>
         match[1].replace(/\/(spriteFrame|texture)$/, ''));
+    const file = ts.createSourceFile('resources.ts', source, ts.ScriptTarget.Latest, true);
+    const literalArray = expression => {
+        while (expression && (ts.isAsExpression(expression) || ts.isParenthesizedExpression(expression))) expression = expression.expression;
+        if (!expression || !ts.isArrayLiteralExpression(expression)
+            || !expression.elements.every(ts.isStringLiteral)) return null;
+        return expression.elements.map(item => item.text);
+    };
+    const visit = (node, callback) => { callback(node); ts.forEachChild(node, child => visit(child, callback)); };
+    const resolveArray = expression => {
+        if (!ts.isIdentifier(expression)) return literalArray(expression);
+        // 按词法作用域找集合，不能把另一个函数同名数组的最后一次声明套进当前循环。
+        for (let scope = expression.parent; scope; scope = scope.parent) {
+            if (!ts.isBlock(scope) && !ts.isSourceFile(scope)) continue;
+            for (const statement of scope.statements) {
+                if (!ts.isVariableStatement(statement)) continue;
+                for (const declaration of statement.declarationList.declarations) {
+                    if (!ts.isIdentifier(declaration.name) || declaration.name.text !== expression.text) continue;
+                    return statement.declarationList.flags & ts.NodeFlags.Const ? literalArray(declaration.initializer) : null;
+                }
+            }
+        }
+        return null;
+    };
+    // 页面饰面/结算图标使用模板路径。只展开可证明的静态for-of集合，不执行源代码；无法解析就拒绝漏算放行。
+    visit(file, node => {
+        if (!ts.isTemplateExpression(node) || !node.head.text.startsWith('level-one/')) return;
+        const span = node.templateSpans[0];
+        if (node.templateSpans.length !== 1 || !ts.isIdentifier(span.expression)) throw new Error('动态资源路径无法静态展开');
+        let values = null;
+        for (let parent = node.parent; parent; parent = parent.parent) {
+            if (!ts.isForOfStatement(parent) || !ts.isVariableDeclarationList(parent.initializer)) continue;
+            const declaration = parent.initializer.declarations[0];
+            if (!declaration || !ts.isIdentifier(declaration.name) || declaration.name.text !== span.expression.text) continue;
+            values = resolveArray(parent.expression);
+            break;
+        }
+        if (!values) throw new Error(`动态资源路径无法静态展开：${node.getText(file)}`);
+        for (const value of values) bases.push((node.head.text + value + span.literal.text).replace(/\/(spriteFrame|texture)$/, ''));
+    });
+    return Array.from(new Set(bases));
 }
 
 function selectTextureSet(resourceBases, rigCandidate, fallbackBackdrop = false, compact = false) {
@@ -125,7 +166,7 @@ function buildReport(root) {
     return { version: 1, generatedAt: new Date().toISOString(), basis: '当前源码加载清单与SHA一致的实际Web Mobile产物',
         limitations: ['RGBA8解码估算不是设备GPU/进程内存测量；Cocos ImageAsset默认RGBA8888',
             '不含引擎/字体纹理、动态合图、渲染目标、CPU副本及音频缓冲',
-            '清单来自源码字符串，不证明当前浏览器已全部加载；动态拼接路径须人工核对',
+            '清单含静态字符串与静态for-of模板集合，不证明当前浏览器已全部加载或同时驻留；其他动态路径拒绝静默漏算',
             '图像SHA匹配不等于运行时JS与源码匹配；本报告不替代构建/浏览器验证',
             'PNG/JPEG尺寸头探测不替代完整图片解码及透明边缘验收',
             '纹理payload是无HTTP压缩的构建图像文件总量，不是完整首屏HAR',
