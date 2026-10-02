@@ -1201,7 +1201,7 @@ export class NightwatchPocBootstrap extends Component {
         };
         this.backdrop?.setVisible(experience.mode !== 'home');
         // 先发布本帧身体/尸影坐标，再绘制事件；调用顺序不改变节点既定的前后层级。
-        this.unitSprites?.render(sceneState, this.runClock.elapsedSeconds);
+        this.unitSprites?.render(sceneState, this.runClock.elapsedSeconds, experience.mode !== 'home');
         this.renderer?.render(sceneState, this.unitSprites?.visualAnchors);
         this.coreArt?.render(sceneState.grid, sceneState.feedback.coreHits, Boolean(result), sceneState.reducedMotion);
         this.entryArt?.render(sceneState.grid, Boolean(result));

@@ -34,9 +34,24 @@ for(const file of files.filter(f=>/\.(html|css|md|svg)$/.test(f))){let source=fs
     source=source.replace(/url\(([^"')]+\.(?:png|jpe?g))\)/gi,(whole,ref)=>{const url=resolveReference(ref,file);return url?'url('+url+')':whole;});
     // 三个候选按钮动态拼接的文件名，直接使用归档 URL，保留状态索引里的历史路径作为来源标识。
     if(file.endsWith('first-level-quality-v3/index.html')){source=source.replace(/'((?:pause-command-console|pause-watchtower-badge|pause-quiet-enamel)\.png)'/g,(whole,name)=>"'"+manifest['docs/design/first-level-quality-v3/concepts/'+name].previewUrl+"'").replace("image.src='concepts/'+conceptFiles[index]","image.src=conceptFiles[index]");}
+    // 八向审阅页通过脚本拼接切图路径；迁移为明确URL表，删除切图后仍可完整审阅。
+    const headSourceIds=['exec-f9a2a223-c099-4e16-80bb-054fe5103310','exec-c4c95f6c-2a01-4ede-9018-01545ea501c7','exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb'];
+    const headUrls=id=>Array.from({length:8},(_,index)=>{
+        const key=`docs/design/first-level-quality-v3/output/${id}/resized/${id}_${String(index).padStart(2,'0')}.png`;
+        const record=manifest[key];if(!record?.verifiedAt)throw new Error('八向切图尚未归档：'+key);return record.previewUrl;
+    });
+    if(file.endsWith('first-level-quality-v3/eight-direction-family.html')&&source.includes('const sources=')){
+        source=source.replace(/const sources=\[[^\n]+\];/,'const imageUrls='+JSON.stringify(headSourceIds.map(headUrls))+';')
+            .replace(/const imagePath=[^\n]+;/,'const imagePath=(level,index)=>imageUrls[level-1][index];');
+    }
+    if(file.endsWith('first-level-quality-v3/eight-direction-head.html')&&source.includes("image.src='output/exec-f9a2")){
+        source=source.replace("['N','NE','E','SE','S','SW','W','NW'].forEach",'const productionHeadUrls='+JSON.stringify(headUrls(headSourceIds[0]))+";\n['N','NE','E','SE','S','SW','W','NW'].forEach")
+            .replace(/image.src='output\/exec-f9a2[^\n]+;/,'image.src=productionHeadUrls[index];');
+    }
     if(source!==before){fs.writeFileSync(file,source);updated++;}
 }
-for(const [key] of targets)if(fs.existsSync(path.join(root,key)))fs.unlinkSync(safeFile(key));
+let deletedImages=0;
+for(const [key] of targets)if(fs.existsSync(path.join(root,key))){fs.unlinkSync(safeFile(key));deletedImages++;}
 // 压缩工作副本也占本地空间，只删除本脚本的哈希命名文件且确认归档存在；未知文件不处理。
 let temporaryBytes=0;
 const work=path.join(root,'.cdn-upload-work/archive');
@@ -49,4 +64,4 @@ if(fs.existsSync(work))for(const name of fs.readdirSync(work)){
     if(hash!==record.originalSha256&&hash!==record.previewSha256)throw new Error('临时图片与归档不符');
     temporaryBytes+=bytes.length;fs.unlinkSync(file);
 }
-console.log(JSON.stringify({deletedImages:targets.length,removedBytes,updatedDocuments:updated,removedEmbeddedCharacters:embeddedBytes,removedTemporaryBytes:temporaryBytes},null,2));
+console.log(JSON.stringify({deletedImages,archivedImageEntries:targets.length,removedBytes,updatedDocuments:updated,removedEmbeddedCharacters:embeddedBytes,removedTemporaryBytes:temporaryBytes},null,2));

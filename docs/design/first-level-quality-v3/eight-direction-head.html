@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>八方向炮头 · 代表稿审阅</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#101720;color:#e8e3d8;font:14px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}main{max-width:1100px;margin:auto;padding:24px}h1{font-size:22px;margin:0 0 10px}h2{font-size:16px;margin:24px 0 10px}p{color:#b9c3cc;max-width:850px}a{color:#9ed8d6}.board{display:block;width:100%;height:auto}.sizes{display:flex;flex-wrap:wrap;gap:24px}.row{display:flex;gap:8px;flex-wrap:wrap;padding:14px;background:#182330;border:1px solid #46505a}.slot{width:var(--size);height:calc(var(--size)*4/3);background-image:url(eight-direction-head-board-v1.png);background-size:calc(var(--size)*4) calc(var(--size)*8/3);background-position:calc(var(--col)*var(--size)*-1) calc(var(--row)*var(--size)*-4/3)}figcaption{color:#b9c3cc;font-size:12px}figure{margin:0}small{color:#b9c3cc}
+*{box-sizing:border-box}body{margin:0;background:#101720;color:#e8e3d8;font:14px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}main{max-width:1100px;margin:auto;padding:24px}h1{font-size:22px;margin:0 0 10px}h2{font-size:16px;margin:24px 0 10px}p{color:#b9c3cc;max-width:850px}a{color:#9ed8d6}.board{display:block;width:100%;height:auto}.sizes{display:flex;flex-wrap:wrap;gap:24px}.row{display:flex;gap:8px;flex-wrap:wrap;padding:14px;background:#182330;border:1px solid #46505a}.slot{width:var(--size);height:calc(var(--size)*4/3);background-image:url(https://audiopaytest.cos.tx.xmcdn.com/storages/1906-audiotest/64/D3/GAqSoUUOlQwjAA1QWAACF0iZ.png);background-size:calc(var(--size)*4) calc(var(--size)*8/3);background-position:calc(var(--col)*var(--size)*-1) calc(var(--row)*var(--size)*-4/3)}figcaption{color:#b9c3cc;font-size:12px}figure{margin:0}small{color:#b9c3cc}
 </style>
 <main>
 <h1>八方向炮头 · 机枪塔代表稿</h1>
@@ -13,16 +13,17 @@
 <h2>透明基础切图 · 小尺寸预览</h2>
 <div id="production-heads" style="display:flex;gap:12px;flex-wrap:wrap;padding:16px;background:#182330"></div>
 <script>
+const productionHeadUrls=["https://audiopaytest.cos.tx.xmcdn.com/storages/e4bc-audiotest/33/B8/GAqSiIMOlQw0AABBzgACF0i4.png","https://audiopaytest.cos.tx.xmcdn.com/storages/bb57-audiotest/72/D4/GAqSoUUOlQw0AABHrQACF0i3.png","https://audiopaytest.cos.tx.xmcdn.com/storages/e0e2-audiotest/6B/82/GAqSoUUOlQw0AAA77QACF0i1.png","https://audiopaytest.cos.tx.xmcdn.com/storages/a1c6-audiotest/C6/52/GAqSiIMOlQw0AABDAwACF0i2.png","https://audiopaytest.cos.tx.xmcdn.com/storages/24d7-audiotest/61/2C/GAqSiIMOlQwxAAA-hgACF0iw.png","https://audiopaytest.cos.tx.xmcdn.com/storages/a4f2-audiotest/76/6E/GAqSoUUOlQwyAAA7NwACF0ix.png","https://audiopaytest.cos.tx.xmcdn.com/storages/e8bc-audiotest/E5/DC/GAqSiIMOlQwzAAA4sAACF0i0.png","https://audiopaytest.cos.tx.xmcdn.com/storages/2860-audiotest/2C/AE/GAqSiIMOlQwyAABABgACF0iy.png"];
 ['N','NE','E','SE','S','SW','W','NW'].forEach((direction,index)=>{
 const figure=document.createElement('figure');const image=document.createElement('img');
-image.src='output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/resized/exec-f9a2a223-c099-4e16-80bb-054fe5103310_'+String(index).padStart(2,'0')+'.png';
+image.src=productionHeadUrls[index];
 image.width=96;image.height=96;image.alt=direction+'透明炮头';
 const caption=document.createElement('figcaption');caption.textContent=direction;
 figure.append(image,caption);document.getElementById('production-heads').append(figure);
 });
 </script>
 <h2>已认可的独立代表稿</h2>
-<img class="board" src="eight-direction-head-board-v1.png" alt="机枪塔北、东北、东、东南、南、西南、西、西北八方向设计板">
+<img class="board" src="https://audiopaytest.cos.tx.xmcdn.com/storages/1906-audiotest/64/D3/GAqSoUUOlQwjAA1QWAACF0iZ.png" alt="机枪塔北、东北、东、东南、南、西南、西、西北八方向设计板">
 <h2>小尺寸可读性检查</h2>
 <p>下列按整格宽度 64／96 像素缩放（塔体约占格宽 70%，即约 45／67 像素），不宣称等同最终运行尺寸或已经通过游戏验收。选定后需在实际战场逐方向核对。</p>
 <div class="sizes">
@@ -36,6 +37,6 @@ figure.append(image,caption);document.getElementById('production-heads').append(
 <h2>进入切图前必须修正</h2>
 <p>各方向炮头体量和齿轮位置还需统一；底座只保留一张固定资源，不沿用稿件中的底座差异；示意火花与弹迹不能烘焙进炮头。生产图须独立透明炮头、统一旋转轴点和双炮口坐标，枪口反馈由程序绘制。</p>
 <p><a href="EIGHT-DIRECTION-HEAD.md">规格与提示词</a> · <a href="index.html">回到全页面索引</a></p>
-<small>审稿图片仅用于本地预览，已被 Git 忽略，不进入游戏包。确认后的正式资料按既有 CDN 归档流程处理。</small>
+<small>审稿原图与预览已归档CDN，不进入游戏包；项目内非运行PNG副本已移除。运行切图仍保留本地，原字节可按归档清单恢复。</small>
 </main>
 </html>

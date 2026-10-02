@@ -174,6 +174,7 @@ export class PhaseBUnitSpriteView {
     public get activeDirectionalCollapseCount(): number { return this.renderedDirectionalCollapseCount; }
 
     public dispose(): void {
+        for (const node of this.towers.values()) this.detachDirectionalHead(node);
         this.rivetHeadFrames.dispose();
         this.towerDirections.clear();
         this.crowd.reset();
@@ -185,7 +186,7 @@ export class PhaseBUnitSpriteView {
         this.sampledDirectionalDeaths.clear();
     }
 
-    public render(state: PhaseBSceneState, runElapsedSeconds: number): void {
+    public render(state: PhaseBSceneState, runElapsedSeconds: number, battlefieldVisible: boolean = true): void {
         this.visualAnchors.begin();
         this.towerDirectionSamples = [];
         this.healthGraphics.clear();
@@ -199,8 +200,11 @@ export class PhaseBUnitSpriteView {
             this.sampledDirectionalFrames.clear();
             this.sampledDirectionalDeaths.clear();
         }
-        this.root.active = this.ready && !state.result;
+        // 首页不绘制战场，也不应保留不可见八向炮头租约；新开局按实际等级重建。
+        this.root.active = this.ready && !state.result && battlefieldVisible;
         if (!this.root.active) {
+            this.removeMissing(this.towers, new Set());
+            this.rivetHeadFrames.retainLevels(new Set());
             this.crowd.reset();
             this.directionalCorpseFrames.clear();
             this.directionalDeathBindings.clear();
@@ -228,6 +232,7 @@ export class PhaseBUnitSpriteView {
     private renderTowers(state: PhaseBSceneState): void {
         this.towerDirectionSamples = [];
         const visible = new Set<string>();
+        const headLevels = new Set<number>();
         const towerSize = towerDisplaySize(this.layout.boardMetrics(state.grid).cellSize);
         const recentShots = new Map<string, typeof state.feedback.tracers[number]>();
         for (const tracer of state.feedback.tracers) {
@@ -267,6 +272,7 @@ export class PhaseBUnitSpriteView {
                 let emitter = layeredTowerEmissionPoint(point,towerSize,motion,spec,aimAngle);
                 if (towerId === 'rivet-gun') {
                     const level = state.towerLevelsByCell.get(key) ?? 1;
+                    headLevels.add(level);
                     this.rivetHeadFrames.request(level);
                     const previous = this.towerDirections.get(key) ?? 'north';
                     const direction = aim ? towerHeadDirection(point, visualTarget, previous) : previous;
@@ -288,6 +294,8 @@ export class PhaseBUnitSpriteView {
             visible.add(key);
         }
         this.removeMissing(this.towers, visible);
+        // 所有塔已换到本级帧或明确恢复旧图后，才释放过时等级，避免渲染器引用已销毁纹理。
+        this.rivetHeadFrames.retainLevels(headLevels);
         for (const key of this.towerDirections.keys()) if (!visible.has(key)) this.towerDirections.delete(key);
     }
 
@@ -598,9 +606,15 @@ export class PhaseBUnitSpriteView {
     private removeMissing(nodes: Map<string, Node>, visible: ReadonlySet<string>): void {
         for (const [key, node] of Array.from(nodes.entries())) {
             if (key.startsWith('shop:') || visible.has(key)) continue;
+            if (nodes === this.towers) this.detachDirectionalHead(node);
             node.destroy();
             nodes.delete(key);
         }
+    }
+
+    private detachDirectionalHead(node: Node): void {
+        const sprite = node.getChildByName('RivetHead')?.getComponent(Sprite);
+        if (sprite) sprite.spriteFrame = null;
     }
 
     private cellFromKey(key: string): GridCell {

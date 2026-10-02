@@ -47,3 +47,18 @@ test('升级帧加载未齐时恢复旧炮身图、轴点与尺寸，不残留�
     assert.deepEqual(anchors,[[spec.activePivotX,spec.activePivotY]]);
     assert.deepEqual(sizes,[[60*spec.canvasScale*spec.activeScaleX,60*spec.canvasScale*spec.activeScaleY]]);
 });
+
+test('过时等级租约释放，快速重建时旧加载不得回填；仍布置的等级保留且复用',()=>{
+    const {loader,pending}=fixture();let refs=0;
+    const frame={addRef:()=>refs++,decRef:()=>refs--};
+    loader.request(1);loader.request(3);
+    pending.slice(0,8).forEach(p=>p.callback(null,frame));assert.equal(refs,8);
+    loader.retainLevels(new Set([3]));assert.equal(refs,0);assert.equal(loader.frame('north',1),null);
+    loader.request(1);assert.equal(pending.length,24);
+    // 第三级还在加载时退出，迟到八帧全部成对归还，不污染新一级组。
+    loader.retainLevels(new Set([1]));pending.slice(8,16).forEach(p=>p.callback(null,frame));
+    assert.equal(refs,0);assert.equal(loader.frame('north',3),null);
+    pending.slice(16,24).forEach(p=>p.callback(null,frame));assert.equal(refs,8);
+    loader.request(1);assert.equal(pending.length,24);assert.equal(loader.frame('north',1),frame);
+    loader.retainLevels(new Set());assert.equal(refs,0);assert.equal(loader.status,'idle');loader.dispose();
+});

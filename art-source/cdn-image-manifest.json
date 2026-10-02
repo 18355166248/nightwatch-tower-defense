@@ -4159,6 +4159,735 @@
       "previewSha256": "6a88cc4f33f136b97c8fc4f02af0774b68612e11ac2722dc2fabc921413201bd",
       "previewBytes": 70825,
       "verifiedAt": "2026-10-02T04:25:16.954Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/resized/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_02.png": {
+      "originalSha256": "9c59ff9002bbf5462c1a5303d35a17a885f8c278230d7882c1fef004b994de6d",
+      "originalBytes": 15824,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/20a8-audiotest/08/C4/GAqSiIMOlQwRAAA90AACF0iE.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/20a8-audiotest/08/C4/GAqSiIMOlQwRAAA90AACF0iE.png",
+      "previewSha256": "9c59ff9002bbf5462c1a5303d35a17a885f8c278230d7882c1fef004b994de6d",
+      "previewBytes": 15824,
+      "verifiedAt": "2026-10-02T06:02:59.017Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/resized/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_03.png": {
+      "originalSha256": "de4d5c39751da68270e5ee02d4d115164ab0f35a6807efe19697bf707f5401ee",
+      "originalBytes": 17983,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/d723-audiotest/91/1D/GAqSoUUOlQwRAABGPwACF0iD.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/d723-audiotest/91/1D/GAqSoUUOlQwRAABGPwACF0iD.png",
+      "previewSha256": "de4d5c39751da68270e5ee02d4d115164ab0f35a6807efe19697bf707f5401ee",
+      "previewBytes": 17983,
+      "verifiedAt": "2026-10-02T06:02:59.212Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/resized/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_01.png": {
+      "originalSha256": "d0740bd21cface61d0f123f933c44d96eec614f2b9372da762ee67d94f57f0d5",
+      "originalBytes": 18901,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/ab6b-audiotest/AF/5D/GAqSiIMOlQwTAABJ1QACF0iH.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/ab6b-audiotest/AF/5D/GAqSiIMOlQwTAABJ1QACF0iH.png",
+      "previewSha256": "d0740bd21cface61d0f123f933c44d96eec614f2b9372da762ee67d94f57f0d5",
+      "previewBytes": 18901,
+      "verifiedAt": "2026-10-02T06:03:00.683Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/resized/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_00.png": {
+      "originalSha256": "7e710a646518ed1213be202a6ab24ba01ee282e729b9764a583a3260f7d1d37c",
+      "originalBytes": 17662,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/3edd-audiotest/49/D0/GAqSoUUOlQwUAABE_gACF0iI.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/3edd-audiotest/49/D0/GAqSoUUOlQwUAABE_gACF0iI.png",
+      "previewSha256": "7e710a646518ed1213be202a6ab24ba01ee282e729b9764a583a3260f7d1d37c",
+      "previewBytes": 17662,
+      "verifiedAt": "2026-10-02T06:03:00.974Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/resized/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_04.png": {
+      "originalSha256": "1d2c64c2a1ab90862800494bec66656a2fd4952385eae826efc54cf720ab0456",
+      "originalBytes": 16992,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/49f0-audiotest/EB/4A/GAqSiIMOlQwUAABCYAACF0iJ.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/49f0-audiotest/EB/4A/GAqSiIMOlQwUAABCYAACF0iJ.png",
+      "previewSha256": "1d2c64c2a1ab90862800494bec66656a2fd4952385eae826efc54cf720ab0456",
+      "previewBytes": 16992,
+      "verifiedAt": "2026-10-02T06:03:01.221Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/resized/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_05.png": {
+      "originalSha256": "3fee7c85c06b3a52cc1608eb74612a22213198e7c8b6e1520a1b9caec69461c4",
+      "originalBytes": 16131,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/c6c8-audiotest/A9/B1/GAqSiIMOlQwVAAA_AwACF0iK.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/c6c8-audiotest/A9/B1/GAqSiIMOlQwVAAA_AwACF0iK.png",
+      "previewSha256": "3fee7c85c06b3a52cc1608eb74612a22213198e7c8b6e1520a1b9caec69461c4",
+      "previewBytes": 16131,
+      "verifiedAt": "2026-10-02T06:03:01.679Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/resized/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_07.png": {
+      "originalSha256": "f60c2a365a0c5f63225cd9a0291024325f820514995c476d9c3c814046d88059",
+      "originalBytes": 17087,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/5aeb-audiotest/21/9E/GAqSoUUOlQwVAABCvwACF0iL.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/5aeb-audiotest/21/9E/GAqSoUUOlQwVAABCvwACF0iL.png",
+      "previewSha256": "f60c2a365a0c5f63225cd9a0291024325f820514995c476d9c3c814046d88059",
+      "previewBytes": 17087,
+      "verifiedAt": "2026-10-02T06:03:02.021Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/resized/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_06.png": {
+      "originalSha256": "76aecdc61a6669980a35ab0cfd2d498bb4b020d22961cb972982b666f7c54ace",
+      "originalBytes": 15007,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/26d3-audiotest/E8/4E/GAqSiIMOlQwVAAA6nwACF0iM.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/26d3-audiotest/E8/4E/GAqSiIMOlQwVAAA6nwACF0iM.png",
+      "previewSha256": "76aecdc61a6669980a35ab0cfd2d498bb4b020d22961cb972982b666f7c54ace",
+      "previewBytes": 15007,
+      "verifiedAt": "2026-10-02T06:03:02.471Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/slices/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_02.png": {
+      "originalSha256": "ebdcae749d690404bc24d911b0a3b236a483f89e774e84e5d2789b374532a1c9",
+      "originalBytes": 196503,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/9e57-audiotest/12/F1/GAqSoUUOlQwWAAL_lwACF0iN.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/3b70-audiotest/FC/98/GAqSoUUOlQwbAAEu1gACF0iP.png",
+      "previewSha256": "fcaa54e6735e9396ba885c968ba48f8c47830e6a771375cece9cacb1fbcf81cb",
+      "previewBytes": 77526,
+      "verifiedAt": "2026-10-02T06:03:02.937Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/slices/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_03.png": {
+      "originalSha256": "7e59fc2c754df47c3726f19544a498693c55b2b44e1f211f74f7fbd7022e193b",
+      "originalBytes": 215681,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/0bab-audiotest/BF/4F/GAqSiIMOlQwWAANKgQACF0iO.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/896d-audiotest/94/D7/GAqSiIMOlQwbAAFG7QACF0iQ.png",
+      "previewSha256": "38413fa395623ab48573b5102d9b2edfac71073c532f557439e2f0b5310712a0",
+      "previewBytes": 83693,
+      "verifiedAt": "2026-10-02T06:03:03.511Z"
+    },
+    "docs/design/first-level-quality-v3/rivet-head-level-three-source-v1.png": {
+      "originalSha256": "82f11fc9032e0a2edb26bbbec81e574837894a67837269552779f2dfe54ff0e0",
+      "originalBytes": 1687835,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/c8f7-audiotest/F1/34/GAqSoUUOlQwSABAAAAACF0iG.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/9e68-audiotest/F6/86/GAqSoUUOlQwfAAoQowACF0iT.png",
+      "previewSha256": "8b3274c311c3d03ea562628cea50e72bdc65641f7e33fce4da4b643f65f7e38c",
+      "previewBytes": 659619,
+      "verifiedAt": "2026-10-02T06:03:01.633Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/slices/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_00.png": {
+      "originalSha256": "3326b44dfb92ef0ce5aba8a473ed44af78f38162c579820ed140036e9d09521a",
+      "originalBytes": 206772,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/7b9e-audiotest/67/26/GAqSoUUOlQwcAAMntAACF0iR.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/2913-audiotest/21/B8/GAqSoUUOlQwgAAE1DQACF0iV.png",
+      "previewSha256": "2ee0e714ba5e88426c896e8dc0d979463f5fdfbdd100e9e365d9bbc90610293d",
+      "previewBytes": 79117,
+      "verifiedAt": "2026-10-02T06:03:08.977Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/slices/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_01.png": {
+      "originalSha256": "cef8cfabae6f9d6e5ed13455da0f062df9e716ef4d875fb138e545b7ed88a5cb",
+      "originalBytes": 220718,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/7bde-audiotest/5D/07/GAqSiIMOlQwcAANeLgACF0iS.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/e722-audiotest/B2/E4/GAqSiIMOlQwhAAFJEAACF0iW.png",
+      "previewSha256": "49bb8033e73cd851174aa867995f86dee376cbd955d3ec670712ba59f33e2b99",
+      "previewBytes": 84240,
+      "verifiedAt": "2026-10-02T06:03:08.990Z"
+    },
+    "docs/design/first-level-quality-v3/eight-direction-head-board-v1.png": {
+      "originalSha256": "43b91fb3c29aa72c425b9a13f2dbf2a59e674dab627dcbff61b7f81fcb69413d",
+      "originalBytes": 2181590,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/8817-audiotest/F8/DC/GAqSiIMOlQwSABAAAAACF0iF.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/1906-audiotest/64/D3/GAqSoUUOlQwjAA1QWAACF0iZ.png",
+      "previewSha256": "ba345f49dab6c0d2b1c52b6633df1d6b41a37ae7d8e6e098fa10fe9cfdac0506",
+      "previewBytes": 872536,
+      "verifiedAt": "2026-10-02T06:03:03.121Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/slices/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_04.png": {
+      "originalSha256": "356be6c131f530d2a5c9fa6aa399053a038dbb823b6935bbba5e5da8806b44a7",
+      "originalBytes": 203218,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/b06b-audiotest/87/49/GAqSiIMOlQwgAAMZ0gACF0iU.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/d5ad-audiotest/9D/32/GAqSoUUOlQwlAAE7NwACF0ib.png",
+      "previewSha256": "da0ca114b4e014d1f8a0b6c804a1df2cf1c53026deee74b000e7fcf639c5d915",
+      "previewBytes": 80695,
+      "verifiedAt": "2026-10-02T06:03:13.152Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/slices/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_05.png": {
+      "originalSha256": "3294bcd14ceaa0aa4de42e14937fc12d08371e708f7dc7ff25378a1a87d5115e",
+      "originalBytes": 204416,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/bcfc-audiotest/0F/BF/GAqSoUUOlQwhAAMegAACF0iX.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/fb3a-audiotest/F4/D9/GAqSoUUOlQwmAAE7lAACF0id.png",
+      "previewSha256": "1ac5e3430b9062513beda35c040bd32d3332d2c988002365d0d7bcadad37d023",
+      "previewBytes": 80788,
+      "verifiedAt": "2026-10-02T06:03:14.082Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/slices/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_07.png": {
+      "originalSha256": "8958ef2ae7574035c2f91212ce04a4b0fd343563d4f0ac9331b84e73fe82104d",
+      "originalBytes": 209423,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/b907-audiotest/25/B8/GAqSiIMOlQwiAAMyDwACF0iY.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/c4de-audiotest/F9/AB/GAqSoUUOlQwnAAE7mAACF0if.png",
+      "previewSha256": "4937773a789f274842316f4e71798b8d6733c4c28bef5bfd7c25ed9b4b08afb9",
+      "previewBytes": 80792,
+      "verifiedAt": "2026-10-02T06:03:15.210Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/slices/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_06.png": {
+      "originalSha256": "d6747ed3e9a60aee9508f73d0877d49cb5454097ace3019d00fd51574510bab1",
+      "originalBytes": 190760,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/dfb1-audiotest/1B/AB/GAqSiIMOlQwkAALpKAACF0ia.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/1ad7-audiotest/EE/DE/GAqSoUUOlQwpAAEqHQACF0ih.png",
+      "previewSha256": "8effdfc2cbf7175ce1c688a96cc2e8256f210c69ba06fca7846fb4d499e88f5a",
+      "previewBytes": 76317,
+      "verifiedAt": "2026-10-02T06:03:17.565Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/contact_cutouts.png": {
+      "originalSha256": "933d6eb30ba6dd0b0c72cc08b3355bd41fee748ef28367634a775d5e2f8571cc",
+      "originalBytes": 159537,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/f6cb-audiotest/39/46/GAqSiIMOlQwlAAJvMQACF0ic.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/d49c-audiotest/E7/3E/GAqSiIMOlQwqAADhmgACF0ii.png",
+      "previewSha256": "2d2c6a7b3f87b7e34b5347b1365328fb4aeded71fbaed62076b58f96822bf515",
+      "previewBytes": 57754,
+      "verifiedAt": "2026-10-02T06:03:18.439Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/contact_resized.png": {
+      "originalSha256": "69d6e5c4b0421fec16bb3d1ac8d93286f8fba1218b559f4ff7de1b72b3864fd1",
+      "originalBytes": 124047,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/fedf-audiotest/F3/28/GAqSiIMOlQwmAAHkjwACF0ie.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/50ec-audiotest/8F/ED/GAqSiIMOlQwrAACxnQACF0ik.png",
+      "previewSha256": "a9b78e318f9a3bfe9d4eecea8f22ef6129b74522e766ffaca05a24558477f999",
+      "previewBytes": 45469,
+      "verifiedAt": "2026-10-02T06:03:19.478Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/cutouts/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_02.png": {
+      "originalSha256": "46264019e955260ecad978af801b82be58eac66fb2d4a894bc5b16adc70a9478",
+      "originalBytes": 224297,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/346e-audiotest/0F/C9/GAqSiIMOlQwnAANsKQACF0ig.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/224d-audiotest/47/E9/GAqSoUUOlQwsAACRQgACF0in.png",
+      "previewSha256": "389614f932103215a8537c52936f2a6556d150d43d2341ac29851188670a7257",
+      "previewBytes": 37186,
+      "verifiedAt": "2026-10-02T06:03:20.361Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/cutouts/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_03.png": {
+      "originalSha256": "1783d06f89873060b21f8fe56b3c7314bbab4fd01396eb43892be7e0a7d1380a",
+      "originalBytes": 247630,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/f102-audiotest/8E/90/GAqSoUUOlQwqAAPHTgACF0ij.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/3281-audiotest/37/58/GAqSoUUOlQwuAACp4gACF0ip.png",
+      "previewSha256": "61bcd418a29f8612c40ac53b90a39690eab267d8b9bc7115178f20d259a47ddf",
+      "previewBytes": 43490,
+      "verifiedAt": "2026-10-02T06:03:22.833Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/cutouts/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_01.png": {
+      "originalSha256": "6db37411d8c52028d005ee6a57f295620c4627ebe57e584c74b198f8addcd681",
+      "originalBytes": 252762,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/1ec8-audiotest/4E/74/GAqSoUUOlQwrAAPbWgACF0il.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/c0bf-audiotest/49/2D/GAqSoUUOlQwvAACqFgACF0ir.png",
+      "previewSha256": "1ca7b2782fb718f68de0a58e89cb0af21fcb23eb902abe214019f13555d14fdf",
+      "previewBytes": 43542,
+      "verifiedAt": "2026-10-02T06:03:23.931Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/cutouts/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_00.png": {
+      "originalSha256": "498ba59bf646feedc94c0e47436626a75c96d36d35d27a48c07576596f607e62",
+      "originalBytes": 238608,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/888b-audiotest/4C/5D/GAqSiIMOlQwrAAOkEAACF0im.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/9b92-audiotest/22/39/GAqSiIMOlQwwAAChJgACF0is.png",
+      "previewSha256": "8171ecd79681bc7d9c0eeb5d9f5fa84c98c561911a313984a56bfb29c01a2917",
+      "previewBytes": 41254,
+      "verifiedAt": "2026-10-02T06:03:24.283Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/cutouts/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_04.png": {
+      "originalSha256": "98ecc159e6df907b00afb1effd6b0c51c2535564767d24da168dec8b3f2aee95",
+      "originalBytes": 233055,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/085d-audiotest/6A/68/GAqSiIMOlQwsAAOOXwACF0io.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/81d4-audiotest/7A/24/GAqSiIMOlQwxAACfwAACF0iu.png",
+      "previewSha256": "d9bfd9fec99706895e773f6dc1b50fb5fe1d6ede4a56795c4fce4be45bcb628f",
+      "previewBytes": 40896,
+      "verifiedAt": "2026-10-02T06:03:25.324Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/resized/exec-f9a2a223-c099-4e16-80bb-054fe5103310_04.png": {
+      "originalSha256": "de7a25f3a6b6c5a3397db62f43d68ba17c756c85f83603da9ba02c2bab404bd3",
+      "originalBytes": 16006,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/24d7-audiotest/61/2C/GAqSiIMOlQwxAAA-hgACF0iw.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/24d7-audiotest/61/2C/GAqSiIMOlQwxAAA-hgACF0iw.png",
+      "previewSha256": "de7a25f3a6b6c5a3397db62f43d68ba17c756c85f83603da9ba02c2bab404bd3",
+      "previewBytes": 16006,
+      "verifiedAt": "2026-10-02T06:03:30.182Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/resized/exec-f9a2a223-c099-4e16-80bb-054fe5103310_05.png": {
+      "originalSha256": "071b32ee05eed38965e8dd4fcaa3cec248026f44945619f79b5d044482c16488",
+      "originalBytes": 15159,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/a4f2-audiotest/76/6E/GAqSoUUOlQwyAAA7NwACF0ix.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/a4f2-audiotest/76/6E/GAqSoUUOlQwyAAA7NwACF0ix.png",
+      "previewSha256": "071b32ee05eed38965e8dd4fcaa3cec248026f44945619f79b5d044482c16488",
+      "previewBytes": 15159,
+      "verifiedAt": "2026-10-02T06:03:30.736Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/resized/exec-f9a2a223-c099-4e16-80bb-054fe5103310_07.png": {
+      "originalSha256": "d24fe47d1108c02057d36d9caa600007af762b2c1fdc6be154e63fcf45772d60",
+      "originalBytes": 16390,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/2860-audiotest/2C/AE/GAqSiIMOlQwyAABABgACF0iy.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/2860-audiotest/2C/AE/GAqSiIMOlQwyAABABgACF0iy.png",
+      "previewSha256": "d24fe47d1108c02057d36d9caa600007af762b2c1fdc6be154e63fcf45772d60",
+      "previewBytes": 16390,
+      "verifiedAt": "2026-10-02T06:03:31.379Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/cutouts/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_05.png": {
+      "originalSha256": "06a5023a527bddb5778e2f7115acb0494f4a81d0c80c6ee43f9960c6e91ed807",
+      "originalBytes": 234853,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/eeb5-audiotest/EA/8D/GAqSiIMOlQwvAAOVZQACF0iq.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/a5e1-audiotest/C3/F1/GAqSoUUOlQwzAACX-QACF0iz.png",
+      "previewSha256": "671b6bd1ab6c52a08c8e63ede7d293a57822083bde8fc6d7d7d6478620060489",
+      "previewBytes": 38905,
+      "verifiedAt": "2026-10-02T06:03:27.859Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/resized/exec-f9a2a223-c099-4e16-80bb-054fe5103310_06.png": {
+      "originalSha256": "9a8521c0d793cb2938f7225e99c889289c3fd2476ce85069566521eb8521ec24",
+      "originalBytes": 14512,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/e8bc-audiotest/E5/DC/GAqSiIMOlQwzAAA4sAACF0i0.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/e8bc-audiotest/E5/DC/GAqSiIMOlQwzAAA4sAACF0i0.png",
+      "previewSha256": "9a8521c0d793cb2938f7225e99c889289c3fd2476ce85069566521eb8521ec24",
+      "previewBytes": 14512,
+      "verifiedAt": "2026-10-02T06:03:31.875Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/resized/exec-f9a2a223-c099-4e16-80bb-054fe5103310_02.png": {
+      "originalSha256": "bd35b79d744c098081f6f8cf32edc80273c9802174437148e61d990339622d09",
+      "originalBytes": 15341,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/e0e2-audiotest/6B/82/GAqSoUUOlQw0AAA77QACF0i1.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/e0e2-audiotest/6B/82/GAqSoUUOlQw0AAA77QACF0i1.png",
+      "previewSha256": "bd35b79d744c098081f6f8cf32edc80273c9802174437148e61d990339622d09",
+      "previewBytes": 15341,
+      "verifiedAt": "2026-10-02T06:03:32.332Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/resized/exec-f9a2a223-c099-4e16-80bb-054fe5103310_03.png": {
+      "originalSha256": "a92efa3c70a5ccfc46c3c3e1fd90d4752371ade8c900b45431771c1b2e24160d",
+      "originalBytes": 17155,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/a1c6-audiotest/C6/52/GAqSiIMOlQw0AABDAwACF0i2.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/a1c6-audiotest/C6/52/GAqSiIMOlQw0AABDAwACF0i2.png",
+      "previewSha256": "a92efa3c70a5ccfc46c3c3e1fd90d4752371ade8c900b45431771c1b2e24160d",
+      "previewBytes": 17155,
+      "verifiedAt": "2026-10-02T06:03:32.356Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/resized/exec-f9a2a223-c099-4e16-80bb-054fe5103310_01.png": {
+      "originalSha256": "62043f9462f6f6b772f186953dc12d57a652b95640d9873c56a07085d5c399f8",
+      "originalBytes": 18349,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/bb57-audiotest/72/D4/GAqSoUUOlQw0AABHrQACF0i3.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/bb57-audiotest/72/D4/GAqSoUUOlQw0AABHrQACF0i3.png",
+      "previewSha256": "62043f9462f6f6b772f186953dc12d57a652b95640d9873c56a07085d5c399f8",
+      "previewBytes": 18349,
+      "verifiedAt": "2026-10-02T06:03:32.779Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/resized/exec-f9a2a223-c099-4e16-80bb-054fe5103310_00.png": {
+      "originalSha256": "c2deb88707da3d9d042e2ea8c030a001ba8c297287d74f683cb6c99f488d28a6",
+      "originalBytes": 16846,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/e4bc-audiotest/33/B8/GAqSiIMOlQw0AABBzgACF0i4.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/e4bc-audiotest/33/B8/GAqSiIMOlQw0AABBzgACF0i4.png",
+      "previewSha256": "c2deb88707da3d9d042e2ea8c030a001ba8c297287d74f683cb6c99f488d28a6",
+      "previewBytes": 16846,
+      "verifiedAt": "2026-10-02T06:03:32.949Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/cutouts/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_07.png": {
+      "originalSha256": "d3b7ee1a95f080fe253c79071a9eabe1a66cc67d0e171375f46fda51f56ddf22",
+      "originalBytes": 242261,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/d9a6-audiotest/70/76/GAqSoUUOlQwwAAOyVQACF0it.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/71e3-audiotest/B3/9E/GAqSoUUOlQw0AACdIwACF0i5.png",
+      "previewSha256": "0b7088a0f19c499f7ce72e53e3b93b768a7dcd50074f155459daade7ba44b9a6",
+      "previewBytes": 40227,
+      "verifiedAt": "2026-10-02T06:03:29.126Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7/cutouts/exec-c4c95f6c-2a01-4ede-9018-01545ea501c7_06.png": {
+      "originalSha256": "4969481b125de26a2d8db68dedfa57c2c16014bfa07429d795a359e740125083",
+      "originalBytes": 218886,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/c656-audiotest/4B/3D/GAqSoUUOlQwxAANXBgACF0iv.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/63d8-audiotest/41/09/GAqSiIMOlQw1AACJZwACF0i8.png",
+      "previewSha256": "9827b57be7b069d6458b42138719798dbbcee21f7a4a2b2a2d320858fc75572f",
+      "previewBytes": 35175,
+      "verifiedAt": "2026-10-02T06:03:30.080Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/slices/exec-f9a2a223-c099-4e16-80bb-054fe5103310_05.png": {
+      "originalSha256": "63583c99f4a621e43b20b308fffbc92c06b6d57b574cf4f73dc18b5833d93152",
+      "originalBytes": 195230,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/ad0c-audiotest/6F/A2/GAqSoUUOlQw1AAL6ngACF0i7.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/80bb-audiotest/C6/37/GAqSoUUOlQw5AAFA7gACF0jA.png",
+      "previewSha256": "4c4886300257e6d5457257c7418e31e18449121753e1050f51fba514094da585",
+      "previewBytes": 82158,
+      "verifiedAt": "2026-10-02T06:03:33.711Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/slices/exec-f9a2a223-c099-4e16-80bb-054fe5103310_04.png": {
+      "originalSha256": "e7a4f3d1dc0f875d7561d3fd4ebf7cd44e4d05f3cabb769d1375b4eb88882667",
+      "originalBytes": 194869,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/cd71-audiotest/66/0B/GAqSiIMOlQw0AAL5NQACF0i6.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/cd6e-audiotest/E7/AF/GAqSiIMOlQw5AAFADQACF0jB.png",
+      "previewSha256": "34f46adc825264b8d4cb6da9bb3b5830ae380dcee22029df1cb7d9eaaaeffb94",
+      "previewBytes": 81933,
+      "verifiedAt": "2026-10-02T06:03:33.967Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/slices/exec-f9a2a223-c099-4e16-80bb-054fe5103310_07.png": {
+      "originalSha256": "9e928a9e04f6818e17b73a2131a4f8cd70bc0c41682add47c534d9b1a1e32c01",
+      "originalBytes": 202831,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/e30f-audiotest/45/99/GAqSoUUOlQw1AAMYTwACF0i9.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/3cb2-audiotest/55/64/GAqSoUUOlQw6AAE89AACF0jC.png",
+      "previewSha256": "cfb5d8ac68d9c4df5010930ed9d04241d8d33d22f42e964588e191fa09ea2d26",
+      "previewBytes": 81140,
+      "verifiedAt": "2026-10-02T06:03:34.387Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/slices/exec-f9a2a223-c099-4e16-80bb-054fe5103310_06.png": {
+      "originalSha256": "fe4af799830f01fcd9dc3b9165f2966813ba9b75a83ec557021697e174809918",
+      "originalBytes": 185854,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/7281-audiotest/65/60/GAqSiIMOlQw2AALV_gACF0i-.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/e6bf-audiotest/9C/0F/GAqSoUUOlQw6AAEvAAACF0jE.png",
+      "previewSha256": "9eefa6e96e31afb8e17f055a142d56cd71db02d8cff96068d67d2677ebe3765a",
+      "previewBytes": 77568,
+      "verifiedAt": "2026-10-02T06:03:34.881Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/slices/exec-f9a2a223-c099-4e16-80bb-054fe5103310_02.png": {
+      "originalSha256": "1b4a9566d986198fd53b76953ff6e9011e86cd69251a000bc81e3168f0ef637e",
+      "originalBytes": 190191,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/9821-audiotest/C8/E2/GAqSiIMOlQw6AALm7wACF0jD.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/a6d7-audiotest/D5/02/GAqSoUUOlQw-AAE2jQACF0jI.png",
+      "previewSha256": "e5515fc1482758f79942535bbc0fa882e9bc5b953a69e9a3da174bbc346feaa5",
+      "previewBytes": 79501,
+      "verifiedAt": "2026-10-02T06:03:38.766Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/slices/exec-f9a2a223-c099-4e16-80bb-054fe5103310_03.png": {
+      "originalSha256": "83c2f8c95c122bdb0bf50347e735f3673fe1c27a4ac4b2968af8644c547ce31d",
+      "originalBytes": 206212,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/1d1a-audiotest/26/95/GAqSiIMOlQw6AAMlhAACF0jF.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/e251-audiotest/7C/80/GAqSoUUOlQw_AAE34AACF0jK.png",
+      "previewSha256": "84c9437ab14f280efd9176270afcb07d0c18bbb2143ae71a47690fa847983ff9",
+      "previewBytes": 79840,
+      "verifiedAt": "2026-10-02T06:03:39.420Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/slices/exec-f9a2a223-c099-4e16-80bb-054fe5103310_01.png": {
+      "originalSha256": "28244e5f18a2974e3d73781a04beda4c39de99fcad2511eed3fb08398dafc3f8",
+      "originalBytes": 212634,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/811f-audiotest/D7/F5/GAqSoUUOlQw7AAM-mgACF0jG.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/8e7b-audiotest/E0/FD/GAqSiIMOlQw_AAFDcwACF0jL.png",
+      "previewSha256": "c3d0c690096b03f001da640da2039746560a95669b719262968583adfcd27bd3",
+      "previewBytes": 82803,
+      "verifiedAt": "2026-10-02T06:03:39.730Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/slices/exec-f9a2a223-c099-4e16-80bb-054fe5103310_00.png": {
+      "originalSha256": "60b840f72164b3bf461acccfe1a5bad34f06bb55e5f4445a4d4df39889c46793",
+      "originalBytes": 198776,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/2cfe-audiotest/A0/3F/GAqSiIMOlQw7AAMIeAACF0jH.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/62ba-audiotest/02/00/GAqSiIMOlQxAAAFE1QACF0jN.png",
+      "previewSha256": "98b5eb9d2052ea2d7d0c6fd33d306cb67435145ddae5ea7aec9157b51fc95928",
+      "previewBytes": 83157,
+      "verifiedAt": "2026-10-02T06:03:40.340Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/contact_cutouts.png": {
+      "originalSha256": "bbc6a213aaf8df4ea257a1a05f8c4471b01db106a2ca40409cecc32dfb02470f",
+      "originalBytes": 152661,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/6b18-audiotest/13/9A/GAqSiIMOlQw_AAJUVQACF0jJ.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/8e34-audiotest/72/96/GAqSoUUOlQxDAADaNgACF0jQ.png",
+      "previewSha256": "c766a1a17ce9f7d47f11831191ad702a3b1706d333819c56ac360b02b73949ad",
+      "previewBytes": 55862,
+      "verifiedAt": "2026-10-02T06:03:43.687Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/contact_resized.png": {
+      "originalSha256": "ec1a18acbb646f7d3b90b904e70b607407fda7340f225820a867d30582f88cc6",
+      "originalBytes": 118994,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/09ad-audiotest/08/E2/GAqSoUUOlQxAAAHQ0gACF0jM.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/c37e-audiotest/3F/53/GAqSoUUOlQxEAACq-gACF0jS.png",
+      "previewSha256": "19059087b8a6e72c69c17c827b989c567ef0e8cc0a50072655986fdd0ff0c291",
+      "previewBytes": 43770,
+      "verifiedAt": "2026-10-02T06:03:44.644Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/cutouts/exec-f9a2a223-c099-4e16-80bb-054fe5103310_04.png": {
+      "originalSha256": "241ca66b693f0e0034f4eb955cdb2adc0aafbe009b954bba0d9030c66db35bdd",
+      "originalBytes": 223486,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/0410-audiotest/C0/9F/GAqSoUUOlQxAAANo_gACF0jO.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/9d43-audiotest/9A/9C/GAqSiIMOlQxEAACP-AACF0jT.png",
+      "previewSha256": "cd1c9e028c7343511c5ee5e930e74b8730e28b4684eb55068bb14c6c54d9b86d",
+      "previewBytes": 36856,
+      "verifiedAt": "2026-10-02T06:03:44.836Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/cutouts/exec-f9a2a223-c099-4e16-80bb-054fe5103310_05.png": {
+      "originalSha256": "6a24784ec3824eabc714adb0dab46d9ec5d68404e94ad47a09ea226a133cc5bb",
+      "originalBytes": 223230,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/f7ac-audiotest/13/18/GAqSiIMOlQxBAANn_gACF0jP.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/c6aa-audiotest/86/37/GAqSoUUOlQxFAACHzAACF0jW.png",
+      "previewSha256": "bed656342b7340ebe94ddc40cf74043d03c7230cf6ecf6223e6656b8d3dd47b6",
+      "previewBytes": 34764,
+      "verifiedAt": "2026-10-02T06:03:45.543Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/cutouts/exec-f9a2a223-c099-4e16-80bb-054fe5103310_07.png": {
+      "originalSha256": "06f75379b8dbe285a0f69d50bf43c07d80f1e076458fab5753f5a011239d9b17",
+      "originalBytes": 232965,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/cde5-audiotest/F8/79/GAqSiIMOlQxDAAOOBQACF0jR.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/d0c0-audiotest/35/99/GAqSoUUOlQxHAACOPgACF0jY.png",
+      "previewSha256": "9cc5277bf9004cff188f224ad218fb8b1648a19ecafffaa02b469e5a0504e180",
+      "previewBytes": 36414,
+      "verifiedAt": "2026-10-02T06:03:48.435Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/cutouts/exec-f9a2a223-c099-4e16-80bb-054fe5103310_06.png": {
+      "originalSha256": "b85956b62c0166a1bb2ea6462dbedffe7b89fd5cf8197f02195af55c9e0edb16",
+      "originalBytes": 214306,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/7618-audiotest/F5/A6/GAqSoUUOlQxEAANFIgACF0jU.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/3f19-audiotest/F7/B6/GAqSoUUOlQxIAACB4AACF0ja.png",
+      "previewSha256": "fcf12e92fe5fa6782eb720d0f2446412ae603b9d73aaf99178e5088c4758e36f",
+      "previewBytes": 33248,
+      "verifiedAt": "2026-10-02T06:03:49.399Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/cutouts/exec-f9a2a223-c099-4e16-80bb-054fe5103310_02.png": {
+      "originalSha256": "9d8be3e4083f4e02a97c9185e0d0d7ef09638b10766ad8cbbdb5b470e6ee0bab",
+      "originalBytes": 218171,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/804d-audiotest/B9/0E/GAqSiIMOlQxFAANUOwACF0jV.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/c457-audiotest/EB/67/GAqSoUUOlQxJAACG9wACF0jc.png",
+      "previewSha256": "66a0819a9ad8d1ef4edc194555e43addd027e94338576dfb712ae9d8bc2bfc32",
+      "previewBytes": 34551,
+      "verifiedAt": "2026-10-02T06:03:49.746Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/cutouts/exec-f9a2a223-c099-4e16-80bb-054fe5103310_03.png": {
+      "originalSha256": "fa38067f43991595b8e7dd7cfed61928220e997562a9b5b5b20a5b776654b717",
+      "originalBytes": 237757,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/29c3-audiotest/6F/09/GAqSiIMOlQxFAAOgvQACF0jX.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/968e-audiotest/B4/DE/GAqSiIMOlQxKAACbBAACF0je.png",
+      "previewSha256": "df9f8ca6125de0ef65f24d3266694e325c17d6287e9ae4cbba0d7f9aca34e214",
+      "previewBytes": 39684,
+      "verifiedAt": "2026-10-02T06:03:50.593Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/resized/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_02.png": {
+      "originalSha256": "8e7d8150735608c020e3dce672a2a67d837ad496f726764677bfa854354eca01",
+      "originalBytes": 17492,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/84fe-audiotest/DE/38/GAqSoUUOlQxKAABEVAACF0jf.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/84fe-audiotest/DE/38/GAqSoUUOlQxKAABEVAACF0jf.png",
+      "previewSha256": "8e7d8150735608c020e3dce672a2a67d837ad496f726764677bfa854354eca01",
+      "previewBytes": 17492,
+      "verifiedAt": "2026-10-02T06:03:54.782Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/resized/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_01.png": {
+      "originalSha256": "dba280108a9e1e8ab59572e62e7a2631c55db3d9399749d40a46e64d3dd9ca5b",
+      "originalBytes": 20300,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/6816-audiotest/83/D3/GAqSoUUOlQxKAABPTAACF0jh.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/6816-audiotest/83/D3/GAqSoUUOlQxKAABPTAACF0jh.png",
+      "previewSha256": "dba280108a9e1e8ab59572e62e7a2631c55db3d9399749d40a46e64d3dd9ca5b",
+      "previewBytes": 20300,
+      "verifiedAt": "2026-10-02T06:03:55.381Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/resized/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_03.png": {
+      "originalSha256": "7aa38770ae7de52c48da631c0e210a6410d40bffc154503d124a65d344a66341",
+      "originalBytes": 19706,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/fa7f-audiotest/BE/C6/GAqSiIMOlQxKAABM-gACF0jg.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/fa7f-audiotest/BE/C6/GAqSiIMOlQxKAABM-gACF0jg.png",
+      "previewSha256": "7aa38770ae7de52c48da631c0e210a6410d40bffc154503d124a65d344a66341",
+      "previewBytes": 19706,
+      "verifiedAt": "2026-10-02T06:03:55.392Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/resized/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_04.png": {
+      "originalSha256": "4f31949b73ee75a6c7a2cbdf3c1d465cc4ddc53fddf45587f4b78e4710e20a1d",
+      "originalBytes": 19449,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/fbf6-audiotest/D7/07/GAqSoUUOlQxLAABL-QACF0jj.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/fbf6-audiotest/D7/07/GAqSoUUOlQxLAABL-QACF0jj.png",
+      "previewSha256": "4f31949b73ee75a6c7a2cbdf3c1d465cc4ddc53fddf45587f4b78e4710e20a1d",
+      "previewBytes": 19449,
+      "verifiedAt": "2026-10-02T06:03:56.048Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/resized/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_00.png": {
+      "originalSha256": "afd2d70d2787de37d0e18e58972b6a252ed5d55aafe5ecf18d266ca67f0a08a5",
+      "originalBytes": 20241,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/2ccd-audiotest/50/FB/GAqSiIMOlQxLAABPEQACF0ji.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/2ccd-audiotest/50/FB/GAqSiIMOlQxLAABPEQACF0ji.png",
+      "previewSha256": "afd2d70d2787de37d0e18e58972b6a252ed5d55aafe5ecf18d266ca67f0a08a5",
+      "previewBytes": 20241,
+      "verifiedAt": "2026-10-02T06:03:56.067Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/resized/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_07.png": {
+      "originalSha256": "de604663bcabac308b79701968af409504b6ccc48acde5f688ec6c1938476fdd",
+      "originalBytes": 18780,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/0fe5-audiotest/86/C4/GAqSoUUOlQxMAABJXAACF0jl.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/0fe5-audiotest/86/C4/GAqSoUUOlQxMAABJXAACF0jl.png",
+      "previewSha256": "de604663bcabac308b79701968af409504b6ccc48acde5f688ec6c1938476fdd",
+      "previewBytes": 18780,
+      "verifiedAt": "2026-10-02T06:03:56.599Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/resized/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_05.png": {
+      "originalSha256": "6b5e802bdcbab1e3ac7d947af2d49db78617daf5cdc577fd538c375775ee045e",
+      "originalBytes": 17949,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/3f33-audiotest/E2/17/GAqSiIMOlQxMAABGHQACF0jk.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/3f33-audiotest/E2/17/GAqSiIMOlQxMAABGHQACF0jk.png",
+      "previewSha256": "6b5e802bdcbab1e3ac7d947af2d49db78617daf5cdc577fd538c375775ee045e",
+      "previewBytes": 17949,
+      "verifiedAt": "2026-10-02T06:03:56.646Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/cutouts/exec-f9a2a223-c099-4e16-80bb-054fe5103310_01.png": {
+      "originalSha256": "542272b23290e126482d10b5d7f5599bea8dba4670efa178b6d639967a5d1ad0",
+      "originalBytes": 244753,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/8464-audiotest/E0/F3/GAqSiIMOlQxIAAO8EQACF0jZ.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/936b-audiotest/DE/70/GAqSiIMOlQxMAACbvAACF0jm.png",
+      "previewSha256": "c3ec5c756fff87ca950e8f33cc99a9353ed501fddf3e285171bd55d099a5e6ef",
+      "previewBytes": 39868,
+      "verifiedAt": "2026-10-02T06:03:52.864Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/resized/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_06.png": {
+      "originalSha256": "16e964e5ae83270458231db90dbb58edaddbe61bf1c18dd8bd5516cdba3c7e20",
+      "originalBytes": 16684,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/40e0-audiotest/32/E9/GAqSoUUOlQxMAABBLAACF0jn.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/40e0-audiotest/32/E9/GAqSoUUOlQxMAABBLAACF0jn.png",
+      "previewSha256": "16e964e5ae83270458231db90dbb58edaddbe61bf1c18dd8bd5516cdba3c7e20",
+      "previewBytes": 16684,
+      "verifiedAt": "2026-10-02T06:03:57.192Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/cutouts/exec-f9a2a223-c099-4e16-80bb-054fe5103310_00.png": {
+      "originalSha256": "acbd9e9f1d68526e4ae32238343ac164d731403e5683226f48350d7cad371e6e",
+      "originalBytes": 227058,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/5cb0-audiotest/91/6B/GAqSiIMOlQxJAAN28gACF0jb.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/8d83-audiotest/D1/82/GAqSoUUOlQxOAACRBAACF0jr.png",
+      "previewSha256": "a0d6e396c81d7b4f311ed647c7857f35e22e6338777f76c878c4e2809633c50b",
+      "previewBytes": 37124,
+      "verifiedAt": "2026-10-02T06:03:54.223Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/slices/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_02.png": {
+      "originalSha256": "934ee8e899c1ca34f999f742e5576742392dbd22d27286f2e5375018bfda34d1",
+      "originalBytes": 204816,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/4cc2-audiotest/DA/32/GAqSiIMOlQxMAAMgEAACF0jo.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/b551-audiotest/5F/07/GAqSoUUOlQxRAAEy7gACF0ju.png",
+      "previewSha256": "e6a16e1cb927182dab112cf166c89c1a35102313050755d74bb401cb2fbea946",
+      "previewBytes": 78574,
+      "verifiedAt": "2026-10-02T06:03:57.550Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/slices/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_03.png": {
+      "originalSha256": "b4172770b23d5422b3ad34d0592748be320fe58da4d2248822302469569cba92",
+      "originalBytes": 224136,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/8f44-audiotest/E9/66/GAqSoUUOlQxNAANriAACF0jp.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/03cc-audiotest/CF/C7/GAqSiIMOlQxRAAFpmwACF0jv.png",
+      "previewSha256": "28361888ab05b320e5ba317c68edaddd9733e38e8bcf74d113b8698cb6687494",
+      "previewBytes": 92571,
+      "verifiedAt": "2026-10-02T06:03:58.036Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/slices/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_01.png": {
+      "originalSha256": "e064b96c8fb412dfd389177fffb91a734ee8f8ea8a21be964df34efe230d72ca",
+      "originalBytes": 227623,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/f9dc-audiotest/85/F5/GAqSiIMOlQxNAAN5JwACF0jq.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/6247-audiotest/84/3F/GAqSoUUOlQxSAAFpYgACF0jw.png",
+      "previewSha256": "4d859426c7d28fd98657170bab3c6dcc36dcfde93967217eddc8275984548302",
+      "previewBytes": 92514,
+      "verifiedAt": "2026-10-02T06:03:57.973Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/slices/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_00.png": {
+      "originalSha256": "8e9b48ca27997448fb332784446032bbbe5c1f6f4e6e61e2445853dff01a4b72",
+      "originalBytes": 219647,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/0d0f-audiotest/A4/56/GAqSiIMOlQxOAANZ_wACF0js.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/47a5-audiotest/5B/46/GAqSoUUOlQxTAAFBggACF0j0.png",
+      "previewSha256": "6fd3cce19077a483d1077d4985727621bd7550ee3ebed16ba82d8b33261c709c",
+      "previewBytes": 82306,
+      "verifiedAt": "2026-10-02T06:03:59.753Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/slices/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_05.png": {
+      "originalSha256": "a711bacdbb4a14ebd241382ecf39e0de3718512dc05ff9f49429dfc946b927d7",
+      "originalBytes": 212287,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/89fd-audiotest/39/12/GAqSoUUOlQxSAAM9PwACF0jy.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/69f9-audiotest/FC/DF/GAqSoUUOlQxXAAFgywACF0j2.png",
+      "previewSha256": "c1f8f62d3875ce5fcb006d547360152dd84b11097d12b2f0000901fbe71d2f78",
+      "previewBytes": 90315,
+      "verifiedAt": "2026-10-02T06:04:03.505Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/slices/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_07.png": {
+      "originalSha256": "b13b12537cd0c2ba9244d77e3ac1a19fd9e1925f901996bdae445a6709453d4f",
+      "originalBytes": 218193,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/36ba-audiotest/95/0E/GAqSiIMOlQxTAANUUQACF0jz.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/ff14-audiotest/6E/F8/GAqSiIMOlQxXAAFFyQACF0j3.png",
+      "previewSha256": "52acec4ade423ef9fe9f66ee1a909042f15bccf33cb593219117bd99699d92f7",
+      "previewBytes": 83401,
+      "verifiedAt": "2026-10-02T06:04:03.771Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/slices/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_04.png": {
+      "originalSha256": "95e9fe105134e6cae67467d0ab5033faedcf023799094984caea33765457f81f",
+      "originalBytes": 215133,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/8f79-audiotest/5D/A8/GAqSiIMOlQxSAANIXQACF0jx.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/5d08-audiotest/7F/CC/GAqSoUUOlQxXAAFFfAACF0j4.png",
+      "previewSha256": "0cbf42337ecb07feb376ffeb68e555230b60de36c80935b2dc29e68db5212c01",
+      "previewBytes": 83324,
+      "verifiedAt": "2026-10-02T06:04:03.609Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/slices/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_06.png": {
+      "originalSha256": "8d65fbc99a891f4c7e92b1b8d070b3760081bd247c034e0543f1885d8f47b9e6",
+      "originalBytes": 200805,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/748a-audiotest/47/F3/GAqSiIMOlQxUAAMQZQACF0j1.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/f820-audiotest/CA/F4/GAqSoUUOlQxZAAEl8QACF0j8.png",
+      "previewSha256": "0aebb3e4caa42f8507c947ac91ae053e7894408b14b8ad03ab7c48efcc1c5d9d",
+      "previewBytes": 75249,
+      "verifiedAt": "2026-10-02T06:04:05.409Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/contact_cutouts.png": {
+      "originalSha256": "5f3cf0cc4e2436ab97e77e13dc7796b1c4d9b748eff5a32e5ac0553256cfd3af",
+      "originalBytes": 176003,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/93f9-audiotest/82/53/GAqSiIMOlQxYAAKvgwACF0j5.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/c388-audiotest/AE/9E/GAqSoUUOlQxdAAD52QACF0j-.png",
+      "previewSha256": "6543f70090fc3b853f5b04e7b12092d5440ecbc497e9e5e097cb4108287a6245",
+      "previewBytes": 63961,
+      "verifiedAt": "2026-10-02T06:04:09.056Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/contact_resized.png": {
+      "originalSha256": "0629cf90154ff3c604bfa372af1ef6f3e11b68eb8cc49aa9a948a4ea0e0cbcaf",
+      "originalBytes": 136052,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/b70b-audiotest/84/DE/GAqSoUUOlQxYAAITdAACF0j6.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/b3af-audiotest/7F/CF/GAqSiIMOlQxdAADD0wACF0j_.png",
+      "previewSha256": "7e53196b3a38386292cf7121a74f40aa7c1a32ca845dcfe9a86a5d5ba38bb5f0",
+      "previewBytes": 50131,
+      "verifiedAt": "2026-10-02T06:04:09.413Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/cutouts/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_02.png": {
+      "originalSha256": "145c9a464abae308b1318d2a188dde6606d04d4584d3acf86a246c8243ba375e",
+      "originalBytes": 236045,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/4d20-audiotest/0A/DA/GAqSiIMOlQxZAAOaDQACF0j7.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/b5c9-audiotest/E8/1C/GAqSiIMOlQxeAACk2wACF0kB.png",
+      "previewSha256": "a12a5aaedff771f579668a9b8284bc61cd9c41dd59f6b85e9c6139d108558409",
+      "previewBytes": 42203,
+      "verifiedAt": "2026-10-02T06:04:09.913Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/cutouts/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_03.png": {
+      "originalSha256": "480c694f68cf5e15338d18ec265d864c2e6db9372b8f349d52eef5ddf8cd36cf",
+      "originalBytes": 256159,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/c294-audiotest/8B/F4/GAqSiIMOlQxaAAPonwACF0j9.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/dce0-audiotest/D5/86/GAqSiIMOlQxeAAC1awACF0kD.png",
+      "previewSha256": "9eb53ddb8c0fb640122411120ad08109381a88c58f97f611a97a7ce00773735f",
+      "previewBytes": 46443,
+      "verifiedAt": "2026-10-02T06:04:10.986Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/cutouts/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_00.png": {
+      "originalSha256": "a14803333e6bfb860bb8c029bc2ce685a5398a12357a200477d9ee900ac272ca",
+      "originalBytes": 252990,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/cf3e-audiotest/C7/56/GAqSoUUOlQxeAAPcPgACF0kC.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/a685-audiotest/AD/3A/GAqSoUUOlQxiAAC4nAACF0kG.png",
+      "previewSha256": "05e9b284cafe919d22b9cee4c0a851b80dae96115419c062ae95301d1e94864c",
+      "previewBytes": 47260,
+      "verifiedAt": "2026-10-02T06:04:14.619Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/cutouts/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_01.png": {
+      "originalSha256": "3f47d955ff27e2bfb3d10e60b39a9f8c87cac6ba1bcbea376cb38d9c4cccfbc3",
+      "originalBytes": 261036,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/46fc-audiotest/79/CD/GAqSoUUOlQxdAAP7rAACF0kA.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/1f92-audiotest/3D/79/GAqSiIMOlQxiAAC8MQACF0kH.png",
+      "previewSha256": "a9e9369e9e4c9175a2173b316e40a53b09551b3cc3692cbedb7e9a66c1bfaf48",
+      "previewBytes": 48177,
+      "verifiedAt": "2026-10-02T06:04:14.577Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/cutouts/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_04.png": {
+      "originalSha256": "dcdec99f350c064ee098bc2f67c24fdd66a8c2d363e8013f919d9d7644301803",
+      "originalBytes": 247999,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/0522-audiotest/C4/C4/GAqSoUUOlQxeAAPIvwACF0kE.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/7375-audiotest/BD/66/GAqSoUUOlQxjAAC5QAACF0kK.png",
+      "previewSha256": "391e45e0f1b25135e93a01bd94c6823a964fdd440b0568bb6dfc78b62c3abef8",
+      "previewBytes": 47424,
+      "verifiedAt": "2026-10-02T06:04:15.600Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/cutouts/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_05.png": {
+      "originalSha256": "c1d950a019f0dc9273e05b193d41e52ca72a4a29a3ee0686a511a4f5a4f4e8c8",
+      "originalBytes": 245063,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/e7cf-audiotest/50/8A/GAqSiIMOlQxfAAO9RwACF0kF.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/b936-audiotest/94/E1/GAqSiIMOlQxkAACjzwACF0kL.png",
+      "previewSha256": "ae3447f3624e37650c7e008042140809e46fbdcd9b8640e0e0061f8ebfcbd24b",
+      "previewBytes": 41935,
+      "verifiedAt": "2026-10-02T06:04:16.102Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/cutouts/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_06.png": {
+      "originalSha256": "a8b443ddf92f336c05214008b58d5077fdadde6ba357c39422c82c61b8099aa1",
+      "originalBytes": 229714,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/ed90-audiotest/F6/C2/GAqSiIMOlQxjAAOBUgACF0kJ.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/3e25-audiotest/96/37/GAqSoUUOlQxpAACbNwACF0kO.png",
+      "previewSha256": "aba91b8eb34515a78aaef3023f84336bfcb020b729dfd42549ff3cfbcf4ef0f7",
+      "previewBytes": 39735,
+      "verifiedAt": "2026-10-02T06:04:21.382Z"
+    },
+    "docs/design/first-level-quality-v3/output/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb/cutouts/exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb_07.png": {
+      "originalSha256": "65a8ea6fd808335a966029cd8357b27c3fc2340e3cd365502f92f29ded93b263",
+      "originalBytes": 250804,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/ca52-audiotest/D8/7D/GAqSoUUOlQxjAAPTtAACF0kI.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/3cd7-audiotest/B9/56/GAqSiIMOlQxpAACsjwACF0kP.png",
+      "previewSha256": "48b3f4dc11d567a6c72a5b71452d86a5ae2870859ed5608ba475f59e25bb5a3f",
+      "previewBytes": 44175,
+      "verifiedAt": "2026-10-02T06:04:20.481Z"
+    },
+    "docs/design/first-level-quality-v3/rivet-head-level-two-source-v1.png": {
+      "originalSha256": "1b2552bafaf4f943fd87001f2c7da6bcdc1c1a62d7663f66b56e272c485f7c05",
+      "originalBytes": 1616663,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/9acf-audiotest/0E/DF/GAqSoUUOlQxlABAAAAACF0kM.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/382f-audiotest/BE/56/GAqSoUUOlQxxAAlE9gACF0kQ.png",
+      "previewSha256": "68fd29466af9a5dd2923e112c5eb4a65a41b5c9f52708462bbad73ee1882eeae",
+      "previewBytes": 607478,
+      "verifiedAt": "2026-10-02T06:04:24.062Z"
     }
   }
 }
