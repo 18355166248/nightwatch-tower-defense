@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>贴图采样独立对照 · 尚未接入</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101720;color:#e8e3d8;font:14px/1.6 -apple-system,"PingFang SC",sans-serif}main{max-width:1280px;margin:auto;padding:24px}h1{font-size:22px}h2{font-size:17px;margin-top:32px}p{max-width:1000px;color:#bbc8cf}button{font:inherit;min-height:44px;padding:8px 16px;background:#22323e;color:inherit;border:1px solid #617482;cursor:pointer}button[aria-pressed=true]{background:#235650}nav{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.row{display:flex;gap:20px;overflow-x:auto;align-items:start}figure{margin:0;flex:none}figcaption{font-size:12px;margin-bottom:8px;color:#bfcdd6}.surface{background:#192530;overflow:hidden}.surface img{display:block;width:100%;height:100%}.raw img{object-fit:contain}a{color:#9ed8d6}small{color:#a8bdc9}#error{color:#ffb6aa}
+</style><main>
+<h1>原纹理 / A / B · 实际显示尺寸采样对照</h1>
+<p>仅评审附件，正式游戏和原图未改。A 保守采样、B 更小采样；都不是逐像素无损，不能仅凭内存计算接入。下面按竖屏游戏宽度展示同一原图的不同采样，不是运行截图或新的战斗设计稿。</p>
+<nav aria-label="游戏显示宽度"><button data-width="335" aria-pressed="true">335px · 当前试玩</button><button data-width="390" aria-pressed="false">390px</button><button data-width="405" aria-pressed="false">405px · 720高</button><button data-width="320" aria-pressed="false">320px</button></nav>
+<nav aria-label="采样候选"><button data-candidate="A" aria-pressed="false">对比 A · 保守</button><button data-candidate="B" aria-pressed="true">对比 B · 较小</button></nav>
+<p id="budget">正在读取附件…</p><p id="error" role="alert"></p>
+<p>请重点比较背景石砖和城市边缘、铜框铆钉、按钮雕饰。共用面板仅展示完整源图，不模拟 Cocos 九宫格；若认可采样，接入后还必须验证边框尺寸与文字。</p>
+<section id="assets"></section><p><a href="RESOURCE-RESULT.md">上一批运行回归</a> · <a href="TEXTURE-SAMPLING.md">规格、限制与后续门禁</a> · <a href="index.html">第3稿索引</a></p>
+</main><script src="texture-sampling.js"></script></html>

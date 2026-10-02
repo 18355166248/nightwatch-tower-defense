@@ -10,6 +10,17 @@
     "imageFit": "contain"
   },
   "visualAcceptance": "direction-selected-runtime-fidelity-pending",
+  "resourceOptimization": {
+    "status": "sampling-comparison-awaiting-user-clarity-approval-not-installed",
+    "runtimeUrl": "http://127.0.0.1:4176/?build=quality-v3-result-resource-lease",
+    "mainSha256": "b3c4cba585491f1405aa525fd5eb994ad76126d592ccf5351e07e830eb3873b4",
+    "baseCachedTextureBytes": 12267936,
+    "samplingReview": "texture-sampling.html",
+    "specification": "TEXTURE-SAMPLING.md",
+    "normalOneTimesRunsForCurrentFinalBuild": 0,
+    "finalBuildFrozen": false,
+    "stageComplete": false
+  },
   "frozenAcceptance": {"review":"FROZEN-ACCEPTANCE.md","visualBaseline":"user-approved-v3-direction-this-turn","runtimeUrl":"http://127.0.0.1:4176/?build=quality-v3-recovery-final","mainSha256":"8b768c024f2c13418f37212d620eb6a856d67fcdc555bcee08c869f3e49353e0","normalOneTimesEightWaveRunsCompleted":1,"normalOneTimesEightWaveRunsRequired":3,"runOne":{"result":"victory","killed":212,"spawned":213,"leaked":1,"core":9,"gold":348,"elapsedSeconds":405.733333333293},"resourceBudget":"failed-no-threshold-or-quality-change","cachedTextureBytesAtVictory":14626176,"stageComplete":false},
   "runtimeIntegration": "all-planned-page-families-integrated-frozen-browser-and-human-visual-acceptance-pending",
   "recoveryDraft": {"source":"recovery.html","styles":"recovery.css","behavior":"recovery.js","review":"RECOVERY.md","states":["background-waiting","background-returned","route-error"],"visualAcceptance":"approved-family-reused-runtime-human-acceptance-pending","runtimeUrl":"http://127.0.0.1:4176/?build=quality-v3-recovery-final","mainSha256":"8b768c024f2c13418f37212d620eb6a856d67fcdc555bcee08c869f3e49353e0","newImageAssets":0,"rules":"211/211","artContracts":"10/10","designQa":"passed-for-recovery-pages-only","completeEightWaveAcceptance":"not-run-this-build"},
