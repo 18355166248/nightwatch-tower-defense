@@ -4,6 +4,8 @@ import { FirstLevelPageSkinView } from './FirstLevelPageSkinView';
 import { FIRST_LEVEL_UI_FONT } from './FirstLevelUiStyle';
 import { PHASE_B_RESULT_HOME_BUTTON, PHASE_B_RESULT_RESTART_BUTTON, PhaseBLayout, type PhaseBRect } from './PhaseBLayout';
 import { resultRevealEase } from './ResultRevealRuntime';
+import { VisibleAsyncAsset } from './VisibleAsyncAsset';
+import { resultAssetNeeded } from './ResultAssetPolicy';
 
 const ART = ['victory-badge','defeat-badge','kill-icon','leak-icon','heart-icon','coins-icon','time-icon','tower-icon','upgrade-icon'] as const;
 type ResultArt = typeof ART[number];
@@ -21,7 +23,7 @@ export class FirstLevelResultView {
     private readonly sprites = new Map<string, Sprite>();
     private readonly failures = new Set<ResultArt>();
     private snapshot: BattleResultViewModel | null = null;
-    private started = false;
+    private readonly assets = new Map<ResultArt, VisibleAsyncAsset<SpriteFrame>>();
     private signature = '';
 
     public constructor(parent: Node, private readonly layout: PhaseBLayout) {
@@ -32,14 +34,42 @@ export class FirstLevelResultView {
         this.artRoot = this.child(this.root,'ResultArt');
         this.textRoot = this.child(this.root,'ResultNativeText');
         this.root.active = false;
+        for (const name of ART) {
+            this.assets.set(name, new VisibleAsyncAsset<SpriteFrame>(
+                complete => resources.load(`level-one/ui/quality-v3/${name}/spriteFrame`, SpriteFrame,
+                    (error, frame) => complete(error ? null : frame)),
+                frame => { frame.addRef(); },
+                frame => { frame.decRef(); },
+                frame => {
+                    if (!isValid(this.root)) return;
+                    const previous = this.frames.get(name);
+                    // 多个位置可共用同一徽章；全部断开后才由租约归还引用，避免旧精灵持有已释放纹理。
+                    if (!frame && previous) for (const sprite of this.sprites.values()) {
+                        if (sprite.spriteFrame === previous) sprite.spriteFrame = null;
+                    }
+                    if (frame) { this.frames.set(name, frame); this.failures.delete(name); }
+                    else {
+                        this.frames.delete(name);
+                        if (resultAssetNeeded(name, this.snapshot?.kind ?? null)) this.failures.add(name);
+                        else this.failures.delete(name);
+                    }
+                    this.invalidate();
+                },
+            ));
+        }
+        this.root.on(Node.EventType.NODE_DESTROYED, () => {
+            this.snapshot = null;
+            for (const asset of this.assets.values()) asset.setVisible(false);
+        });
     }
 
     public render(result: BattleResultViewModel | null, progress: number): void {
         this.snapshot = result;
         this.root.active = Boolean(result);
         this.opacity.opacity = Math.round(255 * resultRevealEase(progress));
-        if (!result) return;
-        if (!this.started) this.loadArt();
+        // 重开/回首页释放结算独占图；胜败只加载本次真正使用的图片，共用面板饰面仍由原视图持有。
+        for (const [name, asset] of this.assets) asset.setVisible(resultAssetNeeded(name, result?.kind ?? null));
+        if (!result) { this.signature = ''; return; }
         const signature = JSON.stringify([result,this.layout.safeHalfWidth]);
         if (signature === this.signature) return;
         this.signature = signature; this.draw(result);
@@ -48,16 +78,6 @@ export class FirstLevelResultView {
             // Creator 发布转译对迭代器展开不稳定，显式转数组，避免诊断把空集合报成 [{}]。
             chrome:this.skins.diagnostics,art:{loaded:Array.from(this.frames.keys()),failures:Array.from(this.failures)},
         }));
-    }
-
-    private loadArt(): void {
-        this.started = true;
-        // 首次结算才加载附加图标；回调只刷新当前快照，返回首页后不能重新打开旧结算。
-        for (const name of ART) resources.load(`level-one/ui/quality-v3/${name}/spriteFrame`,SpriteFrame,(error,frame)=>{
-            if (!isValid(this.root)) return;
-            if (error || !frame) this.failures.add(name); else this.frames.set(name,frame);
-            this.invalidate();
-        });
     }
 
     private invalidate(): void {
