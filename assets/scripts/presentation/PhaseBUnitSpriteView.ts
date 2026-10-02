@@ -21,6 +21,8 @@ import { DirectionalSpriteAtlas } from './DirectionalSpriteAtlas';
 import { directionalWalkFrame, directionalWalkRegistrationY, walkDirection, type WalkDirection } from './DirectionalWalk';
 import { compatibleDirectionalCollapse, directionalCollapseFrame, directionalCollapseOpacity } from './DirectionalCollapse';
 import { ORIGINAL_FIRST_LEVEL_ART, type FirstLevelArtProfile } from './FirstLevelArtProfile';
+import { CombatVisualAnchors } from './CombatVisualAnchors';
+import { layeredTowerEmissionPoint } from './LayeredTowerGeometry';
 
 const UNIT_ASSETS = {
     'rivet-gun': 'level-one/units/rivet-gun/spriteFrame',
@@ -54,6 +56,7 @@ type LayeredTowerId = keyof typeof TOWER_LAYER_ASSETS;
 
 /** 单位切图层只同步视觉节点；全部资源就绪前由 Graphics 保留灰盒兜底。 */
 export class PhaseBUnitSpriteView {
+    public readonly visualAnchors = new CombatVisualAnchors();
     private readonly root = new Node('FirstLevelUnitSprites');
     private readonly towerLayer = new Node('TowerSprites');
     private readonly enemyLayer = new Node('EnemySprites');
@@ -172,6 +175,7 @@ export class PhaseBUnitSpriteView {
     }
 
     public render(state: PhaseBSceneState, runElapsedSeconds: number): void {
+        this.visualAnchors.begin();
         this.healthGraphics.clear();
         this.renderedHealthBarCount = 0;
         this.displacedHealthBarCount = 0;
@@ -190,10 +194,11 @@ export class PhaseBUnitSpriteView {
             this.directionalDeathBindings.clear();
             return;
         }
-        this.renderTowers(state);
         this.renderEnemies(state, runElapsedSeconds);
         this.renderCrowdBadges(state);
         this.renderDeaths(state);
+        // 先发布活体/尸影的显示点，再摆炮头和发射点；前景特效随后读取同一帧，不用上一帧位置。
+        this.renderTowers(state);
         this.crowd.retain(new Set([...state.enemies.map((enemy) => enemy.id), ...state.feedback.deaths.map((death) => death.enemyId)]));
         // 最后显示帧只保留给活动敌人/短尸影；离场、结算和重开不能累积历史单位引用。
         for (const id of Array.from(this.directionalCorpseFrames.keys())) {
@@ -239,8 +244,14 @@ export class PhaseBUnitSpriteView {
                     ? frostCorePulsePose(shot?.remainingSeconds ?? 0, shot?.durationSeconds ?? 0)
                     : recoil;
                 const aim = towerId === 'rivet-gun' ? recentAims.get(key) : undefined;
-                const aimAngle = aim ? rivetAimAngleDegrees(aim.origin, aim.point, aim.remainingSeconds, aim.durationSeconds) : 0;
+                const fallbackTarget = aim ? this.layout.gridPointCenter(aim.point,state.grid) : point;
+                const visualTarget = aim ? this.visualAnchors.resolveTarget(aim.targetId,fallbackTarget) : point;
+                const cellSize = this.layout.boardMetrics(state.grid).cellSize;
+                const aimPoint = aim ? {column:aim.point.column+(visualTarget.x-fallbackTarget.x)/cellSize,
+                    row:aim.point.row-(visualTarget.y-fallbackTarget.y)/cellSize} : cell;
+                const aimAngle = aim ? rivetAimAngleDegrees(aim.origin, aimPoint, aim.remainingSeconds, aim.durationSeconds) : 0;
                 LayeredTowerRig.pose(node, point, towerSize, motion, spec, aimAngle);
+                this.visualAnchors.emitter(key,layeredTowerEmissionPoint(point,towerSize,motion,spec,aimAngle));
             } else {
                 const node = this.ensureNode(this.towers, key, this.towerLayer, frame, towerSize);
                 node.setPosition(point.x + (recoil?.x ?? 0), point.y + 3 + (recoil?.y ?? 0), 0);
@@ -304,6 +315,7 @@ export class PhaseBUnitSpriteView {
             // 身体运动与血条分层：步伐/命中只影响 Sprite，不让血条和减速圈跟着抖动。
             const body = node.getChildByName('Body');
             body?.setPosition(stride.x, registrationY, 0);
+            this.visualAnchors.target(enemy.id,{x:x+offset.x+stride.x,y:y+offset.y+registrationY});
             body?.setScale(stride.scaleX * (1 + (state.reducedMotion ? 0 : life * 0.11)) * arrival.scale,
                 stride.scaleY * (1 - (state.reducedMotion ? 0 : life * 0.07)) * arrival.scale, 1);
             const bodyOpacity = body?.getComponent(UIOpacity);
@@ -429,6 +441,7 @@ export class PhaseBUnitSpriteView {
                 ? directionalWalkRegistrationY(collapseLayout.anchor[1], enemyGroundingStyle(death.archetypeId, baseSize).y, displaySize) : 0;
             // 模型帧已包含倾倒/接地，不能再叠加程序下沉、压扁和随机旋转；大画布不等于放大角色。
             node.setPosition(point.x + offset.x, point.y + offset.y + (rigCollapseFrame ? rigRegistration : state.reducedMotion ? 0 : pose.y), 0);
+            this.visualAnchors.target(death.enemyId,{x:node.position.x,y:node.position.y});
             node.setScale(rigCollapseFrame || state.reducedMotion ? 1 : pose.scaleX,
                 rigCollapseFrame || state.reducedMotion ? 1 : pose.scaleY, 1);
             node.angle = rigCollapseFrame || state.reducedMotion ? 0 : pose.angle;

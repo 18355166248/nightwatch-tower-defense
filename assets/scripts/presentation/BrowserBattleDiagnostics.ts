@@ -1,4 +1,6 @@
 export interface BrowserBattleDiagnosticsState {
+    readonly combatVisualAlignment?: readonly {readonly targetId:string;readonly origin:{readonly x:number;readonly y:number};
+        readonly target:{readonly x:number;readonly y:number};readonly logicalTarget:{readonly x:number;readonly y:number}}[];
     readonly renderAtlasPolicyStatus: string;
     readonly rendererLabelBudgetSupported: boolean;
     readonly rendererLabelTextureBytes: number | null;

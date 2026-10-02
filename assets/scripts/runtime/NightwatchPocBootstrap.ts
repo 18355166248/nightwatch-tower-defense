@@ -1203,7 +1203,7 @@ export class NightwatchPocBootstrap extends Component {
         this.coreArt?.render(sceneState.grid, sceneState.feedback.coreHits, Boolean(result), sceneState.reducedMotion);
         this.entryArt?.render(sceneState.grid, Boolean(result));
         this.unitSprites?.render(sceneState, this.runClock.elapsedSeconds);
-        this.foregroundFeedback?.render(sceneState);
+        this.foregroundFeedback?.render(sceneState, this.unitSprites?.visualAnchors);
         this.experienceView?.render(experience, this.model.grid, Boolean(result), this.preview?.cell ?? null, inspectedCell,
             this.bestTime.bestSeconds, this.bestHealth.bestRemainingHealth);
         this.pauseView?.render({
@@ -1292,6 +1292,7 @@ export class NightwatchPocBootstrap extends Component {
             ...this.renderBudgetProbe.read(performance.now()),
             ...this.textureTransferProbe.read(this.experience.entryMode === 'home'),
             renderAtlasPolicyStatus: this.renderAtlasPolicyStatus,
+            combatVisualAlignment: this.foregroundFeedback?.alignmentDiagnostics ?? [],
             entryMode: this.experience.entryMode,
             gridId: this.selectedGridId,
             columns: this.model.grid.columns,

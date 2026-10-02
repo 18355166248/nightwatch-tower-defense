@@ -19,12 +19,14 @@ export interface TracerFeedback extends TimedFeedback {
 }
 
 export interface ImpactFeedback extends TimedFeedback {
+    readonly targetId: string;
     readonly origin: GridPoint;
     readonly towerId: TowerId;
     readonly lethal: boolean;
 }
 
 export interface TowerAimFeedback extends TimedFeedback {
+    readonly targetId: string;
     readonly origin: GridPoint;
     readonly towerId: TowerId;
 }
@@ -107,6 +109,7 @@ export class CombatFeedbackRuntime {
             ...this.timed(shot.targetPoint, IMPACT_SECONDS),
             origin: { column: shot.towerCell.column, row: shot.towerCell.row },
             towerId: shot.towerId,
+            targetId: shot.targetId,
             lethal: shot.lethal,
         })));
         if (result.shots.length > 0) {
@@ -117,6 +120,7 @@ export class CombatFeedbackRuntime {
                     ...this.timed(shot.targetPoint, TOWER_AIM_SECONDS),
                     origin: { column: shot.towerCell.column, row: shot.towerCell.row },
                     towerId: shot.towerId,
+                    targetId: shot.targetId,
                 };
                 latestByTower.set(`${aim.origin.column},${aim.origin.row}`, aim);
             }

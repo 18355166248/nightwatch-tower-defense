@@ -4,9 +4,11 @@ import type { PhaseBSceneState } from './PhaseBSceneState';
 import { PhaseBLayout, type PhaseBPoint } from './PhaseBLayout';
 import { enemyDeathPose } from './UnitVisualMotion';
 import { rivetTrailPose } from './ShotTraceGeometry';
+import type { CombatVisualAnchors } from './CombatVisualAnchors';
 
 /** 战斗事件的程序特效层；只绘制短生命周期快照，不持有伤害、索敌或额外动画时钟。 */
 export class CombatFeedbackView {
+    public alignmentSamples: {targetId:string;origin:PhaseBPoint;target:PhaseBPoint;logicalTarget:PhaseBPoint}[] = [];
     public constructor(private readonly graphics: Graphics, private readonly layout: PhaseBLayout) {}
 
     public drawBehindUnits(state: PhaseBSceneState, cellSize: number): void {
@@ -15,18 +17,23 @@ export class CombatFeedbackView {
         this.drawCoreHits(state, cellSize);
     }
 
-    public drawAboveUnits(state: PhaseBSceneState, cellSize: number): void {
+    public drawAboveUnits(state: PhaseBSceneState, cellSize: number, anchors?: CombatVisualAnchors): void {
+        this.alignmentSamples = [];
         // 减弱动态时去掉位移弹迹，但保留命中反馈与金币信息。
-        if (!state.reducedMotion) this.drawShots(state, cellSize);
-        this.drawImpacts(state, cellSize);
+        if (!state.reducedMotion) this.drawShots(state, cellSize, anchors);
+        this.drawImpacts(state, cellSize, anchors);
         this.drawRewards(state, cellSize);
     }
 
-    private drawShots(state: PhaseBSceneState, cellSize: number): void {
+    private drawShots(state: PhaseBSceneState, cellSize: number, anchors?: CombatVisualAnchors): void {
         const graphics = this.graphics;
         for (const tracer of state.feedback.tracers) {
-            const origin = this.center(tracer.origin, state.grid);
-            const target = this.center(tracer.point, state.grid);
+            const origin = anchors?.resolveEmitter(`${tracer.origin.column},${tracer.origin.row}`,this.center(tracer.origin,state.grid))
+                ?? this.center(tracer.origin,state.grid);
+            const logicalTarget = this.center(tracer.point,state.grid);
+            const target = anchors?.resolveTarget(tracer.targetId,logicalTarget) ?? logicalTarget;
+            // 同一目标ID连接当前身体/短尸影，不把分流中的敌人误连到旧格点；样本来自实际绘制端点。
+            if(this.alignmentSamples.length<6)this.alignmentSamples.push({targetId:tracer.targetId,origin,target,logicalTarget});
             const life = tracer.remainingSeconds / tracer.durationSeconds;
             const frost = tracer.towerId === 'frost-coil';
             if (frost) {
@@ -91,11 +98,12 @@ export class CombatFeedbackView {
         }
     }
 
-    private drawImpacts(state: PhaseBSceneState, cellSize: number): void {
+    private drawImpacts(state: PhaseBSceneState, cellSize: number, anchors?: CombatVisualAnchors): void {
         const graphics = this.graphics;
         for (const impact of state.feedback.impacts) {
-            const point = this.center(impact.point, state.grid);
-            const origin = this.center(impact.origin, state.grid);
+            const point = anchors?.resolveTarget(impact.targetId,this.center(impact.point,state.grid)) ?? this.center(impact.point,state.grid);
+            const origin = anchors?.resolveEmitter(`${impact.origin.column},${impact.origin.row}`,this.center(impact.origin,state.grid))
+                ?? this.center(impact.origin,state.grid);
             const progress = 1 - impact.remainingSeconds / impact.durationSeconds;
             const life = 1 - progress;
             const frost = impact.towerId === 'frost-coil';
