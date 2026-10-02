@@ -3,12 +3,15 @@ const assert = require('node:assert/strict');
 const { applyRenderAtlasPolicy } = require('../.test-dist/presentation/RenderAtlasPolicy.js');
 const manager = (overrides = {}) => ({ enabled: true, atlasCount: 0, textureSize: 2048, maxAtlasCount: 5, maxFrameSize: 512, ...overrides });
 
-test('小图集仅显式参数启用，素材档位/QA/未知值都不改变默认', () => {
+test('正式首关默认采用已验证小图集，QA或未知参数不能回退大图集', () => {
     for (const query of ['', '?artBudget=compact', '?qa=1', '?renderBudget=unknown']) {
         const atlas = manager();
-        assert.equal(applyRenderAtlasPolicy(atlas, query), 'default');
-        assert.deepEqual(atlas, manager());
+        assert.equal(applyRenderAtlasPolicy(atlas, query), 'small-atlas-applied');
+        assert.deepEqual(atlas, manager({textureSize:512,maxAtlasCount:2,maxFrameSize:128}));
     }
+    const legacy = manager();
+    assert.equal(applyRenderAtlasPolicy(legacy,'?renderBudget=legacy-atlas'),'default');
+    assert.deepEqual(legacy,manager());
 });
 
 test('初始化前的小图集有明确尺寸、个数、帧尺寸上限，不开启原本关闭的图集', () => {

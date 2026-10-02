@@ -8,9 +8,10 @@ export interface RenderAtlasManager {
 
 export type RenderAtlasPolicyStatus = 'default' | 'small-atlas-applied' | 'small-atlas-disabled' | 'small-atlas-too-late';
 
-/** 小图集仅为显式候选；不重置已打包SpriteFrame，不修改全局图片缓存清理策略。 */
+/** B 同尺寸像素对照确认后采用小图集；不重置已打包帧，不改图片清理策略。 */
 export function applyRenderAtlasPolicy(manager: RenderAtlasManager, search: string): RenderAtlasPolicyStatus {
-    if (new URLSearchParams(search).get('renderBudget') !== 'small-atlas') return 'default';
+    // 旧配置仅供隔离对照；正式首关不再为少量128px图标分配16MiB动态图集。
+    if (new URLSearchParams(search).get('renderBudget') === 'legacy-atlas') return 'default';
     if (!manager.enabled) return 'small-atlas-disabled';
     if (manager.atlasCount > 0) return 'small-atlas-too-late';
     // 在创建首关视图之前设上限；超过容量的碎图走原纹理，不丢图，也不为大动画图集再分配副本。

@@ -98,6 +98,7 @@ import { infantryRigCandidateEnabled } from '../presentation/DirectionalWalk';
 import { firstLevelArtProfile } from '../presentation/FirstLevelArtProfile';
 import { CocosRenderBudgetProbe } from '../presentation/CocosRenderBudgetProbe';
 import { applyRenderAtlasPolicy, type RenderAtlasPolicyStatus } from '../presentation/RenderAtlasPolicy';
+import { BrowserTextureTransferProbe } from '../presentation/BrowserTextureTransferProbe';
 
 const { ccclass } = _decorator;
 
@@ -161,6 +162,7 @@ export class NightwatchPocBootstrap extends Component {
     private readonly layout = new PhaseBLayout();
     private readonly browserDiagnostics = new BrowserBattleDiagnostics();
     private readonly renderBudgetProbe = new CocosRenderBudgetProbe();
+    private readonly textureTransferProbe = new BrowserTextureTransferProbe();
     private renderAtlasPolicyStatus: RenderAtlasPolicyStatus = 'default';
     private readonly debugInput = new PhaseBDebugInput((action) => this.handleDebugAction(action));
     private readonly experience = new FirstLevelExperience(this.qaMode);
@@ -1287,6 +1289,7 @@ export class NightwatchPocBootstrap extends Component {
             : this.battle.snapshot.phase === 'countdown' ? '可提前开波' : '提前开波未激活';
         this.browserDiagnostics.publish({
             ...this.renderBudgetProbe.read(performance.now()),
+            ...this.textureTransferProbe.read(this.experience.entryMode === 'home'),
             renderAtlasPolicyStatus: this.renderAtlasPolicyStatus,
             entryMode: this.experience.entryMode,
             gridId: this.selectedGridId,
