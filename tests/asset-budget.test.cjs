@@ -1,6 +1,21 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { imageDimensions, rgbaBytes, selectTextureSet, textureBasesInSource, budgetPassed } = require('../scripts/report-first-level-budget.cjs');
+const { RIVET_HEAD_RESOURCE_PATHS, rivetHeadResourcePath } = require('../.test-dist/presentation/RivetHeadResourcePaths.js');
+
+test('三级八方向运行清单与预算发现一致，24张全部入账而非人工豁免动态路径', () => {
+    const fs = require('node:fs'), path = require('node:path');
+    const source = fs.readFileSync(path.resolve(__dirname, '../assets/scripts/presentation/RivetHeadResourcePaths.ts'), 'utf8');
+    const expected = Object.values(RIVET_HEAD_RESOURCE_PATHS).flatMap(group => Object.values(group));
+    assert.equal(expected.length, 24); assert.equal(new Set(expected).size, 24);
+    assert.deepEqual(textureBasesInSource(source).sort(), expected.map(p => p.replace('/spriteFrame','')).sort());
+    for (const [level, group] of Object.entries(RIVET_HEAD_RESOURCE_PATHS)) for (const direction of Object.keys(group)) {
+        assert.equal(rivetHeadResourcePath(Number(level), direction), group[direction]);
+        assert.ok(fs.existsSync(path.resolve(__dirname, '../assets/resources', group[direction].replace('/spriteFrame','.png'))));
+    }
+    assert.throws(() => rivetHeadResourcePath(4,'north'),RangeError);
+    assert.throws(() => rivetHeadResourcePath(1,'unknown'),RangeError);
+});
 
 test('无损 WebP 尺寸计入同一 RGBA 预算，截断与未知版本拒绝放行', () => {
     const b = Buffer.alloc(26);

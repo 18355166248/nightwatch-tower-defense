@@ -1,6 +1,7 @@
 import { isValid, Node, resources, SpriteFrame } from 'cc';
 import { TOWER_HEAD_DIRECTIONS, type TowerHeadDirection } from './EightDirectionTowerAim';
 import { VisibleAsyncAsset } from './VisibleAsyncAsset';
+import { rivetHeadResourcePath } from './RivetHeadResourcePaths';
 
 interface HeadFrameGroup {
     readonly frames: Map<TowerHeadDirection, SpriteFrame>;
@@ -19,11 +20,10 @@ export class EightDirectionTowerFrames {
         if (![1, 2, 3].includes(level)) throw new RangeError('炮头等级必须为1/2/3');
         const group: HeadFrameGroup = {frames: new Map<TowerHeadDirection, SpriteFrame>(), leases: [], failed: false};
         this.groups.set(level, group);
-        const folder = level === 1 ? 'rivet-head-eight-v1' : `rivet-head-eight-level-${level}-v1`;
         // 仅已布置等级请求整组；升级资源未齐时保留旧图，不混用半套方向。
         for (const direction of TOWER_HEAD_DIRECTIONS) {
             const lease = new VisibleAsyncAsset<SpriteFrame>(
-                complete => resources.load(`level-one/units/${folder}/${direction}/spriteFrame`, SpriteFrame,
+                complete => resources.load(rivetHeadResourcePath(level, direction), SpriteFrame,
                     (error, frame) => complete(error ? null : frame)),
                 frame => { frame.addRef(); }, frame => { frame.decRef(); },
                 frame => {
