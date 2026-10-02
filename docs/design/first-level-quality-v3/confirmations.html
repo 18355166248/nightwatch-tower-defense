@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第三稿 · 确认弹窗独立设计</title>
+<link rel="stylesheet" href="confirmations.css"></head>
+<body><header><p class="eyebrow">夜城防线 / 第三稿延展</p><h1>操作前，先讲清会发生什么</h1><p>两张独立设计稿，不是运行截图。复用已选材质；游戏数据为排版示例，按钮仅演示稿件反馈，不修改实际游戏。</p>
+<nav aria-label="设计稿显示尺寸"><button data-size="390" aria-pressed="true">390px</button><button data-size="320" aria-pressed="false">320px</button><a href="index.html">返回全页面索引</a></nav></header>
+<main>
+<section><h2>01 / 重新部署确认</h2><p class="caption">清除范围进入正文，塔位与金币恢复不是清零。</p><div class="viewport"><div class="stage">
+<div class="scene"></div><div class="veil"></div>
+<article class="dialog" aria-label="重新部署设计稿"><div class="heading"><img src="https://audiopaytest.cos.tx.xmcdn.com/storages/d546-audiotest/18/72/GAqSoUUOlMqlAABYLQACF0Pq.png" alt=""><div><p class="kicker">重新部署</p><h3>回到战前布防？</h3></div></div>
+<p class="context">第 1 / 8 波 <span>核心 10 / 10</span></p>
+<div class="consequence"><p>恢复开战前的<strong>塔位、等级与金币</strong>。</p><p>本局敌人、波次及战斗统计将重置。</p><p class="muted">历史最好纪录不受影响。</p></div>
+<div class="actions"><button class="primary" data-feedback="重新部署：恢复开战前配置（稿件演示）">确认重新部署</button><button class="secondary" data-feedback="取消：返回暂停，不改变原局（稿件演示）">保留原局 · 返回暂停</button></div>
+<p class="footnote">重新部署后，可调整塔位再开波</p></article></div></div><output aria-live="polite"></output></section>
+<section><h2>02 / 返回首页确认</h2><p class="caption">取消是安全主操作；离开不用大红主按钮诱导。</p><div class="viewport"><div class="stage">
+<div class="scene"></div><div class="veil"></div>
+<article class="dialog" aria-label="返回首页设计稿"><div class="heading"><img src="https://audiopaytest.cos.tx.xmcdn.com/storages/14e8-audiotest/4E/06/GAqSiIMOlMrMAABpuwACF0QN.png" alt=""><div><p class="kicker">离开当前战斗</p><h3>返回首页？</h3></div></div>
+<p class="context">第 1 / 8 波 <span>核心 10 / 10</span></p>
+<div class="consequence"><p>当前战斗将结束，<strong>本局进度不会保存</strong>。</p><p>再次开始时，从第一波重新布防。</p><p class="muted">历史最好纪录与设置仍保留。</p></div>
+<div class="actions"><button class="primary" data-feedback="取消离开：返回暂停，保留原局（稿件演示）">保留原局 · 返回暂停</button><button class="secondary leave" data-feedback="确认离开：返回首页（稿件演示）">结束本局 · 返回首页</button></div>
+<p class="footnote">返回暂停后，可手动继续战斗</p></article></div></div><output aria-live="polite"></output></section>
+</main><footer>文字为可编辑原生排版；背景是原创场景源图，仅作上下文。无整页图片烘焙、无新增图片文件，未接入 Cocos，待视觉确认。</footer>
+<script src="confirmations.js"></script></body></html>

@@ -64,6 +64,16 @@
     "fullPageVisualAcceptance": "pending"
   },
   "sliceExport": "shared-material-family-exported-see-slice-manifest",
+  "confirmationDraft": {
+    "date": "2026-10-02",
+    "source": "confirmations.html",
+    "styles": "confirmations.css",
+    "behavior": "confirmations.js",
+    "states": ["confirm-restart", "confirm-home"],
+    "visualAcceptance": "pending-user-review",
+    "cocosIntegration": "not-started-for-new-layout",
+    "runtimeAudit": "AUDIT-2026-10-02.md"
+  },
   "displayOrder": [
     {
       "number": 1,
