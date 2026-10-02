@@ -27,6 +27,7 @@
     "assets/scripts/presentation/FirstLevelResultPainter.ts",
     "assets/scripts/presentation/FirstLevelUiSkinView.ts",
     "assets/scripts/presentation/VisibleHudLabel.ts",
+    "assets/scripts/presentation/VisibleLabelSlots.ts",
     "assets/scripts/presentation/CocosRenderBudgetProbe.ts",
     "assets/scripts/presentation/EnemyHealthBarView.ts",
     "assets/scripts/presentation/DirectionalSpriteAtlas.ts",

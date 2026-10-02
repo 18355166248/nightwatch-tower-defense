@@ -5,6 +5,7 @@ import { firstLevelCoachLayout, firstLevelCoachPresentation, type CoachPresentat
 import type { UpcomingWaveBriefing } from './WaveBriefing';
 import type { PhaseBRect } from './PhaseBLayout';
 import { firstLevelTowerPanelLayout } from './FirstLevelTowerPanelPresentation';
+import { VisibleLabelSlots } from './VisibleLabelSlots';
 
 export interface CoachViewInput extends CoachPresentationInput { readonly upcoming: UpcomingWaveBriefing | null; }
 
@@ -13,7 +14,7 @@ export class FirstLevelCoachView {
     private readonly root: Node;
     private readonly skin: FirstLevelPageSkinView;
     private readonly fallback: Graphics;
-    private readonly labels = new Map<string, Label>();
+    private readonly labels = new VisibleLabelSlots();
     private snapshot: CoachViewInput | null = null;
     private width = 1080;
     private signature = '';
@@ -34,7 +35,7 @@ export class FirstLevelCoachView {
         const signature = JSON.stringify([model,input?.upcoming,width]); if (signature === this.signature) return;
         this.signature = signature; this.root.active = Boolean(input);
         this.skin.begin(); this.fallback.clear();
-        for (const label of this.labels.values()) label.node.active = false;
+        this.labels.begin();
         if (input && model) {
             const layout = firstLevelCoachLayout(width), s = layout.scale;
             if (model.visible) {
@@ -59,6 +60,7 @@ export class FirstLevelCoachView {
                 this.text('tactic',input.upcoming.tactic,layout.tactic,'#A9BDCA');
             }
         }
+        this.labels.end();
         if (typeof document !== 'undefined') document.querySelector('canvas')?.setAttribute('data-coach-ui',JSON.stringify({
             model,assets:this.skin.diagnostics,labels:Array.from(this.labels.entries()).filter(([,v])=>v.node.active).map(([key,v])=>({key,text:v.string,size:v.fontSize})),
         }));
@@ -68,12 +70,11 @@ export class FirstLevelCoachView {
         this.fallback.fillColor = new Color('#162B3D'); this.fallback.rect(rect.left,rect.bottom,rect.right-rect.left,rect.top-rect.bottom); this.fallback.fill();
     }
     private text(key: string,value: string,geometry: {rect:PhaseBRect;size:number;bold?:boolean},color:string,right=false):void {
-        let label = this.labels.get(key);
-        if (!label) {
-            const node = new Node(`Coach-${key}`); node.layer = this.root.layer; this.root.addChild(node); label = node.addComponent(Label);
-            label.fontFamily = FIRST_LEVEL_UI_FONT; label.overflow = Label.Overflow.CLAMP; label.enableWrapText = false;
-            label.verticalAlign = VerticalTextAlignment.CENTER; this.labels.set(key,label);
-        }
+        const label = this.labels.acquire(key,()=> {
+            const node = new Node(`Coach-${key}`); node.layer = this.root.layer; this.root.addChild(node); const created = node.addComponent(Label);
+            created.fontFamily = FIRST_LEVEL_UI_FONT; created.overflow = Label.Overflow.CLAMP; created.enableWrapText = false;
+            created.verticalAlign = VerticalTextAlignment.CENTER; return created;
+        });
         const rect = geometry.rect; label.node.active = true;
         label.node.getComponent(UITransform)!.setContentSize(rect.right-rect.left,rect.top-rect.bottom);
         label.node.setPosition((rect.left+rect.right)/2,(rect.top+rect.bottom)/2);
