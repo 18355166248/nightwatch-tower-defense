@@ -12,8 +12,9 @@
   "visualAcceptance": "direction-selected-runtime-fidelity-pending",
   "resourceOptimization": {
     "status": "B-approved-integrated-phase-cache-measured-conservative-budget-still-failed",
-    "runtimeUrl": "http://127.0.0.1:4176/?build=quality-v3-visible-labels",
-    "mainSha256": "8f4d07d4a88369278db542b30bce8352efba411ce7b38e7a41ffbe7ae619171d",
+    "runtimeUrl": "http://127.0.0.1:4176/?build=quality-v3-compact-text-reviewed",
+    "mainSha256": "5f240647752f2a2cf8728d09379fb7ce5d7a20758a417ba7eaa9906e5e5b973b",
+    "compactTextCandidate": {"review":"COMPACT-TEXT-CANDIDATE.md","defaultEnabled":false,"measuredMainSha256":"4654a438da1449e2b0697b0b9b951f48f4d9f2b68d61ff141f3bbce0d8a0f7eb","controlGfxBytes":9430692,"candidateGfxBytes":9035052,"changedRgbaChannels":42038,"maxChannelDifference":14,"acceptedForFinalVisualBaseline":false},
     "measurementReview": "VISIBLE-LABELS.md",
     "totalGfxBudget": "failed-pause-11111116-bytes-not-resource-cache-budget",
     "hiddenLabelBytesAtPause": 108,

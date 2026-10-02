@@ -7,6 +7,7 @@ import { PHASE_B_CENTER_PAUSE_BUTTON, PHASE_B_EARLY_WAVE_BUTTON,
     PHASE_B_SPEED_BUTTON,
     type PhaseBRect } from './PhaseBLayout';
 import type { PhaseBHudState } from './PhaseBHudView';
+import { compactTextWidth } from './CompactTextWidth';
 
 type Skin = { node: Node; sprite: Sprite };
 
@@ -19,6 +20,11 @@ export class FirstLevelUiSkinView {
     private readonly fallback: Graphics;
     private snapshot: PhaseBHudState | null = null;
     private renderedSignature = '';
+    // 独立候选开关：同尺寸像素对照通过前不改变正式 HUD。
+    private readonly compactText = typeof window !== 'undefined'
+        && new URLSearchParams(window.location.search).get('textBudget') === 'tight-hud';
+    private readonly textMeasure = this.compactText && typeof document !== 'undefined'
+        ? document.createElement('canvas').getContext('2d') : null;
 
     public constructor(parent: Node) {
         this.root = new Node('QualityV2UiSkins');
@@ -127,7 +133,7 @@ export class FirstLevelUiSkinView {
         if (typeof document !== 'undefined') {
             document.querySelector('canvas')?.setAttribute('data-first-level-ui', JSON.stringify({
                 // Creator 发布降级不能依赖迭代器展开；显式归一化，避免 Map 被当成单个数组元素。
-                version: 'quality-v2', textScale: FIRST_LEVEL_UI_TEXT_SCALE, loadedFrames: Array.from(this.frames.keys()),
+                version: 'quality-v2', textScale: FIRST_LEVEL_UI_TEXT_SCALE, compactText: this.compactText, loadedFrames: Array.from(this.frames.keys()),
                 labels: Array.from(this.labels.entries()).filter(([, label]) => label.node.active)
                     .map(([key, label]) => ({ key, text: label.string, fontSize: label.fontSize })),
             }));
@@ -156,6 +162,13 @@ export class FirstLevelUiSkinView {
         label.node.setPosition(x, y);
         // 只在文案变化时改写 Label，重复战斗快照不重复生成文字纹理。
         if (label.string !== text) label.string = text;
+        if (this.compactText && this.textMeasure) {
+            this.textMeasure.font = `${label.fontSize}px ${label.fontFamily}`;
+            const fittedWidth = compactTextWidth(text, width, line => this.textMeasure!.measureText(line).width);
+            const transform = label.node.getComponent(UITransform)!;
+            // 每次文案变化重新测量；数字增长时可恢复原宽度，按钮命中区不依赖文字节点。
+            if (transform.width !== fittedWidth) transform.setContentSize(fittedWidth, 90);
+        }
         const tint = new Color(color);
         if (!label.color.equals(tint)) label.color = tint;
     }
