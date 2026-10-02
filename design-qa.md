@@ -1,47 +1,44 @@
-# 建造 / 选塔设计还原 QA
+# 教学 / 波间设计还原 QA
 
-本报告只覆盖2026-10-02获批的临时建造与选塔面板，不证明全页面或首关阶段整体完成。
+仅覆盖获批教学轻卡、波前敌情和跳过按钮。旧面板报告保留在 [QA-TOWER-PANEL.md](docs/design/first-level-quality-v3/QA-TOWER-PANEL.md)，全页面历史差距仍见 [QA-BEFORE-CONFIRMATIONS.md](docs/design/first-level-quality-v3/QA-BEFORE-CONFIRMATIONS.md)。本批passed不证明成品视觉或首关整体完成。
 
-历史确认页报告保留在 [QA-CONFIRMATIONS.md](docs/design/first-level-quality-v3/QA-CONFIRMATIONS.md)，此前全页面差距保留在 [QA-BEFORE-CONFIRMATIONS.md](docs/design/first-level-quality-v3/QA-BEFORE-CONFIRMATIONS.md)。后台恢复、寻路异常、教学波间三族仍待处理，其他页面历史差距不因本次passed自动消除。
+## 视觉真值、构建与归一化
 
-## 视觉真值与冻结环境
+- Source：`docs/design/first-level-quality-v3/teaching.html`；独立稿，不是运行截图。
+- Implementation：`http://127.0.0.1:4176/?build=quality-v3-coach-final-1130`。
+- SHA256：`c7502346cf64113698a52c3c8840900656dd9216e18f76ba66d30b14508a4556`。
+- 浏览器1280×720，1×截图。源内容390×693.33，DOM left174/top376.98；整页按left174/top377裁390×693。实装Cocos显示区405×720，按left438/top0裁405×720，再按宽度等比到390×693。半像素边界取整不作假精确结论。
+- 首动作与四塔就绪同140/10金币、0波；升级建议源45金币，实际首波后54金币（击杀36+清场8），不篡改经济凑稿。自由倒计时源是第2波后、实际第1波后；比较该相同倒计时组件，编队和塔位不是同一状态，不将背景差异归为面板缺陷。
+- 稿件场景/塔肖像仅情景，实装高亮来自真实格子、路线与按钮。既有HUD/塔栏不在本批重设计范围。
 
-- Source truth：`docs/design/first-level-quality-v3/inspector.html?frame=game`，独立可切换稿件，不是运行截图。
-- Implementation：`http://127.0.0.1:4176/?build=quality-v3-tower-panel-final-1045`。
-- main脚本SHA256：`482e6c4725d2e01c157308bcaa2da9cb199a22d821e535d53ca703be72f4f04f`。
-- 右侧浏览器770×597，实际游戏区域336×597；普通1×、战前自由布防。未用QA夹具修改金币与塔状态。
-- 源稿390×693.33适配现有塔栏顶部锚点；全页源截图按DOM位置left24/top377裁出390×693。运行截图裁left217/top0/336×597，按宽度同比放至390，取整高度693。没有拉伸或伪称真实390/320浏览器验收。
-- 对照状态：一级机枪80金币、满级机枪14金币、一级冷凝塔。冷凝源情景60金币、实装70金币；面板属性/费用一致，HUD与地图为上下文，不在本批面板还原范围。
+## 审核与比较历史
 
-## 比较历史与修复
-
-1. 首轮差距：旧面板未展示下一阶收益、厚框挤压信息。新稿采用独立205高临时面板、10像素边框与三级字体层次；增加的临时占位获用户确认。
-2. 接入对照后修正塔名、等级与角色说明的位置，取消运行文字额外0.72缩放，文字/按钮命中共用390几何。
-3. P1：低位点选落点可能被面板覆盖。新增有效点选的确认建造按钮，与原有提交事务共用，不重复扣费。最终实测70→40增加一塔且收起；拖放仍松手提交。
-4. 无效拖放保留原因与可取消预览；禁用按钮与面板空白不向战场穿透。
-5. 首次源图捕获存在素材未加载，已废弃。重新确认图片全部加载，打开最终一级/满级/冷凝全景及局部组合图检查；无剩余可执行P0/P1/P2。
+1. 规则回归发现新同比跳过按钮越过长竖屏安全边界。修复为视图/触控共用布局，24设计单位安全边距和HUD下方顶限；保留实际44px门槛，不调低标准。参考16:9下按钮比稿上移2px，P3，避免侵入棋盘边缘。
+2. 升级高亮旧坐标已修复：实际选中推荐塔才在新面板真实升级按钮绘制；高亮置于面板上方，不被图片底板遮住。
+3. 输入审核发现普通模式旧重置按钮被隐藏但留热区。关闭该旧热区；普通重部署仍走暂停确认，QA快捷重置保留。最终版本四塔10金币点击旧位置，塔/金币未变化。
+4. 最终重新抓取普通1×首动作、四塔就绪、真实首波待命/升级、自由倒计时；组合源与实装逐项打开检查。轻卡无可执行P0/P1/P2差距，不循环追磨P3。
 
 ## 五项必查表面
 
-- Typography：标题14、属性13、按钮12、收益11、辅助10（390基准）；原生PingFang SC与全布局同比缩放，无超框。浏览器500/600字重与Cocos映射、抗锯齿有P3差异。
-- Layout：左右12、宽366、高205、距既有塔栏12；标题/三列属性/收益/双按钮/辅助说明顺序一致。按钮54参考高度，320几何对应44.3；收起热区独立54，不扩大文字。像素取整有约1–2px P3差异。
-- Colors：同搪瓷铜边体系；升级主色、撤销中性、禁用低对比，失败原因使用文字而非仅红绿颜色。
-- Assets：共用现有本地九宫格面板/按钮与实际两塔肖像，未新建图片，未新增游戏联网依赖。真实地图、HUD、路线和单位与示例情景不同，不把背景一致算成本批目标。
-- Copy：实际towerAtLevel/nextUpgradeCost生成属性与收益，机枪/冷凝分别展示输出/控制；真实退款与禁售策略，金币不足报告差额，满级不编造下一阶。放置校验原因由模型提供。
+- Typography：PingFang SC，标题13/正文11/辅助10/状态9，统一390比例，无旧0.72二次缩放。无正文截字；原生字重、抗锯齿与像素取整为P3。
+- Layout：366×74轻卡、距常驻塔栏12、内边距和三行层级一致。首动作/开波建议不额外增加中央CTA。预览/选塔、战斗、真正暂停隐藏轻卡，不留空槽。320/长竖屏44px由几何测试覆盖，不宣称实际窄浏览器验收。
+- Colors：正文#F4E9CD、辅助#A9BDCA、状态#C6A876，与源稿统一；跳过使用既有中性铜边按钮，未另起材质。
+- Assets：复用本地第三稿无字九宫格，无新增图片/联网依赖；推荐格与升级热区为原生状态高亮，不伪造图片。场景、塔位、HUD差异为真实上下文。
+- Copy：开波指令沿实际waveStartActionText；升级从真实建议生成，使用“点高亮炮塔”以兼容后期冷凝，不硬编码中段机枪。源示例的迎敌/建议Lv.2与运行通用句式差异显式保留，语义一致。待命/倒计时由真实held/phase生成，不用假计时器。
 
-## 最终证据与验证
+## 最终证据
 
-临时目录：`/private/tmp/nightwatch-confirmation-fidelity-aeMb8G/`，不加入Git大图。
+临时目录 `/private/tmp/nightwatch-confirmation-fidelity-aeMb8G/`，不加入Git图片。
 
-- 全景：`tower-panel-ready-comparison.png`、`tower-panel-max-comparison.png`、`tower-panel-frost-comparison.png`。
-- 局部：对应`tower-panel-*-focused.png`；左源稿、右实装。
-- 收起：`tower-panel-runtime-upgraded-hidden.jpg`、`tower-panel-runtime-built-hidden.jpg`，关闭后无空槽，不移动/缩小战场。
-- 实际交互：拖放建造、两次升级成功收起、满级/金币不足不扣费、三级战前撤销返还96、空白格收起、取消不扣费、占位无效点选/拖放保留原因、遮挡落点确认建造、冷凝战斗禁售、暂停及确认重部署恢复三塔40金币。
-- 规则204/204，美术契约10/10；运行源码ES2020独立配置通过。默认tsconfig旧ES2015/Bun工具限制未修复，不冒称默认全量类型检查通过。
-- 发布构建退出0且实际加载；Creator退出worker SIGTERM/MachPort清理噪声保留原日志。最终浏览器无捕获warn/error，皮肤/肖像加载失败0。
+- 全景：`coach-select-comparison.png`、`coach-ready-comparison.png`、`coach-upgrade-comparison.png`、`coach-countdown-comparison.png`。
+- 局部：对应`coach-*-focused.png`（左源、右实装）。
+- 状态：`coach-runtime-upgrade-target.jpg`、`coach-runtime-after-upgrade.jpg`、`coach-runtime-preview-hidden.jpg`、`coach-runtime-combat.jpg`、`coach-runtime-paused-hidden.jpg`。
+- 冻结版本普通1×：140→110→80→40→10完成3机枪/1冷凝，路线12→16；旧热区不清局；首波9敌全部清场、核心10、金币54；等待操作期间未自动开波；中段升级54→30，面板收起并进入补塔建议；预览让位、取消不扣费；跳过恢复8秒真实倒计时；暂停下新标签/皮肤槽清空。
+- 209/209规则、10/10美术，运行源码ES2020独立配置通过；默认全量tsconfig旧ES2015/Bun限制不冒称已解决。
+- 发布构建退出0且加载，仍有Creator退出MachPort/worker清理噪声；浏览器没有捕获warn/error，面板九项资源加载失败0。
 
-## 停止与验收边界
+## 边界与停止
 
-本批内部设计对照通过，实际视觉仍由用户确认。没有完成三局八波、真实窄屏浏览器、完整封路现场、波间出售实测、读屏或键盘验收；波间退款和封路文案有规则覆盖，但不是浏览器现场证明。不做Android或横屏。本轮未提交，不推送。P3不自动无限打磨。
+未完成三局完整八波、实际窄浏览器、真人视觉确认。后台恢复/寻路异常下一批继续；不做横屏或Android。内部通过不是用户视觉确认，原始Fieldrunners 2成品品质目标未宣称全部完成。
 
 final result: passed

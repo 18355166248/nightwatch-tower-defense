@@ -1,9 +1,10 @@
-import { FIRST_LEVEL_HOME_SETTINGS_BUTTON, FIRST_LEVEL_SKIP_COACH_BUTTON, FIRST_LEVEL_START_BUTTON, FIRST_LEVEL_SKIP_INTRO_BUTTON } from './FirstLevelExperience';
+import { FIRST_LEVEL_HOME_SETTINGS_BUTTON, FIRST_LEVEL_START_BUTTON, FIRST_LEVEL_SKIP_INTRO_BUTTON } from './FirstLevelExperience';
 import { type PhaseBLayout, type PhaseBRect } from './PhaseBLayout';
+import { firstLevelCoachLayout } from './FirstLevelCoachPresentation';
 
 /** 教学跳过留在棋盘上方右侧独立槽位；与暂停、敌情和棋盘都不争用触控区。 */
 export function firstLevelCoachSkipRect(layout: PhaseBLayout): PhaseBRect {
-    return layout.fitRect(FIRST_LEVEL_SKIP_COACH_BUTTON);
+    return firstLevelCoachLayout(layout.visibleDesignWidth).skip;
 }
 
 /** 首页卡内几何独立于Cocos；输入和视图共用按钮，不以裁字或缩小整张卡修窄屏。 */

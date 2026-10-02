@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第三稿 · 教学与波间设计</title>
+<link rel="stylesheet" href="confirmations.css"><link rel="stylesheet" href="teaching.css">
+<header><p class="eyebrow">夜城防线 / 第三稿延展</p><h1>只提示当前一步，不挡住下一步</h1><p>独立设计稿，沿用已确认的搪瓷铜边，对应提示已接入游戏。教学建议不替玩家布塔；本页金币、敌情与倒计时为标明的示例状态。</p>
+<nav aria-label="设计稿尺寸"><button data-size="390" aria-pressed="true">390px</button><button data-size="320" aria-pressed="false">320px</button><a href="index.html">全页面索引</a></nav>
+<nav id="states" aria-label="教学状态"></nav></header>
+<main><section><h2 id="state-title">拿起机枪塔</h2><p class="caption">390×693竖幅 · 全元素同比缩放 · 非运行截图</p>
+<div class="viewport"><div class="stage">
+<div class="scene"></div><div class="draft-hud"><span>金币<strong id="gold">140</strong></span><span>波次<strong id="wave">0 / 8</strong></span><span>核心<strong>10 / 10</strong></span></div>
+<div class="wave-notice"><span class="notice-kicker" id="notice-kicker">首波敌情</span><p id="lineup">步兵 × 9</p><small id="tactic">机枪守线 · 留意改路</small></div>
+<button id="skip" class="secondary">跳过引导</button>
+<img class="suggested-tower" id="suggested-tower" alt="教学建议的塔种肖像">
+<p class="scene-note">设计情景 · 实装高亮由真实塔位生成</p>
+<article class="coach-card" aria-label="当前教学"><div class="coach-heading"><h3 id="coach-title">拿起机枪塔</h3><span id="step">布防 1 / 4</span></div><p id="coach-body">点下方机枪塔，再点上路高亮格</p><small id="coach-help">建议布防，不限制自由落点</small></article>
+<article class="inspection-note" hidden><h3>选塔面板接管提示</h3><p>原教学卡已让位，不重复显示升级指令。</p><p>接入时显示已获批的真实选塔面板。</p><button id="close-inspection" class="secondary">收起选塔示例</button></article>
+<div class="tower-tray"><button id="rivet"><img src="https://audiopaytest.cos.tx.xmcdn.com/storages/7249-audiotest/3E/F0/GAqSoUUOlMn1AAQ9QAACF0J9.png" alt=""><span>机枪塔<small>30 金币</small></span></button><button id="frost"><img src="https://audiopaytest.cos.tx.xmcdn.com/storages/9e00-audiotest/99/88/GAqSiIMOlMoAAAOunwACF0KF.png" alt=""><span>冷凝塔<small>40 金币</small></span></button><span class="speed">1×</span><button id="start" class="primary" disabled>先布防</button></div>
+</div></div><output id="feedback" aria-live="polite">可切换状态；下方操作只演示提示的出现与让位。</output>
+<nav aria-label="示例动作"><button id="place">模拟成功建塔</button><button id="inspect">模拟选塔让位</button></nav></section>
+<aside><h2>一屏只保留一个操作建议</h2><p>底部74px轻提示，标题13、正文11、辅助10。完成动作后切换下一步；预览或选塔时由已获批面板接管，这张卡立即消失，不预留空槽。</p><p>敌情单独放在HUD下方：当前／下一波、真实编队、一句战术。不把收益、倒计时和教学混成一串小字。</p><p>引导波间明确“等待你继续”，不自动开波；自由波间明确“8秒后自动开波”，右下按钮仍为唯一开波入口。稿件倒计时固定，仅展示状态。</p><p>“模拟成功建塔”与“模拟选塔让位”是设计页审查工具，不增加游戏内按钮。选塔示例是文字说明，不代替真实面板或宣称还原完成。</p><p><a href="TEACHING.md">差距、状态规范与验收边界</a></p></aside></main>
+<footer>本批已接入，最终视觉待用户验收；不新增图片、关卡或玩法，不修改自由模式倒计时。无横屏／Android验收。</footer>
+<script src="teaching.js"></script>
+</html>

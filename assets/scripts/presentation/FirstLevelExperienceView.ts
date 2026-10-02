@@ -11,7 +11,6 @@ import {
     PHASE_B_FROST_BUTTON,
     PHASE_B_EARLY_WAVE_BUTTON,
     PHASE_B_RIVET_BUTTON,
-    PHASE_B_UPGRADE_BUTTON,
     type PhaseBRect,
     PhaseBLayout,
 } from './PhaseBLayout';
@@ -19,10 +18,11 @@ import { FirstLevelHomeArtView } from './FirstLevelHomeArtView';
 import { FirstLevelPageSkinView } from './FirstLevelPageSkinView';
 import { formatRunDuration } from './BattleResultViewModel';
 import { VisibleViewResource } from './VisibleViewResource';
-import { firstLevelCoachSkipRect, firstLevelHomeLayout } from './FirstLevelEntryLayout';
+import { firstLevelHomeLayout } from './FirstLevelEntryLayout';
 import { FirstLevelPanelPainter } from './FirstLevelPanelPainter';
 import { FIRST_LEVEL_UI_FONT, firstLevelFontSize } from './FirstLevelUiStyle';
 import { firstLevelControlRect } from './FirstLevelUiGeometry';
+import { firstLevelTowerPanelLayout } from './FirstLevelTowerPanelPresentation';
 
 interface HomeLabels {
     readonly root: Node;
@@ -44,7 +44,6 @@ export class FirstLevelExperienceView {
     private readonly graphics: Graphics;
     private readonly chrome: FirstLevelPanelPainter;
     private readonly homeLabels: VisibleViewResource<HomeLabels>;
-    private readonly coachSkip: Label;
     private readonly introArt: FirstLevelHomeArtView;
     private readonly skins: FirstLevelPageSkinView;
     private repaint: (() => void) | null = null;
@@ -66,8 +65,6 @@ export class FirstLevelExperienceView {
             labels.root.removeFromParent();
             labels.root.destroy();
         });
-        this.coachSkip = this.label(27, '#E9DDBE', 658, 145, 65);
-        this.coachSkip.node.setPosition(375, 658, 0);
         this.introArt = new FirstLevelHomeArtView(this.root, invalidate);
     }
 
@@ -89,11 +86,6 @@ export class FirstLevelExperienceView {
                 bestRemainingHealth !== null ? `最佳核心 ${bestRemainingHealth}/10` : null].filter(Boolean).join('  ·  ') || '首次布防 · 从这里建立你的防线';
         }
         this.introArt.setVisible(home);
-        this.coachSkip.node.active = guided;
-        const coachSkipRect = firstLevelCoachSkipRect(this.layout);
-        this.coachSkip.node.setPosition((coachSkipRect.left + coachSkipRect.right) / 2,
-            (coachSkipRect.bottom + coachSkipRect.top) / 2, 0);
-        this.coachSkip.node.getComponent(UITransform)?.setContentSize(coachSkipRect.right - coachSkipRect.left, 65);
         if (homeLabels) this.drawHome(homeLabels);
         if (guided) this.drawCoach(snapshot, grid, previewCell, inspectedCell);
     }
@@ -187,8 +179,6 @@ export class FirstLevelExperienceView {
     }
 
     private drawCoach(snapshot: FirstLevelExperienceSnapshot, grid: GridDefinition, previewCell: GridCell | null, inspectedCell: GridCell | null): void {
-        this.chrome.button(firstLevelCoachSkipRect(this.layout));
-        this.coachSkip.string = '跳过';
         const graphics = this.graphics;
         graphics.strokeColor = new Color('#FFE09C');
         graphics.lineWidth = 7;
@@ -207,7 +197,8 @@ export class FirstLevelExperienceView {
         } else if (snapshot.step === 'upgrade') {
             if (snapshot.suggestedCell) this.outlineCell(snapshot.suggestedCell, grid);
             if (shouldOutlineGuidedUpgrade(snapshot.suggestedCell, inspectedCell)) {
-                this.outline(firstLevelControlRect(PHASE_B_UPGRADE_BUTTON, true));
+                // 输入与新面板共用几何，旧HUD坐标会把升级提示画到战场空白处。
+                this.outline(firstLevelTowerPanelLayout(this.layout.visibleDesignWidth).upgrade);
             }
         } else if (snapshot.step === 'ready') {
             this.outline(firstLevelControlRect(PHASE_B_EARLY_WAVE_BUTTON, true));

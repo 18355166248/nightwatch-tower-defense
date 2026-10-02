@@ -18,6 +18,7 @@ import { VisibleHudLabel } from './VisibleHudLabel';
 import { FirstLevelUiSkinView } from './FirstLevelUiSkinView';
 import { FirstLevelTowerPanelView } from './FirstLevelTowerPanelView';
 import type { TowerPanelInput } from './FirstLevelTowerPanelPresentation';
+import { FirstLevelCoachView, type CoachViewInput } from './FirstLevelCoachView';
 import { FIRST_LEVEL_UI_FONT, firstLevelFontSize } from './FirstLevelUiStyle';
 import type { UpcomingWaveBriefing } from './WaveBriefing';
 import { PHASE_B_EARLY_WAVE_BUTTON, PHASE_B_SOUND_BUTTON, PHASE_B_SPEED_BUTTON,
@@ -47,6 +48,7 @@ export interface PhaseBHudState {
     readonly activePlacementTowerId: TowerId | null;
     readonly inspectedUpgrade: { readonly towerId: TowerId; readonly level: number; readonly cost: number | null; readonly saleRefund: number | null } | null;
     readonly towerPanel?: TowerPanelInput | null;
+    readonly coach?: CoachViewInput;
     readonly upcomingWave: UpcomingWaveBriefing | null;
     readonly result: BattleResultViewModel | null;
     readonly resultRevealProgress: number;
@@ -56,6 +58,7 @@ export interface PhaseBHudState {
 export class PhaseBHudView {
     private readonly skins: FirstLevelUiSkinView;
     private readonly towerPanel: FirstLevelTowerPanelView;
+    private readonly coach: FirstLevelCoachView;
     private readonly resultView: FirstLevelResultView;
     private readonly legacyRoot: Node;
     private renderedSignature = '';
@@ -88,6 +91,7 @@ export class PhaseBHudView {
         // 饰面先入树，原生文字后入树；透明边缘不能遮住数值与升级文案。
         this.skins = new FirstLevelUiSkinView(parent);
         this.towerPanel = new FirstLevelTowerPanelView(parent);
+        this.coach = new FirstLevelCoachView(parent);
         this.legacyRoot = new Node('LegacyQaHud');
         this.legacyRoot.layer = parent.layer;
         parent.addChild(this.legacyRoot);
@@ -142,6 +146,7 @@ export class PhaseBHudView {
     public render(state: PhaseBHudState): void {
         this.skins.render(state);
         this.towerPanel.render(!state.qaMode && !state.result ? state.towerPanel ?? null : null, this.layout.visibleDesignWidth);
+        this.coach.render(!state.qaMode && !state.result ? state.coach ?? null : null, this.layout.visibleDesignWidth);
         this.resultView.render(state.result,state.resultRevealProgress);
         // 结算由独立视图持有，QA 旧 HUD 也不能与它叠加。
         this.legacyRoot.active = state.qaMode && !state.result;

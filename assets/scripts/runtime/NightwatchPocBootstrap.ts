@@ -47,7 +47,9 @@ import type { PhaseBSceneState } from '../presentation/PhaseBSceneState';
 import {
     FIRST_LEVEL_SKIP_INTRO_BUTTON,
     FirstLevelExperience,
+    shouldOutlineGuidedUpgrade,
 } from '../presentation/FirstLevelExperience';
+import { firstLevelCoachSkipVisible } from '../presentation/FirstLevelCoachPresentation';
 import { FirstLevelExperienceView } from '../presentation/FirstLevelExperienceView';
 import { firstLevelSettingsPresentation, type FirstLevelSettingsAction } from '../presentation/FirstLevelSettingsPresentation';
 import { firstLevelConfirmationPresentation } from '../presentation/FirstLevelConfirmationPresentation';
@@ -306,7 +308,9 @@ export class NightwatchPocBootstrap extends Component {
             this.primaryTouchId = null;
             return;
         }
-        if (this.experience.entryMode === 'guided' && this.layout.insideRect(point, firstLevelCoachSkipRect(this.layout))) {
+        // 跳过只在可见的布防/波间窗口接收触摸；战斗隐藏按钮不能留透明热区。
+        if (firstLevelCoachSkipVisible(this.experience.entryMode,this.battle.snapshot.phase,this.preparing,this.guidedIntermissionHeld,this.pauseOverlay.snapshot.visible)
+            && this.layout.insideRect(point, firstLevelCoachSkipRect(this.layout))) {
             this.experience.skip();
             if (this.guidedIntermissionHeld) {
                 this.guidedIntermissionHeld = false;
@@ -427,7 +431,8 @@ export class NightwatchPocBootstrap extends Component {
             this.applyFixture('longSnake');
             return true;
         }
-        if ((this.qaMode || !this.towerInspection.cell) && this.layout.insideRect(point, this.layout.safeRect(PHASE_B_RESET_BUTTON))) {
+        // 新稿不显示战场重置入口；普通模式必须走暂停里的确认流程，不能保留隐形清局热区。
+        if (this.qaMode && this.layout.insideRect(point, this.layout.safeRect(PHASE_B_RESET_BUTTON))) {
             if (!this.preparing && this.battle.snapshot.phase !== 'paused') this.pauseForUser('confirm-restart');
             else this.resetGrid();
             return true;
@@ -1239,6 +1244,12 @@ export class NightwatchPocBootstrap extends Component {
             activePlacementTowerId,
             inspectedUpgrade: inspectedTowerId ? { towerId: inspectedTowerId, level: inspectedLevel, cost: upgradeCost, saleRefund } : null,
             towerPanel: this.towerPanelInput(),
+            coach: {experience,phase:battle.phase,preparing:this.preparing,held:this.guidedIntermissionHeld,
+                overlayVisible:this.pauseOverlay.snapshot.visible || this.homeSettingsVisible,
+                panelVisible:Boolean(this.preview || inspectedDeployment), guidanceText,
+                countdownSeconds:battle.countdownSeconds,
+                upgradeTargetSelected:shouldOutlineGuidedUpgrade(experience.suggestedCell,inspectedCell),
+                upcoming:this.preparing ? upcomingWaveBriefing(this.waves.get(1)) : upcomingWave},
             upcomingWave,
             result,
             resultRevealProgress: sceneState.resultRevealProgress,

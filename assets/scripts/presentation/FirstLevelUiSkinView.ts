@@ -80,7 +80,7 @@ export class FirstLevelUiSkinView {
             state.upcomingWave?.wave, state.upcomingWave?.lineup, state.upcomingWave?.tactic,
             state.waveStartButton.label, state.waveStartButton.active, state.activePlacementTowerId,
             state.inspectedUpgrade?.towerId, state.inspectedUpgrade?.level, state.inspectedUpgrade?.cost,
-            state.inspectedUpgrade?.saleRefund, Boolean(state.towerPanel)].join('|');
+            state.inspectedUpgrade?.saleRefund, Boolean(state.towerPanel),Boolean(state.coach?.upcoming)].join('|');
         // Bootstrap 可以每帧提交快照，但静态饰面和文字只按展示字段变化更新。
         // 资源回调会使签名失效，所以迟到的图片不会被缓存挡住。
         if (signature === this.renderedSignature) return;
@@ -108,7 +108,7 @@ export class FirstLevelUiSkinView {
         this.label('core-caption', '核心', 143, 887, 40, 160, '#B8C6CC');
         this.label('core', `${state.coreHealth} / ${state.maxCoreHealth}`, 143, 836, 55, 195, state.coreHealth <= 3 ? '#FF8580' : '#A4EFEA');
         this.label('pause', 'Ⅱ', 415, 861, 64, 100, state.showPause ? '#F4E9CD' : '#AEBBC2', true, true);
-        this.label('chapter', state.upcomingWave ? `下一波 · 第 ${state.upcomingWave.wave} 波` : '夜城广场', -480, 744, 40, 700, '#DFD3B8');
+        this.label('chapter', '夜城广场', -480, 744, 40, 700, '#DFD3B8',false,!state.coach?.upcoming);
         this.label('rivet', '机枪塔', -336, -835, 44, 180);
         this.label('rivet-price', `${RIVET_GUN.cost}`, -336, -887, 48, 160, state.gold >= RIVET_GUN.cost ? '#F4CF79' : '#AEBBC2');
         this.label('frost', '冷凝塔', -16, -835, 44, 160);
@@ -119,11 +119,11 @@ export class FirstLevelUiSkinView {
             : state.phase === 'preparing' ? '先布防' : '来袭中';
         this.label('next', waveText, 406, -850, 36, 176, state.waveStartButton.active ? '#F4E9CD' : '#AEBBC2', true);
         // 敌情继承真实波次配置，不能因关闭旧HUD而遗漏混编预告；教学跳过占右侧独立槽。
-        this.label('event', state.upcomingWave?.lineup ?? state.statusText, -480, 683, 32, 700, '#B8C6CC', false, Boolean(state.upcomingWave) || !panelVisible);
-        this.label('tactic', state.upcomingWave?.tactic ?? '', -480, 635, 29, 700, '#9DE2CB', false, Boolean(state.upcomingWave));
+        this.label('event', state.statusText, -480, 683, 32, 700, '#B8C6CC', false, !state.coach?.upcoming && !panelVisible);
+        this.label('tactic', '', -480, 635, 29, 700, '#9DE2CB', false, false);
         this.label('guidance', state.guidanceText, -470, -650, 36, 940, '#DFD3B8', false,
-            firstLevelGuidanceVisible(state.phase, state.entryMode === 'guided', state.waveStartButton.active, panelVisible));
-        this.label('reset', '↶', -330, -560, 56, 160, '#DFD3B8', true, !panelVisible);
+            !state.coach && firstLevelGuidanceVisible(state.phase, state.entryMode === 'guided', state.waveStartButton.active, panelVisible));
+        this.label('reset', '↶', -330, -560, 56, 160, '#DFD3B8', true, !panelVisible && !state.coach);
         if (typeof document !== 'undefined') {
             document.querySelector('canvas')?.setAttribute('data-first-level-ui', JSON.stringify({
                 // Creator 发布降级不能依赖迭代器展开；显式归一化，避免 Map 被当成单个数组元素。

@@ -10,8 +10,9 @@
     "imageFit": "contain"
   },
   "visualAcceptance": "direction-selected-runtime-fidelity-pending",
-  "runtimeIntegration": "home-briefing-pause-settings-results-confirmations-and-tower-panel-integrated-three-other-page-families-pending",
+  "runtimeIntegration": "home-briefing-pause-settings-results-confirmations-tower-panel-and-teaching-integrated-two-other-page-families-pending",
   "towerPanelDesignQa": "passed-for-temporary-tower-panel-only-user-visual-acceptance-pending",
+  "teachingDraft": {"source":"teaching.html","styles":"teaching.css","behavior":"teaching.js","review":"TEACHING.md","states":["select","place","ready","upgrade","reinforce","poor","countdown","combat"],"visualAcceptance":"draft-approved-runtime-user-acceptance-pending","cocosIntegration":"integrated-local-skins-native-text-and-shared-geometry","newImageAssets":0,"runtimeUrl":"http://127.0.0.1:4176/?build=quality-v3-coach-final-1130","mainSha256":"c7502346cf64113698a52c3c8840900656dd9216e18f76ba66d30b14508a4556","rules":"209/209","artContracts":"10/10","designQa":"passed-for-teaching-only","completeEightWaveAcceptance":"not-run-this-build"},
   "scopeExclusions": {"orientation": "User excluded landscape design and acceptance on 2026-10-02; existing safety pause guard retained", "androidDeviceTesting": "excluded-by-user"},
   "inspectorDraft": {"source": "inspector.html", "styles": "inspector.css", "behavior": "inspector.js", "review": "INSPECTOR.md", "states": ["ready", "short", "max", "battle", "frost", "valid", "invalid", "click"], "visualAcceptance": "draft-approved-runtime-user-acceptance-pending", "approvalEvidence": "User required temporary occupancy then replied 可以 开始 on 2026-10-02", "cocosIntegration": "integrated-local-skins-and-native-text", "runtimeUrl": "http://127.0.0.1:4176/?build=quality-v3-tower-panel-final-1045", "mainSha256": "482e6c4725d2e01c157308bcaa2da9cb199a22d821e535d53ca703be72f4f04f", "rules": "204/204", "artContracts": "10/10", "browserViewport": {"width": 770, "height": 597}, "completeEightWaveAcceptance": "not-run-this-build"},
   "homeBuild": {

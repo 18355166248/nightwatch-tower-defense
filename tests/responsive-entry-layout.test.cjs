@@ -61,14 +61,16 @@ test('窄屏引导增加行高容量，不碰棋盘、重置和塔商店；常�
 
 test('极窄屏教学跳过保留独立槽和44px热区，不遮挡棋盘或HUD', () => {
     const layout=new PhaseBLayout();
-    assert.deepEqual(firstLevelCoachSkipRect(layout),FIRST_LEVEL_SKIP_COACH_BUTTON);
-    layout.setVisibleWidth(1920*320/900);
-    const skip=firstLevelCoachSkipRect(layout);
-    assert.equal(skip.right-skip.left,150);
-    assert.equal(skip.top-skip.bottom,155);
-    assert.ok(skip.left>=-layout.safeHalfWidth && skip.right<=layout.safeHalfWidth);
-    assert.ok(skip.bottom>610 && skip.top<784);
-    assert.ok(layout.insideRect({x:(skip.left+skip.right)/2,y:(skip.bottom+skip.top)/2},skip));
+    // 新稿同比缩放而非旧按钮固定150×155；保留原有安全区/棋盘边界和实际44px门槛。
+    for(const [width,height] of [[390,693.333],[320,900],[390,844]]){
+        layout.setVisibleWidth(1920*width/height);
+        const skip=firstLevelCoachSkipRect(layout);
+        assert.ok((skip.right-skip.left)*height/1920>=44);
+        assert.ok((skip.top-skip.bottom)*height/1920>=44);
+        assert.ok(skip.left>=-layout.safeHalfWidth && skip.right<=layout.safeHalfWidth);
+        assert.ok(skip.bottom>610 && skip.top<784);
+        assert.ok(layout.insideRect({x:(skip.left+skip.right)/2,y:(skip.bottom+skip.top)/2},skip));
+    }
 });
 
 test('极窄屏完整棋盘与外列中心都在安全区内，绘制坐标往返仍落在同一逻辑格', () => {
