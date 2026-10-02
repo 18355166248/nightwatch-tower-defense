@@ -5,6 +5,7 @@ import type { TowerDeployment } from './PlacementModel';
 import { towerAtLevel } from './TowerLevelRules';
 import { trafficEntryLane, trafficMove, type EnemyTrafficSettings, type TrafficLane } from './EnemyTrafficRules';
 import { RouteMovementError } from './RouteDiagnostics';
+import { TowerTargetLocks } from './TowerTargetLocks';
 
 export interface CombatEnemy {
     readonly id: string;
@@ -58,6 +59,7 @@ export interface WaveSpawnProgress {
 export class WaveCombatRuntime {
     private activeEnemies: CombatEnemy[] = [];
     private towerCooldowns = new Map<string, number>();
+    private readonly targetLocks = new TowerTargetLocks();
     private wave: WaveDefinition | null = null;
     private groupIndex = 0;
     private spawnedInGroup = 0;
@@ -90,6 +92,8 @@ export class WaveCombatRuntime {
     public get enemies(): readonly CombatEnemy[] {
         return this.activeEnemies;
     }
+
+    public get lockedTargets(): TowerTargetLocks['snapshot'] {return this.targetLocks.snapshot;}
 
     public get isSpawningComplete(): boolean {
         return this.spawningCompleted;
@@ -128,11 +132,13 @@ export class WaveCombatRuntime {
         this.spawnCountdown = 0;
         this.spawningCompleted = false;
         this.towerCooldowns.clear();
+        this.targetLocks.clear();
     }
 
     public reset(): void {
         this.activeEnemies = [];
         this.towerCooldowns.clear();
+        this.targetLocks.clear();
         this.wave = null;
         this.groupIndex = 0;
         this.spawnedInGroup = 0;
@@ -293,7 +299,7 @@ export class WaveCombatRuntime {
                 continue;
             }
             const towerCell = deployment.cell;
-            const target = this.pickTarget(towerCell, tower, flowField);
+            const target = this.pickTarget(key, towerCell, tower, flowField);
             if (!target) {
                 this.towerCooldowns.set(key, 0);
                 continue;
@@ -329,6 +335,7 @@ export class WaveCombatRuntime {
         for (const key of [...this.towerCooldowns.keys()]) {
             if (!activeTowerKeys.has(key)) this.towerCooldowns.delete(key);
         }
+        this.targetLocks.retain(activeTowerKeys,new Set(this.activeEnemies.map(enemy=>enemy.id)));
         return { shots, killed };
     }
 
@@ -350,7 +357,7 @@ export class WaveCombatRuntime {
         return affected;
     }
 
-    private pickTarget(towerCell: GridCell, tower: TowerArchetype, flowField: FlowField): CombatEnemy | null {
+    private pickTarget(key:string, towerCell: GridCell, tower: TowerArchetype, flowField: FlowField): CombatEnemy | null {
         const candidates = this.activeEnemies.filter((enemy) => {
             // 同一帧内前一座塔可能已击杀目标，后续塔只从仍存活的敌人中重新选敌。
             if (enemy.health <= 0) return false;
@@ -371,7 +378,14 @@ export class WaveCombatRuntime {
             const rightDistance = flowField.distanceAt(right.toCell) + 1 - right.progress;
             return leftDistance - rightDistance || left.spawnOrder - right.spawnOrder;
         });
-        return candidates[0] ?? null;
+        return this.targetLocks.choose(key,tower.id,candidates,(locked,best)=>{
+            // 锁定不能推翻出口优先/冷凝控制优先策略；只在同威胁层级和数值误差内保持原目标。
+            if(tower.targetPriority==='fast-uncontrolled'
+                && (locked.archetype.speedCellsPerSecond!==best.archetype.speedCellsPerSecond
+                    || (locked.slowRemainingSeconds>0)!==(best.slowRemainingSeconds>0)))return false;
+            const distance=(enemy:CombatEnemy)=>flowField.distanceAt(enemy.toCell)+1-enemy.progress;
+            return distance(locked)<=distance(best)+1e-6;
+        });
     }
 
     private enemyPoint(enemy: CombatEnemy): GridPoint {

@@ -1293,6 +1293,7 @@ export class NightwatchPocBootstrap extends Component {
             ...this.textureTransferProbe.read(this.experience.entryMode === 'home'),
             renderAtlasPolicyStatus: this.renderAtlasPolicyStatus,
             combatVisualAlignment: this.foregroundFeedback?.alignmentDiagnostics ?? [],
+            combatTargetLocks: this.combat.lockedTargets,
             entryMode: this.experience.entryMode,
             gridId: this.selectedGridId,
             columns: this.model.grid.columns,

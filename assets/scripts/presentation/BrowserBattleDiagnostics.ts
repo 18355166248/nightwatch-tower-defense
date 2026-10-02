@@ -1,4 +1,5 @@
 export interface BrowserBattleDiagnosticsState {
+    readonly combatTargetLocks?: readonly {readonly towerKey:string;readonly towerId:string;readonly targetId:string}[];
     readonly combatVisualAlignment?: readonly {readonly targetId:string;readonly origin:{readonly x:number;readonly y:number};
         readonly target:{readonly x:number;readonly y:number};readonly logicalTarget:{readonly x:number;readonly y:number}}[];
     readonly renderAtlasPolicyStatus: string;
