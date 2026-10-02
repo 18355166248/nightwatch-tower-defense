@@ -35,7 +35,8 @@ import { CombatForegroundView } from '../presentation/CombatForegroundView';
 import { CoreObjectiveArtView } from '../presentation/CoreObjectiveArtView';
 import { EnemyEntryArtView } from '../presentation/EnemyEntryArtView';
 import { PhaseBHudView } from '../presentation/PhaseBHudView';
-import { FIRST_LEVEL_INSPECT_CLOSE, firstLevelControlRect } from '../presentation/FirstLevelUiGeometry';
+import { firstLevelControlRect } from '../presentation/FirstLevelUiGeometry';
+import { firstLevelTowerPanelAction, firstLevelTowerPanelLayout, type TowerPanelInput } from '../presentation/FirstLevelTowerPanelPresentation';
 import { PhaseBPauseOverlayView } from '../presentation/PhaseBPauseOverlayView';
 import { towerInspectionSummary, towerSelectionSummary, towerUpgradeSuccessText, waveClearIncomeText, waveStartButtonViewModel } from '../presentation/PhaseBHudText';
 import { PhaseBUnitSpriteView } from '../presentation/PhaseBUnitSpriteView';
@@ -316,7 +317,7 @@ export class NightwatchPocBootstrap extends Component {
             this.primaryTouchId = null;
             return;
         }
-        if (this.handleInspectedTowerTouch(point) || this.handleTopControls(point)) {
+        if (this.handlePlacementPanelTouch(point) || this.handleInspectedTowerTouch(point) || this.handleTopControls(point)) {
             this.primaryTouchId = null;
             return;
         }
@@ -556,21 +557,24 @@ export class NightwatchPocBootstrap extends Component {
     private handleInspectedTowerTouch(point: Vec3): boolean {
         const cell = this.towerInspection.cell;
         if (!cell) return false;
-        if (!this.qaMode && this.layout.insideRect(point, FIRST_LEVEL_INSPECT_CLOSE)) {
+        const panelAction = this.qaMode ? null : firstLevelTowerPanelAction(point, firstLevelTowerPanelLayout(this.layout.visibleDesignWidth));
+        if (panelAction === 'close') {
             this.towerInspection.clear();
+            this.statusText = '已收起炮塔面板';
             this.playSound('ui');
             return true;
         }
+        if (panelAction === 'surface') return true;
         const window = towerSaleWindow(this.preparing, this.battle.snapshot.phase, this.guidedIntermissionHeld);
         const refund = this.model.saleQuote(cell, window);
         // 禁售槽仍占独立热区；吞掉点击，不能穿透到棋盘并意外取消当前选塔。
         if (!this.qaMode && refund === null
-            && this.layout.insideRect(point, firstLevelControlRect(PHASE_B_SELL_BUTTON, true))) {
+            && panelAction === 'sell') {
             this.statusText = '战斗中不能出售';
             this.playSound('reject');
             return true;
         }
-        if (refund !== null && this.layout.insideRect(point, this.layout.safeRect(firstLevelControlRect(PHASE_B_SELL_BUTTON, !this.qaMode)))) {
+        if (refund !== null && (this.qaMode ? this.layout.insideRect(point, PHASE_B_SELL_BUTTON) : panelAction === 'sell')) {
             const before = this.committedPath();
             // 输入回调内再次以当前阶段提交；倒计时已经开波时窗口变 locked，绝不跨波出售。
             const sold = this.model.sell(cell, towerSaleWindow(this.preparing, this.battle.snapshot.phase, this.guidedIntermissionHeld));
@@ -583,7 +587,7 @@ export class NightwatchPocBootstrap extends Component {
             return true;
         }
         const upgradeRect = this.layout.safeRect(firstLevelControlRect(refund === null ? PHASE_B_UPGRADE_FULL_BUTTON : PHASE_B_UPGRADE_BUTTON, !this.qaMode));
-        if (!this.layout.insideRect(point, upgradeRect)) return false;
+        if (this.qaMode ? !this.layout.insideRect(point, upgradeRect) : panelAction !== 'upgrade') return false;
         const towerId = this.model.deployments.find(({ cell: towerCell }) => sameCell(towerCell, cell))?.towerId;
         const result = this.model.upgrade(cell);
         if (result.accepted) this.towerInspection.clear();
@@ -592,6 +596,30 @@ export class NightwatchPocBootstrap extends Component {
                 : result.reason === 'max-level' ? '当前炮塔已满级' : '炮塔不存在，请重新选择';
         this.playSound(result.accepted ? 'upgrade' : 'reject');
         return true;
+    }
+
+    private handlePlacementPanelTouch(point: Vec3): boolean {
+        if (this.qaMode || !this.preview || this.inputMode !== 'click-preview') return false;
+        const action = firstLevelTowerPanelAction(point, firstLevelTowerPanelLayout(this.layout.visibleDesignWidth));
+        if (!action) return false;
+        // 下方落点可能被面板遮挡；确认按钮与再次点落点共用同一事务，不重复扣费。
+        if (action === 'close' || action === 'sell') {
+            this.cancelInput('已取消建造，未扣费');
+            this.playSound('ui');
+        }
+        if (action === 'upgrade' && this.preview?.accepted) this.commitCurrentPreview();
+        return true;
+    }
+
+    private towerPanelInput(): TowerPanelInput | null {
+        if (this.preview) return { towerId: this.preview.towerId, level: 1, gold: this.model.gold,
+            saleRefund: null, opening: this.preparing, placement: {accepted: this.preview.accepted,
+                reason: this.preview.reason, clickConfirm: this.inputMode === 'click-preview'} };
+        const cell = this.towerInspection.cell;
+        const deployment = cell ? this.model.deployments.find(tower => sameCell(tower.cell,cell)) : null;
+        if (!cell || !deployment) return null;
+        return {towerId: deployment.towerId, level: deployment.level ?? 1, gold: this.model.gold,
+            saleRefund: this.model.saleQuote(cell,towerSaleWindow(this.preparing,this.battle.snapshot.phase,this.guidedIntermissionHeld)), opening:this.preparing};
     }
 
     private toggleBattle(): void {
@@ -776,6 +804,12 @@ export class NightwatchPocBootstrap extends Component {
             : this.rejectText(result.reason);
         this.playSound(result.accepted ? 'place' : 'reject');
         this.towerInspection.clear();
+        // 失败不是确认完成；保留可取消的真实失败预览，重新选落点后才能再次提交。
+        if (!result.accepted && !this.qaMode) {
+            this.preview = this.model.preview(placedCell,this.enemyStates(),this.selectedTowerId);
+            this.inputMode = 'click-preview';
+            return;
+        }
         this.preview = null;
         this.inputMode = 'idle';
     }
@@ -1204,6 +1238,7 @@ export class NightwatchPocBootstrap extends Component {
             waveStartButton,
             activePlacementTowerId,
             inspectedUpgrade: inspectedTowerId ? { towerId: inspectedTowerId, level: inspectedLevel, cost: upgradeCost, saleRefund } : null,
+            towerPanel: this.towerPanelInput(),
             upcomingWave,
             result,
             resultRevealProgress: sceneState.resultRevealProgress,

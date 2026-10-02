@@ -1,41 +1,47 @@
-# 确认弹窗设计还原 QA
+# 建造 / 选塔设计还原 QA
 
-本报告只覆盖2026-10-02获批的两张确认页，不证明其他页面或首关阶段整体完成。
+本报告只覆盖2026-10-02获批的临时建造与选塔面板，不证明全页面或首关阶段整体完成。
 
-此前全页面阶段报告完整保留在 [QA-BEFORE-CONFIRMATIONS.md](docs/design/first-level-quality-v3/QA-BEFORE-CONFIRMATIONS.md)。其中首页、设置、结算等已记录的未解决视觉差异仍需复查；全页面交付仍未通过，本文件末尾的passed只指本批确认页内部对照。
+历史确认页报告保留在 [QA-CONFIRMATIONS.md](docs/design/first-level-quality-v3/QA-CONFIRMATIONS.md)，此前全页面差距保留在 [QA-BEFORE-CONFIRMATIONS.md](docs/design/first-level-quality-v3/QA-BEFORE-CONFIRMATIONS.md)。后台恢复、寻路异常、教学波间三族仍待处理，其他页面历史差距不因本次passed自动消除。
 
-## 视觉真值与环境
+## 视觉真值与冻结环境
 
-- Source truth：`docs/design/first-level-quality-v3/confirmations.html`；截图 `/private/tmp/nightwatch-confirmation-fidelity-aeMb8G/reference-restart.jpg`、`reference-home.jpg`。
-- Implementation：`http://127.0.0.1:4176/?build=quality-v3-confirmations-final-1007`；截图同目录 `implementation-restart.jpg`、`implementation-home.jpg`。
-- Browser CSS viewport：770×597；source pixels 390×844；implementation pixels 770×597；截图均1×。源稿为390宽内容区域；游戏为SHOW_ALL中心336×597区域。
-- Normalization：实装剔除左右黑边（left217,width336），按宽度等比到390×693；源稿中心裁切top76,height693。未伪造390／320浏览器验证；视口覆盖未生效。
-- State：普通1×，两机枪塔，第一波，核心10/10，用户主动暂停后分别进入两个确认页。源稿同波次与核心；背景只作为上下文，实装保留真实地图与HUD。
+- Source truth：`docs/design/first-level-quality-v3/inspector.html?frame=game`，独立可切换稿件，不是运行截图。
+- Implementation：`http://127.0.0.1:4176/?build=quality-v3-tower-panel-final-1045`。
+- main脚本SHA256：`482e6c4725d2e01c157308bcaa2da9cb199a22d821e535d53ca703be72f4f04f`。
+- 右侧浏览器770×597，实际游戏区域336×597；普通1×、战前自由布防。未用QA夹具修改金币与塔状态。
+- 源稿390×693.33适配现有塔栏顶部锚点；全页源截图按DOM位置left24/top377裁出390×693。运行截图裁left217/top0/336×597，按宽度同比放至390，取整高度693。没有拉伸或伪称真实390/320浏览器验收。
+- 对照状态：一级机枪80金币、满级机枪14金币、一级冷凝塔。冷凝源情景60金币、实装70金币；面板属性/费用一致，HUD与地图为上下文，不在本批面板还原范围。
 
-## 比较历史
+## 比较历史与修复
 
-1. 初稿：正文缺局部重点、九宫格显示边框未按稿件尺寸；P2。修复为分段原生文字，边框宽度19／9稿件像素与整体同缩放。
-2. 对照裁切一度未与源DOM匹配，废弃该比较结果；从整页770×2176参考截图按真实DOM坐标裁切390×844，再归一后比较。
-3. 正文分隔线被底板遮挡／缩放后描边过淡；P2。移到饰面上层，以原生实心细线绘制。最终1007构建截图中已可见。
-4. 最终重新打开参考、运行截图并一起查看全景和局部对照：主体尺寸、正文顺序、重点、按钮位置及安全操作层级一致，无剩余可执行P0/P1/P2问题。
+1. 首轮差距：旧面板未展示下一阶收益、厚框挤压信息。新稿采用独立205高临时面板、10像素边框与三级字体层次；增加的临时占位获用户确认。
+2. 接入对照后修正塔名、等级与角色说明的位置，取消运行文字额外0.72缩放，文字/按钮命中共用390几何。
+3. P1：低位点选落点可能被面板覆盖。新增有效点选的确认建造按钮，与原有提交事务共用，不重复扣费。最终实测70→40增加一塔且收起；拖放仍松手提交。
+4. 无效拖放保留原因与可取消预览；禁用按钮与面板空白不向战场穿透。
+5. 首次源图捕获存在素材未加载，已废弃。重新确认图片全部加载，打开最终一级/满级/冷凝全景及局部组合图检查；无剩余可执行P0/P1/P2。
 
 ## 五项必查表面
 
-- Typography：同PingFang SC；标题17、用途10、战况11、正文12／22.8行高、按钮13、辅助10（以390稿件基准）。等比例缩放且无截字。Cocos与浏览器文字抗锯齿、600／500字重映射、眉题1px字距有轻微差异，P3。
-- Layout：344×394.45面板、298×54按钮、10间隔及正文位置遵循稿件；归一后因像素取整有约1–2px差异，P3。内容没有重叠。320按钮缩放后的44.3px仅由几何测试证明。
-- Colors：正文#F4E9CD，辅助#A9BDCA，眉题#C6A876，离开按钮字#D9B2A5；遮罩rgba(6,12,22,.67)。未再用大红退出主按钮。
-- Assets：原本第三稿本地无字底板／按钮／home、restart图标，九宫格边框19／9稿件像素。无假图标、占位整页或新图片；背景差异为实际游戏状态，不是替换设计资产。
-- Copy：三行后果、历史纪录／设置保留、战前金币恢复符合真实状态。首页主按钮保留原局，次按钮明确结束本局；不是只换了视觉而继续用旧触控下标。
+- Typography：标题14、属性13、按钮12、收益11、辅助10（390基准）；原生PingFang SC与全布局同比缩放，无超框。浏览器500/600字重与Cocos映射、抗锯齿有P3差异。
+- Layout：左右12、宽366、高205、距既有塔栏12；标题/三列属性/收益/双按钮/辅助说明顺序一致。按钮54参考高度，320几何对应44.3；收起热区独立54，不扩大文字。像素取整有约1–2px P3差异。
+- Colors：同搪瓷铜边体系；升级主色、撤销中性、禁用低对比，失败原因使用文字而非仅红绿颜色。
+- Assets：共用现有本地九宫格面板/按钮与实际两塔肖像，未新建图片，未新增游戏联网依赖。真实地图、HUD、路线和单位与示例情景不同，不把背景一致算成本批目标。
+- Copy：实际towerAtLevel/nextUpgradeCost生成属性与收益，机枪/冷凝分别展示输出/控制；真实退款与禁售策略，金币不足报告差额，满级不编造下一阶。放置校验原因由模型提供。
 
-## 证据
+## 最终证据与验证
 
-- Full view：同临时目录 `restart-comparison.png`、`home-comparison.png`。
-- Focused：`restart-focused-comparison.png`、`home-focused-comparison.png`，两侧同时检查字体、九宫格、图标、分隔线及文案。
-- 实际交互：两个取消、重部署恢复两塔与80金币、确认离开回首页、确认页切换设置已验证；日志检查无捕获警告／错误。
-- `npm run verify` 199通过，美术10通过，发布构建通过；完整运行源码在ES2020独立检查配置中通过。默认全量tsconfig的ES2015／Bun工具问题仍单独披露。
+临时目录：`/private/tmp/nightwatch-confirmation-fidelity-aeMb8G/`，不加入Git大图。
 
-## 后续边界
+- 全景：`tower-panel-ready-comparison.png`、`tower-panel-max-comparison.png`、`tower-panel-frost-comparison.png`。
+- 局部：对应`tower-panel-*-focused.png`；左源稿、右实装。
+- 收起：`tower-panel-runtime-upgraded-hidden.jpg`、`tower-panel-runtime-built-hidden.jpg`，关闭后无空槽，不移动/缩小战场。
+- 实际交互：拖放建造、两次升级成功收起、满级/金币不足不扣费、三级战前撤销返还96、空白格收起、取消不扣费、占位无效点选/拖放保留原因、遮挡落点确认建造、冷凝战斗禁售、暂停及确认重部署恢复三塔40金币。
+- 规则204/204，美术契约10/10；运行源码ES2020独立配置通过。默认tsconfig旧ES2015/Bun工具限制未修复，不冒称默认全量类型检查通过。
+- 发布构建退出0且实际加载；Creator退出worker SIGTERM/MachPort清理噪声保留原日志。最终浏览器无捕获warn/error，皮肤/肖像加载失败0。
 
-P3字体渲染和细字距可在用户最终视觉反馈后再调整，不无限循环。尚未验证完整八波、三局连续运行、真实320／390视口、读屏和键盘。内部对照通过不等于用户成品视觉验收，不证明全页面目标完成。
+## 停止与验收边界
+
+本批内部设计对照通过，实际视觉仍由用户确认。没有完成三局八波、真实窄屏浏览器、完整封路现场、波间出售实测、读屏或键盘验收；波间退款和封路文案有规则覆盖，但不是浏览器现场证明。不做Android或横屏。本轮未提交，不推送。P3不自动无限打磨。
 
 final result: passed

@@ -1,11 +1,10 @@
 import { Color, Graphics, HorizontalTextAlignment, isValid, Label, Node, resources, Sprite, SpriteFrame, UITransform, VerticalTextAlignment } from 'cc';
 import { FROST_COIL, RIVET_GUN } from '../config/PhaseBCombatConfig';
-import { towerAtLevel } from '../systems/TowerLevelRules';
 import { firstLevelControlRect } from './FirstLevelUiGeometry';
 import { FIRST_LEVEL_UI_FONT, FIRST_LEVEL_UI_TEXT_SCALE, firstLevelFontSize } from './FirstLevelUiStyle';
 import { firstLevelGuidanceVisible } from './FirstLevelControlPolicy';
 import { PHASE_B_CENTER_PAUSE_BUTTON, PHASE_B_EARLY_WAVE_BUTTON,
-    PHASE_B_SELL_BUTTON, PHASE_B_SPEED_BUTTON, PHASE_B_UPGRADE_BUTTON, PHASE_B_UPGRADE_FULL_BUTTON,
+    PHASE_B_SPEED_BUTTON,
     type PhaseBRect } from './PhaseBLayout';
 import type { PhaseBHudState } from './PhaseBHudView';
 
@@ -29,7 +28,7 @@ export class FirstLevelUiSkinView {
         fallbackNode.layer = parent.layer;
         this.root.addChild(fallbackNode);
         this.fallback = fallbackNode.addComponent(Graphics);
-        for (const key of ['hud', 'tray', 'inspector', 'speed', 'next', 'pause', 'upgrade', 'sell', 'rivet-icon', 'frost-icon', 'inspect-icon', 'gold-icon', 'wave-icon', 'core-icon']) {
+        for (const key of ['hud', 'tray', 'speed', 'next', 'pause', 'rivet-icon', 'frost-icon', 'gold-icon', 'wave-icon', 'core-icon']) {
             const node = new Node(`Skin-${key}`);
             node.layer = parent.layer;
             const sprite = node.addComponent(Sprite);
@@ -58,7 +57,7 @@ export class FirstLevelUiSkinView {
                 if (this.snapshot) this.render(this.snapshot);
             });
         }
-        for (const name of ['hud-frame', 'tray-frame', 'inspect-frame', 'button-frame', 'disabled-frame']) {
+        for (const name of ['hud-frame', 'tray-frame', 'button-frame', 'disabled-frame']) {
             resources.load(`level-one/ui/quality-v2/${name}/spriteFrame`, SpriteFrame, (error, frame) => {
                 // 场景退出后丢弃异步结果；失败时原有 Graphics 和文字仍可操作。
                 if (error || !frame || !isValid(this.root)) return;
@@ -81,7 +80,7 @@ export class FirstLevelUiSkinView {
             state.upcomingWave?.wave, state.upcomingWave?.lineup, state.upcomingWave?.tactic,
             state.waveStartButton.label, state.waveStartButton.active, state.activePlacementTowerId,
             state.inspectedUpgrade?.towerId, state.inspectedUpgrade?.level, state.inspectedUpgrade?.cost,
-            state.inspectedUpgrade?.saleRefund].join('|');
+            state.inspectedUpgrade?.saleRefund, Boolean(state.towerPanel)].join('|');
         // Bootstrap 可以每帧提交快照，但静态饰面和文字只按展示字段变化更新。
         // 资源回调会使签名失效，所以迟到的图片不会被缓存挡住。
         if (signature === this.renderedSignature) return;
@@ -89,18 +88,12 @@ export class FirstLevelUiSkinView {
         this.fallback.clear();
         this.place('hud', 'hud-frame', { left: -516, right: 516, bottom: 784, top: 936 });
         this.place('tray', 'tray-frame', { left: -516, right: 516, bottom: -936, top: -764 });
-        const inspected = state.inspectedUpgrade;
-        this.place('inspector', 'inspect-frame', { left: -516, right: 516, bottom: -744, top: -480 }, Boolean(inspected));
+        const panelVisible = Boolean(state.towerPanel);
         for (const [key, rect, enabled] of [
             ['speed', PHASE_B_SPEED_BUTTON, true],
             ['next', PHASE_B_EARLY_WAVE_BUTTON, state.waveStartButton.active],
             ['pause', PHASE_B_CENTER_PAUSE_BUTTON, state.showPause],
         ] as const) this.place(key, enabled ? 'button-frame' : 'disabled-frame', firstLevelControlRect(rect, true));
-        const saleVisible = Boolean(inspected && inspected.saleRefund !== null);
-        const upgradeRect = saleVisible ? PHASE_B_UPGRADE_BUTTON : PHASE_B_UPGRADE_FULL_BUTTON;
-        this.place('upgrade', inspected?.cost !== null && inspected && state.gold >= inspected.cost
-            ? 'button-frame' : 'disabled-frame', firstLevelControlRect(upgradeRect, true), Boolean(inspected));
-        this.place('sell', saleVisible ? 'button-frame' : 'disabled-frame', firstLevelControlRect(PHASE_B_SELL_BUTTON, true), Boolean(inspected));
         for (const [key, frame, x] of [['rivet-icon', 'rivet-gun', -408], ['frost-icon', 'frost-coil', -88]] as const) {
             this.place(key, frame, { left: x - 56, right: x + 56, bottom: -904, top: -792 });
             this.skins.get(key)!.sprite.color = new Color(state.activePlacementTowerId === frame ? '#FFF0BA'
@@ -126,18 +119,11 @@ export class FirstLevelUiSkinView {
             : state.phase === 'preparing' ? '先布防' : '来袭中';
         this.label('next', waveText, 406, -850, 36, 176, state.waveStartButton.active ? '#F4E9CD' : '#AEBBC2', true);
         // 敌情继承真实波次配置，不能因关闭旧HUD而遗漏混编预告；教学跳过占右侧独立槽。
-        this.label('event', state.upcomingWave?.lineup ?? state.statusText, -480, 683, 32, 700, '#B8C6CC', false, Boolean(state.upcomingWave) || !inspected);
+        this.label('event', state.upcomingWave?.lineup ?? state.statusText, -480, 683, 32, 700, '#B8C6CC', false, Boolean(state.upcomingWave) || !panelVisible);
         this.label('tactic', state.upcomingWave?.tactic ?? '', -480, 635, 29, 700, '#9DE2CB', false, Boolean(state.upcomingWave));
         this.label('guidance', state.guidanceText, -470, -650, 36, 940, '#DFD3B8', false,
-            firstLevelGuidanceVisible(state.phase, state.entryMode === 'guided', state.waveStartButton.active, Boolean(inspected)));
-        this.label('reset', '↶', -330, -560, 56, 160, '#DFD3B8', true, !inspected);
-        this.label('inspect-title', inspected ? `${inspected.towerId === 'frost-coil' ? '冷凝塔' : '机枪塔'}  Lv.${inspected.level}` : '', -320, -529, 46, 320, '#F4E9CD', false, Boolean(inspected));
-        const tower = inspected ? towerAtLevel(inspected.towerId === 'frost-coil' ? FROST_COIL : RIVET_GUN, inspected.level) : null;
-        this.label('inspect-stats', tower ? `${tower.effect ? '减速 ' + Math.round((1 - tower.effect.speedMultiplier) * 100) + '%' : '伤害 ' + tower.damage} · 射程 ${tower.rangeCells}` : '', 10, -529, 40, 340, '#B8C6CC', false, Boolean(inspected));
-        this.label('close', '×', 441, -529, 60, 100, '#B8C6CC', true, Boolean(inspected));
-        this.label('sell', saleVisible ? `${state.phase === 'preparing' ? '撤销' : '出售'} ${inspected!.saleRefund}` : '战斗中禁售', -160, -648, 36, 290, saleVisible ? '#F4E9CD' : '#AEBBC2', true, Boolean(inspected));
-        this.label('upgrade', inspected?.cost === null ? '已满级' : `${state.gold >= (inspected?.cost ?? 0) ? '升级' : '需'} ${inspected?.cost ?? ''}`, 190, -648, 36, 320, inspected?.cost !== null && state.gold >= (inspected?.cost ?? 0) ? '#BCE4C5' : '#AEBBC2', true, Boolean(inspected));
-        this.place('inspect-icon', inspected?.towerId ?? 'rivet-gun', { left: -455, right: -343, bottom: -650, top: -538 }, Boolean(inspected));
+            firstLevelGuidanceVisible(state.phase, state.entryMode === 'guided', state.waveStartButton.active, panelVisible));
+        this.label('reset', '↶', -330, -560, 56, 160, '#DFD3B8', true, !panelVisible);
         if (typeof document !== 'undefined') {
             document.querySelector('canvas')?.setAttribute('data-first-level-ui', JSON.stringify({
                 // Creator 发布降级不能依赖迭代器展开；显式归一化，避免 Map 被当成单个数组元素。

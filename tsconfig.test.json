@@ -18,6 +18,7 @@
     "assets/scripts/presentation/**/*.ts"
   ],
   "exclude": [
+    "assets/scripts/presentation/FirstLevelTowerPanelView.ts",
     "assets/scripts/presentation/FirstLevelResultView.ts",
     "assets/scripts/presentation/FirstLevelHomeArtView.ts",
     "assets/scripts/presentation/FirstLevelPageSkinView.ts",

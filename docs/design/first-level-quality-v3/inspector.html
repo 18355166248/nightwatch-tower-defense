@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第三稿 · 建造与选塔设计</title>
+<link rel="stylesheet" href="confirmations.css"><link rel="stylesheet" href="inspector.css">
+<header><p class="eyebrow">夜城防线 / 第三稿延展</p><h1>先看提升，再决定升级</h1><p>独立交互设计稿，对应面板已接入游戏。沿用已确认的搪瓷与铜边材质，不另起美术风格。场景为美术情景，属性来自现有塔配置；这里的操作只修改示例数据。</p>
+<nav aria-label="设计稿显示尺寸"><button data-size="390" aria-pressed="true">390px</button><button data-size="320" aria-pressed="false">320px</button><a href="index.html">全页面索引</a></nav>
+<nav id="states" aria-label="面板状态"></nav></header>
+<main class="inspector-review"><section><h2 id="state-title">一级机枪 · 可升级</h2><p class="caption">字体、边框、图标与间距统一等比缩放；仅竖屏。</p>
+<div class="viewport"><div class="stage">
+<div class="scene"></div>
+<div class="draft-hud"><span>金币 <strong id="gold">80</strong></span><span>波次 <strong>0 / 8</strong></span><span>核心 <strong>10 / 10</strong></span></div>
+<p class="scene-caption">夜城广场 <span>设计情景 / 非实装</span></p>
+<article class="tower-sheet" aria-label="选塔面板">
+<div class="tower-heading"><img id="portrait" alt="机枪塔"><div><h3 id="tower-name">机枪塔 <small id="level">Lv.1</small></h3><p id="role">稳定单体输出</p></div><button class="close-control" aria-label="收起面板">收起</button></div>
+<div class="tower-stats"><div><span id="stat-caption">单次伤害</span><strong id="power">7</strong></div><div><span>射程</span><strong id="range">2.6 格</strong></div><div><span id="tempo-caption">攻击间隔</span><strong id="tempo">0.35 秒</strong></div></div>
+<p class="upgrade-preview" id="preview">下一级：伤害 7 → 11 · 射程 2.6 → 2.8</p>
+<div class="tower-actions"><button class="secondary" id="sell">撤销 · 30</button><button class="primary" id="upgrade">升级 · 24</button></div>
+<p class="sheet-help" id="help">战前撤销返还全部投入</p>
+</article>
+<div class="tower-tray"><img src="https://audiopaytest.cos.tx.xmcdn.com/storages/7249-audiotest/3E/F0/GAqSoUUOlMn1AAQ9QAACF0J9.png" alt=""><span>机枪塔<small>30 金币</small></span><img src="https://audiopaytest.cos.tx.xmcdn.com/storages/9e00-audiotest/99/88/GAqSiIMOlMoAAAOunwACF0KF.png" alt=""><span>冷凝塔<small>40 金币</small></span><span class="tray-speed">1×</span></div>
+</div></div><output id="demo-feedback" aria-live="polite">设计稿操作不影响游戏存档</output></section>
+<aside><h2>这版解决什么</h2><p>塔名与等级 → 当前属性 → 下一阶提升 → 操作，形成固定阅读顺序。撤销弱化，升级作为主操作；两者保留独立热区。</p><p>没有用大字号撑层级：标题14px，属性数值13px，正文11px，注释10px。窄宽连同装饰等比缩小，按钮54px参考高度在320宽下仍为44.3px。</p><p>金币不足直接报告差额；满级不显示虚假的下一阶；战斗禁售保留原因，避免左右操作跳位。</p><p>建造有效和无效使用同一面板，不靠红绿颜色独自表达结果。最终状态由真实放置校验给出，不能只按金币判定。</p><p>面板仅在建造预览或选塔时临时出现。建造、升级、撤销或出售成功后收起，用短提示反馈；取消或点击空白战场也收起。关闭后不留空槽，不挤小战场。失败时保留原因，允许取消。</p><p><a href="INSPECTOR.md">审查、规格与接入边界</a></p></aside></main>
+<footer>稿件已确认并接入，实际游戏最终视觉待用户验收。不包含横屏、外围系统或新增功能。原生标签及热区在 Cocos 中独立实现，图片仅负责无字材质与塔肖像。点选落点被面板遮挡时可用确认建造按钮；拖放仍松手提交。</footer>
+<script src="inspector.js"></script>
+</html>

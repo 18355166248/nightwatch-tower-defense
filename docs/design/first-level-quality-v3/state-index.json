@@ -10,7 +10,10 @@
     "imageFit": "contain"
   },
   "visualAcceptance": "direction-selected-runtime-fidelity-pending",
-  "runtimeIntegration": "home-briefing-pause-settings-results-and-confirmations-integrated-five-other-page-families-pending",
+  "runtimeIntegration": "home-briefing-pause-settings-results-confirmations-and-tower-panel-integrated-three-other-page-families-pending",
+  "towerPanelDesignQa": "passed-for-temporary-tower-panel-only-user-visual-acceptance-pending",
+  "scopeExclusions": {"orientation": "User excluded landscape design and acceptance on 2026-10-02; existing safety pause guard retained", "androidDeviceTesting": "excluded-by-user"},
+  "inspectorDraft": {"source": "inspector.html", "styles": "inspector.css", "behavior": "inspector.js", "review": "INSPECTOR.md", "states": ["ready", "short", "max", "battle", "frost", "valid", "invalid", "click"], "visualAcceptance": "draft-approved-runtime-user-acceptance-pending", "approvalEvidence": "User required temporary occupancy then replied 可以 开始 on 2026-10-02", "cocosIntegration": "integrated-local-skins-and-native-text", "runtimeUrl": "http://127.0.0.1:4176/?build=quality-v3-tower-panel-final-1045", "mainSha256": "482e6c4725d2e01c157308bcaa2da9cb199a22d821e535d53ca703be72f4f04f", "rules": "204/204", "artContracts": "10/10", "browserViewport": {"width": 770, "height": 597}, "completeEightWaveAcceptance": "not-run-this-build"},
   "homeBuild": {
     "url": "http://127.0.0.1:4176/?build=quality-v3-home-fidelity-1950",
     "mainSha256": "9516ede077bdd41e48b615f2b35360bbe58bc4a08e5778403800598bc8f4d06d",
@@ -105,7 +108,6 @@
     "confirm-restart",
     "confirm-home",
     "lifecycle",
-    "orientation",
     "route-error",
     "victory",
     "defeat",
