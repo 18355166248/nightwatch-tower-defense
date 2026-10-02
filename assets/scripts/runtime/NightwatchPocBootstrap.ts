@@ -1199,10 +1199,11 @@ export class NightwatchPocBootstrap extends Component {
             resultRevealProgress: this.settings.snapshot.reducedMotion ? 1 : this.resultReveal.progress,
         };
         this.backdrop?.setVisible(experience.mode !== 'home');
-        this.renderer?.render(sceneState);
+        // 先发布本帧身体/尸影坐标，再绘制事件；调用顺序不改变节点既定的前后层级。
+        this.unitSprites?.render(sceneState, this.runClock.elapsedSeconds);
+        this.renderer?.render(sceneState, this.unitSprites?.visualAnchors);
         this.coreArt?.render(sceneState.grid, sceneState.feedback.coreHits, Boolean(result), sceneState.reducedMotion);
         this.entryArt?.render(sceneState.grid, Boolean(result));
-        this.unitSprites?.render(sceneState, this.runClock.elapsedSeconds);
         this.foregroundFeedback?.render(sceneState, this.unitSprites?.visualAnchors);
         this.experienceView?.render(experience, this.model.grid, Boolean(result), this.preview?.cell ?? null, inspectedCell,
             this.bestTime.bestSeconds, this.bestHealth.bestRemainingHealth);
@@ -1293,6 +1294,7 @@ export class NightwatchPocBootstrap extends Component {
             ...this.textureTransferProbe.read(this.experience.entryMode === 'home'),
             renderAtlasPolicyStatus: this.renderAtlasPolicyStatus,
             combatVisualAlignment: this.foregroundFeedback?.alignmentDiagnostics ?? [],
+            combatRewardOrigins: this.foregroundFeedback?.rewardAlignmentDiagnostics ?? [],
             combatTargetLocks: this.combat.lockedTargets,
             entryMode: this.experience.entryMode,
             gridId: this.selectedGridId,

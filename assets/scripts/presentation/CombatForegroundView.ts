@@ -19,9 +19,11 @@ export class CombatForegroundView {
     }
 
     public get alignmentDiagnostics(): CombatFeedbackView['alignmentSamples'] { return this.feedback.alignmentSamples; }
+    public get rewardAlignmentDiagnostics(): CombatFeedbackView['rewardAlignmentSamples'] { return this.feedback.rewardAlignmentSamples; }
     public render(state: PhaseBSceneState, anchors?: CombatVisualAnchors): void {
         this.graphics.clear();
         this.feedback.alignmentSamples = [];
+        this.feedback.rewardAlignmentSamples = [];
         // 结算遮罩由底层 Graphics 绘制；前景事件若继续绘制会穿透结算面板。
         if (state.result) return;
         this.feedback.drawAboveUnits(state, this.layout.boardMetrics(state.grid).cellSize, anchors);

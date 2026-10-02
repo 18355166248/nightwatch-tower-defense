@@ -12,8 +12,10 @@
   "visualAcceptance": "direction-selected-runtime-fidelity-pending",
   "resourceOptimization": {
     "status": "B-approved-integrated-phase-cache-measured-conservative-budget-still-failed",
-    "runtimeUrl": "http://127.0.0.1:4176/?build=quality-v3-priority-lock",
-    "mainSha256": "79384f4bbbd95347b5215aa2e3d8bdbdeb94da1f72a12eb8b7ed339a7add4c3e",
+    "runtimeUrl": "http://127.0.0.1:4176/?build=quality-v3-kill-origins",
+    "mainBundlePath": "assets/main/index.js",
+    "mainSha256": "01ed0b55268f4d73ac58dba949cf05a61e9acb18203aebd686955dc1f71269b0",
+    "killFeedbackOrigins": {"review":"KILL-FEEDBACK-ORIGINS.md","deathRingUsesBodyPoint":true,"rewardOriginPersistsAfterCorpse":true,"slowPulseUsesActualEffectCenter":true,"rulesPassed":242,"normalBrowserFirstWaveRestartVerified":true,"completeEightWaveBrowserAcceptance":false},
     "combatTargetLocks": {"review":"TARGET-LOCKS.md","policy":"retain-within-priority-and-1e-6-exit-distance-tolerance","rulesPassed":239,"normalBrowserFirstWavePauseRestartVerified":true,"unconditionalFocusFire":false,"completeEightWaveBrowserAcceptance":false},
     "combatVisualAlignment": {"review":"COMBAT-VISUAL-ANCHORS.md","displayCoordinatesIntegrated":true,"muzzleSocketIntegrated":true,"fullDirectionHeadCompleted":false,"persistentCombatTargetLockVerified":false,"allFeedbackChannelsAligned":false,"artDecision":"requested-eight-direction-versus-top-down-awaiting-user"},
     "singleAtlas": {"review":"SINGLE-ATLAS.md","defaultMaxAtlasCount":1,"returnedHomeGfxBytes":8313792,"pauseGfxBytes":10062528,"pauseDrawCalls":47,"returnedHomeDynamicAtlasCount":1,"allPhaseBudgetPassed":false},

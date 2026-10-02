@@ -8,6 +8,7 @@ import { CoreObjectiveView } from './CoreObjectiveView';
 import { FirstLevelHudChromeView } from './FirstLevelHudChromeView';
 import { BattlefieldSurfaceView } from './BattlefieldSurfaceView';
 import { CombatFeedbackView } from './CombatFeedbackView';
+import type { CombatVisualAnchors } from './CombatVisualAnchors';
 import { EnemySlowIndicatorView } from './EnemySlowIndicatorView';
 import { enemyHealthBarRatio } from './EnemyHealthIndicator';
 import { layoutEnemyHealthBars, type EnemyHealthBarCandidate } from './EnemyHealthBarLayout';
@@ -53,7 +54,7 @@ export class PhaseBCanvasRenderer {
         this.hudChrome = new FirstLevelHudChromeView(graphics, layout);
     }
 
-    public render(state: PhaseBSceneState): void {
+    public render(state: PhaseBSceneState, anchors?: CombatVisualAnchors): void {
         const graphics = this.graphics;
         graphics.clear();
         // 外缘仍保留夜城氛围，但避免与棋盘局部罩色叠加后把战斗单位压成暗斑。
@@ -62,7 +63,7 @@ export class PhaseBCanvasRenderer {
         graphics.fill();
         if (state.qaMode) this.hudChrome.draw(state.coreHealth);
         if (state.qaMode) this.drawTabs(state);
-        this.drawBoard(state);
+        this.drawBoard(state, anchors);
         this.drawControls(state);
     }
 
@@ -95,7 +96,7 @@ export class PhaseBCanvasRenderer {
         graphics.stroke();
     }
 
-    private drawBoard(state: PhaseBSceneState): void {
+    private drawBoard(state: PhaseBSceneState, anchors?: CombatVisualAnchors): void {
         const graphics = this.graphics;
         const metrics = this.layout.boardMetrics(state.grid);
         this.battlefieldSurface.draw(state);
@@ -167,7 +168,7 @@ export class PhaseBCanvasRenderer {
             left: metrics.left + 4, right: metrics.left + metrics.width - 4,
             bottom: metrics.bottom + 4, top: metrics.bottom + metrics.height - 4,
         }));
-        this.combatFeedback.drawBehindUnits(state, metrics.cellSize);
+        this.combatFeedback.drawBehindUnits(state, metrics.cellSize, anchors);
     }
 
     private drawTower(center: PhaseBPoint, cellSize: number, frost: boolean): void {

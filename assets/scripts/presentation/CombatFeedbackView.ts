@@ -5,24 +5,28 @@ import { PhaseBLayout, type PhaseBPoint } from './PhaseBLayout';
 import { enemyDeathPose } from './UnitVisualMotion';
 import { rivetTrailPose } from './ShotTraceGeometry';
 import type { CombatVisualAnchors } from './CombatVisualAnchors';
+import { FeedbackVisualOrigins } from './FeedbackVisualOrigins';
 
 /** 战斗事件的程序特效层；只绘制短生命周期快照，不持有伤害、索敌或额外动画时钟。 */
 export class CombatFeedbackView {
+    private readonly rewardOrigins = new FeedbackVisualOrigins();
+    public rewardAlignmentSamples: {enemyId: string; origin: PhaseBPoint; logicalOrigin: PhaseBPoint}[] = [];
     public alignmentSamples: {targetId:string;origin:PhaseBPoint;target:PhaseBPoint;logicalTarget:PhaseBPoint}[] = [];
     public constructor(private readonly graphics: Graphics, private readonly layout: PhaseBLayout) {}
 
-    public drawBehindUnits(state: PhaseBSceneState, cellSize: number): void {
+    public drawBehindUnits(state: PhaseBSceneState, cellSize: number, anchors?: CombatVisualAnchors): void {
         this.drawSlowPulses(state, cellSize);
-        this.drawDeaths(state, cellSize);
+        this.drawDeaths(state, cellSize, anchors);
         this.drawCoreHits(state, cellSize);
     }
 
     public drawAboveUnits(state: PhaseBSceneState, cellSize: number, anchors?: CombatVisualAnchors): void {
         this.alignmentSamples = [];
+        this.rewardAlignmentSamples = [];
         // 减弱动态时去掉位移弹迹，但保留命中反馈与金币信息。
         if (!state.reducedMotion) this.drawShots(state, cellSize, anchors);
         this.drawImpacts(state, cellSize, anchors);
-        this.drawRewards(state, cellSize);
+        this.drawRewards(state, cellSize, anchors);
     }
 
     private drawShots(state: PhaseBSceneState, cellSize: number, anchors?: CombatVisualAnchors): void {
@@ -134,10 +138,11 @@ export class CombatFeedbackView {
         }
     }
 
-    private drawDeaths(state: PhaseBSceneState, cellSize: number): void {
+    private drawDeaths(state: PhaseBSceneState, cellSize: number, anchors?: CombatVisualAnchors): void {
         const graphics = this.graphics;
         for (const death of state.feedback.deaths) {
-            const point = this.center(death.point, state.grid);
+            const logicalPoint = this.center(death.point, state.grid);
+            const point = anchors?.resolveTarget(death.enemyId, logicalPoint) ?? logicalPoint;
             const pose = enemyDeathPose(death.archetypeId, death.remainingSeconds, death.durationSeconds, death.spawnOrder);
             const heavy = death.archetypeId === 'iron-canister-hauler';
             const runner = death.archetypeId === 'clockwork-runner';
@@ -158,10 +163,17 @@ export class CombatFeedbackView {
         }
     }
 
-    private drawRewards(state: PhaseBSceneState, cellSize: number): void {
+    private drawRewards(state: PhaseBSceneState, cellSize: number, anchors?: CombatVisualAnchors): void {
         const graphics = this.graphics;
+        this.rewardOrigins.retain(new Set(state.feedback.rewards.map(reward => reward.enemyId)));
         for (const reward of state.feedback.rewards) {
-            const point = this.center(reward.point, state.grid);
+            const logicalPoint = this.center(reward.point, state.grid);
+            // 金币从实际击杀身体处升起；尸影寿命可能短于金币，后续帧必须沿用首次点。
+            const point = this.rewardOrigins.resolve(reward.enemyId,
+                anchors?.resolveTarget(reward.enemyId, logicalPoint) ?? logicalPoint);
+            if (this.rewardAlignmentSamples.length < 6) {
+                this.rewardAlignmentSamples.push({ enemyId: reward.enemyId, origin: point, logicalOrigin: logicalPoint });
+            }
             const progress = 1 - reward.remainingSeconds / reward.durationSeconds;
             const y = point.y + cellSize * (0.35 + progress * 0.55);
             const alpha = Math.round(255 * Math.min(1, reward.remainingSeconds / 0.2));

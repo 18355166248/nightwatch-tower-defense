@@ -37,6 +37,7 @@ export interface SlowPulseFeedback extends TimedFeedback {
 }
 
 export interface RewardFeedback extends TimedFeedback {
+    readonly enemyId: string;
     readonly amount: number;
 }
 
@@ -141,6 +142,7 @@ export class CombatFeedbackRuntime {
         })));
         this.activeRewards.push(...result.killed.map((enemy) => ({
             ...this.timed(this.enemyPoint(enemy), REWARD_SECONDS),
+            enemyId: enemy.id,
             amount: enemy.archetype.killReward,
         })));
         this.activeCoreHits.push(...result.leaked.map(() => this.timed({ column: -1, row: -1 }, CORE_HIT_SECONDS)));
