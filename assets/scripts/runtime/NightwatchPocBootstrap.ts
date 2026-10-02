@@ -49,6 +49,7 @@ import {
 } from '../presentation/FirstLevelExperience';
 import { FirstLevelExperienceView } from '../presentation/FirstLevelExperienceView';
 import { firstLevelSettingsPresentation, type FirstLevelSettingsAction } from '../presentation/FirstLevelSettingsPresentation';
+import { firstLevelConfirmationPresentation } from '../presentation/FirstLevelConfirmationPresentation';
 import { centerPauseVisible } from '../presentation/FirstLevelControlPolicy';
 import { firstLevelGuidance } from '../presentation/FirstLevelGuidance';
 import {
@@ -57,7 +58,7 @@ import {
     PHASE_B_EARLY_WAVE_BUTTON,
     PHASE_B_FROST_BUTTON,
     PHASE_B_GRID_TABS,
-    phaseBPauseButtons,
+    phaseBConfirmationButtons,
     PHASE_B_RESULT_HOME_BUTTON,
     PHASE_B_RESULT_RESTART_BUTTON,
     PHASE_B_SOUND_BUTTON,
@@ -496,8 +497,17 @@ export class NightwatchPocBootstrap extends Component {
             this.handleSettingsTouch(point, false);
             return true;
         }
-        const button = phaseBPauseButtons(pause.screen).findIndex((rect) => this.layout.insideRect(point, this.layout.safeRect(rect)));
+        const button = phaseBConfirmationButtons(pause.screen, this.layout.visibleDesignWidth)
+            .findIndex((rect) => this.layout.insideRect(point, this.layout.safeRect(rect)));
         if (button < 0) return true;
+        if (pause.screen === 'confirm-restart' || pause.screen === 'confirm-home') {
+            // 首页确认的主按钮是保留原局；按语义分发，不能沿用旧的“索引0一律确认”。
+            const action = firstLevelConfirmationPresentation(pause.screen).actionKinds[button];
+            if (action === 'cancel') this.pauseOverlay.show('menu');
+            else if (action === 'restart') this.restartFromCheckpoint();
+            else if (action === 'home') this.returnToHome();
+            return true;
+        }
         if (pause.screen === 'route-error') {
             if (button === 0) this.restartFromCheckpoint();
             else if (button === 1) this.returnToHome();

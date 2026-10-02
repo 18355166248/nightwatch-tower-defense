@@ -1,5 +1,6 @@
 import type { GridCell, GridDefinition, GridId } from '../core/GridTypes';
 import type { PauseScreen } from '../systems/PauseOverlayRuntime';
+import { firstLevelConfirmationLayout } from './FirstLevelConfirmationPresentation';
 
 export const PHASE_B_DESIGN_WIDTH = 1080;
 export const PHASE_B_DESIGN_HEIGHT = 1920;
@@ -34,6 +35,11 @@ const PHASE_B_PAUSE_CONFIRM_BUTTONS = [
 export function phaseBPauseButtons(screen: PauseScreen): readonly PhaseBRect[] {
     return screen === 'menu' ? PHASE_B_PAUSE_BUTTONS
         : screen === 'settings' ? PHASE_B_PAUSE_SETTINGS_BUTTONS : PHASE_B_PAUSE_CONFIRM_BUTTONS;
+}
+
+export function phaseBConfirmationButtons(screen: PauseScreen, visibleWidth: number): readonly PhaseBRect[] {
+    return screen === 'confirm-restart' || screen === 'confirm-home'
+        ? firstLevelConfirmationLayout(visibleWidth).buttons : phaseBPauseButtons(screen);
 }
 
 /** 首页不显示局内速度，但保留动作索引4给返回，避免布局压缩后分发到错误设置。 */

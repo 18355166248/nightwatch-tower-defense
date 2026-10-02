@@ -58,11 +58,20 @@ export class FirstLevelPageSkinView {
         this.separators.stroke();
     }
 
-    public panel(rect: PhaseBRect): boolean { return this.place('panel', 'panel', rect); }
+    public bodyDivider(left: number, right: number, y: number, width: number): void {
+        // 与图标同属饰面上层；画在暂停Graphics上会被异步加载的实心底板遮掉。
+        this.separators.fillColor = new Color('#6B604B');
+        this.separators.rect(left, y - width, right - left, width);
+        this.separators.fill();
+    }
 
-    public button(slot: number, rect: PhaseBRect, tone: FirstLevelPanelTone): boolean {
+    public panel(rect: PhaseBRect, borderWidth?: number): boolean {
+        return this.place('panel', 'panel', rect, '#FFFFFF', borderWidth === undefined ? 1 : borderWidth / 42);
+    }
+
+    public button(slot: number, rect: PhaseBRect, tone: FirstLevelPanelTone, borderWidth?: number): boolean {
         return this.place(`button-${slot}`, tone === 'primary' ? 'primary' : tone === 'danger' ? 'danger' : 'secondary', rect,
-            tone === 'disabled' ? '#65717C' : '#FFFFFF');
+            tone === 'disabled' ? '#65717C' : '#FFFFFF', borderWidth === undefined ? 1 : borderWidth / 24);
     }
 
     public icon(slot: string, asset: PageAsset, rect: PhaseBRect, disabled = false): void {
@@ -74,7 +83,7 @@ export class FirstLevelPageSkinView {
             visibleSlots:Array.from(this.skins.entries()).filter(([,skin])=>skin.node.active).map(([slot])=>slot) };
     }
 
-    private place(slot: string, asset: PageAsset, rect: PhaseBRect, tint = '#FFFFFF'): boolean {
+    private place(slot: string, asset: PageAsset, rect: PhaseBRect, tint = '#FFFFFF', borderScale = 1): boolean {
         const frame = this.frames.get(asset);
         if (!frame) return false;
         let skin = this.skins.get(slot);
@@ -94,7 +103,9 @@ export class FirstLevelPageSkinView {
         skin.sprite.spriteFrame = frame;
         skin.sprite.type = asset.endsWith('-icon') ? Sprite.Type.SIMPLE : Sprite.Type.SLICED;
         skin.sprite.color = new Color(tint);
-        skin.node.getComponent(UITransform)!.setContentSize(rect.right - rect.left, rect.top - rect.bottom);
+        // 九宫格源切片宽度与稿件显示边框不同；只缩放饰面节点，整体矩形和输入热区保持不变。
+        skin.node.setScale(borderScale, borderScale, 1);
+        skin.node.getComponent(UITransform)!.setContentSize((rect.right - rect.left) / borderScale, (rect.top - rect.bottom) / borderScale);
         skin.node.setPosition((rect.left + rect.right) / 2, (rect.bottom + rect.top) / 2);
         return true;
     }

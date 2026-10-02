@@ -10,7 +10,7 @@
     "imageFit": "contain"
   },
   "visualAcceptance": "direction-selected-runtime-fidelity-pending",
-  "runtimeIntegration": "home-briefing-pause-settings-and-results-integrated-seven-other-page-families-pending",
+  "runtimeIntegration": "home-briefing-pause-settings-results-and-confirmations-integrated-five-other-page-families-pending",
   "homeBuild": {
     "url": "http://127.0.0.1:4176/?build=quality-v3-home-fidelity-1950",
     "mainSha256": "9516ede077bdd41e48b615f2b35360bbe58bc4a08e5778403800598bc8f4d06d",
@@ -70,9 +70,18 @@
     "styles": "confirmations.css",
     "behavior": "confirmations.js",
     "states": ["confirm-restart", "confirm-home"],
-    "visualAcceptance": "pending-user-review",
-    "cocosIntegration": "not-started-for-new-layout",
-    "runtimeAudit": "AUDIT-2026-10-02.md"
+    "visualAcceptance": "draft-approved-runtime-user-acceptance-pending",
+    "approvalEvidence": "User replied 按新稿接入 on 2026-10-02",
+    "cocosIntegration": "both-layouts-integrated-native-text-and-local-skins",
+    "runtimeAudit": "CONFIRMATIONS.md",
+    "runtimeUrl": "http://127.0.0.1:4176/?build=quality-v3-confirmations-final-1007",
+    "mainSha256": "86c3c49f061ae7187859529b2ba638a260b15c095ab86f7118644b2263f52706",
+    "browserViewport": { "width": 770, "height": 597 },
+    "rules": "199/199",
+    "artContracts": "10/10",
+    "fullRuntimeTypes": "passed-with-ES2020-runtime-only-config",
+    "designQa": "passed-for-confirmations-only",
+    "completeEightWaveAcceptance": "not-run-this-build"
   },
   "displayOrder": [
     {

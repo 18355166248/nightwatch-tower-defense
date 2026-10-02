@@ -6,6 +6,7 @@ import { FirstLevelPanelPainter } from './FirstLevelPanelPainter';
 import { FIRST_LEVEL_UI_FONT, firstLevelFontSize } from './FirstLevelUiStyle';
 import { FirstLevelPageSkinView } from './FirstLevelPageSkinView';
 import { firstLevelSettingsPresentation } from './FirstLevelSettingsPresentation';
+import { firstLevelConfirmationPresentation, firstLevelConfirmationLayout, type FirstLevelConfirmationScreen } from './FirstLevelConfirmationPresentation';
 
 interface PauseLabels {
     readonly root: Node;
@@ -70,25 +71,38 @@ export class PhaseBPauseOverlayView {
             state.homeSettingsVisible, state.speedMultiplier, state.routeErrorDetail].join('|');
         if (signature === this.signature) return;
         this.signature = signature;
+        // 复用文字节点时清掉确认标题的粗体，不能把上一页的排版状态带进暂停或设置。
+        labelsView.title.isBold = false;
+        labelsView.subtitle.isBold = false;
+        labelsView.footer.isBold = false;
+        labelsView.actions.forEach(label => { label.isBold = false; });
         const screen = state.homeSettingsVisible ? 'settings' : state.pause.screen;
         const orientationBlocked = !state.homeSettingsVisible && state.pause.reason === 'orientation';
         const compact = screen !== 'menu' && screen !== 'settings' || orientationBlocked;
         const fullSettings = screen === 'settings';
         const menu = screen === 'menu' && !orientationBlocked;
-        const panel = orientationBlocked ? this.layout.orientationPanelRect()
+        const confirmation = !orientationBlocked && (screen === 'confirm-restart' || screen === 'confirm-home');
+        const panel = confirmation ? firstLevelConfirmationLayout(this.layout.visibleDesignWidth).panel
+            : orientationBlocked ? this.layout.orientationPanelRect()
             : this.layout.pausePanelRect(screen);
         const graphics = this.graphics;
         graphics.clear();
         this.skins.begin();
-        graphics.fillColor = new Color(6, 12, 22, 165);
+        graphics.fillColor = new Color(6, 12, 22, confirmation ? 171 : 165);
         graphics.rect(-Math.max(540, this.layout.visibleDesignWidth / 2), -960,
             Math.max(1080, this.layout.visibleDesignWidth), 1920);
         graphics.fill();
-        if (!this.skins.panel(panel)) this.chrome.panel(panel, screen === 'route-error' || screen === 'confirm-home' ? 'danger' : 'neutral');
+        const confirmationBorder = confirmation ? firstLevelConfirmationLayout(this.layout.visibleDesignWidth).scale * 19 : undefined;
+        if (!this.skins.panel(panel, confirmationBorder)) this.chrome.panel(panel, screen === 'route-error' || screen === 'confirm-home' ? 'danger' : 'neutral');
 
         if (fullSettings && !orientationBlocked) {
             this.renderSettings(state, labelsView);
             this.writeDiagnostics('settings', labelsView);
+            return;
+        }
+        if (confirmation) {
+            this.renderConfirmation(screen as FirstLevelConfirmationScreen, state, labelsView);
+            this.writeDiagnostics(screen, labelsView);
             return;
         }
 
@@ -123,11 +137,6 @@ export class PhaseBPauseOverlayView {
                 state.homeSettingsVisible ? '' : `速度 · ${state.speedMultiplier}×`,
                 state.homeSettingsVisible ? '返回首页' : '返回暂停'];
             labelsView.footer.string = '偏好保存在本机；不会改变战斗数值';
-        } else if (screen === 'confirm-restart' || screen === 'confirm-home') {
-            const home = screen === 'confirm-home';
-            labelsView.title.string = home ? '返回首页？' : '回到战前布防？';
-            labels = [home ? '确认返回首页' : '确认重新部署', '取消'];
-            labelsView.footer.string = home ? '本局进度将清空；最快纪录保留' : '恢复开战前塔位；本局击杀与金币清零';
         } else {
             labelsView.title.string = state.pause.reason === 'lifecycle' ? '后台安全暂停' : '战斗暂停';
             labels = [state.pause.canContinue ? '继续战斗' : '等待返回页面', '回到战前布防', '战斗设置', '返回首页'];
@@ -179,6 +188,49 @@ export class PhaseBPauseOverlayView {
             labels: [labelsView.title, labelsView.subtitle, ...labelsView.actions, labelsView.footer].filter(label => label.node.active)
                 .map(label => ({ text: label.string, fontSize: label.fontSize })),
         }));
+    }
+
+    private renderConfirmation(screen: FirstLevelConfirmationScreen, state: PhaseBPauseViewState, labels: PauseLabels): void {
+        const copy = firstLevelConfirmationPresentation(screen);
+        const layout = firstLevelConfirmationLayout(this.layout.visibleDesignWidth);
+        const place = (label: Label, text: string, spec: typeof layout.title, left = true, color = '#F4E9CD', bold = false) => {
+            label.node.active = true;
+            label.string = text;
+            label.fontSize = spec.size;
+            label.lineHeight = spec.line;
+            label.isBold = bold;
+            label.horizontalAlign = left ? HorizontalTextAlignment.LEFT : HorizontalTextAlignment.CENTER;
+            label.verticalAlign = VerticalTextAlignment.CENTER;
+            label.color = new Color(color);
+            const rect = spec.rect;
+            label.node.setPosition((rect.left + rect.right) / 2, (rect.bottom + rect.top) / 2);
+            label.node.getComponent(UITransform)!.setContentSize(rect.right - rect.left, rect.top - rect.bottom);
+        };
+        labels.actions.forEach(label => { label.node.active = false; label.isBold = false; });
+        place(labels.title, copy.title, layout.title, true, '#F4E9CD', true);
+        place(labels.subtitle, `第 ${state.wave} / ${state.totalWaves} 波     核心 ${state.coreHealth} / ${state.maxCoreHealth}`, layout.context, true, '#A9BDCA');
+        place(labels.footer, copy.footer, layout.footer, false, '#A9BDCA');
+        place(labels.actions[2], copy.kicker, layout.kicker, true, '#C6A876');
+        copy.body.forEach((text, index) => place(labels.actions[3 + index], text, layout.body[index], true,
+            index === 2 ? '#A9BDCA' : '#F4E9CD'));
+        // 获批正文只强调操作后果，分段原生Label保留可编辑文字，不把整行烘焙进图片。
+        const prefix = screen === 'confirm-home' ? '当前战斗将结束，' : '恢复开战前的';
+        const emphasis = screen === 'confirm-home' ? '本局进度不会保存' : '塔位、等级与金币';
+        const body = layout.body[0];
+        const segment = (start: number, count: number) => ({ ...body,
+            rect: { ...body.rect, left: body.rect.left + start * body.size, right: body.rect.left + (start + count) * body.size } });
+        place(labels.actions[3], prefix, segment(0, prefix.length));
+        place(labels.actions[6], emphasis, segment(prefix.length, emphasis.length), true, '#F4E9CD', true);
+        place(labels.actions[7], '。', segment(prefix.length + emphasis.length, 1));
+        this.skins.icon('header-icon', screen === 'confirm-home' ? 'home-icon' : 'restart-icon', layout.icon);
+        // 分隔线是原生几何，正文、图标、面板仍复用已批准的无字图片素材。
+        this.skins.bodyDivider(layout.divider.left, layout.divider.right, layout.divider.top, layout.scale);
+        layout.buttons.forEach((rect, index) => {
+            const tone = index === 0 ? 'primary' : 'neutral';
+            if (!this.skins.button(index, rect, tone, layout.scale * 9)) this.chrome.button(rect, tone);
+            place(labels.actions[index], copy.actions[index], { rect, size: layout.actionSize, line: layout.actionLine }, false,
+                screen === 'confirm-home' && index === 1 ? '#D9B2A5' : '#F4E9CD');
+        });
     }
 
     private renderSettings(state: PhaseBPauseViewState, labels: PauseLabels): void {
