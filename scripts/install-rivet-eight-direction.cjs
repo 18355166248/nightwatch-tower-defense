@@ -2,13 +2,18 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { randomUUID } = require('node:crypto');
 const root = path.resolve(__dirname, '..');
-const source = path.join(root, 'docs/design/first-level-quality-v3/output/exec-f9a2a223-c099-4e16-80bb-054fe5103310/resized');
+const level = Number(process.argv[2] ?? 1);
+const sources = {1:'exec-f9a2a223-c099-4e16-80bb-054fe5103310',
+    2:'exec-c4c95f6c-2a01-4ede-9018-01545ea501c7',3:'exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb'};
+if (!sources[level]) throw new Error('只允许安装已审查的1/2/3级家族');
+const sourceId = sources[level];
+const source = path.join(root, `docs/design/first-level-quality-v3/output/${sourceId}/resized`);
 const names = ['north','north-east','east','south-east','south','south-west','west','north-west'];
 const template = JSON.parse(fs.readFileSync(path.join(root, 'assets/resources/level-one/units/rivet-gun-head-v2.png.meta'), 'utf8'));
-const out = path.join(root, 'assets/resources/level-one/units/rivet-head-eight-v1');
+const out = path.join(root, `assets/resources/level-one/units/rivet-head-eight-${level === 1 ? 'v1' : `level-${level}-v1`}`);
 fs.mkdirSync(out, { recursive: true });
 names.forEach((name, index) => {
-    const input = path.join(source, `exec-f9a2a223-c099-4e16-80bb-054fe5103310_${String(index).padStart(2,'0')}.png`);
+    const input = path.join(source, `${sourceId}_${String(index).padStart(2,'0')}.png`);
     const bytes = fs.readFileSync(input);
     if (bytes.readUInt32BE(16) !== 128 || bytes.readUInt32BE(20) !== 128) throw new Error('切图尺寸不符合128画布');
     const target = path.join(out, `${name}.png`);

@@ -63,7 +63,7 @@ export class PhaseBUnitSpriteView {
     public readonly visualAnchors = new CombatVisualAnchors();
     private readonly rivetHeadFrames: EightDirectionTowerFrames;
     private readonly towerDirections = new Map<string, TowerHeadDirection>();
-    public towerDirectionSamples: { towerKey: string; direction: TowerHeadDirection }[] = [];
+    public towerDirectionSamples: { towerKey: string; direction: TowerHeadDirection; level: number }[] = [];
     public get eightDirectionHeadStatus(): string { return this.rivetHeadFrames.status; }
     private readonly root = new Node('FirstLevelUnitSprites');
     private readonly towerLayer = new Node('TowerSprites');
@@ -266,17 +266,18 @@ export class PhaseBUnitSpriteView {
                 LayeredTowerRig.pose(node, point, towerSize, motion, spec, aimAngle);
                 let emitter = layeredTowerEmissionPoint(point,towerSize,motion,spec,aimAngle);
                 if (towerId === 'rivet-gun') {
-                    this.rivetHeadFrames.request();
+                    const level = state.towerLevelsByCell.get(key) ?? 1;
+                    this.rivetHeadFrames.request(level);
                     const previous = this.towerDirections.get(key) ?? 'north';
                     const direction = aim ? towerHeadDirection(point, visualTarget, previous) : previous;
-                    const directionFrame = this.rivetHeadFrames.frame(direction);
+                    const directionFrame = this.rivetHeadFrames.frame(direction, level);
                     if (directionFrame) {
                         this.towerDirections.set(key, direction);
                         const muzzles = poseDirectionalTowerHead(node, directionFrame, RIVET_HEAD_REGISTRATIONS[direction], point, towerSize, motion);
                         emitter = muzzles[0];
                         this.visualAnchors.emitter(key, muzzles[1], 1);
-                        this.towerDirectionSamples.push({ towerKey: key, direction });
-                    }
+                        this.towerDirectionSamples.push({ towerKey: key, direction, level });
+                    } else LayeredTowerRig.restoreActiveFrame(node, active, towerSize, spec);
                 }
                 this.visualAnchors.emitter(key, emitter);
             } else {

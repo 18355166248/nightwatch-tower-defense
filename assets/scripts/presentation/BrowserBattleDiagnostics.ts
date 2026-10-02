@@ -1,6 +1,6 @@
 export interface BrowserBattleDiagnosticsState {
     readonly eightDirectionHeadStatus?: string;
-    readonly towerHeadDirections?: readonly {readonly towerKey: string; readonly direction: string}[];
+    readonly towerHeadDirections?: readonly {readonly towerKey: string; readonly direction: string; readonly level: number}[];
     readonly combatRewardOrigins?: readonly {readonly enemyId: string; readonly origin: {readonly x: number; readonly y: number}; readonly logicalOrigin: {readonly x: number; readonly y: number}}[];
     readonly combatTargetLocks?: readonly {readonly towerKey:string;readonly towerId:string;readonly targetId:string}[];
     readonly combatVisualAlignment?: readonly {readonly targetId:string;readonly barrel:0|1;readonly origin:{readonly x:number;readonly y:number};

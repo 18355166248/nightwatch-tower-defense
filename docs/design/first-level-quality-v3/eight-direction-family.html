@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>机枪塔三级八方向 · 切图配准</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101720;color:#e8e3d8;font:14px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}main{max-width:1180px;margin:auto;padding:20px}h1{font-size:22px}h2{font-size:16px}p{color:#b9c3cc}a{color:#9ed8d6}.grid{display:flex;flex-wrap:wrap;gap:12px}.cell{position:relative;width:128px;height:128px;background:#24323f}.cell img{width:128px;height:128px}.mark{position:absolute;width:5px;height:5px;margin:-2.5px;border-radius:50%;background:#ff68e5;box-shadow:0 0 0 1px #111}.pivot{background:#78dfff}.small{display:flex;gap:18px;align-items:center}.small img{width:64px;height:64px;background:#24323f}figure{margin:0}figcaption{font-size:12px;color:#b9c3cc}
+</style>
+<main><h1>机枪塔三级 × 八方向</h1>
+<p>独立生成升级部件，不使用运行截图替代设计稿。保持固定底座、画布及双管坐标。128px 原切图上的粉点为程序注册炮口，青点为安装轴；升级须核对炮口而非机械套用中心。图示不是全方向实战验收。</p>
+<p>一级：基础铜金／深蓝炮头。二级：炮管加固环＋肩板。三级：厚肩甲＋后部散热脊。保留原有射速和伤害规则。</p>
+<div id="families"></div>
+<p><a href="eight-direction-head.html">代表稿与来源</a> · <a href="EIGHT-DIRECTION-HEAD.md">实现／验证记录</a></p>
+<script>
+const directions=['north','north-east','east','south-east','south','south-west','west','north-west'];
+const sources=['exec-f9a2a223-c099-4e16-80bb-054fe5103310','exec-c4c95f6c-2a01-4ede-9018-01545ea501c7','exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb'];
+const imagePath=(level,index)=>'output/'+sources[level-1]+'/resized/'+sources[level-1]+'_'+String(index).padStart(2,'0')+'.png';
+const points=[[68,102,54,31,82,31],[61,101,70,29,93,42],[61,99,101,49,104,73],[62,92,100,72,79,89],[68,87,55,77,82,77],[67,94,27,55,47,69],[66,99,22,40,20,64],[64,100,32,34,54,18]];
+for(let level=1;level<=3;level++){
+ const h=document.createElement('h2');h.textContent='等级 '+level+' · 128px 配准';document.getElementById('families').append(h);
+ const grid=document.createElement('div');grid.className='grid';
+ directions.forEach((direction,i)=>{
+  const figure=document.createElement('figure'),cell=document.createElement('div'),image=document.createElement('img');cell.className='cell';
+  image.src=imagePath(level,i);image.alt='等级'+level+' '+direction;cell.append(image);
+  for(let p=0;p<3;p++){const dot=document.createElement('span');dot.className='mark'+(p===0?' pivot':'');dot.style.left=points[i][p*2]+'px';dot.style.top=points[i][p*2+1]+'px';cell.append(dot);}
+  const caption=document.createElement('figcaption');caption.textContent=direction;figure.append(cell,caption);grid.append(figure);
+ });document.getElementById('families').append(grid);
+}
+const smallHeading=document.createElement('h2');smallHeading.textContent='64px 画布 · 同方向三级对照';document.getElementById('families').append(smallHeading);
+for(const direction of ['north','south-east','west']){const row=document.createElement('div');row.className='small';const label=document.createElement('span');label.textContent=direction;row.append(label);for(let level=1;level<=3;level++){const image=document.createElement('img');image.src=imagePath(level,directions.indexOf(direction));image.alt='64px等级'+level;row.append(image);}document.getElementById('families').append(row);}
+</script></main></html>

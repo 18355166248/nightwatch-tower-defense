@@ -38,8 +38,9 @@ test('八张实际运行切图保持128画布、独立UUID和非动态合图；�
     const path = require('node:path');
     const { RIVET_HEAD_REGISTRATIONS } = require('../.test-dist/presentation/RivetHeadRegistrations.js');
     const uuids = new Set();
-    for (const direction of TOWER_HEAD_DIRECTIONS) {
-        const file = path.resolve(__dirname, '../assets/resources/level-one/units/rivet-head-eight-v1', direction+'.png');
+    for (const level of [1,2,3]) for (const direction of TOWER_HEAD_DIRECTIONS) {
+        const folder = level===1 ? 'rivet-head-eight-v1' : `rivet-head-eight-level-${level}-v1`;
+        const file = path.resolve(__dirname, '../assets/resources/level-one/units', folder, direction+'.png');
         const png = fs.readFileSync(file);
         assert.equal(png.readUInt32BE(16), 128);
         assert.equal(png.readUInt32BE(20), 128);
@@ -52,5 +53,18 @@ test('八张实际运行切图保持128画布、独立UUID和非动态合图；�
             assert.ok(point.x >= 0 && point.x <= 1 && point.y >= 0 && point.y <= 1);
         }
     }
-    assert.equal(uuids.size, 8);
+    assert.equal(uuids.size, 24);
+});
+
+test('配准审阅页与实际程序坐标一致，南/西方向不再沿用偏离炮管的坐标',()=>{
+    const fs=require('node:fs'),path=require('node:path');
+    const {RIVET_HEAD_REGISTRATIONS}=require('../.test-dist/presentation/RivetHeadRegistrations.js');
+    const page=fs.readFileSync(path.resolve(__dirname,'../docs/design/first-level-quality-v3/eight-direction-family.html'),'utf8');
+    const points=JSON.parse(page.match(/const points=(\[.*\]);/)[1]);
+    TOWER_HEAD_DIRECTIONS.forEach((direction,i)=>{
+        const r=RIVET_HEAD_REGISTRATIONS[direction];
+        assert.deepEqual([r.pivot,...r.muzzles].flatMap(p=>[p.x*128,p.y*128]),points[i]);
+    });
+    assert.equal(RIVET_HEAD_REGISTRATIONS.south.muzzles[0].y*128,77);
+    assert.equal(RIVET_HEAD_REGISTRATIONS.west.muzzles[0].y*128,40);
 });

@@ -44,6 +44,16 @@ export class LayeredTowerRig {
         active.setScale(motion?.scaleX ?? 1, motion?.scaleY ?? 1, 1);
     }
 
+    /** 八向帧未齐/加载失败时恢复旧图的画布轴点，不能让旧透视帧套用旧炮身几何。 */
+    public static restoreActiveFrame(root: Node, frame: SpriteFrame, size: number, spec: LayeredTowerSpec): void {
+        const active = root.getChildByName(spec.activeName);
+        if (!active) return;
+        const sprite = active.getComponent(Sprite);
+        if (sprite) { sprite.spriteFrame = frame; sprite.trim = false; }
+        active.getComponent(UITransform)?.setAnchorPoint(spec.activePivotX, spec.activePivotY);
+        this.resizePart(active, size * spec.canvasScale * spec.activeScaleX, size * spec.canvasScale * spec.activeScaleY);
+    }
+
     private static createPart(name: string, layer: number, frame: SpriteFrame, width: number, height: number): Node {
         const node = new Node(name);
         node.layer = layer;

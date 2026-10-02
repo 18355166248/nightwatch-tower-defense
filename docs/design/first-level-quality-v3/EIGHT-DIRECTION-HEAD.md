@@ -1,5 +1,26 @@
 # 八方向炮头代表稿
 
+## 三级机枪家族接入（最新构建）
+
+试玩 `http://127.0.0.1:4176/?build=quality-v3-three-level-heads`，主包 `assets/main/index.js` SHA256 `18bfb34f9700cb1a83514c4564eedeaf6bee980db2b469d68919e6f8c256248f`。独立切图对照：`eight-direction-family.html`，提供三级×八方向128px炮口／轴点标记及64px家族对照。
+
+二级源图 `rivet-head-level-two-source-v1.png`，内置image_gen输出ID `exec-c4c95f6c-2a01-4ede-9018-01545ea501c7`，以已认可基础绿底源为编辑目标；三级源图 `rivet-head-level-three-source-v1.png`，输出ID `exec-d7404092-3966-45d6-b6f2-c9d5e39b36fb`，以二级源为编辑目标。均1774×887，项目既有切图管线2×4、128px、square、chroma、无autocrop。源图／候选在docs PNG忽略范围，不进入Git和运行包；唯一来源未删除，CDN归档待完成。
+
+运行二/三级分别在 `assets/resources/level-one/units/rivet-head-eight-level-2-v1/`、`rivet-head-eight-level-3-v1/`，每级8张128×128 RGBA及独立UUID，完整透明画布、不参与动态合图、无mipmap。安装器参数2/3保留不同字节拒绝覆盖和meta复用。基础级＋两升级级共24张，解码上界1.5MiB，不代表总预算通过。
+
+家族提示规范（实际内置编辑调用）：
+
+- 二级：以基础4×2八向源为编辑目标，保留每格位置、N/NE/E/SE/S/SW/W/NW顺序、双炮口位置与宽度、物体比例、固定俯视正交相机、左上暖光、深蓝搪瓷／铜金材质和不透明绿底；仅每根炮管中段加一道粗铜金加固环、两侧接头加小肩甲。无底座、文字、额外炮管、发光、弹迹或绿底投影。
+- 三级：以二级源为编辑目标，保留全部布局、原炮管及加固环、炮口位置、画布、相机／光照／材质；仅小肩板替换为厚阶梯铜金装甲（深蓝嵌板），后部齿轮之后增加低矮散热脊。三级在64px应更厚重而非整图放大，仍只有两炮管。无冷凝青光、炮火、文字、标注或背景投影。
+
+128px叠点审查发现并修正基础注册的南／西南／西／西北炮口误差，三级源保持原炮管位置，逐级复核后共用同一坐标；注册页与程序坐标有一致性测试。此项修正不能替代全8向实际战斗验证。
+
+等级资源仅已布置时请求，每级8帧就绪才发布；一级完整不受二级缺图影响。新等级未齐／失败时明确恢复旧图、旧轴点和旧尺寸。当前仍缓存已请求等级到视图销毁；过时等级卸载和总预算复测尚未完成。
+
+测试253/253、美术契约10/10、全部运行类型检查与构建通过。普通770×597、非QA、1×：机枪Lv1→Lv2→Lv3，冷凝基础塔，金币依次110→86→44→4，路径14格；二级北向ready，三级东北向及东向可见，三级双管0/1实际绘制端点已观察。最新主包重载后再次验证升级及普通首波。截图／DOM样本在 `/private/tmp/nightwatch-confirmation-fidelity-aeMb8G/`：`rivet-level-two-game.png`、`rivet-level-three-combat.png`、`three-level-native-size-review.png`、`three-level-head-observed.json`。不是三局完整八波验收。
+
+仍待：全方向实战覆盖、资源回收和预算复测、源／预览图CDN归档、最终人工视觉验收。冷凝三级现有外观未在本次重绘，不宣称全部塔家族或本阶段完成。
+
 ## 双管交替接入（当前构建）
 
 试玩 `http://127.0.0.1:4176/?build=quality-v3-double-barrel`，主包 `assets/main/index.js` SHA256 `bf9839d59ac30e58370639d107b591025f0e01361d11cf9505fc9987e33df7bd`。
