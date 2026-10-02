@@ -8,6 +8,7 @@ import { PHASE_B_CENTER_PAUSE_BUTTON, PHASE_B_EARLY_WAVE_BUTTON,
     type PhaseBRect } from './PhaseBLayout';
 import type { PhaseBHudState } from './PhaseBHudView';
 import { compactTextWidth } from './CompactTextWidth';
+import { VisibleLabelSlots } from './VisibleLabelSlots';
 
 type Skin = { node: Node; sprite: Sprite };
 
@@ -16,7 +17,7 @@ export class FirstLevelUiSkinView {
     private readonly root: Node;
     private readonly skins = new Map<string, Skin>();
     private readonly frames = new Map<string, SpriteFrame>();
-    private readonly labels = new Map<string, Label>();
+    private readonly labels = new VisibleLabelSlots();
     private readonly fallback: Graphics;
     private snapshot: PhaseBHudState | null = null;
     private renderedSignature = '';
@@ -76,9 +77,17 @@ export class FirstLevelUiSkinView {
 
     public render(state: PhaseBHudState): void {
         this.snapshot = state;
-        this.root.active = !state.qaMode && !state.result;
+        this.root.active = !state.qaMode && !state.result && state.entryMode !== 'home';
         if (!this.root.active) {
-            this.renderedSignature = '';
+            // 首页完全盖住战斗HUD；清理文字槽，不保留上一波的隐藏TTF纹理。
+            this.labels.clear();
+            if (this.renderedSignature !== 'hidden' && typeof document !== 'undefined') {
+                document.querySelector('canvas')?.setAttribute('data-first-level-ui', JSON.stringify({
+                    version: 'quality-v2', textScale: FIRST_LEVEL_UI_TEXT_SCALE, compactText: this.compactText,
+                    loadedFrames: Array.from(this.frames.keys()), labels: [], visible: false,
+                }));
+            }
+            this.renderedSignature = 'hidden';
             return;
         }
         const signature = [state.gold, state.wave, state.totalWaves, state.coreHealth, state.maxCoreHealth,
@@ -91,6 +100,7 @@ export class FirstLevelUiSkinView {
         // 资源回调会使签名失效，所以迟到的图片不会被缓存挡住。
         if (signature === this.renderedSignature) return;
         this.renderedSignature = signature;
+        this.labels.begin();
         this.fallback.clear();
         this.place('hud', 'hud-frame', { left: -516, right: 516, bottom: 784, top: 936 });
         this.place('tray', 'tray-frame', { left: -516, right: 516, bottom: -936, top: -764 });
@@ -130,6 +140,7 @@ export class FirstLevelUiSkinView {
         this.label('guidance', state.guidanceText, -470, -650, 36, 940, '#DFD3B8', false,
             !state.coach && firstLevelGuidanceVisible(state.phase, state.entryMode === 'guided', state.waveStartButton.active, panelVisible));
         this.label('reset', '↶', -330, -560, 56, 160, '#DFD3B8', true, !panelVisible && !state.coach);
+        this.labels.end();
         if (typeof document !== 'undefined') {
             document.querySelector('canvas')?.setAttribute('data-first-level-ui', JSON.stringify({
                 // Creator 发布降级不能依赖迭代器展开；显式归一化，避免 Map 被当成单个数组元素。
@@ -141,11 +152,12 @@ export class FirstLevelUiSkinView {
     }
 
     private label(key: string, text: string, x: number, y: number, baseSize: number, width: number, color = '#F4E9CD', center = false, visible = true): void {
-        let label = this.labels.get(key);
-        if (!label) {
+        // 未使用的文字由本次快照结束时释放，重新出现沿用同一字号、矩形和锚点。
+        if (!visible) return;
+        const label = this.labels.acquire(key, () => {
             const node = new Node(`QualityText-${key}`);
             node.layer = this.root.layer;
-            label = node.addComponent(Label);
+            const label = node.addComponent(Label);
             node.getComponent(UITransform)!.setContentSize(width, 90);
             node.getComponent(UITransform)!.setAnchorPoint(center ? .5 : 0, .5);
             label.fontFamily = FIRST_LEVEL_UI_FONT;
@@ -156,8 +168,8 @@ export class FirstLevelUiSkinView {
             label.overflow = Label.Overflow.CLAMP;
             label.enableWrapText = false;
             this.root.addChild(node);
-            this.labels.set(key, label);
-        }
+            return label;
+        });
         label.node.active = visible;
         label.node.setPosition(x, y);
         // 只在文案变化时改写 Label，重复战斗快照不重复生成文字纹理。

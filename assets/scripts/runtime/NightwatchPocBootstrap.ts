@@ -1198,6 +1198,7 @@ export class NightwatchPocBootstrap extends Component {
             result,
             resultRevealProgress: this.settings.snapshot.reducedMotion ? 1 : this.resultReveal.progress,
         };
+        this.backdrop?.setVisible(experience.mode !== 'home');
         this.renderer?.render(sceneState);
         this.coreArt?.render(sceneState.grid, sceneState.feedback.coreHits, Boolean(result), sceneState.reducedMotion);
         this.entryArt?.render(sceneState.grid, Boolean(result));
