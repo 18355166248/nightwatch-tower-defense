@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "kind": "static",
+  "title": "冷凝二三级结构与能量叠加层",
+  "sizes": [128],
+  "background": "keep",
+  "resample": "lanczos",
+  "source": {
+    "tool": "OpenAI built-in image_gen + deterministic alpha slicing + ai-asset-pipeline static_bundle",
+    "approved_concepts": ["exec-ffbb7697-e73b-48a8-8c20-098d699ad3d2", "exec-81f7fec2-e3d2-4a4b-98fb-495ece8b60e5"],
+    "production_generations": ["exec-0626d467-9919-4b76-b343-1853a0591d8d", "exec-b2dbd8d4-c3dc-4eb4-b676-1877998ff1b4"],
+    "note": "仅修正相机；结构层保留完整静止绘画，能量层按同一像素坐标提取青蓝亮区，防止独立生图配准漂移。",
+    "license": "AI-assisted project assets; commercial rights review pending"
+  }
+}

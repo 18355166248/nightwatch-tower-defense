@@ -962,8 +962,10 @@ test('模拟时钟统一限制长帧并在 1x 与 2x 间循环', () => {
 
 test('三种候选网格的初始、短折线和长蛇形 fixture 与冻结值一致', () => {
     for (const fixture of fixtures.fixtures) {
-        const grid = PHASE_A_GRIDS[fixture.gridId];
-        assert.ok(grid, `未知网格 ${fixture.gridId}`);
+        assert.ok(PHASE_A_GRIDS[fixture.gridId], `未知网格 ${fixture.gridId}`);
+        // Phase A冻结数据使用当时入口，不能把首关8列新入口混入历史寻路证据。
+        const grid = { id: fixture.gridId, columns: fixture.columns, rows: fixture.rows,
+            entry: { column: fixture.entry[0], row: fixture.entry[1] }, exit: { column: fixture.exit[0], row: fixture.exit[1] } };
 
         const initial = simulateNoDamageRoute(new FlowField(grid, new Set()), 1);
         assert.equal(initial.pathLength, fixture.initialPathLength);
@@ -1098,17 +1100,17 @@ test('开局全额撤销、波间七成返还且锁定阶段不改金币与流�
     assert.equal(model.sell(cell, 'intermission'), false);
 });
 
-test('出售窗口只在开局与清场波间开放，用户暂停不能绕过战斗锁', () => {
+test('撤销/七折出售/五折拆除按阶段区分，用户暂停和结算不接收棋盘交易', () => {
     assert.equal(towerSaleWindow(true, 'preparing', false), 'opening');
-    assert.equal(towerSaleWindow(false, 'spawning', false), 'locked');
-    assert.equal(towerSaleWindow(false, 'clearing', false), 'locked');
+    assert.equal(towerSaleWindow(false, 'spawning', false), 'combat');
+    assert.equal(towerSaleWindow(false, 'clearing', false), 'combat');
     assert.equal(towerSaleWindow(false, 'countdown', false), 'intermission');
     assert.equal(towerSaleWindow(false, 'paused', true), 'intermission');
     assert.equal(towerSaleWindow(false, 'paused', false), 'locked');
     assert.equal(towerSaleWindow(false, 'victory', false), 'locked');
 });
 
-test('波间倒计时归零后出售请求被锁定，不能跨波拿回金币', () => {
+test('波间倒计时归零后重新按战斗五折报价，不能沿用波间七折', () => {
     const model = new PlacementModel(PHASE_A_GRIDS['grid-9x13'], 120, 30);
     const cell = { column: 2, row: 2 };
     assert.equal(model.commit(model.preview(cell, []), []).accepted, true);
@@ -1118,9 +1120,10 @@ test('波间倒计时归零后出售请求被锁定，不能跨波拿回金币',
     assert.equal(towerSaleWindow(false, battle.snapshot.phase, false), 'intermission');
     battle.advance(0);
     const before = { gold: model.gold, version: model.mapVersion };
-    assert.equal(towerSaleWindow(false, battle.snapshot.phase, false), 'locked');
-    assert.equal(model.sell(cell, towerSaleWindow(false, battle.snapshot.phase, false)), false);
-    assert.deepEqual({ gold: model.gold, version: model.mapVersion }, before);
+    assert.equal(towerSaleWindow(false, battle.snapshot.phase, false), 'combat');
+    assert.equal(model.saleQuote(cell, 'combat'), 15);
+    assert.equal(model.sell(cell, towerSaleWindow(false, battle.snapshot.phase, false)), true);
+    assert.deepEqual({ gold: model.gold, version: model.mapVersion }, {gold:before.gold+15,version:before.version+1});
 });
 
 test('升级后的出售按累计投入七成取整，报价和真实到账一致', () => {
@@ -1915,12 +1918,12 @@ test('首关双段推荐构筑八波可胜，末段可选加固缩短清场', ()
         { wave: 2, killed: 9, leaked: 0, coreHealth: 10, towers: 6 },
         { wave: 3, killed: 13, leaked: 0, coreHealth: 10, towers: 7 },
     ]);
-    assert.equal(guided.coreHealth, 9);
+    assert.equal(guided.coreHealth, 6);
     assert.equal(guided.towers, 10);
-    assert.deepEqual(guided.totals, { spawned: 213, killed: 212, leaked: 1 });
-    assert.deepEqual(guided.waveResults.map(({ leaked }) => leaked), [0, 0, 0, 1, 0, 0, 0, 0]);
+    assert.deepEqual(guided.totals, { spawned: 213, killed: 209, leaked: 4 });
+    assert.deepEqual(guided.waveResults.map(({ leaked }) => leaked), [0, 0, 0, 3, 1, 0, 0, 0]);
     assert.equal(guided.telemetry.at(-1).towerInvestment, 466);
-    assert.deepEqual(guided.telemetry.slice(4).map(({ gold }) => gold), [28, 88, 128, 348]);
+    assert.deepEqual(guided.telemetry.slice(4).map(({ gold }) => gold), [23, 83, 123, 343]);
     const combatSeconds = guided.telemetry.reduce((sum, wave) => sum + wave.combatSeconds, 0);
     // 首关局长口径包含七段正常波间倒计时，不包含教学停留或手动暂停。
     const scheduledWaveBreakSeconds = (PHASE_B_WAVES.length - 1) * 8;
@@ -1950,9 +1953,9 @@ test('首关双段推荐构筑八波可胜，末段可选加固缩短清场', ()
     assert.ok(guided.telemetry[7].shotsByCell['7,6'] >= 50, '右侧设伏塔还应参与末波输出，不能只占格子');
 
     const fortified = replayFirstLevel({ reinforcements: [...FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_OPTIONAL_FORTIFICATIONS[0]] });
-    assert.equal(fortified.coreHealth, 9);
+    assert.equal(fortified.coreHealth, 6);
     assert.equal(fortified.towers, 11);
-    assert.deepEqual(fortified.totals, { spawned: 213, killed: 212, leaked: 1 });
+    assert.deepEqual(fortified.totals, { spawned: 213, killed: 209, leaked: 4 });
     assert.ok(fortified.telemetry.at(-1).combatSeconds < guided.telemetry.at(-1).combatSeconds);
 
     const noUpgrade = replayFirstLevel({ upgradesAfterWave: [] });
@@ -1966,7 +1969,7 @@ test('后段乱补机枪可能改道到无火力区，推荐加固位不能随�
     const result = replayFirstLevel({ reinforcements: [...FIRST_LEVEL_REINFORCEMENTS, ...extraGuns] });
     assert.equal(result.coreHealth, 0);
     assert.equal(result.towers, 12);
-    assert.equal(result.telemetry[5].gold, 28, '第六波后两座补塔必须真实花费 60 金');
+    assert.equal(result.telemetry[5].gold, 23, '第六波后两座补塔必须真实花费 60 金');
     assert.equal(result.waveResults.at(-1).wave, 7);
     assert.equal(result.pathCells.some(({ column }) => column === 1), true, '额外塔把敌人导入左侧无火力区');
 });

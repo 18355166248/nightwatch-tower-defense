@@ -3,6 +3,7 @@ import {
     Component,
     dynamicAtlasManager,
     EventTouch,
+    EventMouse,
     game,
     Game,
     Graphics,
@@ -199,7 +200,7 @@ export class NightwatchPocBootstrap extends Component {
         this.coreArt = new CoreObjectiveArtView(layer, this.layout);
         this.entryArt = new EnemyEntryArtView(layer, this.layout);
         this.foregroundFeedback = new CombatForegroundView(layer, this.layout);
-        this.hud = new PhaseBHudView(layer, this.layout);
+        this.hud = new PhaseBHudView(layer, this.layout, level => this.unitSprites?.frostStructureFrame(level) ?? null);
         this.experienceView = new FirstLevelExperienceView(layer, this.layout);
         this.pauseView = new PhaseBPauseOverlayView(layer, this.layout);
 
@@ -207,6 +208,8 @@ export class NightwatchPocBootstrap extends Component {
         this.canvas.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
         this.canvas.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
         this.canvas.on(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
+        this.canvas.on(Node.EventType.MOUSE_MOVE, this.onMouseMove, this);
+        this.canvas.on(Node.EventType.MOUSE_LEAVE, this.onMouseLeave, this);
         game.on(Game.EVENT_HIDE, this.onLifecycleHide, this);
         game.on(Game.EVENT_SHOW, this.onLifecycleShow, this);
         if (typeof window !== 'undefined') {
@@ -226,12 +229,15 @@ export class NightwatchPocBootstrap extends Component {
         this.canvas?.off(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
         this.canvas?.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
         this.canvas?.off(Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
+        this.canvas?.off(Node.EventType.MOUSE_MOVE, this.onMouseMove, this);
+        this.canvas?.off(Node.EventType.MOUSE_LEAVE, this.onMouseLeave, this);
         game.off(Game.EVENT_HIDE, this.onLifecycleHide, this);
         game.off(Game.EVENT_SHOW, this.onLifecycleShow, this);
         if (typeof window !== 'undefined') window.removeEventListener('blur', this.onBrowserBlur);
         this.browserCanvas?.removeEventListener('blur', this.onBrowserBlur);
         this.browserCanvas = null;
         this.debugInput.detach();
+        this.hud?.dispose();
         this.unitSprites?.dispose();
         this.sound.close();
     }
@@ -578,20 +584,22 @@ export class NightwatchPocBootstrap extends Component {
         // 禁售槽仍占独立热区；吞掉点击，不能穿透到棋盘并意外取消当前选塔。
         if (!this.qaMode && refund === null
             && panelAction === 'sell') {
-            this.statusText = '战斗中不能出售';
+            this.statusText = '当前状态不能移除炮塔';
             this.playSound('reject');
             return true;
         }
         if (refund !== null && (this.qaMode ? this.layout.insideRect(point, PHASE_B_SELL_BUTTON) : panelAction === 'sell')) {
             const before = this.committedPath();
-            // 输入回调内再次以当前阶段提交；倒计时已经开波时窗口变 locked，绝不跨波出售。
-            const sold = this.model.sell(cell, towerSaleWindow(this.preparing, this.battle.snapshot.phase, this.guidedIntermissionHeld));
+            // 提交时重读阶段：波间若已开波改为五折，不按旧面板的七折报价返金。
+            const currentWindow = towerSaleWindow(this.preparing, this.battle.snapshot.phase, this.guidedIntermissionHeld);
+            const actualRefund = this.model.saleQuote(cell, currentWindow);
+            const sold = this.model.sell(cell, currentWindow);
             if (sold) {
                 this.feedback.forgetTower(cell);
                 this.towerInspection.clear();
                 const change = this.routeChange.record(cell, before, this.committedPath());
-                this.statusText = `${window === 'opening' ? '全额撤销' : '波间出售'} · +${refund} 金 · ${routeChangeText(change.delta, change.changed)}`;
-            } else this.statusText = '本波已开始，不能出售';
+                this.statusText = `${currentWindow === 'opening' ? '全额撤销' : currentWindow === 'combat' ? '战斗拆除（五折）' : '波间出售（七折）'} · +${actualRefund} 金 · ${routeChangeText(change.delta, change.changed)}`;
+            } else this.statusText = '状态已变化，请重新选择炮塔';
             this.playSound(sold ? 'sell' : 'reject');
             return true;
         }
@@ -608,7 +616,7 @@ export class NightwatchPocBootstrap extends Component {
     }
 
     private handlePlacementPanelTouch(point: Vec3): boolean {
-        if (this.qaMode || !this.preview || this.inputMode !== 'click-preview') return false;
+        if (this.qaMode || !this.preview || this.inputMode !== 'click-preview' && this.inputMode !== 'armed') return false;
         const action = firstLevelTowerPanelAction(point, firstLevelTowerPanelLayout(this.layout.visibleDesignWidth));
         if (!action) return false;
         // 下方落点可能被面板遮挡；确认按钮与再次点落点共用同一事务，不重复扣费。
@@ -616,19 +624,20 @@ export class NightwatchPocBootstrap extends Component {
             this.cancelInput('已取消建造，未扣费');
             this.playSound('ui');
         }
-        if (action === 'upgrade' && this.preview?.accepted) this.commitCurrentPreview();
+        if (action === 'upgrade' && this.inputMode === 'click-preview' && this.preview?.accepted) this.commitCurrentPreview();
         return true;
     }
 
     private towerPanelInput(): TowerPanelInput | null {
         if (this.preview) return { towerId: this.preview.towerId, level: 1, gold: this.model.gold,
-            saleRefund: null, opening: this.preparing, placement: {accepted: this.preview.accepted,
+            saleRefund: null, opening: this.preparing, hover: this.inputMode === 'armed', placement: {accepted: this.preview.accepted,
                 reason: this.preview.reason, clickConfirm: this.inputMode === 'click-preview'} };
         const cell = this.towerInspection.cell;
         const deployment = cell ? this.model.deployments.find(tower => sameCell(tower.cell,cell)) : null;
         if (!cell || !deployment) return null;
         return {towerId: deployment.towerId, level: deployment.level ?? 1, gold: this.model.gold,
-            saleRefund: this.model.saleQuote(cell,towerSaleWindow(this.preparing,this.battle.snapshot.phase,this.guidedIntermissionHeld)), opening:this.preparing};
+            saleRefund: this.model.saleQuote(cell,towerSaleWindow(this.preparing,this.battle.snapshot.phase,this.guidedIntermissionHeld)), opening:this.preparing,
+            combat: towerSaleWindow(this.preparing,this.battle.snapshot.phase,this.guidedIntermissionHeld) === 'combat'};
     }
 
     private toggleBattle(): void {
@@ -729,9 +738,28 @@ export class NightwatchPocBootstrap extends Component {
         this.startCurrentWave();
     }
 
+    private onMouseMove(event: EventMouse): void {
+        // 悬停只更新已拿起塔的影子；首次点击仍锁定落点，第二次点击才扣费，避免鼠标移动误建。
+        if (this.inputMode !== 'armed' || this.pauseOverlay.snapshot.visible || this.experience.entryMode === 'home') return;
+        const point = this.localPoint(event);
+        // 鼠标从落点移向取消按钮时保留面板，否则离开棋盘会让按钮在点击前消失。
+        if (this.preview && firstLevelTowerPanelAction(point, firstLevelTowerPanelLayout(this.layout.visibleDesignWidth))) return;
+        this.updatePreviewAt(point);
+    }
+
+    private onMouseLeave(): void {
+        if (this.inputMode === 'armed') this.preview = null;
+    }
+
     private handleGridTap(point: Vec3): void {
         const cell = this.pointToCell(point);
         if (!cell) return;
+        // 点已有塔优先进入检查/撤销，不能被“拿着另一种塔”的建造状态困在占用错误里。
+        if (this.model.deployments.some(tower => sameCell(tower.cell, cell))
+            && (this.inputMode === 'armed' || this.inputMode === 'click-preview')) {
+            this.preview = null;
+            this.inputMode = 'idle';
+        }
         if (this.inputMode === 'armed') {
             this.preview = this.model.preview(cell, this.enemyStates(), this.selectedTowerId);
             this.inputMode = 'click-preview';
@@ -758,7 +786,7 @@ export class NightwatchPocBootstrap extends Component {
             if (action === 'inspect') {
                 const saleWindow = towerSaleWindow(this.preparing, this.battle.snapshot.phase, this.guidedIntermissionHeld);
                 this.statusText = saleWindow !== 'locked'
-                    ? `${this.towerInspectionText(towerId, deployment?.level ?? 1)} · 下方可${saleWindow === 'opening' ? '撤销' : '出售'}`
+                    ? `${this.towerInspectionText(towerId, deployment?.level ?? 1)} · 下方可${saleWindow === 'opening' ? '撤销' : saleWindow === 'combat' ? '拆除' : '出售'}`
                     : this.towerInspectionText(towerId, deployment?.level ?? 1);
                 this.playSound('ui');
             } else this.statusText = '已关闭炮塔射程查看';
@@ -1108,7 +1136,7 @@ export class NightwatchPocBootstrap extends Component {
         return this.layout.pointToCell(point, this.model.grid);
     }
 
-    private localPoint(event: EventTouch): Vec3 {
+    private localPoint(event: EventTouch | EventMouse): Vec3 {
         const location = event.getUILocation();
         const transform = this.canvas?.getComponent(UITransform);
         return transform?.convertToNodeSpaceAR(new Vec3(location.x, location.y, 0)) ?? new Vec3();
@@ -1282,7 +1310,7 @@ export class NightwatchPocBootstrap extends Component {
         const saleWindow = towerSaleWindow(this.preparing, this.battle.snapshot.phase, this.guidedIntermissionHeld);
         const inspectedSaleRefund = inspectedCell ? this.model.saleQuote(inspectedCell, saleWindow) : null;
         const saleAccessibleText = inspectedSaleRefund === null ? ''
-            : `已选塔可${saleWindow === 'opening' ? '全额撤销' : '波间出售'}返还${inspectedSaleRefund}金币，`;
+            : `已选塔可${saleWindow === 'opening' ? '全额撤销' : saleWindow === 'combat' ? '战斗拆除（五折）' : '波间出售（七折）'}返还${inspectedSaleRefund}金币，`;
         // 第一波使用布防门槛，波间才使用提前开波状态；避免读屏把可开的第一波误报为未激活。
         const waveStartAccessibleText = this.preparing
             ? this.firstWaveReady()
@@ -1299,6 +1327,8 @@ export class NightwatchPocBootstrap extends Component {
             combatTargetLocks: this.combat.lockedTargets,
             eightDirectionHeadStatus: this.unitSprites?.eightDirectionHeadStatus ?? 'unavailable',
             towerHeadDirections: this.unitSprites?.towerDirectionSamples ?? [],
+            frostUpgradeArtStatus: this.unitSprites?.frostUpgradeArtStatus ?? 'unavailable',
+            frostTowerArtLevels: this.unitSprites?.frostArtSamples ?? [],
             entryMode: this.experience.entryMode,
             gridId: this.selectedGridId,
             columns: this.model.grid.columns,

@@ -1,11 +1,12 @@
 export type BattlePhase = 'preparing' | 'spawning' | 'clearing' | 'countdown' | 'paused' | 'victory' | 'defeat';
 
-export type TowerSaleWindow = 'opening' | 'intermission' | 'locked';
+export type TowerSaleWindow = 'opening' | 'intermission' | 'combat' | 'locked';
 
-/** 开局可无损试错；清场后才允许有损重构。暂停中的教学波间是清场，不是战斗中暂停。 */
+/** 战前全退、波间七折、战斗五折；用户暂停及结算不接收棋盘交易，教学波间仍属清场。 */
 export function towerSaleWindow(preparing: boolean, phase: BattlePhase, guidedIntermissionHeld: boolean): TowerSaleWindow {
     if (preparing && phase === 'preparing') return 'opening';
     if (phase === 'countdown' || (phase === 'paused' && guidedIntermissionHeld)) return 'intermission';
+    if (phase === 'spawning' || phase === 'clearing') return 'combat';
     return 'locked';
 }
 

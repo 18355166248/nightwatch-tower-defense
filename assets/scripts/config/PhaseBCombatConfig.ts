@@ -103,7 +103,7 @@ export const FROST_COIL: TowerArchetype = {
 
 export const PHASE_B_TOWERS: readonly TowerArchetype[] = [RIVET_GUN, FROST_COIL];
 
-export const PHASE_B_WAVES: readonly WaveDefinition[] = [
+export const FIRST_LEVEL_WAVE_BLUEPRINTS: readonly WaveDefinition[] = [
     // 前三波保持推荐构筑零漏时的总回款不变：把部分清场金移到更多击杀里，延长有敌人在场的教学段。
     { wave: 1, clearReward: 8, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 9, spawnIntervalSeconds: 0.8 }] },
     // 第一波后多一座上路机枪；第二、三波压紧生成间隔，保持双敌同屏而不靠空场等待拖时长。
@@ -118,5 +118,15 @@ export const PHASE_B_WAVES: readonly WaveDefinition[] = [
     { wave: 7, clearReward: 14, groups: [{ enemy: CLOCKWORK_RUNNER, count: 35, spawnIntervalSeconds: 0.55 }, { enemy: IRON_CANISTER_HAULER, count: 13, spawnIntervalSeconds: 0.95 }] },
     { wave: 8, clearReward: 20, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 31, spawnIntervalSeconds: 0.52 }, { enemy: CLOCKWORK_RUNNER, count: 22, spawnIntervalSeconds: 0.5 }, { enemy: IRON_CANISTER_HAULER, count: 18, spawnIntervalSeconds: 0.85 }] },
 ];
+
+export const FIRST_LEVEL_LATE_HEALTH_MULTIPLIER = 1.12;
+
+// 前三波保留教学击杀节奏；仅后半段提升承伤，不削弱炮塔反馈，也不增加敌人数量/奖励。
+// 按波生成独立敌人配置，避免修改共享原型后把首波、QA或其他规则测试一起变难。
+export const PHASE_B_WAVES: readonly WaveDefinition[] = FIRST_LEVEL_WAVE_BLUEPRINTS.map(wave => wave.wave < 4
+    ? wave
+    : { ...wave, groups: wave.groups.map(group => ({ ...group,
+        enemy: { ...group.enemy, maxHealth: Math.round(group.enemy.maxHealth * FIRST_LEVEL_LATE_HEALTH_MULTIPLIER) },
+    })) });
 
 export const PHASE_B_WAVE_ONE = PHASE_B_WAVES[0];

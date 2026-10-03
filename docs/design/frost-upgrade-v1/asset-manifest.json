@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "art_direction_brief": "README.md",
+  "created_at": "2026-10-02",
+  "status": "concept-approved-runtime-candidate-awaiting-human-review",
+  "concept_approval_evidence": "2026-10-02 用户：可以 认可",
+  "engine_assets_changed": true,
+  "production_manifest": "production-manifest.json",
+  "cdn_archive": "../../../art-source/cdn-image-manifest.json",
+  "assets": [
+    {
+      "id": "frost-level-1-reference",
+      "level": 1,
+      "role": "existing project identity and material reference; not redesigned",
+      "runtime_seed_path": "assets/resources/level-one/units/frost-coil.png",
+      "preview_url": "https://audiopaytest.cos.tx.xmcdn.com/storages/9e00-audiotest/99/88/GAqSiIMOlMoAAAOunwACF0KF.png",
+      "source_url": "https://audiopaytest.cos.tx.xmcdn.com/storages/ddc3-audiotest/D7/4C/GAqSiIMOlMn1ABAAAAACF0J8.png",
+      "status": "existing-reference"
+    },
+    {
+      "id": "frost-level-2-concept-v1",
+      "level": 2,
+      "role": "wide twin-side condenser tanks; structural upgrade concept",
+      "source_alias": "art-source/design/frost-upgrade-v1/level-2-source.png",
+      "source_url": "https://audiopaytest.cos.tx.xmcdn.com/storages/e228-audiotest/6A/AE/GAqSoUUOlYihABAAAAACF1FS.png",
+      "preview_url": "https://audiopaytest.cos.tx.xmcdn.com/storages/6b97-audiotest/BB/9F/GAqSoUUOlYisAAOj9QACF1FU.png",
+      "original_sha256": "fd5f6cbed842fe97dbdc260fef1196e49c9fb64a887824237092a0f3db26e282",
+      "original_bytes": 1056323,
+      "preview_bytes": 238581,
+      "technical": { "dimensions": "1254x1254", "alpha": true, "bounds_alpha_gt_16": [207,228,1048,1048], "fully_transparent_percent": 66.3, "frames": 1, "collision_role": "none", "anchor": "concept canvas center; production registration pending", "runtime_plan": "128x128 base/structure + energy, not exported" },
+      "visual_locks": ["copper circular plinth", "navy armor", "cyan cooling glass", "warm upper-left light", "single-cell footprint"],
+      "source": { "kind": "AI-generated project family concept", "tool": "OpenAI built-in image_gen", "generation_id": "exec-ffbb7697-e73b-48a8-8c20-098d699ad3d2", "license": "generated candidate; commercial rights review pending", "prompt_record": "PROMPTS.md" },
+      "verification": { "source_rgba_checked": true, "cdn_bytes_verified": true, "native_scale_reviewed": true, "native_scale_review_context": "approved concept; camera-adjusted runtime tracked separately in production-manifest.json", "in_engine_reviewed": false, "approved_by": "user concept approval 2026-10-02: 可以 认可" }
+    },
+    {
+      "id": "frost-level-3-sphere-concept-v1",
+      "level": 3,
+      "role": "spherical pressure reactor with copper equator clamp; structural upgrade concept",
+      "source_alias": "art-source/design/frost-upgrade-v1/level-3-source.png",
+      "source_url": "https://audiopaytest.cos.tx.xmcdn.com/storages/3c85-audiotest/9C/2F/GAqSiIMOlYihABAAAAACF1FR.png",
+      "preview_url": "https://audiopaytest.cos.tx.xmcdn.com/storages/f99d-audiotest/70/90/GAqSiIMOlYisAAOScQACF1FT.png",
+      "original_sha256": "44ee8e7b329d3378c33c45d9146170259bfa125387038de90665b45134d391d5",
+      "original_bytes": 1054873,
+      "preview_bytes": 234097,
+      "technical": { "dimensions": "1254x1254", "alpha": true, "bounds_alpha_gt_16": [247,145,1007,1104], "fully_transparent_percent": 67.5, "frames": 1, "collision_role": "none", "anchor": "concept canvas center; production registration pending", "runtime_plan": "128x128 base/structure + energy, not exported" },
+      "visual_locks": ["copper circular plinth", "navy armor", "cyan cooling glass", "warm upper-left light", "single-cell footprint"],
+      "source": { "kind": "AI-assisted structural edit of rejected project-generated tri-tank prototype", "tool": "OpenAI built-in image_gen", "generation_id": "exec-81f7fec2-e3d2-4a4b-98fb-495ece8b60e5", "edit_target_generation_id": "exec-4c7a2daf-2cdf-49d7-98ec-0216416b0210", "license": "generated candidate; commercial rights review pending", "prompt_record": "PROMPTS.md" },
+      "verification": { "source_rgba_checked": true, "cdn_bytes_verified": true, "native_scale_reviewed": true, "native_scale_review_context": "approved concept; camera-adjusted runtime tracked separately in production-manifest.json", "in_engine_reviewed": false, "approved_by": "user concept approval 2026-10-02: 可以 认可" }
+    }
+  ]
+}

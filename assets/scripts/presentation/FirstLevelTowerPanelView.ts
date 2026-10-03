@@ -17,7 +17,7 @@ export class FirstLevelTowerPanelView {
     private snapshot: TowerPanelInput | null = null;
     private width = 1080;
 
-    constructor(parent: Node) {
+    constructor(parent: Node, private readonly frostPortrait: (level: number) => SpriteFrame | null = () => null) {
         this.root=new Node('QualityV3TowerPanel');this.root.layer=parent.layer;parent.addChild(this.root);
         this.fallback=this.root.addComponent(Graphics);
         this.skin=new FirstLevelPageSkinView(this.root,()=>{this.signature='';this.render(this.snapshot,this.width);});
@@ -35,7 +35,9 @@ export class FirstLevelTowerPanelView {
         this.snapshot=input;this.width=width;this.root.active=Boolean(input);
         // 隐藏态只提交一次诊断，不在战斗每帧重复写DOM；资源回调仍可使签名失效。
         if(!input){this.labels.clear();if(this.signature!=='hidden'){this.signature='hidden';this.skin.begin();this.publish(null);}return;}
-        const signature=JSON.stringify([input,width]);if(signature===this.signature)return;this.signature=signature;
+        // 头像借用战场同一资源组；异步就绪后纳入签名，面板不用重选也能从旧图回退升级图。
+        const frame = input.towerId === 'frost-coil' ? this.frostPortrait(input.level) ?? this.frames.get(input.towerId) : this.frames.get(input.towerId);
+        const signature=JSON.stringify([input,width,frame?.uuid]);if(signature===this.signature)return;this.signature=signature;
         const model=firstLevelTowerPanelPresentation(input),layout=firstLevelTowerPanelLayout(width),s=layout.scale;
         this.labels.begin();
         this.skin.begin();this.fallback.clear();
@@ -44,7 +46,7 @@ export class FirstLevelTowerPanelView {
             if(!this.skin.button(index,rect,enabled?(index===1?'primary':'neutral'):'disabled',8*s))this.fill(rect,enabled?'#243C4D':'#24313B');
         }
         this.skin.bodyDivider(layout.divider.left,layout.divider.right,layout.divider.top,s);
-        const frame=this.frames.get(input.towerId);this.portrait.node.active=Boolean(frame);
+        this.portrait.node.active=Boolean(frame);
         if(frame){this.portrait.spriteFrame=frame;this.portrait.node.getComponent(UITransform)!.setContentSize(36*s,36*s);this.portrait.node.setPosition((layout.portrait.left+layout.portrait.right)/2,(layout.portrait.top+layout.portrait.bottom)/2);}
         this.text('title',model.title,layout.title,'#F4E9CD');this.text('badge',model.badge,layout.badge,'#C6A876');
         this.text('role',model.role,layout.role,'#A9BDCA');this.text('close','收起',layout.close,'#A9BDCA',true);
@@ -54,6 +56,8 @@ export class FirstLevelTowerPanelView {
         this.text('upgrade',model.upgrade,{rect:layout.upgrade,size:layout.actionSize,bold:true},model.upgradeEnabled?'#F4E9CD':'#A9BDCA',true);
         this.text('help',model.help,layout.help,'#A9BDCA',true);this.labels.end();this.publish(model);
     }
+
+    public dispose(): void { this.portrait.spriteFrame = null; }
 
     private fill(rect: PhaseBRect,color:string):void{this.fallback.fillColor=new Color(color);this.fallback.rect(rect.left,rect.bottom,rect.right-rect.left,rect.top-rect.bottom);this.fallback.fill();}
     private text(key:string,value:string,geometry:{rect:PhaseBRect;size:number;bold?:boolean},color:string,center=false):void{
@@ -65,6 +69,6 @@ export class FirstLevelTowerPanelView {
         if(label.string!==value)label.string=value;
     }
     private publish(model:ReturnType<typeof firstLevelTowerPanelPresentation>|null):void{
-        if(typeof document!=='undefined')document.querySelector('canvas')?.setAttribute('data-tower-panel',JSON.stringify({visible:Boolean(model),model,layout:model?firstLevelTowerPanelLayout(this.width):null,assets:this.skin.diagnostics,portraits:Array.from(this.frames.keys())}));
+        if(typeof document!=='undefined')document.querySelector('canvas')?.setAttribute('data-tower-panel',JSON.stringify({visible:Boolean(model),model,layout:model?firstLevelTowerPanelLayout(this.width):null,assets:this.skin.diagnostics,portraits:Array.from(this.frames.keys()),portraitUuid:model?this.portrait.spriteFrame?.uuid:null}));
     }
 }

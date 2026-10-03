@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "created_at": "2026-10-02",
+  "concept_approved": true,
+  "human_runtime_approved": false,
+  "engine": "Cocos Creator 3.8.8",
+  "pipeline": "scripts/export-frost-upgrades.cjs -> ai-asset-pipeline/src/asset_bundle.py",
+  "recipe": "runtime-recipe.json",
+  "registration_report": "runtime-export-report.json",
+  "energy_contract": "结构保留静态冰芯；第二层是同像素青蓝发光覆盖，不是去除冰芯的空壳",
+  "texture_contract": { "size": [128,128], "rgba": true, "filter": "linear", "mipmaps": false, "trim": "none", "baseline": 116, "plinth_band_width": 78, "total_decoded_bytes": 262144 },
+  "source_provenance": { "tool": "OpenAI built-in image_gen", "use": "precise camera edit of approved project concepts", "license": "generated project asset; commercial rights review not performed", "prompts": "PROMPTS.md" },
+  "assets": [
+    {
+      "level": 2,
+      "generation_id": "exec-0626d467-9919-4b76-b343-1853a0591d8d",
+      "edit_target_generation_id": "exec-ffbb7697-e73b-48a8-8c20-098d699ad3d2",
+      "source_alias": "art-source/design/frost-upgrade-v1/level-2-production.png",
+      "original_sha256": "8855c87e136cd325f15fe8aa5be9c684dac488b958883152e8082a1f5522b5e0",
+      "original_bytes": 1033240,
+      "source_url": "https://audiopaytest.cos.tx.xmcdn.com/storages/fe7a-audiotest/85/9C/GAqSiIMOlZI8AA_EGAACF1IB.png",
+      "preview_url": "https://audiopaytest.cos.tx.xmcdn.com/storages/14f2-audiotest/9E/80/GAqSoUUOlZJFAAOarQACF1ID.png",
+      "preview_bytes": 236205,
+      "frames": 1,
+      "collision_role": "none; existing logical grid unchanged",
+      "emitter_source_pixel": [64,70],
+      "runtime": ["assets/resources/level-one/units/frost-coil-level-2-structure-v1.png","assets/resources/level-one/units/frost-coil-level-2-energy-v1.png"],
+      "verification": { "alpha_checked": true, "cdn_hash_verified": true, "native_scale_browser_reviewed": true, "in_engine_automated_reviewed": true, "human_runtime_approved": false }
+    },
+    {
+      "level": 3,
+      "generation_id": "exec-b2dbd8d4-c3dc-4eb4-b676-1877998ff1b4",
+      "edit_target_generation_id": "exec-81f7fec2-e3d2-4a4b-98fb-495ece8b60e5",
+      "source_alias": "art-source/design/frost-upgrade-v1/level-3-production.png",
+      "original_sha256": "73fd7a10f61a6156ddf24e6d53a3ff37c421ab3dea524361bacea3a63dd2b305",
+      "original_bytes": 1074029,
+      "source_url": "https://audiopaytest.cos.tx.xmcdn.com/storages/de32-audiotest/D6/64/GAqSoUUOlZI8ABAAAAACF1IC.png",
+      "preview_url": "https://audiopaytest.cos.tx.xmcdn.com/storages/2b13-audiotest/F1/F8/GAqSiIMOlZJJAAO6TAACF1IE.png",
+      "preview_bytes": 244300,
+      "frames": 1,
+      "collision_role": "none; existing logical grid unchanged",
+      "emitter_source_pixel": [64,53],
+      "runtime": ["assets/resources/level-one/units/frost-coil-level-3-structure-v1.png","assets/resources/level-one/units/frost-coil-level-3-energy-v1.png"],
+      "verification": { "alpha_checked": true, "cdn_hash_verified": true, "native_scale_browser_reviewed": true, "in_engine_automated_reviewed": true, "human_runtime_approved": false }
+    }
+  ]
+}

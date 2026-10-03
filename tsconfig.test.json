@@ -18,6 +18,7 @@
     "assets/scripts/presentation/**/*.ts"
   ],
   "exclude": [
+    "assets/scripts/presentation/FrostUpgradeArtFrames.ts",
     "assets/scripts/presentation/EightDirectionTowerFrames.ts",
     "assets/scripts/presentation/EightDirectionTowerView.ts",
     "assets/scripts/presentation/FirstLevelCoachView.ts",

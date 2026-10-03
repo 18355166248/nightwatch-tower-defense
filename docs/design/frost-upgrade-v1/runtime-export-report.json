@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "source": "approved concept camera refinements",
+  "canvas": [
+    128,
+    128
+  ],
+  "plinthBandWidth": 78,
+  "baseline": 116,
+  "energyMode": "registered luminous overlay; structural layer retains idle energy",
+  "assets": [
+    {
+      "level": 2,
+      "sourceAlias": "art-source/design/frost-upgrade-v1/level-2-production.png",
+      "sourceSha256": "8855c87e136cd325f15fe8aa5be9c684dac488b958883152e8082a1f5522b5e0",
+      "sourceBounds": [
+        219,
+        253,
+        1031,
+        1046
+      ],
+      "sourcePlinthBandWidth": 690,
+      "scale": 0.11304347826086956,
+      "registeredBounds": [
+        18,
+        26,
+        110,
+        116
+      ],
+      "energyPixels": 756,
+      "energyCentroid": [
+        64.35968803212177,
+        70.40403413988102
+      ],
+      "runtimeNames": [
+        "frost-coil-level-2-structure-v1.png",
+        "frost-coil-level-2-energy-v1.png"
+      ]
+    },
+    {
+      "level": 3,
+      "sourceAlias": "art-source/design/frost-upgrade-v1/level-3-production.png",
+      "sourceSha256": "73fd7a10f61a6156ddf24e6d53a3ff37c421ab3dea524361bacea3a63dd2b305",
+      "sourceBounds": [
+        242,
+        162,
+        1012,
+        1138
+      ],
+      "sourcePlinthBandWidth": 764,
+      "scale": 0.10209424083769633,
+      "registeredBounds": [
+        25,
+        16,
+        104,
+        116
+      ],
+      "energyPixels": 1186,
+      "energyCentroid": [
+        63.5620008687807,
+        53.30085207337856
+      ],
+      "runtimeNames": [
+        "frost-coil-level-3-structure-v1.png",
+        "frost-coil-level-3-energy-v1.png"
+      ]
+    }
+  ]
+}

@@ -176,7 +176,8 @@ export class PlacementModel {
         const towerId = this.towerIdsByCell.get(key);
         if (!towerId) throw new Error(`塔位缺少塔种：${key}`);
         const invested = towerInvestment(this.requireTower(towerId), this.towerLevelsByCell.get(key) ?? 1);
-        return window === 'opening' ? invested : Math.floor(invested * 7 / 10);
+        // 临战拆建有更高损耗，退款覆盖累计升级投入；向下取整且移除成功后才入账。
+        return window === 'opening' ? invested : Math.floor(invested * (window === 'combat' ? 5 : 7) / 10);
     }
 
     public sell(cell: GridCell, window: TowerSaleWindow): boolean {

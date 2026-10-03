@@ -1,4 +1,4 @@
-const { PHASE_A_GRIDS } = require('../../.test-dist/config/PhaseAGrids.js');
+const { DEFAULT_GRID_ID, PHASE_A_GRIDS } = require('../../.test-dist/config/PhaseAGrids.js');
 const { FIRST_LEVEL_GUIDED_UPGRADES, FIRST_LEVEL_OPENING, FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_STARTING_GOLD } = require('../../.test-dist/config/FirstLevelOpening.js');
 const { PHASE_B_TOWERS, PHASE_B_WAVES } = require('../../.test-dist/config/PhaseBCombatConfig.js');
 const { cellKey } = require('../../.test-dist/core/GridTypes.js');
@@ -10,6 +10,7 @@ const { WaveRewardRuntime } = require('../../.test-dist/systems/WaveRewardRuntim
 const { towerInvestment } = require('../../.test-dist/systems/TowerLevelRules.js');
 
 function replayFirstLevel({
+    grid = PHASE_A_GRIDS[DEFAULT_GRID_ID],
     opening = FIRST_LEVEL_OPENING,
     openingCells = null,
     reinforcements = FIRST_LEVEL_REINFORCEMENTS,
@@ -22,7 +23,6 @@ function replayFirstLevel({
     traffic = undefined,
     routeDiagnostics = null,
 } = {}) {
-    const grid = PHASE_A_GRIDS['grid-9x13'];
     // 回放默认使用实际推荐配置；Phase A 的旧短折线只在明确传入时作为独立 fixture。
     const shortCells = openingCells ?? opening.map(({ cell }) => cell);
     const economy = new EconomyLedger(FIRST_LEVEL_STARTING_GOLD);
@@ -64,9 +64,9 @@ function replayFirstLevel({
         const shotsByCell = {};
         const frostShotsByCell = {};
         let slowApplications = 0;
-        for (let elapsed = 0; elapsed < 180 && (!combat.isSpawningComplete || combat.enemies.length > 0); elapsed += frameDeltaSeconds) {
+        for (let elapsed = 0; coreHealth > 0 && elapsed < 180 && (!combat.isSpawningComplete || combat.enemies.length > 0); elapsed += frameDeltaSeconds) {
             clock.advance(frameDeltaSeconds, (deltaSeconds) => {
-                if (combat.isSpawningComplete && combat.enemies.length === 0) return;
+                if (coreHealth === 0 || combat.isSpawningComplete && combat.enemies.length === 0) return;
                 combatSeconds += deltaSeconds;
                 simulationSeconds += deltaSeconds;
                 routeDiagnostics?.inspect(combat.enemies, routeContext());
@@ -87,6 +87,8 @@ function replayFirstLevel({
                 }
                 killed += result.killed.length;
                 leaked += result.leaked.length;
+                // 失败与正式游戏一样在第10次漏怪时冻结，不能靠失败后的击杀回款证明策略可行。
+                coreHealth = Math.max(0, coreHealth - result.leaked.length);
                 // 分别记录刷怪未完时的空场等待和多敌同屏，局长变长不等于玩家有事可做。
                 if (!combat.isSpawningComplete && combat.enemies.length === 0) emptySpawnSeconds += deltaSeconds;
                 if (combat.enemies.length >= 2) multiEnemySeconds += deltaSeconds;
@@ -94,9 +96,8 @@ function replayFirstLevel({
                 result.killed.forEach((enemy) => economy.credit(enemy.archetype.killReward));
             });
         }
-        if (!combat.isSpawningComplete || combat.enemies.length > 0) throw new Error(`第 ${wave.wave} 波超时，不能伪造清场`);
-        combat.completeWave();
-        coreHealth = Math.max(0, coreHealth - leaked);
+        if (coreHealth > 0 && (!combat.isSpawningComplete || combat.enemies.length > 0)) throw new Error(`第 ${wave.wave} 波超时，不能伪造清场`);
+        if (coreHealth > 0) combat.completeWave();
         if (coreHealth > 0) {
             rewards.settle(wave, economy);
             for (const upgrade of upgradesAfterWave.filter(({ wave: afterWave }) => afterWave === wave.wave)) {

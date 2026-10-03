@@ -1,4 +1,5 @@
 build/
+dist/
 library/
 local/
 node_modules/

@@ -9,6 +9,8 @@ export interface TowerPanelInput {
     readonly gold: number;
     readonly saleRefund: number | null;
     readonly opening: boolean;
+    readonly hover?: boolean;
+    readonly combat?: boolean;
     readonly placement?: { readonly accepted: boolean; readonly reason?: PlacementRejectReason; readonly clickConfirm: boolean };
 }
 
@@ -34,18 +36,18 @@ export function firstLevelTowerPanelPresentation(input: TowerPanelInput) {
             { caption: '射程', value: `${current.rangeCells} 格` },
             { caption: current.effect ? '持续时间' : '攻击间隔', value: `${current.effect?.durationSeconds ?? current.attackIntervalSeconds} 秒` },
         ],
-        preview: placement ? placement.accepted ? `可放置：${placement.clickConfirm ? '再次点落点' : '松手'}建造 · 消耗 ${base.cost} 金币`
+        preview: placement ? placement.accepted ? input.hover ? `已拿起${base.label} · 点击选择落点 · ${base.cost} 金币` : `可放置：${placement.clickConfirm ? '再次点落点' : '松手'}建造 · 消耗 ${base.cost} 金币`
             : `不可放置：${placement.reason ? REJECTION[placement.reason] : '请重选位置'}`
             : next ? `下一级：${current.effect ? '减速' : '伤害'} ${power(current)} → ${power(next)} · 射程 ${current.rangeCells} → ${next.rangeCells}`
                 : '已达到最高等级 · 无需继续投入',
-        sell: placement ? '取消建造' : input.saleRefund === null ? '战斗中禁售' : `${input.opening ? '撤销' : '出售'} · ${input.saleRefund}`,
-        upgrade: placement ? placement.accepted ? placement.clickConfirm ? `确认建造 · ${base.cost}` : '松手建造' : '不可放置'
+        sell: placement ? '取消建造' : input.saleRefund === null ? '当前不可移除' : `${input.opening ? '撤销' : input.combat ? '拆除' : '出售'} · +${input.saleRefund}`,
+        upgrade: placement ? placement.accepted ? placement.clickConfirm ? `确认建造 · ${base.cost}` : input.hover ? '点击地图定位' : '松手建造' : '不可放置'
             : cost === null ? '已满级' : input.gold >= cost ? `升级 · ${cost}` : `还差 ${cost - input.gold} 金币`,
         saleEnabled: Boolean(placement) || input.saleRefund !== null,
         upgradeEnabled: placement ? placement.clickConfirm && placement.accepted : cost !== null && input.gold >= cost,
         invalid: Boolean(placement && !placement.accepted),
-        help: placement ? placement.clickConfirm ? '点落点或确认建造 · 取消不扣金币' : '拖动至空地 · 松手前不扣金币'
-            : input.saleRefund === null ? '战斗中可升级，波间才可出售' : input.opening ? '战前撤销返还全部投入' : '波间出售按当前退款返还',
+        help: placement ? placement.clickConfirm ? '点落点或确认建造 · 取消不扣金币' : input.hover ? '鼠标移动预览 · 点击定位后再次确认' : '拖动至空地 · 松手前不扣金币'
+            : input.saleRefund === null ? '当前阶段不可移除' : input.opening ? '战前撤销返还全部投入' : input.combat ? '战斗拆除返还总投入50% · 移除后重算路线' : '波间出售返还总投入70%',
     };
 }
 

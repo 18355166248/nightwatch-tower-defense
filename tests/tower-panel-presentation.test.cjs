@@ -4,7 +4,7 @@ const {firstLevelTowerPanelPresentation: present, firstLevelTowerPanelLayout: la
 const input = overrides => ({towerId:'rivet-gun',level:1,gold:80,saleRefund:30,opening:true,...overrides});
 
 test('机枪升级收益、费用、金币差额和满级使用实际三阶配置',()=>{
-    const first=present(input());assert.equal(first.upgrade,'升级 · 24');assert.equal(first.sell,'撤销 · 30');
+    const first=present(input());assert.equal(first.upgrade,'升级 · 24');assert.equal(first.sell,'撤销 · +30');
     assert.match(first.preview,/伤害 7 → 11 · 射程 2.6 → 2.8/);assert.equal(first.upgradeEnabled,true);
     const poor=present(input({level:2,gold:20,saleRefund:54}));assert.equal(poor.upgrade,'还差 22 金币');assert.equal(poor.upgradeEnabled,false);
     const max=present(input({level:3,saleRefund:96}));assert.equal(max.upgrade,'已满级');assert.equal(max.upgradeEnabled,false);assert.doesNotMatch(max.preview,/下一级/);
@@ -13,9 +13,10 @@ test('冷凝面板不能沿用机枪伤害收益，控制百分比及持续时�
     const frost=present(input({towerId:'frost-coil',saleRefund:40}));assert.equal(frost.stats[0].caption,'范围减速');assert.equal(frost.stats[0].value,'75%');assert.equal(frost.stats[2].value,'1.2 秒');
     assert.match(frost.preview,/减速 75% → 82%/);assert.equal(frost.upgrade,'升级 · 32');
 });
-test('战斗禁售保持原因与槽位，波间出售不冒充战前全额退款',()=>{
-    const battle=present(input({saleRefund:null,opening:false}));assert.equal(battle.sell,'战斗中禁售');assert.equal(battle.saleEnabled,false);assert.equal(battle.upgradeEnabled,true);
-    const interval=present(input({opening:false,saleRefund:21}));assert.equal(interval.sell,'出售 · 21');assert.doesNotMatch(interval.help,/全部/);
+test('战斗拆除显示五折、波间七折，禁用阶段不冒充可交易',()=>{
+    const locked=present(input({saleRefund:null,opening:false}));assert.equal(locked.sell,'当前不可移除');assert.equal(locked.saleEnabled,false);
+    const battle=present(input({saleRefund:15,opening:false,combat:true}));assert.equal(battle.sell,'拆除 · +15');assert.match(battle.help,/50%/);assert.equal(battle.saleEnabled,true);
+    const interval=present(input({opening:false,saleRefund:21}));assert.equal(interval.sell,'出售 · +21');assert.match(interval.help,/70%/);
 });
 test('建造结果消费真实拒绝原因，拖放与点选确认提示不混淆',()=>{
     const placement={accepted:true,clickConfirm:false};const valid=present(input({placement}));assert.equal(valid.upgradeEnabled,false);assert.equal(valid.sell,'取消建造');assert.match(valid.preview,/松手建造/);

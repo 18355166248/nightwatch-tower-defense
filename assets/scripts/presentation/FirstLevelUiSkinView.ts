@@ -125,9 +125,11 @@ export class FirstLevelUiSkinView {
         this.label('core', `${state.coreHealth} / ${state.maxCoreHealth}`, 143, 836, 55, 195, state.coreHealth <= 3 ? '#FF8580' : '#A4EFEA');
         this.label('pause', 'Ⅱ', 415, 861, 64, 100, state.showPause ? '#F4E9CD' : '#AEBBC2', true, true);
         this.label('chapter', '夜城广场', -480, 744, 40, 700, '#DFD3B8',false,!state.coach?.upcoming);
-        this.label('rivet', '机枪塔', -336, -835, 44, 180);
+        this.label('rivet', state.activePlacementTowerId === 'rivet-gun' ? '已选机枪' : '机枪塔', -336, -835, 44, 180,
+            state.activePlacementTowerId === 'rivet-gun' ? '#FFE39B' : '#F4E9CD');
         this.label('rivet-price', `${RIVET_GUN.cost}`, -336, -887, 48, 160, state.gold >= RIVET_GUN.cost ? '#F4CF79' : '#AEBBC2');
-        this.label('frost', '冷凝塔', -16, -835, 44, 160);
+        this.label('frost', state.activePlacementTowerId === 'frost-coil' ? '已选冷凝' : '冷凝塔', -16, -835, 44, 180,
+            state.activePlacementTowerId === 'frost-coil' ? '#8FF4FF' : '#F4E9CD');
         this.label('frost-price', `${FROST_COIL.cost}`, -16, -887, 48, 150, state.gold >= FROST_COIL.cost ? '#F4CF79' : '#AEBBC2');
         this.label('speed', `${state.speedMultiplier}×`, 239, -850, 46, 110, '#F4E9CD', true);
         // 首波/倒计时文案保留显式两行，不能把五六个字挤出窄按钮的内边框。

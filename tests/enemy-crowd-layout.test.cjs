@@ -112,7 +112,7 @@ test('八波真实配置的脚点近重合减小，击杀、漏怪、生命与�
     } });
     assert.ok(before > 100);
     assert.ok(after < before * 0.1);
-    assert.deepEqual(result.totals, { spawned: 213, killed: 212, leaked: 1 });
-    assert.equal(result.coreHealth, 9);
-    assert.equal(result.gold, 348);
+    assert.deepEqual(result.totals, { spawned: 213, killed: 209, leaked: 4 });
+    assert.equal(result.coreHealth, 6);
+    assert.equal(result.gold, 343);
 });

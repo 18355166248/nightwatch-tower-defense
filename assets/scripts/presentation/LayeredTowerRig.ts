@@ -32,6 +32,14 @@ export class LayeredTowerRig {
         if (active) this.resizePart(active, canvasSize * spec.activeScaleX, canvasSize * spec.activeScaleY);
     }
 
+    /** 升级复用节点时仍须同步两层帧与轴点；只resize会永远显示首次建造图。 */
+    public static bindFrames(root: Node, baseFrame: SpriteFrame, activeFrame: SpriteFrame, size: number, spec: LayeredTowerSpec): void {
+        const base = root.getChildByName(spec.baseName)?.getComponent(Sprite);
+        if (base && base.spriteFrame !== baseFrame) base.spriteFrame = baseFrame;
+        this.restoreActiveFrame(root, activeFrame, size, spec);
+        this.resize(root, size, spec);
+    }
+
     public static pose(root: Node, center: { readonly x: number; readonly y: number }, size: number, motion: UnitVisualPose | null, spec: LayeredTowerSpec, aimAngleDegrees = 0): void {
         root.setPosition(center.x, center.y + 3, 0);
         const active = root.getChildByName(spec.activeName);
@@ -49,7 +57,7 @@ export class LayeredTowerRig {
         const active = root.getChildByName(spec.activeName);
         if (!active) return;
         const sprite = active.getComponent(Sprite);
-        if (sprite) { sprite.spriteFrame = frame; sprite.trim = false; }
+        if (sprite) { if (sprite.spriteFrame !== frame) sprite.spriteFrame = frame; sprite.trim = false; }
         active.getComponent(UITransform)?.setAnchorPoint(spec.activePivotX, spec.activePivotY);
         this.resizePart(active, size * spec.canvasScale * spec.activeScaleX, size * spec.canvasScale * spec.activeScaleY);
     }

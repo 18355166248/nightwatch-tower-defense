@@ -4888,6 +4888,42 @@
       "previewSha256": "68fd29466af9a5dd2923e112c5eb4a65a41b5c9f52708462bbad73ee1882eeae",
       "previewBytes": 607478,
       "verifiedAt": "2026-10-02T06:04:24.062Z"
+    },
+    "art-source/design/frost-upgrade-v1/level-3-source.png": {
+      "originalSha256": "44ee8e7b329d3378c33c45d9146170259bfa125387038de90665b45134d391d5",
+      "originalBytes": 1054873,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/3c85-audiotest/9C/2F/GAqSiIMOlYihABAAAAACF1FR.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/f99d-audiotest/70/90/GAqSiIMOlYisAAOScQACF1FT.png",
+      "previewSha256": "84dfe25554579b54265e0839de8757ec59d96ca99538166411bd1f053795fbca",
+      "previewBytes": 234097,
+      "verifiedAt": "2026-10-02T14:54:26.982Z"
+    },
+    "art-source/design/frost-upgrade-v1/level-2-source.png": {
+      "originalSha256": "fd5f6cbed842fe97dbdc260fef1196e49c9fb64a887824237092a0f3db26e282",
+      "originalBytes": 1056323,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/e228-audiotest/6A/AE/GAqSoUUOlYihABAAAAACF1FS.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/6b97-audiotest/BB/9F/GAqSoUUOlYisAAOj9QACF1FU.png",
+      "previewSha256": "941bede95e727d6dee527a123595ff2e72e7e10f88784821ddd85d19b6a933b7",
+      "previewBytes": 238581,
+      "verifiedAt": "2026-10-02T14:54:26.948Z"
+    },
+    "art-source/design/frost-upgrade-v1/level-2-production.png": {
+      "originalSha256": "8855c87e136cd325f15fe8aa5be9c684dac488b958883152e8082a1f5522b5e0",
+      "originalBytes": 1033240,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/fe7a-audiotest/85/9C/GAqSiIMOlZI8AA_EGAACF1IB.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/14f2-audiotest/9E/80/GAqSoUUOlZJFAAOarQACF1ID.png",
+      "previewSha256": "c7d1d3f691656c89a43e081d3829fe58c03fe4cf7536e9db687bbfce5028c9d1",
+      "previewBytes": 236205,
+      "verifiedAt": "2026-10-02T15:35:25.248Z"
+    },
+    "art-source/design/frost-upgrade-v1/level-3-production.png": {
+      "originalSha256": "73fd7a10f61a6156ddf24e6d53a3ff37c421ab3dea524361bacea3a63dd2b305",
+      "originalBytes": 1074029,
+      "originalUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/de32-audiotest/D6/64/GAqSoUUOlZI8ABAAAAACF1IC.png",
+      "previewUrl": "https://audiopaytest.cos.tx.xmcdn.com/storages/2b13-audiotest/F1/F8/GAqSiIMOlZJJAAO6TAACF1IE.png",
+      "previewSha256": "9270be2118bbedee2fbc9707aff33ccc0c0d90bee8c64f880ed89076b9a1fca7",
+      "previewBytes": 244300,
+      "verifiedAt": "2026-10-02T15:35:26.083Z"
     }
   }
 }

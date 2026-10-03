@@ -1,5 +1,6 @@
 import { Color, Graphics, HorizontalTextAlignment, isValid, Label, Node, resources, Sprite, SpriteFrame, UIOpacity, UITransform, VerticalTextAlignment } from 'cc';
 import { FROST_COIL } from '../config/PhaseBCombatConfig';
+import { towerVisualRank } from './TowerVisualRank';
 import type { GridCell } from '../core/GridTypes';
 import { PHASE_B_DESIGN_HEIGHT, PHASE_B_DESIGN_WIDTH, PhaseBLayout } from './PhaseBLayout';
 import type { PhaseBSceneState } from './PhaseBSceneState';
@@ -27,6 +28,8 @@ import { EightDirectionTowerFrames } from './EightDirectionTowerFrames';
 import { towerHeadDirection, type TowerHeadDirection } from './EightDirectionTowerAim';
 import { RIVET_HEAD_REGISTRATIONS } from './RivetHeadRegistrations';
 import { poseDirectionalTowerHead } from './EightDirectionTowerView';
+import { FrostUpgradeArtFrames } from './FrostUpgradeArtFrames';
+import { frostUpgradePulse, selectFrostArt } from './FrostUpgradeArt';
 
 const UNIT_ASSETS = {
     'rivet-gun': 'level-one/units/rivet-gun/spriteFrame',
@@ -62,6 +65,10 @@ type LayeredTowerId = keyof typeof TOWER_LAYER_ASSETS;
 export class PhaseBUnitSpriteView {
     public readonly visualAnchors = new CombatVisualAnchors();
     private readonly rivetHeadFrames: EightDirectionTowerFrames;
+    private readonly frostUpgradeFrames: FrostUpgradeArtFrames;
+    public frostArtSamples: { towerKey: string; requestedLevel: number; resolvedLevel: number; emitter: { x: number; y: number } }[] = [];
+    public get frostUpgradeArtStatus(): string { return this.frostUpgradeFrames.status; }
+    public frostStructureFrame(level: number): SpriteFrame | null { return this.frostUpgradeFrames.pair(level)?.base ?? null; }
     private readonly towerDirections = new Map<string, TowerHeadDirection>();
     public towerDirectionSamples: { towerKey: string; direction: TowerHeadDirection; level: number }[] = [];
     public get eightDirectionHeadStatus(): string { return this.rivetHeadFrames.status; }
@@ -101,6 +108,7 @@ export class PhaseBUnitSpriteView {
     public constructor(parent: Node, layout: PhaseBLayout, infantryRigCandidate = false, profile: FirstLevelArtProfile = ORIGINAL_FIRST_LEVEL_ART) {
         this.layout = layout;
         this.rivetHeadFrames = new EightDirectionTowerFrames(this.root);
+        this.frostUpgradeFrames = new FrostUpgradeArtFrames(this.root);
         this.root.layer = parent.layer;
         this.root.addComponent(UITransform).setContentSize(PHASE_B_DESIGN_WIDTH, PHASE_B_DESIGN_HEIGHT);
         parent.addChild(this.root);
@@ -174,8 +182,15 @@ export class PhaseBUnitSpriteView {
     public get activeDirectionalCollapseCount(): number { return this.renderedDirectionalCollapseCount; }
 
     public dispose(): void {
-        for (const node of this.towers.values()) this.detachDirectionalHead(node);
+        for (const node of this.towers.values()) {
+            this.detachDirectionalHead(node);
+            for (const name of ['FrostBase', 'FrostCore']) {
+                const sprite = node.getChildByName(name)?.getComponent(Sprite);
+                if (sprite) sprite.spriteFrame = null;
+            }
+        }
         this.rivetHeadFrames.dispose();
+        this.frostUpgradeFrames.dispose();
         this.towerDirections.clear();
         this.crowd.reset();
         this.infantryAtlas?.dispose();
@@ -189,6 +204,7 @@ export class PhaseBUnitSpriteView {
     public render(state: PhaseBSceneState, runElapsedSeconds: number, battlefieldVisible: boolean = true): void {
         this.visualAnchors.begin();
         this.towerDirectionSamples = [];
+        this.frostArtSamples = [];
         this.healthGraphics.clear();
         this.renderedHealthBarCount = 0;
         this.displacedHealthBarCount = 0;
@@ -215,6 +231,7 @@ export class PhaseBUnitSpriteView {
         this.renderDeaths(state);
         // 先发布活体/尸影的显示点，再摆炮头和发射点；前景特效随后读取同一帧，不用上一帧位置。
         this.renderTowers(state);
+        this.drawTowerInteractionMarkers(state);
         this.crowd.retain(new Set([...state.enemies.map((enemy) => enemy.id), ...state.feedback.deaths.map((death) => death.enemyId)]));
         // 最后显示帧只保留给活动敌人/短尸影；离场、结算和重开不能累积历史单位引用。
         for (const id of Array.from(this.directionalCorpseFrames.keys())) {
@@ -253,13 +270,18 @@ export class PhaseBUnitSpriteView {
                 x: shot.point.column - shot.origin.column,
                 y: shot.origin.row - shot.point.row,
             }) : null;
-            const base = this.towerLayers.get(`${towerId}:base`);
-            const active = this.towerLayers.get(`${towerId}:active`);
+            let base = this.towerLayers.get(`${towerId}:base`);
+            let active = this.towerLayers.get(`${towerId}:active`);
             if (base && active) {
-                const spec = this.specFor(towerId);
-                const node = this.ensureLayerRig(key, towerSize, base, active, spec);
-                const motion = towerId === 'frost-coil'
-                    ? frostCorePulsePose(shot?.remainingSeconds ?? 0, shot?.durationSeconds ?? 0)
+                const level = state.towerLevelsByCell.get(key) ?? 1;
+                const frostArt = towerId === 'frost-coil' ? selectFrostArt(level, this.frostUpgradeFrames.pair(level), { base, active }) : null;
+                if (frostArt) { base = frostArt.pair.base; active = frostArt.pair.active; }
+                const spec = frostArt?.spec ?? this.specFor(towerId);
+                const node = this.ensureLayerRig(key, towerSize, base, active, spec, towerId === 'frost-coil');
+                const upgradedFrost = frostArt !== null && frostArt.resolvedLevel > 1;
+                const frostPulse = frostUpgradePulse(shot?.remainingSeconds ?? 0, shot?.durationSeconds ?? 0);
+                let motion = towerId === 'frost-coil'
+                    ? upgradedFrost ? frostPulse.pose : frostCorePulsePose(shot?.remainingSeconds ?? 0, shot?.durationSeconds ?? 0)
                     : recoil;
                 const aim = towerId === 'rivet-gun' ? recentAims.get(key) : undefined;
                 const fallbackTarget = aim ? this.layout.gridPointCenter(aim.point,state.grid) : point;
@@ -268,8 +290,20 @@ export class PhaseBUnitSpriteView {
                 const aimPoint = aim ? {column:aim.point.column+(visualTarget.x-fallbackTarget.x)/cellSize,
                     row:aim.point.row-(visualTarget.y-fallbackTarget.y)/cellSize} : cell;
                 const aimAngle = aim ? rivetAimAngleDegrees(aim.origin, aimPoint, aim.remainingSeconds, aim.durationSeconds) : 0;
+                if (towerId === 'frost-coil' && !upgradedFrost) {
+                    const rank = towerVisualRank(state.towerLevelsByCell.get(key) ?? 1);
+                    // 升级形态和弹道共用姿态配准，不能只放大图片留下旧发射点。
+                    motion = { x: motion?.x ?? 0, y: motion?.y ?? 0, angle: motion?.angle ?? 0,
+                        scaleX: (motion?.scaleX ?? 1) * rank.coreScale, scaleY: (motion?.scaleY ?? 1) * rank.coreScale };
+                }
                 LayeredTowerRig.pose(node, point, towerSize, motion, spec, aimAngle);
+                if (towerId === 'frost-coil') {
+                    const core = node.getChildByName(spec.activeName)!;
+                    const opacity = core.getComponent(UIOpacity) ?? core.addComponent(UIOpacity);
+                    opacity.opacity = upgradedFrost ? frostPulse.opacity : 255;
+                }
                 let emitter = layeredTowerEmissionPoint(point,towerSize,motion,spec,aimAngle);
+                if (frostArt) this.frostArtSamples.push({ towerKey: key, requestedLevel: level, resolvedLevel: frostArt.resolvedLevel, emitter });
                 if (towerId === 'rivet-gun') {
                     const level = state.towerLevelsByCell.get(key) ?? 1;
                     headLevels.add(level);
@@ -523,6 +557,42 @@ export class PhaseBUnitSpriteView {
         if (sprite) sprite.spriteFrame = this.frames.get(selected.towerId) ?? null;
         const point = this.layout.gridPointCenter(selected.cell, state.grid);
         this.preview.setPosition(point.x, point.y + 3, 0);
+        const size = towerDisplaySize(this.layout.boardMetrics(state.grid).cellSize);
+        this.preview.getComponent(UITransform)!.setContentSize(size, size);
+        if (sprite) sprite.color = new Color(selected.accepted ? '#ABFFE5' : '#FF9898');
+    }
+
+    private drawTowerInteractionMarkers(state: PhaseBSceneState): void {
+        const g = this.healthGraphics, size = this.layout.boardMetrics(state.grid).cellSize;
+        for (const [key, towerId] of Array.from(state.towerIdsByCell.entries())) {
+            if (towerId !== 'frost-coil') continue;
+            const p = this.layout.gridPointCenter(this.cellFromKey(key), state.grid);
+            const rank = towerVisualRank(state.towerLevelsByCell.get(key) ?? 1);
+            // 级标仅作辅助；新结构就绪后不再叠加程序散热翼，避免遮住双罐/球冠轮廓。
+            for (let i = 0; i < rank.rank; i += 1) {
+                const x = p.x + (i - (rank.rank - 1) / 2) * size * .18;
+                g.fillColor = new Color('#102531');
+                g.roundRect(x-size*.07,p.y-size*.43,size*.14,size*.13,3); g.fill();
+                g.strokeColor = new Color('#D7B56E'); g.lineWidth=2;
+                g.roundRect(x-size*.07,p.y-size*.43,size*.14,size*.13,3); g.stroke();
+                g.fillColor = new Color(rank.color); g.circle(x,p.y-size*.365,size*.035); g.fill();
+            }
+            const fins = this.frostUpgradeFrames.pair(rank.rank) ? 0 : rank.fins;
+            for (let i = 0; i < fins; i += 1) for (const side of [-1, 1]) {
+                const x=p.x+side*size*.25;
+                g.strokeColor=new Color(rank.color); g.lineWidth=4;
+                g.moveTo(x,p.y+size*(.1+i*.12)); g.lineTo(x+side*size*.13,p.y+size*(.18+i*.12)); g.stroke();
+            }
+        }
+        const selected=state.inspectedTower;
+        if (!selected) return;
+        const p=this.layout.gridPointCenter(selected.cell,state.grid);
+        g.strokeColor=new Color('#FFE9A5'); g.lineWidth=6;
+        // 上层明亮四角包围整格，选中框不再被塔底图盖住。
+        for (const x of [-1,1]) for (const y of [-1,1]) {
+            const px=p.x+x*size*.46,py=p.y+y*size*.46;
+            g.moveTo(px-x*size*.16,py); g.lineTo(px,py); g.lineTo(px,py-y*size*.16); g.stroke();
+        }
     }
 
     private renderShop(): void {
@@ -544,6 +614,8 @@ export class PhaseBUnitSpriteView {
         if (existing) {
             const transform = existing.getComponent(UITransform);
             if (transform && transform.contentSize.width !== size) transform.setContentSize(size, size);
+            const sprite = existing.getComponent(Sprite);
+            if (sprite && sprite.spriteFrame !== frame) sprite.spriteFrame = frame;
             return existing;
         }
         const node = new Node(key);
@@ -558,10 +630,12 @@ export class PhaseBUnitSpriteView {
         return node;
     }
 
-    private ensureLayerRig(key: string, size: number, base: SpriteFrame, active: SpriteFrame, spec: LayeredTowerSpec): Node {
+    private ensureLayerRig(key: string, size: number, base: SpriteFrame, active: SpriteFrame, spec: LayeredTowerSpec, syncFrames = false): Node {
         const existing = this.towers.get(key);
         if (existing && LayeredTowerRig.hasParts(existing, spec)) {
-            LayeredTowerRig.resize(existing, size, spec);
+            // 冷凝升级整组换帧；机枪方向帧另有适配器，不能每帧先覆回旧图再重复绑定八向帧。
+            if (syncFrames) LayeredTowerRig.bindFrames(existing, base, active, size, spec);
+            else LayeredTowerRig.resize(existing, size, spec);
             return existing;
         }
         if (existing) existing.destroy();

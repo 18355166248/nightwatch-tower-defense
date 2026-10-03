@@ -8,9 +8,12 @@ const project = resolve(__dirname, '..');
 const port = Number(process.env.DESIGN_REVIEW_PORT || 4190);
 if (!Number.isSafeInteger(port) || port < 1 || port > 65535) throw new RangeError('设计预览端口无效');
 const roots = ['docs/design', 'art-source/design'].map((part) => resolve(project, part));
+// 生产切图对照只借用这两张公开塔图，不因此开放整个运行资源/源码目录。
+const runtimeReviewFiles = new Set([2, 3].map(level => resolve(project,
+    `assets/resources/level-one/units/frost-coil-level-${level}-structure-v1.png`)));
 const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.txt': 'text/plain; charset=utf-8', '.md': 'text/plain; charset=utf-8' };
 
-// 评审服务只开放稿件和新设计源图；运行时/用户其他文件不需要进入这条预览路径。
+// 评审服务只开放稿件、设计源图和上述两张明确的结构图；其他运行文件仍拒绝访问。
 createServer(async (request, response) => {
     try {
         const url = new URL(request.url, 'http://127.0.0.1');
@@ -18,7 +21,7 @@ createServer(async (request, response) => {
         if (url.pathname === '/') return response.writeHead(302, { Location: '/docs/design/first-level-quality-v1/index.html' }).end();
         const pathname = decodeURIComponent(url.pathname);
         let file = resolve(project, `.${pathname}`);
-        if (!roots.some((root) => file.startsWith(root + sep))) return response.writeHead(403).end('Forbidden');
+        if (!roots.some((root) => file.startsWith(root + sep)) && !runtimeReviewFiles.has(file)) return response.writeHead(403).end('Forbidden');
         const archived = entry(file);
         // 采样评审必须保留获批像素；TinyPNG 预览不能代替原图/B清晰度基线。
         if (archived) return response.writeHead(302, { Location: pathname.includes('/texture-review-generated/') ? archived.originalUrl : archived.previewUrl, 'Cache-Control': 'no-store' }).end();

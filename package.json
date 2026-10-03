@@ -12,6 +12,7 @@
     "verify": "npm run check && npm run test:rules",
     "poc:automated": "tsc -p tsconfig.test.json && node scripts/run-phase-a-poc.cjs",
     "build:web": "node scripts/build-web-mobile.cjs",
+    "package:macos": "node scripts/package-macos.cjs",
     "build:web:debug": "node scripts/build-web-mobile.cjs --debug",
     "start": "node scripts/serve-web-mobile.cjs",
     "dev": "npm run build:web:debug && npm start"

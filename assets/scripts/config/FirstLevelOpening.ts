@@ -49,5 +49,5 @@ export const FIRST_LEVEL_REINFORCEMENTS: readonly {
 /** 末段可选加固用于缩短清场；推荐路径已可守住，教学不代替玩家做额外花费。 */
 export const FIRST_LEVEL_OPTIONAL_FORTIFICATIONS: readonly { readonly cell: GridCell; readonly towerId: TowerId }[] = [
     { cell: { column: 7, row: 7 }, towerId: 'rivet-gun' },
-    { cell: { column: 8, row: 6 }, towerId: 'rivet-gun' },
+    { cell: { column: 6, row: 6 }, towerId: 'rivet-gun' },
 ];

@@ -3,6 +3,7 @@ import {
     HorizontalTextAlignment,
     Label,
     Node,
+    SpriteFrame,
     UITransform,
     VerticalTextAlignment,
 } from 'cc';
@@ -87,10 +88,10 @@ export class PhaseBHudView {
     private readonly upgradeLabel: VisibleHudLabel;
     private readonly sellLabel: VisibleHudLabel;
 
-    public constructor(parent: Node, private readonly layout: PhaseBLayout) {
+    public constructor(parent: Node, private readonly layout: PhaseBLayout, frostPortrait?: (level: number) => SpriteFrame | null) {
         // 饰面先入树，原生文字后入树；透明边缘不能遮住数值与升级文案。
         this.skins = new FirstLevelUiSkinView(parent);
-        this.towerPanel = new FirstLevelTowerPanelView(parent);
+        this.towerPanel = new FirstLevelTowerPanelView(parent, frostPortrait);
         this.coach = new FirstLevelCoachView(parent);
         this.legacyRoot = new Node('LegacyQaHud');
         this.legacyRoot.layer = parent.layer;
@@ -142,6 +143,8 @@ export class PhaseBHudView {
             (PHASE_B_SELL_BUTTON.bottom + PHASE_B_SELL_BUTTON.top) / 2, 330, 80), 'TowerSell');
         this.resultView = new FirstLevelResultView(this.legacyRoot.parent!,layout);
     }
+
+    public dispose(): void { this.towerPanel.dispose(); }
 
     public render(state: PhaseBHudState): void {
         this.skins.render(state);
