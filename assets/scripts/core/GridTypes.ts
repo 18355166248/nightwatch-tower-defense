@@ -3,7 +3,7 @@ export interface GridCell {
     readonly row: number;
 }
 
-export type GridId = 'grid-9x13' | 'grid-10x14' | 'grid-8x13';
+export type GridId = 'grid-9x13' | 'grid-10x14' | 'grid-8x13' | 'grid-6x13';
 
 export interface GridDefinition {
     readonly id: GridId;

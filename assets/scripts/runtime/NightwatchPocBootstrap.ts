@@ -1,3 +1,4 @@
+import { LEVELS, type LevelId } from '../config/LevelCatalog';
 import {
     _decorator,
     Component,
@@ -21,7 +22,7 @@ import { PHASE_A_FIXTURES } from '../config/PhaseAFixtures';
 import { DEFAULT_GRID_ID, PHASE_A_GRIDS, PHASE_A_INITIAL_GOLD } from '../config/PhaseAGrids';
 import { FIRST_LEVEL_STARTING_GOLD } from '../config/FirstLevelOpening';
 import { firstLevelCoachSkipRect, firstLevelHomeLayout } from '../presentation/FirstLevelEntryLayout';
-import { PHASE_B_TOWERS, PHASE_B_WAVES, type TowerId } from '../config/PhaseBCombatConfig';
+import { PHASE_B_TOWERS, type TowerId } from '../config/PhaseBCombatConfig';
 import { cellKey, sameCell, type EnemyRouteState, type GridCell, type GridId } from '../core/GridTypes';
 import { PhaseBDebugInput, type PhaseBDebugAction } from '../input/PhaseBDebugInput';
 import { activePlacementTower, type TowerInputMode } from '../input/TowerPlacementMode';
@@ -125,7 +126,8 @@ export class NightwatchPocBootstrap extends Component {
     private entryArt: EnemyEntryArtView | null = null;
     private experienceView: FirstLevelExperienceView | null = null;
     private pauseView: PhaseBPauseOverlayView | null = null;
-    private readonly waves = new WaveCatalog(PHASE_B_WAVES);
+    private levelId: LevelId = 'first-level';
+    private waves = new WaveCatalog(LEVELS[this.levelId].waves);
     private economy = new EconomyLedger(this.qaMode ? PHASE_A_INITIAL_GOLD : FIRST_LEVEL_STARTING_GOLD);
     private model = new PlacementModel(PHASE_A_GRIDS[DEFAULT_GRID_ID], this.economy, PHASE_B_TOWERS);
     private battle = new BattleStateMachine(this.waves.totalWaves);
@@ -141,8 +143,8 @@ export class NightwatchPocBootstrap extends Component {
     private readonly towerInspection = new TowerInspection();
     private readonly simulationClock = new SimulationClock();
     private readonly runClock = new BattleRunClock();
-    private readonly bestTime = new FirstLevelBestTimeStore(this.qaMode);
-    private readonly bestHealth = new FirstLevelBestHealthStore(this.qaMode);
+    private bestTime = new FirstLevelBestTimeStore(this.qaMode);
+    private bestHealth = new FirstLevelBestHealthStore(this.qaMode);
     private selectedGridId: GridId = DEFAULT_GRID_ID;
     private selectedTowerId: TowerId = 'rivet-gun';
     private preview: PlacementPreview | null = null;
@@ -150,6 +152,7 @@ export class NightwatchPocBootstrap extends Component {
     private primaryTouchId: number | null = null;
     private pressStart = new Vec3();
     private preparing = true;
+    private coachVisualSeconds = 0;
     private guidedIntermissionHeld = false;
     private qaGuidedRun = false;
     private waveKillGold = 0;
@@ -244,6 +247,8 @@ export class NightwatchPocBootstrap extends Component {
 
     protected override update(deltaTime: number): void {
         this.syncOrientationSafety();
+        // 引导等待时战斗时钟停住，提示动效仍走独立视觉时间；真实暂停不推进。
+        if (!this.pauseOverlay.snapshot.visible && Number.isFinite(deltaTime)) this.coachVisualSeconds += Math.min(Math.max(deltaTime, 0), 0.1);
         this.simulationClock.advance(deltaTime, (step) => this.advanceGameStep(step));
         // 教学待命不推进敌人/金币/局内时钟，但最后一击的尸影和金币跳字应按真实时间消退。
         // 用户主动暂停或后台安全暂停仍保持反馈冻结，恢复后从原视觉时长继续。
@@ -298,12 +303,12 @@ export class NightwatchPocBootstrap extends Component {
                 this.homeSettingsVisible = true;
                 this.playSound('ui');
             } else if (this.layout.insideRect(point, firstLevelHomeLayout(this.layout).start)) {
-                this.experience.begin();
+                this.enterLevel('first-level', true);
                 // 入场后由中央教学承担首个动作，顶栏事件槽留给真正发生的建造/战斗事件。
-                this.statusText = '';
+                this.statusText = '新手引导开始 · 先学布塔改路';
                 this.playSound('ui');
             } else if (this.layout.insideRect(point, firstLevelHomeLayout(this.layout).skip)) {
-                this.experience.skip();
+                this.enterLevel('second-level', false);
                 this.playSound('ui');
             }
             this.primaryTouchId = null;
@@ -499,7 +504,11 @@ export class NightwatchPocBootstrap extends Component {
     private handleResultTouch(point: Vec3): boolean {
         if (!this.resultViewModel()) return false;
         // 与结算绘制共用窄屏适配，避免按钮看得到却点不到边缘。
-        if (this.layout.insideRect(point, this.layout.fitRect(PHASE_B_RESULT_RESTART_BUTTON))) this.restartFromCheckpoint();
+        if (this.layout.insideRect(point, this.layout.fitRect(PHASE_B_RESULT_RESTART_BUTTON))) {
+            const next = this.battle.snapshot.phase === 'victory' ? LEVELS[this.levelId].nextLevel : undefined;
+            if (next) this.enterLevel(next, false);
+            else this.restartFromCheckpoint();
+        }
         else if (this.layout.insideRect(point, this.layout.fitRect(PHASE_B_RESULT_HOME_BUTTON))) this.returnToHome();
         return true;
     }
@@ -617,9 +626,9 @@ export class NightwatchPocBootstrap extends Component {
 
     private handlePlacementPanelTouch(point: Vec3): boolean {
         if (this.qaMode || !this.preview || this.inputMode !== 'click-preview' && this.inputMode !== 'armed') return false;
-        const action = firstLevelTowerPanelAction(point, firstLevelTowerPanelLayout(this.layout.visibleDesignWidth));
+        const action = firstLevelTowerPanelAction(point, firstLevelTowerPanelLayout(this.layout.visibleDesignWidth, true));
         if (!action) return false;
-        // 下方落点可能被面板遮挡；确认按钮与再次点落点共用同一事务，不重复扣费。
+        // 建造条位于棋盘外；确认按钮与再次点落点共用同一事务，战斗中也不能重复扣费。
         if (action === 'close' || action === 'sell') {
             this.cancelInput('已取消建造，未扣费');
             this.playSound('ui');
@@ -651,7 +660,12 @@ export class NightwatchPocBootstrap extends Component {
             if (this.guidedIntermissionHeld) {
                 if (!this.battle.startNextWaveFromHeldIntermission()) return;
                 this.guidedIntermissionHeld = false;
+                // 第一波已教过布塔、战斗及波间操作；玩家主动继续即收口，不能让新手引导贯穿八波。
+                this.experience.finish();
+                this.towerInspection.clear();
+                this.cancelInput('新手引导完成，进入自由防守');
                 this.startCurrentWave();
+                this.statusText = '新手引导已结束 · 可自由建塔、升级';
                 return;
             }
             this.guidedIntermissionHeld = false;
@@ -743,7 +757,7 @@ export class NightwatchPocBootstrap extends Component {
         if (this.inputMode !== 'armed' || this.pauseOverlay.snapshot.visible || this.experience.entryMode === 'home') return;
         const point = this.localPoint(event);
         // 鼠标从落点移向取消按钮时保留面板，否则离开棋盘会让按钮在点击前消失。
-        if (this.preview && firstLevelTowerPanelAction(point, firstLevelTowerPanelLayout(this.layout.visibleDesignWidth))) return;
+        if (this.preview && firstLevelTowerPanelAction(point, firstLevelTowerPanelLayout(this.layout.visibleDesignWidth, true))) return;
         this.updatePreviewAt(point);
     }
 
@@ -864,7 +878,7 @@ export class NightwatchPocBootstrap extends Component {
         this.statusText = `已切换 ${PHASE_A_GRIDS[id].columns}×${PHASE_A_GRIDS[id].rows}，证据需独立记录`;
     }
 
-    private resetGrid(initialGold = this.qaMode ? PHASE_A_INITIAL_GOLD : FIRST_LEVEL_STARTING_GOLD, coreHealth = 10): void {
+    private resetGrid(initialGold = this.qaMode ? PHASE_A_INITIAL_GOLD : LEVELS[this.levelId].startingGold, coreHealth = 10): void {
         // 新局不是暂停恢复：清掉旧音乐位置，下一次布防从同一乐句开头进入。
         this.sound.updateMusic('off');
         this.model.observeMutations(null);
@@ -989,13 +1003,24 @@ export class NightwatchPocBootstrap extends Component {
         this.playSound('ui');
     }
 
+    /** 切关必须重建波次、记录和战斗快照，不能带入上一关金币、炮塔或重开检查点。 */
+    private enterLevel(id: LevelId, guided: boolean): void {
+        this.levelId = id;
+        const level = LEVELS[id];
+        this.waves = new WaveCatalog(level.waves);
+        this.bestTime = new FirstLevelBestTimeStore(this.qaMode, undefined, id);
+        this.bestHealth = new FirstLevelBestHealthStore(this.qaMode, undefined, id);
+        this.selectedGridId = level.gridId; this.selectedTowerId = 'rivet-gun';
+        this.resetGrid(level.startingGold);
+        this.simulationClock.resetToDefaultSpeed();
+        this.experience.returnHome();
+        if (guided) this.experience.begin(); else this.experience.skip();
+        this.statusText = `${level.label} · ${level.title} · ${guided ? '新手引导开始' : '自由布防'}`;
+    }
+
     private returnToHome(): void {
         if (!this.resultViewModel() && !(this.battle.snapshot.phase === 'paused' && this.pauseOverlay.snapshot.visible)) return;
-        this.selectedGridId = DEFAULT_GRID_ID;
-        this.selectedTowerId = 'rivet-gun';
-        // QA 结算也可能回到玩家入场卡；首页必须与卡面一致使用 140 金和默认 1×。
-        this.resetGrid(FIRST_LEVEL_STARTING_GOLD);
-        this.simulationClock.resetToDefaultSpeed();
+        this.enterLevel('first-level', false);
         this.experience.returnHome();
         this.playSound('ui');
     }
@@ -1072,6 +1097,7 @@ export class NightwatchPocBootstrap extends Component {
             this.browserDiagnostics.publishRouteJournal(this.routeDiagnostics.export());
         }
         if (phase === 'victory') {
+            this.experience.finish();
             this.resultReveal.begin();
             this.resultWasNewRecord = this.bestTime.recordVictory(this.runClock.elapsedSeconds);
             this.resultWasNewHealthRecord = this.bestHealth.recordVictory(this.battle.snapshot.coreHealth);
@@ -1097,6 +1123,7 @@ export class NightwatchPocBootstrap extends Component {
                 : clearText;
             this.playSound('wave-clear');
         } else if (phase === 'defeat') {
+            this.experience.finish('interrupted');
             this.resultReveal.begin();
             this.statusText = '核心已失守';
             this.playSound('defeat');
@@ -1235,7 +1262,7 @@ export class NightwatchPocBootstrap extends Component {
         this.entryArt?.render(sceneState.grid, Boolean(result));
         this.foregroundFeedback?.render(sceneState, this.unitSprites?.visualAnchors);
         this.experienceView?.render(experience, this.model.grid, Boolean(result), this.preview?.cell ?? null, inspectedCell,
-            this.bestTime.bestSeconds, this.bestHealth.bestRemainingHealth);
+            this.bestTime.bestSeconds, this.bestHealth.bestRemainingHealth, this.coachVisualSeconds, this.settings.snapshot.reducedMotion);
         this.pauseView?.render({
             pause: this.pauseOverlay.snapshot,
             routeErrorDetail: this.routeDiagnostics.fault
@@ -1255,6 +1282,7 @@ export class NightwatchPocBootstrap extends Component {
             : this.model.flowField.distanceAt(this.model.grid.entry);
         const waveSpawnProgress = this.combat.waveSpawnProgress;
         this.hud?.render({
+            levelTitle: `${LEVELS[this.levelId].label} · ${this.levelId === 'first-level' ? '新手关' : '高压防守'}`,
             qaMode: this.qaMode,
             entryMode: this.experience.entryMode,
             guidanceText,
@@ -1330,6 +1358,8 @@ export class NightwatchPocBootstrap extends Component {
             frostUpgradeArtStatus: this.unitSprites?.frostUpgradeArtStatus ?? 'unavailable',
             frostTowerArtLevels: this.unitSprites?.frostArtSamples ?? [],
             entryMode: this.experience.entryMode,
+            tutorialStatus: this.experience.status,
+            levelId: this.levelId,
             gridId: this.selectedGridId,
             columns: this.model.grid.columns,
             rows: this.model.grid.rows,
@@ -1422,7 +1452,7 @@ export class NightwatchPocBootstrap extends Component {
         },
             this.experience.entryMode === 'home'
                 ? this.homeSettingsVisible ? '夜城防线游戏设置，声音、音量、减弱动态，返回首页'
-                    : '夜城防线第一关：守住夜城入口。开始布防，设置，或直接开始并跳过引导'
+                    : '夜城防线：第一关新手引导，第二关高压防守，设置'
                 : result
                 ? `${result.title}，${result.summary.replace('\n', '，')}，${result.runDetails.map(({ label, value }) => `${label}${value}`).join('，')}，${result.footnote}，${result.actionLabel}，${result.homeActionLabel}`
                 : this.pauseOverlay.snapshot.visible
@@ -1431,7 +1461,7 @@ export class NightwatchPocBootstrap extends Component {
                     : this.pauseOverlay.hasReason('orientation')
                     ? `夜城防线横屏安全暂停，请转回竖屏，再点继续战斗。第${this.battle.snapshot.wave}波，核心${this.battle.snapshot.coreHealth}`
                     : `夜城防线暂停，${this.pauseOverlay.snapshot.screen === 'menu' ? firstLevelPauseMenuPresentation(this.pauseOverlay.snapshot).actions.join('，') : this.pauseOverlay.snapshot.screen === 'settings' ? '声音、音量、减弱动态、速度设置，返回暂停' : '请确认或取消'}，第${this.battle.snapshot.wave}波，核心${this.battle.snapshot.coreHealth}`
-                : `夜城防线游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，机枪${rivetTowerCount}座，冷凝${frostTowerCount}座，减速中${slowedEnemyCount}名，${this.inputMode === 'idle' ? '未拿起炮塔' : `已拿起${this.selectedTowerLabel()}`}，速度${this.simulationClock.scale}倍，${waveStartAccessibleText}，${saleAccessibleText}${upcomingWave ? `下一波第${upcomingWave.wave}波，${upcomingWave.accessibleLineup}，${upcomingWave.tactic}，` : ''}${guidanceText ? `${guidanceText}，` : ''}${this.statusText}`.replace(/，$/, ''),
+                : `夜城防线${LEVELS[this.levelId].label}游戏画布，${this.model.grid.columns}乘${this.model.grid.rows}，金币${this.model.gold}，路径${pathLength}格，机枪${rivetTowerCount}座，冷凝${frostTowerCount}座，减速中${slowedEnemyCount}名，${this.inputMode === 'idle' ? '未拿起炮塔' : `已拿起${this.selectedTowerLabel()}`}，速度${this.simulationClock.scale}倍，${waveStartAccessibleText}，${saleAccessibleText}${upcomingWave ? `下一波第${upcomingWave.wave}波，${upcomingWave.accessibleLineup}，${upcomingWave.tactic}，` : ''}${guidanceText ? `${guidanceText}，` : ''}${this.statusText}`.replace(/，$/, ''),
         );
     }
 
@@ -1441,6 +1471,8 @@ export class NightwatchPocBootstrap extends Component {
             this.combat.totals,
             this.model.gold,
             {
+                levelLabel: LEVELS[this.levelId].label,
+                nextLevelLabel: LEVELS[this.levelId].nextLevel ? LEVELS[LEVELS[this.levelId].nextLevel!].label : undefined,
                 initialCoreHealth: this.initialCoreHealth,
                 totalWaves: this.waves.totalWaves,
                 elapsedSeconds: this.runClock.elapsedSeconds,

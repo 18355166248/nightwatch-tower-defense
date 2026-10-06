@@ -40,9 +40,11 @@ export class FirstLevelCoachView {
             const layout = firstLevelCoachLayout(width), s = layout.scale;
             if (model.visible) {
                 if (!this.skin.panel(layout.card,8*s)) this.fill(layout.card);
-                this.text('title',model.title,layout.title,'#F4E9CD');
+                this.fallback.strokeColor = new Color('#FFD34F'); this.fallback.lineWidth = 3*s;
+                this.fallback.roundRect(layout.card.left,layout.card.bottom,layout.card.right-layout.card.left,layout.card.top-layout.card.bottom,8*s); this.fallback.stroke();
+                this.text('title',model.title,layout.title,'#FFE36A');
                 this.text('progress',model.progress,layout.progress,'#C6A876',true);
-                this.text('body',model.body,layout.body,'#F4E9CD'); this.text('help',model.help,layout.help,'#A9BDCA');
+                this.text('body',model.body,layout.body,'#FFFFFF'); this.text('help',model.help,layout.help,'#A9BDCA');
             }
             if (model.skipVisible) {
                 if (!this.skin.button(0,layout.skip,'neutral',8*s)) this.fill(layout.skip);

@@ -35,3 +35,19 @@ test('390及320字号和按钮同比缩放，面板与常驻塔栏不相交',()=
         assert.equal(action({x:geometry.panel.left+3,y:geometry.panel.top-3},geometry),'surface');assert.equal(action({x:0,y:geometry.panel.top+3},geometry),null);
     }
 });
+
+test('建造条不遮挡六列战场，战斗下排落点和确认按钮各自命中', () => {
+    const {PhaseBLayout}=require('../.test-dist/presentation/PhaseBLayout');
+    const {PHASE_A_GRIDS}=require('../.test-dist/config/PhaseAGrids');
+    for(const width of [1080,1080*320/390]) {
+        const board=new PhaseBLayout(); board.setVisibleWidth(width);
+        const grid=PHASE_A_GRIDS['grid-6x13'], panel=layout(width,true);
+        assert.ok(panel.panel.top <= board.boardMetrics(grid).bottom, '建造条必须位于棋盘外');
+        for(let row=9;row<13;row++) for(let column=0;column<6;column++) {
+            assert.equal(action(board.gridPointCenter({column,row},grid),panel),null,'下排落点不能被面板吞掉');
+        }
+        const rect=panel.upgrade;
+        assert.equal(action({x:(rect.left+rect.right)/2,y:(rect.top+rect.bottom)/2},panel),'upgrade');
+        assert.ok(Math.abs((rect.top-rect.bottom)/panel.scale-44)<1e-8);
+    }
+});

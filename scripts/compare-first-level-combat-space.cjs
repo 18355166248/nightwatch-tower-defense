@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const { replayFirstLevel } = require('../tests/support/first-level-replay.cjs');
-const { PHASE_A_GRIDS } = require('../.test-dist/config/PhaseAGrids.js');
+const { PHASE_A_GRIDS, DEFAULT_GRID_ID } = require('../.test-dist/config/PhaseAGrids.js');
 const { FIRST_LEVEL_OPENING } = require('../.test-dist/config/FirstLevelOpening.js');
 const { PHASE_B_TOWERS, PHASE_B_WAVE_ONE } = require('../.test-dist/config/PhaseBCombatConfig.js');
 const { PlacementModel } = require('../.test-dist/systems/PlacementModel.js');
@@ -13,7 +13,7 @@ const legacyOpening = [
     [2, 2, 'frost-coil'], [3, 2, 'rivet-gun'],
 ].map(([column, row, towerId]) => ({ cell: { column, row }, towerId }));
 
-function firstWaveSpace(opening) {
+function firstWaveSpace(opening, grid = PHASE_A_GRIDS[DEFAULT_GRID_ID]) {
     const model = new PlacementModel(grid, 140, PHASE_B_TOWERS);
     for (const { cell, towerId } of opening) {
         const preview = model.preview(cell, [], towerId);
@@ -52,7 +52,7 @@ function firstWaveSpace(opening) {
 
 const currentRun = replayFirstLevel();
 console.log(JSON.stringify({
-    legacyFirstWave: firstWaveSpace(legacyOpening),
+    legacyFirstWave: firstWaveSpace(legacyOpening, grid),
     currentFirstWave: firstWaveSpace(FIRST_LEVEL_OPENING),
     currentFullRun: {
         waves: currentRun.waveResults.length,

@@ -12,6 +12,8 @@ import { FIRST_WAVE_MIN_PATH_DELTA, FIRST_WAVE_MIN_TOWER_COUNT, type BattlePhase
 import { nextGuidedUpgrade } from './FirstLevelUpgradeCoach';
 import { waveStartActionText } from './PhaseBHudText';
 
+export type FirstLevelTutorialStatus = 'idle' | 'active' | 'completed' | 'skipped' | 'interrupted';
+
 export type FirstLevelEntryMode = 'home' | 'guided' | 'free';
 export type FirstLevelCoachStep = 'select' | 'place' | 'shape' | 'route' | 'ready' | 'reinforce' | 'upgrade' | 'combat';
 
@@ -36,6 +38,7 @@ export interface FirstLevelExperienceSnapshot {
     readonly suggestedCell?: GridCell;
     readonly suggestedTowerId?: TowerId;
     readonly canStartFirstWave?: boolean;
+    readonly readyToFinishTutorial?: boolean;
 }
 
 export const FIRST_LEVEL_START_BUTTON = { left: -425, right: 425, bottom: -590, top: -435 } as const;
@@ -51,6 +54,7 @@ export function shouldOutlineGuidedUpgrade(suggestedCell: GridCell | undefined, 
 /** 入场与教学是独立的展示状态，不替代布塔门禁或战斗状态机。 */
 export class FirstLevelExperience {
     private mode: FirstLevelEntryMode;
+    private tutorialStatus: FirstLevelTutorialStatus = 'idle';
 
     public constructor(qaMode: boolean) {
         this.mode = qaMode ? 'free' : 'home';
@@ -61,14 +65,24 @@ export class FirstLevelExperience {
     }
 
     public begin(): void {
-        if (this.mode === 'home') this.mode = 'guided';
+        if (this.mode === 'home') { this.mode = 'guided'; this.tutorialStatus = 'active'; }
+    }
+
+    public get status(): FirstLevelTutorialStatus { return this.tutorialStatus; }
+
+    /** 完成与跳过分开记录；退出后不再产生教学高亮或波间等待，重复结束保持幂等。 */
+    public finish(reason: 'completed' | 'skipped' | 'interrupted' = 'completed'): void {
+        if (this.mode !== 'guided') return;
+        this.mode = 'free'; this.tutorialStatus = reason;
     }
 
     public skip(): void {
-        this.mode = 'free';
+        if (this.mode === 'guided') this.finish('skipped');
+        else { this.mode = 'free'; this.tutorialStatus = 'skipped'; }
     }
 
     public returnHome(): void {
+        this.tutorialStatus = 'idle';
         this.mode = 'home';
     }
 
@@ -90,7 +104,7 @@ export class FirstLevelExperience {
                 if (!next) {
                     const hasFuturePlan = FIRST_LEVEL_REINFORCEMENTS.some(({ cell }) => !context.occupiedCells.has(cellKey(cell)));
                     return context.guidedIntermissionHeld
-                        ? { mode: this.mode, step: 'ready', guidanceText: hasFuturePlan
+                        ? { mode: this.mode, step: 'ready', readyToFinishTutorial: context.wave === 1, guidanceText: hasFuturePlan
                             ? `本轮布防完成\n${waveStartActionText('next')}`
                             : `推荐完成 · 可自由加固\n或${waveStartActionText('next')}` }
                         : { mode: this.mode, step: 'combat', guidanceText: '下一波即将到来，留意敌人和核心' };
@@ -98,7 +112,7 @@ export class FirstLevelExperience {
                 const cost = next.towerId === 'frost-coil' ? FROST_COIL.cost : RIVET_GUN.cost;
                 if (context.gold < cost) {
                     return context.guidedIntermissionHeld
-                        ? { mode: this.mode, step: 'ready', guidanceText: context.gold >= RIVET_GUN.cost
+                        ? { mode: this.mode, step: 'ready', readyToFinishTutorial: context.wave === 1, guidanceText: context.gold >= RIVET_GUN.cost
                             ? `暂缺金币 · 可自由补塔\n或${waveStartActionText('next')}`
                             : `金币不足补塔\n${waveStartActionText('next')}` }
                         : { mode: this.mode, step: 'combat', guidanceText: '下一波即将到来，留意敌人和核心' };

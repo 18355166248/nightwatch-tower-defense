@@ -20,6 +20,8 @@ export interface BattleResultStat {
 }
 
 export interface BattleResultContext {
+    readonly levelLabel?: string;
+    readonly nextLevelLabel?: string;
     readonly initialCoreHealth: number;
     readonly totalWaves: number;
     readonly elapsedSeconds: number;
@@ -59,8 +61,8 @@ export function buildBattleResultViewModel(
         kind: battle.phase,
         title: battle.phase === 'victory' ? '防线守住了' : '核心失守',
         subtitle: battle.phase === 'victory'
-            ? `第一关 · ${battle.wave}/${totalWaves} 波守住`
-            : `第一关 · 止步第 ${battle.wave}/${totalWaves} 波`,
+            ? `${context.levelLabel ?? '第一关'} · ${battle.wave}/${totalWaves} 波守住`
+            : `${context.levelLabel ?? '第一关'} · 止步第 ${battle.wave}/${totalWaves} 波`,
         summary: `击毁 ${totals.killed}/${totals.spawned}　漏怪 ${totals.leaked}\n核心 ${battle.coreHealth}/${initialCoreHealth}　金币 ${gold}`,
         stats: [
             { label: '击毁', value: `${totals.killed}/${totals.spawned}`, tone: 'gold' },
@@ -73,8 +75,8 @@ export function buildBattleResultViewModel(
             { label: '建塔', value: String(towerCount), tone: 'gold' },
             { label: '升级', value: String(upgradeCount), tone: 'gold' },
         ],
-        footnote: recordFootnote || (battle.phase === 'victory' ? '首关已守住' : '调整布防后可再次挑战'),
-        actionLabel: '重新部署',
+        footnote: recordFootnote || (battle.phase === 'victory' ? `${context.levelLabel ?? '首关'}已守住` : '调整布防后可再次挑战'),
+        actionLabel: battle.phase === 'victory' && context.nextLevelLabel ? `挑战${context.nextLevelLabel}` : '重新部署',
         homeActionLabel: '返回首页',
     };
 }

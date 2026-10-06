@@ -52,14 +52,20 @@ export function firstLevelTowerPanelPresentation(input: TowerPanelInput) {
 }
 
 /** 同一获批面板相对常驻塔栏顶部锚定；不缩放/移动棋盘，也不因面板隐藏而留下空槽。 */
-export function firstLevelTowerPanelLayout(visibleWidth: number) {
+export function firstLevelTowerPanelLayout(visibleWidth: number, placement = false) {
     const scale = Math.min(1080, visibleWidth) / 390;
     const bottom = -764 + 12 * scale;
-    const top = bottom + 205 * scale;
+    const top = bottom + (placement ? 84 : 205) * scale;
     const rect = (x: number, y: number, w: number, h: number): PhaseBRect => ({
         left: (x - 195) * scale, right: (x + w - 195) * scale, top: top - y * scale, bottom: top - (y + h) * scale,
     });
     const text = (x: number, y: number, w: number, h: number, size: number, bold = false) => ({rect: rect(x,y,w,h),size:size*scale,bold});
+    const compact = placement ? {
+        panel: rect(12,0,366,84), title: text(30,3,100,16,12,true), badge: text(140,3,140,16,10),
+        close: text(300,1,60,20,10), closeHit: rect(300,0,54,32),
+        preview: text(30,19,330,16,11), sell: rect(30,36,136.17,44), upgrade: rect(176.17,36,183.83,44),
+    } : {};
+    // 建造只占棋盘与常驻塔栏之间的空隙，不能用详情面板拦截下排落点；渲染与命中共用此布局。
     return {
         scale, panel: rect(12,0,366,205), portrait: rect(30,13,36,36),
         title: text(76,14.5,49,20,14,true), badge: text(125,17.5,150,15,11), role: text(76,34.5,220,15,10),
@@ -68,7 +74,7 @@ export function firstLevelTowerPanelLayout(visibleWidth: number) {
         values: [30,144,258].map(x=>text(x,70,102,20,13)),
         divider: rect(30,94,330,1), preview: text(30,100,330,17,11),
         sell: rect(30,122,136.17,54), upgrade: rect(176.17,122,183.83,54),
-        actionSize: 12*scale, help:text(30,178,330,15,10),
+        actionSize: 12*scale, help:text(30,178,330,15,10), ...compact,
     };
 }
 

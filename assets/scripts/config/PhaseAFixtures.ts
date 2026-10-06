@@ -27,4 +27,9 @@ export const PHASE_A_FIXTURES: Readonly<Record<GridId, PhaseAFixtureSet>> = {
             [3, 8], [4, 8], [5, 8], [6, 8], [7, 8],
         ].map(([column, row]) => ({ column, row })),
     },
+    'grid-6x13': {
+        shortFold: [[1, 2], [2, 2], [3, 2]].map(([column, row]) => ({ column, row })),
+        longSnake: [[0, 2], [1, 2], [2, 2], [3, 2], [4, 2],
+            [2, 8], [3, 8], [4, 8], [5, 8]].map(([column, row]) => ({ column, row })),
+    },
 };

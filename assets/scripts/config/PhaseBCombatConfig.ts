@@ -119,14 +119,21 @@ export const FIRST_LEVEL_WAVE_BLUEPRINTS: readonly WaveDefinition[] = [
     { wave: 8, clearReward: 20, groups: [{ enemy: CLOCKWORK_INFANTRY, count: 31, spawnIntervalSeconds: 0.52 }, { enemy: CLOCKWORK_RUNNER, count: 22, spawnIntervalSeconds: 0.5 }, { enemy: IRON_CANISTER_HAULER, count: 18, spawnIntervalSeconds: 0.85 }] },
 ];
 
-export const FIRST_LEVEL_LATE_HEALTH_MULTIPLIER = 1.12;
+/** 前五波学习改路与重甲；后三波同时考验升级火力和减速覆盖。 */
+export const FIRST_LEVEL_LATE_HEALTH_MULTIPLIER = 1.25;
+export const FIRST_LEVEL_LATE_SPEED_MULTIPLIER = 1.5;
+export const FIRST_LEVEL_LATE_SPAWN_INTERVAL_MULTIPLIER = 0.8;
 
-// 前三波保留教学击杀节奏；仅后半段提升承伤，不削弱炮塔反馈，也不增加敌人数量/奖励。
-// 按波生成独立敌人配置，避免修改共享原型后把首波、QA或其他规则测试一起变难。
+// 缩图后射程覆盖更集中，单纯加血只会拖长清场；后段用更快、更密的进攻制造突破压力。
+// 每波复制敌人配置，保留前三波教学和共享原型，奖励不随难度增长，避免压力又变成补塔红利。
 export const PHASE_B_WAVES: readonly WaveDefinition[] = FIRST_LEVEL_WAVE_BLUEPRINTS.map(wave => wave.wave < 4
     ? wave
     : { ...wave, groups: wave.groups.map(group => ({ ...group,
-        enemy: { ...group.enemy, maxHealth: Math.round(group.enemy.maxHealth * FIRST_LEVEL_LATE_HEALTH_MULTIPLIER) },
+        spawnIntervalSeconds: group.spawnIntervalSeconds * (wave.wave >= 6 ? FIRST_LEVEL_LATE_SPAWN_INTERVAL_MULTIPLIER : 1),
+        enemy: { ...group.enemy,
+            maxHealth: Math.round(group.enemy.maxHealth * (wave.wave >= 6 ? FIRST_LEVEL_LATE_HEALTH_MULTIPLIER : 1.05)),
+            speedCellsPerSecond: group.enemy.speedCellsPerSecond * (wave.wave >= 6 ? FIRST_LEVEL_LATE_SPEED_MULTIPLIER : 1),
+        },
     })) });
 
 export const PHASE_B_WAVE_ONE = PHASE_B_WAVES[0];

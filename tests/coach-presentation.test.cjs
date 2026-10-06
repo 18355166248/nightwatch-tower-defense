@@ -6,7 +6,7 @@ const input = overrides => ({experience:{mode:'guided',step:'select',guidanceTex
 
 test('首个教学动作按获批小提示层次呈现，不改变规则快照',()=>{
     const state=input();const original=JSON.stringify(state);const model=present(state);
-    assert.equal(model.title,'拿起机枪塔');assert.equal(model.progress,'布防 1 / 4');assert.equal(model.visible,true);assert.equal(model.skipVisible,true);
+    assert.equal(model.title,'先点机枪塔');assert.equal(model.progress,'布防 1 / 4');assert.equal(model.visible,true);assert.equal(model.skipVisible,true);
     assert.equal(JSON.stringify(state),original);
 });
 test('预览/选塔让位，用户暂停隐藏，普通战斗不留下教学和跳过热区',()=>{
@@ -30,8 +30,8 @@ test('后期冷凝升级沿真实建议，不硬编码中段机枪，目标选�
 });
 test('390和320几何等比，轻卡不侵入常驻塔栏，跳过热区不少于44px',()=>{
     for(const width of [1080,1080*320/390]){
-        const g=layout(width);assert.ok(g.card.bottom>-764);assert.equal((g.card.top-g.card.bottom)/g.scale,74);
-        assert.ok((g.skip.top-g.skip.bottom)*390/1080>=44);assert.ok(Math.abs(g.title.size/g.scale-13)<.001);
+        const g=layout(width);assert.ok(g.card.bottom>-764);assert.ok(Math.abs((g.card.top-g.card.bottom)/g.scale-84)<1e-8);
+        assert.ok((g.skip.top-g.skip.bottom)*390/1080>=44);assert.ok(Math.abs(g.title.size/g.scale-17)<.001);
         assert.ok(g.lineup.rect.right<g.skip.left);assert.ok(g.skip.bottom>g.card.top);
     }
 });

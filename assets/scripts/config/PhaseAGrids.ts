@@ -23,8 +23,13 @@ export const PHASE_A_GRIDS: Readonly<Record<GridId, GridDefinition>> = {
         entry: { column: 4, row: 0 },
         exit: { column: 4, row: 12 },
     },
+    'grid-6x13': {
+        id: 'grid-6x13', columns: 6, rows: 13,
+        // 六列战场把原教学折线整体左移两格，右侧留出绕行通道，避免补塔直接封死入口。
+        entry: { column: 2, row: 0 }, exit: { column: 2, row: 12 },
+    },
 };
 
-export const DEFAULT_GRID_ID: GridId = 'grid-8x13';
+export const DEFAULT_GRID_ID: GridId = 'grid-6x13';
 export const PHASE_A_TOWER_COST = 30;
 export const PHASE_A_INITIAL_GOLD = 120;

@@ -16,6 +16,7 @@ export class FirstLevelBestTimeStore {
     public constructor(
         private readonly qaMode: boolean,
         private readonly storageProvider: () => FirstLevelRecordStorage | null = browserRecordStorage,
+        private readonly recordScope = 'first-level',
     ) {
         this.best = this.load();
     }
@@ -36,7 +37,8 @@ export class FirstLevelBestTimeStore {
     }
 
     private get key(): string {
-        return this.qaMode ? QA_KEY : PLAYER_KEY;
+        // 不同关卡的成绩不能覆盖首关；保留既有首关键以兼容本机历史纪录。
+        return (this.qaMode ? QA_KEY : PLAYER_KEY).replace('first-level', this.recordScope);
     }
 
     private load(): number | null {

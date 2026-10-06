@@ -26,6 +26,7 @@ import { PHASE_B_EARLY_WAVE_BUTTON, PHASE_B_SOUND_BUTTON, PHASE_B_SPEED_BUTTON,
     PHASE_B_SELL_BUTTON, PHASE_B_UPGRADE_BUTTON, PHASE_B_UPGRADE_FULL_BUTTON, PhaseBLayout, type PhaseBRect } from './PhaseBLayout';
 
 export interface PhaseBHudState {
+    readonly levelTitle?: string;
     readonly qaMode: boolean;
     readonly entryMode: FirstLevelEntryMode;
     readonly guidanceText: string;

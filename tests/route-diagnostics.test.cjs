@@ -152,7 +152,7 @@ test('真实默认双列八波：每固定步检查不误报，结果/时长不�
     const watched = replayFirstLevel({ traffic: TWO_LANE_TRAFFIC, routeDiagnostics: monitor });
     assert.deepEqual(watched.waveResults, baseline.waveResults);
     assert.deepEqual(watched.combatSecondsByWave, baseline.combatSecondsByWave);
-    assert.equal(watched.gold, 346); assert.equal(watched.coreHealth, 7); assert.equal(monitor.fault, null);
+    assert.equal(watched.gold, 348); assert.equal(watched.coreHealth, 9); assert.equal(monitor.fault, null);
     const journal = monitor.export();
     assert.ok(journal.events.some(event => event.kind === 'center'));
     assert.ok(journal.events.some(event => event.kind === 'upgrade'));

@@ -29,6 +29,8 @@ export interface BrowserBattleDiagnosticsState {
     readonly rendererLargestCachedTextures: readonly { readonly name: string; readonly uuid: string;
         readonly width: number; readonly height: number; readonly bytes: number }[];
     readonly entryMode: string;
+    readonly tutorialStatus?: string;
+    readonly levelId?: string;
     readonly gridId: string;
     readonly columns: number;
     readonly rows: number;

@@ -99,11 +99,13 @@ test('固定目标在30/60帧下得到相同平滑结果，缩放不影响归一
     assert.ok(Math.abs(a.row - b.row) < 1e-9);
 });
 
-test('八波真实配置的脚点近重合减小，击杀、漏怪、生命与金钱不变', () => {
+test('旧移动对照八波的脚点近重合减小，击杀、漏怪、生命与金钱不变', () => {
     const { replayFirstLevel } = require('./support/first-level-replay.cjs');
     const view = new EnemyCrowdPresentation();
     let seconds = 0, before = 0, after = 0;
-    const result = replayFirstLevel({ onCombatStep({ deltaSeconds, enemies }) {
+    // 默认双列已杜绝脚点重合；显式使用旧移动和基础波次，继续验证视觉避让的降级路径。
+    const { FIRST_LEVEL_WAVE_BLUEPRINTS } = require('../.test-dist/config/PhaseBCombatConfig.js');
+    const result = replayFirstLevel({ traffic: null, waves: FIRST_LEVEL_WAVE_BLUEPRINTS, onCombatStep({ deltaSeconds, enemies }) {
         seconds += deltaSeconds;
         const offsets = view.sample(enemies, seconds);
         before += crowdNearCoincidentPairs(enemies, new Map()) * deltaSeconds;
@@ -112,7 +114,7 @@ test('八波真实配置的脚点近重合减小，击杀、漏怪、生命与�
     } });
     assert.ok(before > 100);
     assert.ok(after < before * 0.1);
-    assert.deepEqual(result.totals, { spawned: 213, killed: 209, leaked: 4 });
-    assert.equal(result.coreHealth, 6);
-    assert.equal(result.gold, 343);
+    assert.deepEqual(result.totals, { spawned: 213, killed: 212, leaked: 1 });
+    assert.equal(result.coreHealth, 9);
+    assert.equal(result.gold, 348);
 });

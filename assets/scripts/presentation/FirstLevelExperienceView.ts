@@ -48,6 +48,8 @@ export class FirstLevelExperienceView {
     private readonly skins: FirstLevelPageSkinView;
     private repaint: (() => void) | null = null;
     private signature = '';
+    private pulse = 0;
+    private readonly targetLabel: Label;
 
     public constructor(parent: Node, private readonly layout: PhaseBLayout) {
         this.root.layer = parent.layer;
@@ -55,6 +57,8 @@ export class FirstLevelExperienceView {
         parent.addChild(this.root);
         this.graphics = this.root.addComponent(Graphics);
         this.chrome = new FirstLevelPanelPainter(this.graphics);
+        this.targetLabel = this.label(54, '#FFFFFF', 0, 360, 76, this.root, 'CoachTarget');
+        this.targetLabel.isBold = true; this.targetLabel.node.active = false;
         const invalidate = () => {
             this.signature = '';
             this.repaint?.();
@@ -69,13 +73,18 @@ export class FirstLevelExperienceView {
     }
 
     public render(snapshot: FirstLevelExperienceSnapshot, grid: GridDefinition, resultVisible: boolean, previewCell: GridCell | null,
-        inspectedCell: GridCell | null, bestSeconds: number | null, bestRemainingHealth: number | null): void {
+        inspectedCell: GridCell | null, bestSeconds: number | null, bestRemainingHealth: number | null, visualSeconds = 0, reducedMotion = false): void {
         // 异步饰面只重绘最近快照，不能把之前首页状态覆盖当前战斗/结算。
-        this.repaint = () => this.render(snapshot, grid, resultVisible, previewCell, inspectedCell, bestSeconds, bestRemainingHealth);
-        const signature = `${this.layout.safeHalfWidth}|${snapshot.mode}|${snapshot.step}|${snapshot.canStartFirstWave ?? false}|${snapshot.suggestedTowerId ?? ''}|${snapshot.suggestedCell?.column ?? ''},${snapshot.suggestedCell?.row ?? ''}|${grid.id}|${resultVisible}|${previewCell?.column ?? ''},${previewCell?.row ?? ''}|${inspectedCell?.column ?? ''},${inspectedCell?.row ?? ''}|${bestSeconds ?? ''}|${bestRemainingHealth ?? ''}`;
+        this.repaint = () => this.render(snapshot, grid, resultVisible, previewCell, inspectedCell, bestSeconds, bestRemainingHealth, visualSeconds, reducedMotion);
+        // 只重绘引导图形，文字节点复用；降低动态效果时仍保留高对比静态目标。
+        const animated = snapshot.mode === 'guided' && !resultVisible && snapshot.step !== 'combat';
+        const frame = animated && !reducedMotion ? Math.floor(visualSeconds * 20) : 0;
+        this.pulse = reducedMotion ? 0.5 : (1 + Math.sin(frame / 20 * Math.PI * 2 / 1.2)) / 2;
+        const signature = `${frame}|${reducedMotion}|${this.layout.safeHalfWidth}|${snapshot.mode}|${snapshot.step}|${snapshot.canStartFirstWave ?? false}|${snapshot.suggestedTowerId ?? ''}|${snapshot.suggestedCell?.column ?? ''},${snapshot.suggestedCell?.row ?? ''}|${grid.id}|${resultVisible}|${previewCell?.column ?? ''},${previewCell?.row ?? ''}|${inspectedCell?.column ?? ''},${inspectedCell?.row ?? ''}|${bestSeconds ?? ''}|${bestRemainingHealth ?? ''}`;
         if (signature === this.signature) return;
         this.signature = signature;
         this.graphics.clear();
+        this.targetLabel.node.active = false;
         this.skins.begin();
         const home = snapshot.mode === 'home';
         const guided = snapshot.mode === 'guided' && !resultVisible;
@@ -87,7 +96,10 @@ export class FirstLevelExperienceView {
         }
         this.introArt.setVisible(home);
         if (homeLabels) this.drawHome(homeLabels);
-        if (guided) this.drawCoach(snapshot, grid, previewCell, inspectedCell);
+        if (guided) {
+            this.drawCoach(snapshot, grid, previewCell, inspectedCell);
+            if (this.targetLabel.node.active) this.targetLabel.string = snapshot.step === 'upgrade' ? '点此塔升级' : snapshot.step === 'route' ? '点此塔调整' : snapshot.step === 'place' ? '点亮格放置' : '在亮格建塔';
+        }
     }
 
     private createHomeLabels(): HomeLabels {
@@ -166,12 +178,12 @@ export class FirstLevelExperienceView {
         this.skins.headerDivider(-half,half,-365);
         labels.title.string = '夜城防线';
         labels.title.color = new Color('#F4E9CD');
-        labels.chapter.string = '第一关 · 夜城广场';
+        labels.chapter.string = '第一关 · 新手关';
         labels.objective.string = '守住夜城入口';
         labels.body.string = '摆塔改路，让敌人走进火力区\n坚守八波，保护核心';
-        labels.action.string = '开始布防';
-        labels.skip.string = '自由布防 · 跳过引导';
-        labels.footer.string = '本关自由布塔 · 无额外道具';
+        labels.action.string = '第一关 · 开始引导';
+        labels.skip.string = '第二关 · 高压防守';
+        labels.footer.string = '引导：布塔 → 第一波 → 升级补塔';
         if (typeof document !== 'undefined') document.querySelector('canvas')?.setAttribute('data-home-ui',JSON.stringify({
             version:'quality-v3',chrome:this.skins.diagnostics,art:this.introArt.diagnostics,
             titleFontSize:labels.title.fontSize,bodyFontSize:labels.body.fontSize,
@@ -180,8 +192,14 @@ export class FirstLevelExperienceView {
 
     private drawCoach(snapshot: FirstLevelExperienceSnapshot, grid: GridDefinition, previewCell: GridCell | null, inspectedCell: GridCell | null): void {
         const graphics = this.graphics;
-        graphics.strokeColor = new Color('#FFE09C');
-        graphics.lineWidth = 7;
+        graphics.strokeColor = new Color('#FFFFFF');
+        graphics.lineWidth = 10;
+        // 棋盘轻压暗衬出目标，不创建输入遮罩，玩家仍可选择任意合法格子。
+        if (snapshot.suggestedCell && snapshot.step !== 'combat') {
+            const board = this.layout.boardMetrics(grid);
+            graphics.fillColor = new Color(3, 10, 20, 80);
+            graphics.rect(board.left, board.bottom, board.width, board.height); graphics.fill();
+        }
         if (snapshot.step === 'select' || snapshot.step === 'shape' || snapshot.step === 'reinforce') {
             // 教学建议用指针，卡片内描边只留给真正“拿起炮塔”的输入态，避免首局误以为点网格即可落塔。
             this.pointAtTower(firstLevelControlRect(snapshot.suggestedTowerId === 'frost-coil' ? PHASE_B_FROST_BUTTON : PHASE_B_RIVET_BUTTON, true));
@@ -203,32 +221,45 @@ export class FirstLevelExperienceView {
         } else if (snapshot.step === 'ready') {
             this.outline(firstLevelControlRect(PHASE_B_EARLY_WAVE_BUTTON, true));
         }
-        // 已满足硬门槛时同时指出可开波入口，推荐塔位仍只是可选的更稳构筑。
-        if (snapshot.step === 'shape' && snapshot.canStartFirstWave) this.outline(firstLevelControlRect(PHASE_B_EARLY_WAVE_BUTTON, true));
+        // 推荐补塔阶段只强调当前动作，开波按钮仍可用；准备完成后再单独高亮开波，避免多个亮框争抢注意。
     }
 
     private outlineCell(cell: GridCell, grid: GridDefinition): void {
         const center = this.layout.gridPointCenter(cell, grid);
         const size = this.layout.boardMetrics(grid).cellSize;
-        this.graphics.roundRect(center.x - size / 2, center.y - size / 2, size, size, 12);
-        this.graphics.stroke();
+        const rect = {left:center.x-size/2,right:center.x+size/2,bottom:center.y-size/2,top:center.y+size/2};
+        this.outline(rect);
+        const y = center.y + size / 2 + 90 + this.pulse * 12;
+        const x = Math.min(Math.max(center.x,-this.layout.safeHalfWidth+190),this.layout.safeHalfWidth-190);
+        this.graphics.fillColor = new Color(5, 23, 34, 245);
+        this.graphics.roundRect(x-180,y-38,360,76,20); this.graphics.fill();
+        this.targetLabel.node.active = true; this.targetLabel.node.setPosition(x,y);
+        this.targetLabel.string = '在亮格建塔';
+        this.arrow(center.x, center.y + size/2 + 12);
     }
 
     private pointAtTower(rect: PhaseBRect): void {
         const safe = this.layout.safeRect(rect);
-        const x = (safe.left + safe.right) / 2;
-        const tipY = safe.top + 12;
-        this.graphics.fillColor = new Color('#FFE09C');
-        this.graphics.moveTo(x, tipY);
-        this.graphics.lineTo(x - 22, tipY + 27);
-        this.graphics.lineTo(x + 22, tipY + 27);
-        this.graphics.close();
-        this.graphics.fill();
+        this.outline(safe);
+        this.arrow((safe.left+safe.right)/2, safe.top+16);
+    }
+
+    private arrow(x: number, tipY: number): void {
+        const g = this.graphics, y = tipY + this.pulse * 12;
+        // 大箭头配深色外轮廓，避免金色指针融进铜色地图；呼吸位移不改变实际热区。
+        g.fillColor = new Color('#FFD34F'); g.strokeColor = new Color('#06121F'); g.lineWidth = 8;
+        g.moveTo(x,y); g.lineTo(x-38,y+40); g.lineTo(x-16,y+40);
+        g.lineTo(x-16,y+70); g.lineTo(x+16,y+70); g.lineTo(x+16,y+40); g.lineTo(x+38,y+40); g.close(); g.fill(); g.stroke();
     }
 
     private outline(rect: PhaseBRect): void {
-        this.graphics.roundRect(rect.left - 9, rect.bottom - 9, rect.right - rect.left + 18, rect.top - rect.bottom + 18, 18);
-        this.graphics.stroke();
+        const g=this.graphics, expand=9+this.pulse*10;
+        g.fillColor = new Color(44, 232, 255, 50 + Math.round(this.pulse * 35));
+        g.roundRect(rect.left,rect.bottom,rect.right-rect.left,rect.top-rect.bottom,12);g.fill();
+        g.strokeColor = new Color(43, 228, 255, 120);g.lineWidth=18;
+        g.roundRect(rect.left-expand,rect.bottom-expand,rect.right-rect.left+expand*2,rect.top-rect.bottom+expand*2,18);g.stroke();
+        g.strokeColor = new Color('#FFFFFF');g.lineWidth=7;
+        g.roundRect(rect.left-4,rect.bottom-4,rect.right-rect.left+8,rect.top-rect.bottom+8,14);g.stroke();
     }
 
     private label(fontSize: number, color: string, y: number, width: number, height: number, parent = this.root, name = 'ExperienceLabel'): Label {

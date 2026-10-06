@@ -95,7 +95,7 @@ export class FirstLevelUiSkinView {
             state.upcomingWave?.wave, state.upcomingWave?.lineup, state.upcomingWave?.tactic,
             state.waveStartButton.label, state.waveStartButton.active, state.activePlacementTowerId,
             state.inspectedUpgrade?.towerId, state.inspectedUpgrade?.level, state.inspectedUpgrade?.cost,
-            state.inspectedUpgrade?.saleRefund, Boolean(state.towerPanel),Boolean(state.coach?.upcoming)].join('|');
+            state.levelTitle,state.inspectedUpgrade?.saleRefund, Boolean(state.towerPanel),Boolean(state.coach?.upcoming)].join('|');
         // Bootstrap 可以每帧提交快照，但静态饰面和文字只按展示字段变化更新。
         // 资源回调会使签名失效，所以迟到的图片不会被缓存挡住。
         if (signature === this.renderedSignature) return;
@@ -124,7 +124,7 @@ export class FirstLevelUiSkinView {
         this.label('core-caption', '核心', 143, 887, 40, 160, '#B8C6CC');
         this.label('core', `${state.coreHealth} / ${state.maxCoreHealth}`, 143, 836, 55, 195, state.coreHealth <= 3 ? '#FF8580' : '#A4EFEA');
         this.label('pause', 'Ⅱ', 415, 861, 64, 100, state.showPause ? '#F4E9CD' : '#AEBBC2', true, true);
-        this.label('chapter', '夜城广场', -480, 744, 40, 700, '#DFD3B8',false,!state.coach?.upcoming);
+        this.label('chapter', state.levelTitle ?? '夜城广场', -480, 744, 40, 700, '#DFD3B8',false,!state.coach?.upcoming);
         this.label('rivet', state.activePlacementTowerId === 'rivet-gun' ? '已选机枪' : '机枪塔', -336, -835, 44, 180,
             state.activePlacementTowerId === 'rivet-gun' ? '#FFE39B' : '#F4E9CD');
         this.label('rivet-price', `${RIVET_GUN.cost}`, -336, -887, 48, 160, state.gold >= RIVET_GUN.cost ? '#F4CF79' : '#AEBBC2');

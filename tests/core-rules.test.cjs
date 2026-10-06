@@ -230,7 +230,7 @@ test('密集减速敌群只保留一圈冰环，分散单位仍各自可见且�
 
 test('QA 推荐夹具复用真实购买事务，八波购买窗口与重复按键保持稳定', () => {
     const economy = new EconomyLedger(FIRST_LEVEL_STARTING_GOLD);
-    const model = new PlacementModel(PHASE_A_GRIDS['grid-9x13'], economy, PHASE_B_TOWERS);
+    const model = new PlacementModel(PHASE_A_GRIDS['grid-6x13'], economy, PHASE_B_TOWERS);
     assert.deepEqual(applyGuidedQaOpening(model), { placed: 4, upgraded: 0, gold: 10, pathLength: 16 });
     assert.deepEqual(applyGuidedQaOpening(model), { placed: 0, upgraded: 0, gold: 10, pathLength: 16 });
     const income = [44, 42, 58, 52, 39, 132, 88];
@@ -340,30 +340,30 @@ test('首关入场卡独立于战斗，教学随真实布塔状态推进且可�
     assert.equal(flow.shouldHoldIntermission(7, 8), true);
     assert.equal(flow.shouldHoldIntermission(8, 8), false);
     assert.equal(flow.snapshot(context).step, 'select');
-    assert.deepEqual(flow.snapshot(context).suggestedCell, { column: 4, row: 3 });
+    assert.deepEqual(flow.snapshot(context).suggestedCell, { column: 2, row: 3 });
     assert.match(flow.snapshot(context).guidanceText, /上路高亮格.*改道/);
     assert.equal(flow.snapshot({ ...context, inputMode: 'armed' }).step, 'place');
     assert.match(flow.snapshot({ ...context, inputMode: 'click-preview', previewAccepted: false }).guidanceText, /红色/);
-    assert.match(flow.snapshot({ ...context, towerCount: 1, occupiedCells: new Set(['4,3']), previewAccepted: true }).guidanceText, /布防 2\/4/);
-    assert.equal(flow.snapshot({ ...context, towerCount: 1, pathDelta: 2, occupiedCells: new Set(['4,3']) }).suggestedTowerId, 'rivet-gun');
-    assert.deepEqual(flow.snapshot({ ...context, towerCount: 1, occupiedCells: new Set(['4,3']) }).suggestedCell, { column: 5, row: 3 });
-    const deviated = flow.snapshot({ ...context, towerCount: 1, occupiedCells: new Set(['8,4']) });
-    assert.deepEqual(deviated.suggestedCell, { column: 4, row: 3 });
+    assert.match(flow.snapshot({ ...context, towerCount: 1, occupiedCells: new Set(['2,3']), previewAccepted: true }).guidanceText, /布防 2\/4/);
+    assert.equal(flow.snapshot({ ...context, towerCount: 1, pathDelta: 2, occupiedCells: new Set(['2,3']) }).suggestedTowerId, 'rivet-gun');
+    assert.deepEqual(flow.snapshot({ ...context, towerCount: 1, occupiedCells: new Set(['2,3']) }).suggestedCell, { column: 3, row: 3 });
+    const deviated = flow.snapshot({ ...context, towerCount: 1, occupiedCells: new Set(['5,4']) });
+    assert.deepEqual(deviated.suggestedCell, { column: 2, row: 3 });
     assert.match(deviated.guidanceText, /布防 1\/4 · 选机枪塔.*高亮格补齐推荐防线/s);
     assert.doesNotMatch(deviated.guidanceText, /堵右侧/);
-    const overBudget = flow.snapshot({ ...context, towerCount: 1, gold: 110, occupiedCells: new Set(['8,4']) });
+    const overBudget = flow.snapshot({ ...context, towerCount: 1, gold: 110, occupiedCells: new Set(['5,4']) });
     assert.equal(overBudget.step, 'route');
-    assert.deepEqual(overBudget.suggestedCell, { column: 8, row: 4 });
+    assert.deepEqual(overBudget.suggestedCell, { column: 5, row: 4 });
     assert.match(overBudget.guidanceText, /偏位塔占用推荐预算.*全额撤销/s);
-    assert.match(flow.snapshot({ ...context, towerCount: 1, occupiedCells: new Set(['8,4']),
+    assert.match(flow.snapshot({ ...context, towerCount: 1, occupiedCells: new Set(['5,4']),
         inputMode: 'click-preview', previewAccepted: true }).guidanceText, /推荐布防 1\/4 · 绿色可建/);
-    assert.equal(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2, occupiedCells: new Set(['4,3', '5,3']) }).suggestedTowerId, 'frost-coil');
-    assert.deepEqual(flow.snapshot({ ...context, towerCount: 2, occupiedCells: new Set(['4,3', '5,3']) }).suggestedCell, { column: 4, row: 7 });
+    assert.equal(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2, occupiedCells: new Set(['2,3', '3,3']) }).suggestedTowerId, 'frost-coil');
+    assert.deepEqual(flow.snapshot({ ...context, towerCount: 2, occupiedCells: new Set(['2,3', '3,3']) }).suggestedCell, { column: 2, row: 7 });
     assert.equal(flow.snapshot({ ...context, towerCount: 1, inputMode: 'armed' }).step, 'place');
     assert.equal(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2 }).step, 'shape');
     assert.equal(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2 }).canStartFirstWave, true);
-    assert.match(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2, occupiedCells: new Set(['4,3', '5,3']) }).guidanceText, /两塔火力薄弱 · 选冷凝补位.*开始第一波/s);
-    assert.match(flow.snapshot({ ...context, towerCount: 3, pathDelta: 2, occupiedCells: new Set(['4,3', '5,3', '4,7']) }).guidanceText, /防线未补齐 · 选机枪补位/);
+    assert.match(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2, occupiedCells: new Set(['2,3', '3,3']) }).guidanceText, /两塔火力薄弱 · 选冷凝补位.*开始第一波/s);
+    assert.match(flow.snapshot({ ...context, towerCount: 3, pathDelta: 2, occupiedCells: new Set(['2,3', '3,3', '2,7']) }).guidanceText, /防线未补齐 · 选机枪补位/);
     assert.match(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2, previewAccepted: true }).guidanceText, /绿色可建.*开始第一波/s);
     assert.equal(flow.snapshot({ ...context, towerCount: 4, pathDelta: 2 }).step, 'ready');
     assert.match(flow.snapshot({ ...context, towerCount: 4, pathDelta: 2 }).guidanceText, /绕路 \+2 格，建议 \+4 格/);
@@ -372,19 +372,19 @@ test('首关入场卡独立于战斗，教学随真实布塔状态推进且可�
     assert.equal(flow.snapshot({ ...context, towerCount: 4, pathDelta: 4 }).step, 'ready');
     assert.match(flow.snapshot({ ...context, towerCount: 4, pathDelta: 4 }).guidanceText, /绕路 \+4 格\n点右下“开始第一波”/);
     const misplaced = flow.snapshot({ ...context, towerCount: 4, pathDelta: 0,
-        occupiedCells: new Set(['8,4', '4,3', '5,3', '4,7']) });
-    assert.deepEqual(misplaced.suggestedCell, { column: 8, row: 4 });
+        occupiedCells: new Set(['5,4', '2,3', '3,3', '2,7']) });
+    assert.deepEqual(misplaced.suggestedCell, { column: 5, row: 4 });
     assert.match(misplaced.guidanceText, /点高亮塔，再点下方撤销/);
     assert.equal(flow.snapshot({ ...context, towerCount: 3, gold: 10 }).step, 'route');
     assert.equal(flow.snapshot({ ...context, towerCount: 3, pathDelta: 2, gold: 10 }).step, 'ready');
     assert.match(flow.snapshot({ ...context, towerCount: 3, pathDelta: 2, gold: 10 }).guidanceText, /防线未补齐/);
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'countdown', wave: 1, gold: 54 }).step, 'reinforce');
     const upgradeCoach = { ...context, preparing: false, phase: 'paused', wave: 1, gold: 54,
-        guidedIntermissionHeld: true, occupiedCells: new Set(['3,7']), towerLevelsByCell: new Map([['3,7', 1]]) };
+        guidedIntermissionHeld: true, occupiedCells: new Set(['1,7']), towerLevelsByCell: new Map([['1,7', 1]]) };
     assert.equal(flow.snapshot(upgradeCoach).step, 'upgrade');
-    assert.deepEqual(flow.snapshot(upgradeCoach).suggestedCell, { column: 3, row: 7 });
+    assert.deepEqual(flow.snapshot(upgradeCoach).suggestedCell, { column: 1, row: 7 });
     assert.match(flow.snapshot(upgradeCoach).guidanceText, /升到 Lv2\n再点右下“开始下一波”/);
-    assert.equal(flow.snapshot({ ...upgradeCoach, gold: 30, towerLevelsByCell: new Map([['3,7', 2]]) }).step, 'reinforce');
+    assert.equal(flow.snapshot({ ...upgradeCoach, gold: 30, towerLevelsByCell: new Map([['1,7', 2]]) }).step, 'reinforce');
     assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 1, gold: 54, guidedIntermissionHeld: true }).guidanceText, /补右上机枪，改变来路\n再点右下“开始下一波”/);
     assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 1, gold: 24, guidedIntermissionHeld: true,
         occupiedCells: new Set([cellKey(FIRST_LEVEL_REINFORCEMENTS[0].cell)]) }).guidanceText, /本轮布防完成/);
@@ -392,18 +392,18 @@ test('首关入场卡独立于战斗，教学随真实布塔状态推进且可�
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 4, gold: 44, guidedIntermissionHeld: true, occupiedCells: new Set(FIRST_LEVEL_REINFORCEMENTS.slice(0, 3).map(({ cell }) => cellKey(cell))) }).suggestedTowerId, 'frost-coil');
     assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 4, gold: 38, guidedIntermissionHeld: true, occupiedCells: new Set(FIRST_LEVEL_REINFORCEMENTS.slice(0, 3).map(({ cell }) => cellKey(cell))) }).guidanceText, /暂缺金币/);
     const lateOccupied = new Set([...FIRST_LEVEL_OPENING, ...FIRST_LEVEL_REINFORCEMENTS].map(({ cell }) => cellKey(cell)));
-    const levelTwo = new Map([['3,7', 2], ['7,8', 2]]);
+    const levelTwo = new Map([['1,7', 2], ['5,8', 2]]);
     assert.deepEqual(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 5, gold: 80,
         guidedIntermissionHeld: true, occupiedCells: lateOccupied,
-        towerLevelsByCell: new Map([['3,7', 2], ['7,8', 1]]) }).suggestedCell, { column: 7, row: 8 });
+        towerLevelsByCell: new Map([['1,7', 2], ['5,8', 1]]) }).suggestedCell, { column: 5, row: 8 });
     assert.deepEqual(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 6, gold: 82,
-        guidedIntermissionHeld: true, occupiedCells: lateOccupied, towerLevelsByCell: levelTwo }).suggestedCell, { column: 3, row: 7 });
+        guidedIntermissionHeld: true, occupiedCells: lateOccupied, towerLevelsByCell: levelTwo }).suggestedCell, { column: 1, row: 7 });
     assert.deepEqual(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 7, gold: 82,
         guidedIntermissionHeld: true, occupiedCells: lateOccupied,
-        towerLevelsByCell: new Map([['3,7', 3], ['7,8', 2]]) }).suggestedCell, { column: 7, row: 8 });
+        towerLevelsByCell: new Map([['1,7', 3], ['5,8', 2]]) }).suggestedCell, { column: 5, row: 8 });
     assert.match(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 7, gold: 82,
         guidedIntermissionHeld: true, occupiedCells: lateOccupied,
-        towerLevelsByCell: new Map([['3,7', 3], ['7,8', 3]]) }).guidanceText, /可自由加固/);
+        towerLevelsByCell: new Map([['1,7', 3], ['5,8', 3]]) }).guidanceText, /可自由加固/);
     assert.equal(flow.snapshot({ ...context, preparing: false, phase: 'paused', wave: 1, gold: 54 }).step, 'combat');
     assert.equal(flow.snapshot({ ...context, preparing: false }).step, 'combat');
     flow.skip();
@@ -418,7 +418,7 @@ test('首关入场卡独立于战斗，教学随真实布塔状态推进且可�
 });
 
 test('首关教学推荐双段防线可由起始金币建成，并让第一波进入中段战场', () => {
-    const grid = PHASE_A_GRIDS['grid-9x13'];
+    const grid = PHASE_A_GRIDS['grid-6x13'];
     const economy = new EconomyLedger(FIRST_LEVEL_STARTING_GOLD);
     const model = new PlacementModel(grid, economy, PHASE_B_TOWERS);
     const openingBeats = [
@@ -436,7 +436,7 @@ test('首关教学推荐双段防线可由起始金币建成，并让第一波�
         assert.equal(model.commit(preview, []).accepted, true);
     });
     assert.deepEqual(FIRST_LEVEL_GUIDED_UPGRADES.filter(({ wave }) => wave === 1 || wave === 6)
-        .map(({ cell }) => cell), [{ column: 3, row: 7 }, { column: 3, row: 7 }],
+        .map(({ cell }) => cell), [{ column: 1, row: 7 }, { column: 1, row: 7 }],
     '中段机枪的两次升级应指向同一实际塔位');
     assert.equal(model.gold, 10);
     assert.equal(model.flowField.distanceAt(grid.entry) - 12, FIRST_LEVEL_SUGGESTED_PATH_DELTA);
@@ -1918,12 +1918,12 @@ test('首关双段推荐构筑八波可胜，末段可选加固缩短清场', ()
         { wave: 2, killed: 9, leaked: 0, coreHealth: 10, towers: 6 },
         { wave: 3, killed: 13, leaked: 0, coreHealth: 10, towers: 7 },
     ]);
-    assert.equal(guided.coreHealth, 6);
+    assert.equal(guided.coreHealth, 9);
     assert.equal(guided.towers, 10);
-    assert.deepEqual(guided.totals, { spawned: 213, killed: 209, leaked: 4 });
-    assert.deepEqual(guided.waveResults.map(({ leaked }) => leaked), [0, 0, 0, 3, 1, 0, 0, 0]);
+    assert.deepEqual(guided.totals, { spawned: 213, killed: 212, leaked: 1 });
+    assert.deepEqual(guided.waveResults.map(({ leaked }) => leaked), [0, 0, 0, 1, 0, 0, 0, 0]);
     assert.equal(guided.telemetry.at(-1).towerInvestment, 466);
-    assert.deepEqual(guided.telemetry.slice(4).map(({ gold }) => gold), [23, 83, 123, 343]);
+    assert.deepEqual(guided.telemetry.slice(4).map(({ gold }) => gold), [28, 88, 128, 348]);
     const combatSeconds = guided.telemetry.reduce((sum, wave) => sum + wave.combatSeconds, 0);
     // 首关局长口径包含七段正常波间倒计时，不包含教学停留或手动暂停。
     const scheduledWaveBreakSeconds = (PHASE_B_WAVES.length - 1) * 8;
@@ -1931,12 +1931,12 @@ test('首关双段推荐构筑八波可胜，末段可选加固缩短清场', ()
         '推荐构筑 1× 战斗加自然波间应落在 6–8 分钟区间');
     assert.ok(guided.telemetry.reduce((sum, wave) => sum + wave.emptySpawnSeconds, 0) < 1,
         '不能靠刷怪期空场等待凑局长');
-    assert.ok(guided.telemetry[0].shotsByCell['4,3'] > 0, '上路首塔必须实际参与教学波');
-    assert.ok(guided.telemetry[0].shotsByCell['4,7'] > 0, '中段冷凝必须实际参与教学波');
+    assert.ok(guided.telemetry[0].shotsByCell['2,3'] > 0, '上路首塔必须实际参与教学波');
+    assert.ok(guided.telemetry[0].shotsByCell['2,7'] > 0, '中段冷凝必须实际参与教学波');
     assert.deepEqual(FIRST_LEVEL_REINFORCEMENTS.map(({ afterWave }) => afterWave), [1, 2, 3, 4, 5, 6]);
     assert.deepEqual(guided.telemetry.slice(0, 3).map(({ pathLength }) => pathLength), [16, 16, 18]);
-    assert.equal(guided.telemetry[2].pathCells.includes('7,8'), true, '第三波后应把敌人导入右侧纵向路线');
-    assert.deepEqual(guided.pathCells.slice(9, 15).map(cellKey), ['6,5', '6,6', '6,7', '5,7', '5,8', '5,9'],
+    assert.equal(guided.telemetry[2].pathCells.includes('5,8'), true, '第三波后应把敌人导入右侧纵向路线');
+    assert.deepEqual(guided.pathCells.slice(9, 15).map(cellKey), ['4,5', '4,6', '4,7', '3,7', '3,8', '3,9'],
         '第六波补塔后敌人应离开右边界，折回中线火力区');
     const shotsByCell = guided.telemetry.reduce((sum, wave) => {
         for (const [cell, shots] of Object.entries(wave.shotsByCell)) sum[cell] = (sum[cell] ?? 0) + shots;
@@ -1945,33 +1945,36 @@ test('首关双段推荐构筑八波可胜，末段可选加固缩短清场', ()
     assert.deepEqual(guided.deployments.map(({ cell }) => cellKey(cell)).filter((cell) => !shotsByCell[cell]), [],
         '推荐构筑不应出现全局零开火的空置塔');
     const withoutLeftReroute = new Set(guided.deployments.map(({ cell }) => cellKey(cell)));
-    withoutLeftReroute.delete('2,2');
-    assert.notDeepEqual(new FlowField(PHASE_A_GRIDS['grid-9x13'], withoutLeftReroute).pathFrom(PHASE_A_GRIDS['grid-9x13'].entry), guided.pathCells,
+    withoutLeftReroute.delete('0,2');
+    assert.notDeepEqual(new FlowField(PHASE_A_GRIDS['grid-6x13'], withoutLeftReroute).pathFrom(PHASE_A_GRIDS['grid-6x13'].entry), guided.pathCells,
         '左上封路塔应真实改变最终路线');
-    assert.ok(guided.telemetry.slice(4).reduce((sum, wave) => sum + (wave.frostShotsByCell['7,8'] ?? 0), 0) >= 10,
+    assert.ok(guided.telemetry.slice(4).reduce((sum, wave) => sum + (wave.frostShotsByCell['5,8'] ?? 0), 0) >= 10,
         '末段冷凝塔应实际参与战斗，不能再次放到射程外');
-    assert.ok(guided.telemetry[7].shotsByCell['7,6'] >= 50, '右侧设伏塔还应参与末波输出，不能只占格子');
+    assert.ok(guided.telemetry[7].shotsByCell['5,6'] >= 50, '右侧设伏塔还应参与末波输出，不能只占格子');
 
     const fortified = replayFirstLevel({ reinforcements: [...FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_OPTIONAL_FORTIFICATIONS[0]] });
-    assert.equal(fortified.coreHealth, 6);
+    assert.equal(fortified.coreHealth, 9);
     assert.equal(fortified.towers, 11);
-    assert.deepEqual(fortified.totals, { spawned: 213, killed: 209, leaked: 4 });
+    assert.deepEqual(fortified.totals, { spawned: 213, killed: 212, leaked: 1 });
     assert.ok(fortified.telemetry.at(-1).combatSeconds < guided.telemetry.at(-1).combatSeconds);
 
     const noUpgrade = replayFirstLevel({ upgradesAfterWave: [] });
     assert.ok(noUpgrade.coreHealth < guided.coreHealth, '升级应减少末波漏怪，但不强制玩家照单全升');
-    assert.equal(noUpgrade.waveResults.at(-1).wave, 8);
+    assert.equal(noUpgrade.coreHealth, 0, '后段只补塔不升级应有失守压力');
 });
 
-test('后段乱补机枪可能改道到无火力区，推荐加固位不能随意替换', () => {
-    const extraGuns = [{ column: 7, row: 3 }, { column: 7, row: 4 }]
-        .map((cell) => ({ afterWave: 6, cell, towerId: 'rivet-gun' }));
-    const result = replayFirstLevel({ reinforcements: [...FIRST_LEVEL_REINFORCEMENTS, ...extraGuns] });
-    assert.equal(result.coreHealth, 0);
-    assert.equal(result.towers, 12);
-    assert.equal(result.telemetry[5].gold, 23, '第六波后两座补塔必须真实花费 60 金');
-    assert.equal(result.waveResults.at(-1).wave, 7);
-    assert.equal(result.pathCells.some(({ column }) => column === 1), true, '额外塔把敌人导入左侧无火力区');
+test('六列战场仍拒绝封死上路的额外塔，并保留金币与原路线', () => {
+    const model = new PlacementModel(PHASE_A_GRIDS['grid-6x13'], 600, PHASE_B_TOWERS);
+    applyGuidedQaOpening(model);
+    for (let wave = 1; wave <= 6; wave++) applyGuidedQaPurchases(model, wave);
+    const path = model.flowField.pathFrom(model.grid.entry);
+    const gold = model.gold;
+    const preview = model.preview({ column: 5, row: 3 }, [], 'rivet-gun');
+    assert.equal(preview.accepted, false);
+    assert.equal(preview.reason, 'would-block-path');
+    assert.equal(model.commit(preview, []).accepted, false);
+    assert.equal(model.gold, gold);
+    assert.deepEqual(model.flowField.pathFrom(model.grid.entry), path);
 });
 
 test('推荐构筑在常见帧步长下保持相同的逐波结果', () => {

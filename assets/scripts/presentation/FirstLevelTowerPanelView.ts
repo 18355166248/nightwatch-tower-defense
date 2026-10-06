@@ -38,23 +38,23 @@ export class FirstLevelTowerPanelView {
         // 头像借用战场同一资源组；异步就绪后纳入签名，面板不用重选也能从旧图回退升级图。
         const frame = input.towerId === 'frost-coil' ? this.frostPortrait(input.level) ?? this.frames.get(input.towerId) : this.frames.get(input.towerId);
         const signature=JSON.stringify([input,width,frame?.uuid]);if(signature===this.signature)return;this.signature=signature;
-        const model=firstLevelTowerPanelPresentation(input),layout=firstLevelTowerPanelLayout(width),s=layout.scale;
+        const model=firstLevelTowerPanelPresentation(input),layout=firstLevelTowerPanelLayout(width, Boolean(input.placement)),s=layout.scale;
         this.labels.begin();
         this.skin.begin();this.fallback.clear();
         if(!this.skin.panel(layout.panel,10*s))this.fill(layout.panel,'#162B3D');
         for(const [index,rect,enabled]of [[0,layout.sell,model.saleEnabled],[1,layout.upgrade,model.upgradeEnabled]]as const){
             if(!this.skin.button(index,rect,enabled?(index===1?'primary':'neutral'):'disabled',8*s))this.fill(rect,enabled?'#243C4D':'#24313B');
         }
-        this.skin.bodyDivider(layout.divider.left,layout.divider.right,layout.divider.top,s);
-        this.portrait.node.active=Boolean(frame);
+        if (!input.placement) this.skin.bodyDivider(layout.divider.left,layout.divider.right,layout.divider.top,s);
+        this.portrait.node.active=Boolean(frame) && !input.placement;
         if(frame){this.portrait.spriteFrame=frame;this.portrait.node.getComponent(UITransform)!.setContentSize(36*s,36*s);this.portrait.node.setPosition((layout.portrait.left+layout.portrait.right)/2,(layout.portrait.top+layout.portrait.bottom)/2);}
         this.text('title',model.title,layout.title,'#F4E9CD');this.text('badge',model.badge,layout.badge,'#C6A876');
-        this.text('role',model.role,layout.role,'#A9BDCA');this.text('close','收起',layout.close,'#A9BDCA',true);
-        model.stats.forEach((stat,i)=>{this.text(`caption-${i}`,stat.caption,layout.captions[i],'#A9BDCA');this.text(`value-${i}`,stat.value,layout.values[i],'#F4E9CD');});
+        if (!input.placement) this.text('role',model.role,layout.role,'#A9BDCA');this.text('close','收起',layout.close,'#A9BDCA',true);
+        if (!input.placement) model.stats.forEach((stat,i)=>{this.text(`caption-${i}`,stat.caption,layout.captions[i],'#A9BDCA');this.text(`value-${i}`,stat.value,layout.values[i],'#F4E9CD');});
         this.text('preview',model.preview,layout.preview,model.invalid?'#E4AAA1':'#BCE4C5');
         this.text('sell',model.sell,{rect:layout.sell,size:layout.actionSize,bold:true},model.saleEnabled?'#F4E9CD':'#A9BDCA',true);
         this.text('upgrade',model.upgrade,{rect:layout.upgrade,size:layout.actionSize,bold:true},model.upgradeEnabled?'#F4E9CD':'#A9BDCA',true);
-        this.text('help',model.help,layout.help,'#A9BDCA',true);this.labels.end();this.publish(model);
+        if (!input.placement) this.text('help',model.help,layout.help,'#A9BDCA',true);this.labels.end();this.publish(model);
     }
 
     public dispose(): void { this.portrait.spriteFrame = null; }
@@ -69,6 +69,6 @@ export class FirstLevelTowerPanelView {
         if(label.string!==value)label.string=value;
     }
     private publish(model:ReturnType<typeof firstLevelTowerPanelPresentation>|null):void{
-        if(typeof document!=='undefined')document.querySelector('canvas')?.setAttribute('data-tower-panel',JSON.stringify({visible:Boolean(model),model,layout:model?firstLevelTowerPanelLayout(this.width):null,assets:this.skin.diagnostics,portraits:Array.from(this.frames.keys()),portraitUuid:model?this.portrait.spriteFrame?.uuid:null}));
+        if(typeof document!=='undefined')document.querySelector('canvas')?.setAttribute('data-tower-panel',JSON.stringify({visible:Boolean(model),model,layout:model?firstLevelTowerPanelLayout(this.width, Boolean(this.snapshot?.placement)):null,assets:this.skin.diagnostics,portraits:Array.from(this.frames.keys()),portraitUuid:model?this.portrait.spriteFrame?.uuid:null}));
     }
 }

@@ -1,6 +1,7 @@
 const { DEFAULT_GRID_ID, PHASE_A_GRIDS } = require('../../.test-dist/config/PhaseAGrids.js');
 const { FIRST_LEVEL_GUIDED_UPGRADES, FIRST_LEVEL_OPENING, FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_STARTING_GOLD } = require('../../.test-dist/config/FirstLevelOpening.js');
 const { PHASE_B_TOWERS, PHASE_B_WAVES } = require('../../.test-dist/config/PhaseBCombatConfig.js');
+const { TWO_LANE_TRAFFIC } = require('../../.test-dist/systems/EnemyTrafficRules.js');
 const { cellKey } = require('../../.test-dist/core/GridTypes.js');
 const { EconomyLedger } = require('../../.test-dist/systems/EconomyLedger.js');
 const { PlacementModel } = require('../../.test-dist/systems/PlacementModel.js');
@@ -11,6 +12,7 @@ const { towerInvestment } = require('../../.test-dist/systems/TowerLevelRules.js
 
 function replayFirstLevel({
     grid = PHASE_A_GRIDS[DEFAULT_GRID_ID],
+    startingGold = FIRST_LEVEL_STARTING_GOLD,
     opening = FIRST_LEVEL_OPENING,
     openingCells = null,
     reinforcements = FIRST_LEVEL_REINFORCEMENTS,
@@ -20,12 +22,12 @@ function replayFirstLevel({
     frameDeltaSeconds = 1 / 30,
     speedScale = 1,
     onCombatStep = null,
-    traffic = undefined,
+    traffic = TWO_LANE_TRAFFIC,
     routeDiagnostics = null,
 } = {}) {
     // 回放默认使用实际推荐配置；Phase A 的旧短折线只在明确传入时作为独立 fixture。
     const shortCells = openingCells ?? opening.map(({ cell }) => cell);
-    const economy = new EconomyLedger(FIRST_LEVEL_STARTING_GOLD);
+    const economy = new EconomyLedger(startingGold);
     const model = new PlacementModel(grid, economy, towers);
     const combat = new WaveCombatRuntime(grid, towers, traffic);
     const clock = new SimulationClock();

@@ -1,0 +1,6 @@
+{"name":"previous-eight-columns","policy":"guided","coreHealth":7,"waves":8,"leaks":[0,0,0,3,0,0,0,0],"gold":346,"combatSeconds":440.2,"pathLengths":[16,16,18,18,18,18,18,18]}
+{"name":"previous-eight-columns","policy":"no-upgrades","coreHealth":6,"waves":8,"leaks":[0,0,0,3,1,0,0,0],"gold":489,"combatSeconds":430.1,"pathLengths":[16,16,18,18,18,18,18,18]}
+{"name":"previous-eight-columns","policy":"opening-only","coreHealth":0,"waves":5,"leaks":[0,0,2,4,4],"gold":191,"combatSeconds":199.5,"pathLengths":[16,16,16,16,16]}
+{"name":"six-columns","policy":"guided","coreHealth":9,"waves":8,"leaks":[0,0,0,1,0,0,0,0],"gold":348,"combatSeconds":418.9,"pathLengths":[16,16,18,18,18,18,18,18]}
+{"name":"six-columns","policy":"no-upgrades","coreHealth":0,"waves":7,"leaks":[0,0,0,1,0,6,3],"gold":209,"combatSeconds":277.9,"pathLengths":[16,16,18,18,18,18,18]}
+{"name":"six-columns","policy":"opening-only","coreHealth":0,"waves":5,"leaks":[0,0,2,3,5],"gold":201,"combatSeconds":195.9,"pathLengths":[16,16,16,16,16]}
