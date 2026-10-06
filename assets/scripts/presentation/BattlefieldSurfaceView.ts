@@ -18,6 +18,8 @@ export class BattlefieldSurfaceView {
         const metrics = this.layout.boardMetrics(state.grid);
         const size = metrics.cellSize;
 
+        this.drawSideStreets(state);
+
         // 棋盘底图保留石板纹理；轻罩色只隔离边缘建筑，不再二次压暗塔与敌人的活动区。
         graphics.fillColor = new Color(13, 28, 43, 18);
         graphics.roundRect(metrics.left - 10, metrics.bottom - 10, metrics.width + 20, metrics.height + 20, 16);
@@ -61,6 +63,71 @@ export class BattlefieldSurfaceView {
             }
         }
         this.drawRoutePreviewDifference(state, size);
+    }
+
+    /** 外围街区只使用棋盘外的安全宽度；不增添可占格物件，也不覆盖敌人和建塔热区。 */
+    private drawSideStreets(state: PhaseBSceneState): void {
+        const g = this.graphics, board = this.layout.boardMetrics(state.grid);
+        const top = board.bottom + board.height;
+        for (const side of [-1, 1]) {
+            const inner = board.width / 2 + 18, outer = this.layout.safeHalfWidth;
+            const width = outer - inner;
+            // 宽棋盘或窄屏没有足够侧带时仅保留原背景，不能挤入可操作区域。
+            if (width < 90) continue;
+            const x = side * (inner + width * .5), left = side < 0 ? -outer : inner;
+            const span = width - 22;
+            g.fillColor = new Color(11, 25, 35, 105);
+            g.roundRect(left, board.bottom, width, board.height, 15); g.fill();
+            // 石板小径和铜色排水边沿承接原夜城材质，留空的街区也有结构。
+            g.strokeColor = new Color(117, 140, 148, 40); g.lineWidth = 2;
+            for (let y = board.bottom + 25; y < top - 20; y += 77) {
+                g.moveTo(left + 12, y); g.lineTo(left + width - 12, y);
+                g.moveTo(x, y); g.lineTo(x, Math.min(y + 77, top - 20));
+            }
+            g.stroke();
+            g.strokeColor = new Color(146, 117, 73, 100); g.lineWidth = 4;
+            g.moveTo(side * inner, board.bottom + 18); g.lineTo(side * inner, top - 18); g.stroke();
+            // 石阶、花池错开排列，左右不是镜像复制，避免看成额外的炮塔格子。
+            for (const fraction of side < 0 ? [.26, .69] : [.4, .83]) {
+                const y = board.bottom + board.height * fraction;
+                g.fillColor = new Color(3, 10, 18, 100);
+                g.ellipse(x + 7, y - 13, span * .46, 26); g.fill();
+                for (let step = 0; step < 3; step++) {
+                    g.fillColor = new Color(42 + step * 5, 54 + step * 5, 61 + step * 5, 230);
+                    g.roundRect(x - span * .44, y - 40 + step * 8, span * .88, 18, 4); g.fill();
+                }
+                g.fillColor = new Color(36, 49, 52, 245);
+                g.roundRect(x - span * .4, y - 15, span * .8, 49, 8); g.fill();
+                g.strokeColor = new Color(126, 111, 78, 140); g.lineWidth = 3; g.stroke();
+                for (let leaf = 0; leaf < 7; leaf++) {
+                    const px = x + (leaf - 3) * span * .085, py = y + 25 + (leaf % 3) * 6;
+                    g.fillColor = new Color(28 + leaf % 3 * 6, 59 + leaf % 2 * 10, 58, 225);
+                    g.ellipse(px, py, span * .105, 15 + leaf % 2 * 5); g.fill();
+                }
+            }
+            // 暖灯用多层低透明光晕柔化轮廓，装饰不会闪动或抢战斗反馈。
+            for (const fraction of side < 0 ? [.12, .5, .91] : [.18, .62, .95]) {
+                const y = board.bottom + board.height * fraction, lampX = x + side * span * .12;
+                for (let ring = 4; ring >= 1; ring--) {
+                    g.fillColor = new Color(224, 158, 64, 6 + (4 - ring) * 5);
+                    g.circle(lampX, y + 38, 11 + ring * 10); g.fill();
+                }
+                g.fillColor = new Color(10, 17, 25, 120); g.ellipse(lampX + 7, y - 4, 23, 10); g.fill();
+                g.fillColor = new Color(73, 64, 50, 240); g.roundRect(lampX - 17, y - 5, 34, 13, 4); g.fill();
+                g.strokeColor = new Color(112, 95, 62, 230); g.lineWidth = 7;
+                g.moveTo(lampX, y); g.lineTo(lampX, y + 37); g.stroke();
+                g.fillColor = new Color(69, 51, 32, 250); g.roundRect(lampX - 12, y + 27, 24, 25, 4); g.fill();
+                g.fillColor = new Color(247, 185, 92, 220); g.roundRect(lampX - 7, y + 31, 14, 17, 3); g.fill();
+                g.strokeColor = new Color(80, 66, 39, 240); g.lineWidth = 2;
+                g.moveTo(lampX, y + 31); g.lineTo(lampX, y + 48); g.stroke();
+            }
+            // 外缘淡雾分层过渡，保留背景建筑；不叠进棋盘范围或改变地图命中。
+            for (let band = 0; band < 8; band++) {
+                g.fillColor = new Color(15, 33, 45, 8 + band * 3);
+                const bandX = side < 0 ? -outer + band * width / 8 : outer - (band + 1) * width / 8;
+                g.rect(bandX, board.bottom, width / 8 + 1, board.height); g.fill();
+            }
+        }
     }
 
     private drawRoutePreviewDifference(state: PhaseBSceneState, size: number): void {

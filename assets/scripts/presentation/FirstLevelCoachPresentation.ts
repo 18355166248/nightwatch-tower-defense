@@ -30,7 +30,7 @@ export function firstLevelCoachPresentation(input: CoachPresentationInput) {
     let body = lines[1] ?? '';
     let help = input.held ? '建议布防，不强制完成才能开波' : '建议布防，不限制自由落点';
     if (input.experience.step === 'select') {
-        title = '先点机枪塔'; body = '再点亮起的格子，摆下炮塔';
+        title = '先点亮起的空地'; body = '弹出塔型后，点任意一种直接建造';
     } else if (input.experience.step === 'place' && !input.panelVisible) {
         title = '让敌人绕进火力区'; body = lines[1] ?? '点高亮格，查看路线变化';
         help = '进入建造预览后，这张卡让位';

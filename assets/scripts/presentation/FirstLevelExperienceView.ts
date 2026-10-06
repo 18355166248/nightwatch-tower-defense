@@ -191,6 +191,8 @@ export class FirstLevelExperienceView {
     }
 
     private drawCoach(snapshot: FirstLevelExperienceSnapshot, grid: GridDefinition, previewCell: GridCell | null, inspectedCell: GridCell | null): void {
+        // 查看升级外观时收起地图教学遮罩，避免高亮跨过详情卡挡住当前/下一阶图像。
+        if (inspectedCell && snapshot.step !== 'upgrade') return;
         const graphics = this.graphics;
         graphics.strokeColor = new Color('#FFFFFF');
         graphics.lineWidth = 10;
@@ -201,8 +203,7 @@ export class FirstLevelExperienceView {
             graphics.rect(board.left, board.bottom, board.width, board.height); graphics.fill();
         }
         if (snapshot.step === 'select' || snapshot.step === 'shape' || snapshot.step === 'reinforce') {
-            // 教学建议用指针，卡片内描边只留给真正“拿起炮塔”的输入态，避免首局误以为点网格即可落塔。
-            this.pointAtTower(firstLevelControlRect(snapshot.suggestedTowerId === 'frost-coil' ? PHASE_B_FROST_BUTTON : PHASE_B_RIVET_BUTTON, true));
+            // 新流程先点空地再选塔，教学只强调地图落点，避免把玩家拉回底部塔栏。
             if (snapshot.suggestedCell) this.outlineCell(snapshot.suggestedCell, grid);
         } else if (snapshot.step === 'place') {
             if (previewCell ?? snapshot.suggestedCell) this.outlineCell(previewCell ?? snapshot.suggestedCell!, grid);
@@ -216,7 +217,7 @@ export class FirstLevelExperienceView {
             if (snapshot.suggestedCell) this.outlineCell(snapshot.suggestedCell, grid);
             if (shouldOutlineGuidedUpgrade(snapshot.suggestedCell, inspectedCell)) {
                 // 输入与新面板共用几何，旧HUD坐标会把升级提示画到战场空白处。
-                this.outline(firstLevelTowerPanelLayout(this.layout.visibleDesignWidth).upgrade);
+                this.outline(firstLevelTowerPanelLayout(this.layout.visibleDesignWidth,false,inspectedCell ? {center:this.layout.gridPointCenter(inspectedCell,grid),cellSize:this.layout.boardMetrics(grid).cellSize}:undefined).upgrade);
             }
         } else if (snapshot.step === 'ready') {
             this.outline(firstLevelControlRect(PHASE_B_EARLY_WAVE_BUTTON, true));

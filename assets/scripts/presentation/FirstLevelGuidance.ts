@@ -14,7 +14,7 @@ export function firstLevelGuidance(state: FirstLevelGuidanceState): string {
     if (!state.preparing) return '战斗中仍可布塔改路；留意敌人的行进方向';
     if (state.previewAccepted === false) return '这个位置不能建造，请换一个格子';
     if (state.previewAccepted === true) return '绿色是可建造位置；再点一次确认，或松手落塔';
-    if (state.towerCount === 0) return '拖动机枪塔占住路线，试着让敌人绕路';
+    if (state.towerCount === 0) return '点空地选择炮塔，点选即可建造';
     if (state.towerCount < FIRST_WAVE_MIN_TOWER_COUNT) return '再建一座塔；观察箭头怎样绕开塔位';
     if (state.pathDelta < FIRST_WAVE_MIN_PATH_DELTA) return `路线还需延长 ${FIRST_WAVE_MIN_PATH_DELTA - state.pathDelta} 格，才能开始第一波`;
     return state.selectedTowerId === 'frost-coil'

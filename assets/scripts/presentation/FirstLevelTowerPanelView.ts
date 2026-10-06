@@ -1,3 +1,9 @@
+import { FROST_UPGRADE_PATHS, FROST_UPGRADE_SPECS } from './FrostUpgradeArt';
+import { FROST_COIL_LAYER_SPEC, RIVET_GUN_LAYER_SPEC } from './LayeredTowerGeometry';
+import { LayeredTowerRig } from './LayeredTowerRig';
+import { poseDirectionalTowerHead } from './EightDirectionTowerView';
+import { RIVET_HEAD_REGISTRATIONS } from './RivetHeadRegistrations';
+import { rivetHeadResourcePath } from './RivetHeadResourcePaths';
 import { Color, Graphics, HorizontalTextAlignment, isValid, Label, Node, resources, Sprite, SpriteFrame, UITransform, VerticalTextAlignment } from 'cc';
 import { FirstLevelPageSkinView } from './FirstLevelPageSkinView';
 import { FIRST_LEVEL_UI_FONT } from './FirstLevelUiStyle';
@@ -14,6 +20,11 @@ export class FirstLevelTowerPanelView {
     private readonly labels = new VisibleLabelSlots();
     private readonly frames = new Map<string,SpriteFrame>();
     private signature = '';
+    private readonly artFrames = new Map<string, SpriteFrame>();
+    private readonly requested = new Set<string>();
+    private readonly failed = new Set<string>();
+    private readonly rigs = new Map<number, { id: string; node: Node }>();
+    private disposed = false;
     private snapshot: TowerPanelInput | null = null;
     private width = 1080;
 
@@ -38,7 +49,9 @@ export class FirstLevelTowerPanelView {
         // 头像借用战场同一资源组；异步就绪后纳入签名，面板不用重选也能从旧图回退升级图。
         const frame = input.towerId === 'frost-coil' ? this.frostPortrait(input.level) ?? this.frames.get(input.towerId) : this.frames.get(input.towerId);
         const signature=JSON.stringify([input,width,frame?.uuid]);if(signature===this.signature)return;this.signature=signature;
-        const model=firstLevelTowerPanelPresentation(input),layout=firstLevelTowerPanelLayout(width, Boolean(input.placement)),s=layout.scale;
+        if (!input.placement) { this.renderUpgrade(input); return; }
+        for (const rig of this.rigs.values()) rig.node.active = false;
+        const model=firstLevelTowerPanelPresentation(input),layout=firstLevelTowerPanelLayout(width, Boolean(input.placement), input.anchor),s=layout.scale;
         this.labels.begin();
         this.skin.begin();this.fallback.clear();
         if(!this.skin.panel(layout.panel,10*s))this.fill(layout.panel,'#162B3D');
@@ -57,7 +70,73 @@ export class FirstLevelTowerPanelView {
         if (!input.placement) this.text('help',model.help,layout.help,'#A9BDCA',true);this.labels.end();this.publish(model);
     }
 
-    public dispose(): void { this.portrait.spriteFrame = null; }
+    public dispose(): void {
+        this.disposed = true; this.portrait.spriteFrame = null;
+        for (const rig of this.rigs.values()) rig.node.destroy(); this.rigs.clear();
+        for (const frame of this.artFrames.values()) frame.decRef(); this.artFrames.clear();
+    }
+
+    private loadArt(path: string): SpriteFrame | null {
+        if (!this.requested.has(path)) {
+            this.requested.add(path);
+            resources.load(path,SpriteFrame,(error,frame)=>{
+                // 等级切换后资源回调只重绘当前快照；销毁后不再持有帧或回填旧面板。
+                if (this.disposed || !isValid(this.root)) return;
+                if (!error && frame) { frame.addRef(); this.artFrames.set(path,frame); }
+                else this.failed.add(path);
+                this.signature=''; this.render(this.snapshot,this.width);
+            });
+        }
+        return this.artFrames.get(path) ?? null;
+    }
+
+    private renderUpgrade(input: TowerPanelInput): void {
+        const model=firstLevelTowerPanelPresentation(input), g=firstLevelTowerPanelLayout(this.width,false,input.anchor), s=g.scale;
+        this.portrait.node.active=false; this.skin.begin(); this.fallback.clear(); this.labels.begin();
+        // 降低厚重铜框的占比，把空间留给真实炮塔和升级对比；选择/命中仍共用布局。
+        this.round(g.panel,'#0E202D','#95784F',12*s);
+        this.text('title',model.title,g.title,'#F4E9CD'); this.text('role',model.role,g.role,'#9FB6C2');
+        this.text('close','收起',g.close,'#AABBC4',true);
+        this.text('badge',model.nextLevel ? '升级预览' : '已满级',g.badge,'#F4D58D',true);
+        [g.currentArt,g.nextArt].forEach((rect,i)=>this.round({...rect,left:rect.left-8*s,right:rect.right+8*s,top:rect.top+3*s,bottom:rect.bottom-18*s},i?'#16383C':'#152C3B',i?'#528F86':'#304B5A',8*s));
+        const levels=[input.level,model.nextLevel ?? input.level];
+        const ready=levels.map((level,i)=>this.drawTower(i,input.towerId,level,i?g.nextArt:g.currentArt,s));
+        this.text('current-badge',`当前 · Lv.${input.level}`,g.currentBadge,'#C3D0D6',true);
+        this.text('next-badge',model.nextLevel ? `升级后 · Lv.${model.nextLevel}` : '最高等级',g.nextBadge,'#8FE0CC',true);
+        this.text('arrow',model.nextLevel?'→':'✓',g.arrow,'#E8C786',true);
+        ready.forEach((available,i)=>{if(!available)this.text(`loading-${i}`,this.failed.size ? '外观暂不可用' : '外观加载中',{rect:i?g.nextArt:g.currentArt,size:11*s},'#AABBC4',true);});
+        model.stats.forEach((stat,i)=>{
+            this.text(`caption-${i}`,stat.caption,g.captions[i],'#9FB6C2',true);
+            this.text(`value-${i}`,stat.nextValue ? `${stat.value} → ${stat.nextValue}` : stat.value,g.values[i],stat.nextValue?'#BCECDC':'#F4E9CD',true);
+        });
+        this.round(g.sell,model.saleEnabled?'#253744':'#1B2932','#405766',7*s);
+        this.round(g.upgrade,model.upgradeEnabled?'#285B53':'#22323B',model.upgradeEnabled?'#80BCAE':'#40535D',7*s);
+        this.text('sell',model.sell,{rect:g.sell,size:g.actionSize,bold:true},'#D4DDE0',true);
+        this.text('upgrade',model.upgrade,{rect:g.upgrade,size:g.actionSize,bold:true},model.upgradeEnabled?'#F4E9CD':'#A9BDCA',true);
+        this.labels.end(); this.publish(model);
+    }
+
+    private drawTower(index:number,id:string,level:number,rect:PhaseBRect,s:number):boolean {
+        const frost=id==='frost-coil', upgrade=level===2||level===3;
+        const basePath=frost ? upgrade ? FROST_UPGRADE_PATHS[level as 2|3].base : 'level-one/units/frost-coil-base-v2/spriteFrame' : 'level-one/units/rivet-gun-base-v2/spriteFrame';
+        const activePath=frost ? upgrade ? FROST_UPGRADE_PATHS[level as 2|3].active : 'level-one/units/frost-coil-core-v2/spriteFrame' : rivetHeadResourcePath(level,'south');
+        const base=this.loadArt(basePath),active=this.loadArt(activePath);
+        let rig=this.rigs.get(index);
+        if(rig && rig.id!==id){rig.node.destroy();this.rigs.delete(index);rig=undefined;}
+        // 两层完整后才显示，不能把前一级炮身当成下一级预览。
+        if(!base||!active){if(rig)rig.node.active=false;return false;}
+        const spec=frost ? upgrade ? FROST_UPGRADE_SPECS[level as 2|3] : FROST_COIL_LAYER_SPEC : RIVET_GUN_LAYER_SPEC;
+        const size=65*s,center={x:(rect.left+rect.right)/2,y:(rect.top+rect.bottom)/2-3*s};
+        if(!rig){rig={id,node:LayeredTowerRig.create(`UpgradeTower-${index}`,this.root,base,active,size,spec)};this.rigs.set(index,rig);}
+        rig.node.active=true;LayeredTowerRig.bindFrames(rig.node,base,active,size,spec);LayeredTowerRig.pose(rig.node,center,size,null,spec);
+        if(!frost)poseDirectionalTowerHead(rig.node,active,RIVET_HEAD_REGISTRATIONS.south,center,size,null);
+        return true;
+    }
+
+    private round(rect:PhaseBRect,fill:string,stroke:string,radius:number):void {
+        const g=this.fallback;g.fillColor=new Color(fill);g.strokeColor=new Color(stroke);g.lineWidth=2;
+        g.roundRect(rect.left,rect.bottom,rect.right-rect.left,rect.top-rect.bottom,radius);g.fill();g.stroke();
+    }
 
     private fill(rect: PhaseBRect,color:string):void{this.fallback.fillColor=new Color(color);this.fallback.rect(rect.left,rect.bottom,rect.right-rect.left,rect.top-rect.bottom);this.fallback.fill();}
     private text(key:string,value:string,geometry:{rect:PhaseBRect;size:number;bold?:boolean},color:string,center=false):void{
@@ -69,6 +148,6 @@ export class FirstLevelTowerPanelView {
         if(label.string!==value)label.string=value;
     }
     private publish(model:ReturnType<typeof firstLevelTowerPanelPresentation>|null):void{
-        if(typeof document!=='undefined')document.querySelector('canvas')?.setAttribute('data-tower-panel',JSON.stringify({visible:Boolean(model),model,layout:model?firstLevelTowerPanelLayout(this.width, Boolean(this.snapshot?.placement)):null,assets:this.skin.diagnostics,portraits:Array.from(this.frames.keys()),portraitUuid:model?this.portrait.spriteFrame?.uuid:null}));
+        if(typeof document!=='undefined')document.querySelector('canvas')?.setAttribute('data-tower-panel',JSON.stringify({visible:Boolean(model),model,layout:model?firstLevelTowerPanelLayout(this.width, Boolean(this.snapshot?.placement),this.snapshot?.anchor):null,assets:this.skin.diagnostics,portraits:Array.from(this.frames.keys()),portraitUuid:model?this.portrait.spriteFrame?.uuid:null}));
     }
 }

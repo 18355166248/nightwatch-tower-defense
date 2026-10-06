@@ -321,7 +321,7 @@ test('满血敌人不常驻血条，受伤后切图与灰盒共用比例并拒�
 
 test('首关提示跟随真实布塔门槛，预览与战斗阶段优先级明确', () => {
     const base = { preparing: true, towerCount: 0, pathDelta: 0, previewAccepted: null, selectedTowerId: 'rivet-gun' };
-    assert.match(firstLevelGuidance(base), /拖动机枪塔/);
+    assert.match(firstLevelGuidance(base), /点空地选择炮塔/);
     assert.match(firstLevelGuidance({ ...base, towerCount: 1 }), /再建一座塔/);
     assert.match(firstLevelGuidance({ ...base, towerCount: 2, pathDelta: 1 }), /延长 1 格/);
     assert.match(firstLevelGuidance({ ...base, towerCount: 2, pathDelta: 2 }), /点右下“开始第一波”/);
@@ -341,7 +341,7 @@ test('首关入场卡独立于战斗，教学随真实布塔状态推进且可�
     assert.equal(flow.shouldHoldIntermission(8, 8), false);
     assert.equal(flow.snapshot(context).step, 'select');
     assert.deepEqual(flow.snapshot(context).suggestedCell, { column: 2, row: 3 });
-    assert.match(flow.snapshot(context).guidanceText, /上路高亮格.*改道/);
+    assert.match(flow.snapshot(context).guidanceText, /点高亮空地.*任选一种建造/s);
     assert.equal(flow.snapshot({ ...context, inputMode: 'armed' }).step, 'place');
     assert.match(flow.snapshot({ ...context, inputMode: 'click-preview', previewAccepted: false }).guidanceText, /红色/);
     assert.match(flow.snapshot({ ...context, towerCount: 1, occupiedCells: new Set(['2,3']), previewAccepted: true }).guidanceText, /布防 2\/4/);
@@ -349,7 +349,7 @@ test('首关入场卡独立于战斗，教学随真实布塔状态推进且可�
     assert.deepEqual(flow.snapshot({ ...context, towerCount: 1, occupiedCells: new Set(['2,3']) }).suggestedCell, { column: 3, row: 3 });
     const deviated = flow.snapshot({ ...context, towerCount: 1, occupiedCells: new Set(['5,4']) });
     assert.deepEqual(deviated.suggestedCell, { column: 2, row: 3 });
-    assert.match(deviated.guidanceText, /布防 1\/4 · 选机枪塔.*高亮格补齐推荐防线/s);
+    assert.match(deviated.guidanceText, /布防 1\/4 · 点高亮空地.*任选一种建造/s);
     assert.doesNotMatch(deviated.guidanceText, /堵右侧/);
     const overBudget = flow.snapshot({ ...context, towerCount: 1, gold: 110, occupiedCells: new Set(['5,4']) });
     assert.equal(overBudget.step, 'route');
@@ -362,8 +362,8 @@ test('首关入场卡独立于战斗，教学随真实布塔状态推进且可�
     assert.equal(flow.snapshot({ ...context, towerCount: 1, inputMode: 'armed' }).step, 'place');
     assert.equal(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2 }).step, 'shape');
     assert.equal(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2 }).canStartFirstWave, true);
-    assert.match(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2, occupiedCells: new Set(['2,3', '3,3']) }).guidanceText, /两塔火力薄弱 · 选冷凝补位.*开始第一波/s);
-    assert.match(flow.snapshot({ ...context, towerCount: 3, pathDelta: 2, occupiedCells: new Set(['2,3', '3,3', '2,7']) }).guidanceText, /防线未补齐 · 选机枪补位/);
+    assert.match(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2, occupiedCells: new Set(['2,3', '3,3']) }).guidanceText, /两塔火力薄弱 · 点高亮空地补位.*开始第一波/s);
+    assert.match(flow.snapshot({ ...context, towerCount: 3, pathDelta: 2, occupiedCells: new Set(['2,3', '3,3', '2,7']) }).guidanceText, /防线未补齐 · 点高亮空地补位/);
     assert.match(flow.snapshot({ ...context, towerCount: 2, pathDelta: 2, previewAccepted: true }).guidanceText, /绿色可建.*开始第一波/s);
     assert.equal(flow.snapshot({ ...context, towerCount: 4, pathDelta: 2 }).step, 'ready');
     assert.match(flow.snapshot({ ...context, towerCount: 4, pathDelta: 2 }).guidanceText, /绕路 \+2 格，建议 \+4 格/);

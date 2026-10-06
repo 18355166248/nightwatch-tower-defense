@@ -159,7 +159,7 @@ export class FirstLevelExperience {
         }
         if (context.towerCount === 0) {
             return context.inputMode === 'idle'
-                ? { mode: this.mode, step: 'select', guidanceText: `推荐布防 1/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 点机枪塔\n点上路高亮格，逼敌改道`, suggestedCell: nextOpening?.cell, suggestedTowerId: 'rivet-gun' }
+                ? { mode: this.mode, step: 'select', guidanceText: `推荐布防 1/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 点高亮空地\n弹出塔型，任选一种建造`, suggestedCell: nextOpening?.cell, suggestedTowerId: 'rivet-gun' }
                 : { mode: this.mode, step: 'place', guidanceText: `推荐布防 1/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · 已选机枪\n点上路高亮格，预览改道`, suggestedCell: nextOpening?.cell };
         }
         if (context.towerCount < FIRST_LEVEL_SUGGESTED_TOWER_COUNT) {
@@ -181,15 +181,15 @@ export class FirstLevelExperience {
             }
             // 自由偏位后从“第一个尚缺的推荐塔位”恢复，不把累计塔数误当推荐步骤。
             const openingHint = context.towerCount === nextOpeningIndex
-                ? nextOpeningIndex === 1 ? '再选机枪\n堵上路右侧高亮格，观察改道'
-                    : nextOpeningIndex === 2 ? '选冷凝塔\n守住中段高亮格'
-                        : '选机枪塔\n补中段高亮格，延长路线'
-                : `选${recommendedName}塔\n照高亮格补齐推荐防线`;
+                ? nextOpeningIndex === 1 ? '点右侧空地\n选机枪或冷凝，观察改道'
+                    : nextOpeningIndex === 2 ? '点中段空地\n建议冷凝减速，也可选机枪'
+                        : '点中段空地\n任选塔型，延长路线'
+                : `点高亮空地\n弹出塔型，任选一种建造`;
             return {
                 mode: this.mode,
                 step: 'shape',
                 guidanceText: canStartFirstWave
-                    ? `${context.towerCount === FIRST_WAVE_MIN_TOWER_COUNT ? '两塔火力薄弱' : '防线未补齐'} · 选${recommendedName}补位\n或${waveStartActionText('first')}挑战`
+                    ? `${context.towerCount === FIRST_WAVE_MIN_TOWER_COUNT ? '两塔火力薄弱' : '防线未补齐'} · 点高亮空地补位\n或${waveStartActionText('first')}挑战`
                     : `推荐布防 ${openingStep}/${FIRST_LEVEL_SUGGESTED_TOWER_COUNT} · ${openingHint}`,
                 suggestedCell: nextOpening?.cell,
                 suggestedTowerId: recommendedTower,

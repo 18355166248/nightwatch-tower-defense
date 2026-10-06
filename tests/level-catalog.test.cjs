@@ -1,5 +1,5 @@
 const test=require('node:test'); const assert=require('node:assert/strict');
-const {LEVELS}=require('../.test-dist/config/LevelCatalog');
+const {LEVELS,SECOND_LEVEL_BASE_WAVES}=require('../.test-dist/config/LevelCatalog');
 const {PHASE_B_WAVES}=require('../.test-dist/config/PhaseBCombatConfig');
 const {replayFirstLevel}=require('./support/first-level-replay.cjs');
 const {FirstLevelBestTimeStore}=require('../.test-dist/systems/FirstLevelBestTimeStore');
@@ -14,16 +14,24 @@ test('第一关保留新手配置，第二关提前混编且不共享可修改�
     assert.ok(waves[3].groups.some(g=>g.enemy.id==='iron-canister-hauler'));
     for(let i=0;i<8;i++) assert.notEqual(waves[i].groups[0].enemy,PHASE_B_WAVES[i].groups[0].enemy);
 });
-test('相同布塔升级策略首关9点核心、第二关2点核心可胜；不升级第二关在第6波失守',()=>{
+test('第二关加强后首关方案第五波失守，分段改路和冷凝升级仍能以1点核心通关',()=>{
     const first=replayFirstLevel();assert.equal(first.coreHealth,9);
-    const level=LEVELS['second-level'];const second=replayFirstLevel({waves:level.waves,startingGold:level.startingGold});
-    assert.equal(second.coreHealth,2);assert.equal(second.waveResults.length,8);
-    assert.deepEqual(second.waveResults.map(w=>w.leaked),[1,0,0,3,1,3,0,0]);
-    const passive=replayFirstLevel({waves:level.waves,startingGold:level.startingGold,upgradesAfterWave:[]});
-    assert.equal(passive.coreHealth,0);assert.equal(passive.waveResults.at(-1).wave,6);
-    for(const [frameDeltaSeconds,speedScale] of [[1/60,1],[1/20,2]]) {
-        const again=replayFirstLevel({waves:level.waves,startingGold:level.startingGold,frameDeltaSeconds,speedScale});
-        assert.deepEqual(again.waveResults,second.waveResults);
+    const level=LEVELS['second-level'];
+    const old=replayFirstLevel({waves:level.waves,startingGold:level.startingGold});
+    assert.equal(old.coreHealth,0);assert.equal(old.waveResults.at(-1).wave,5);
+    const strategy=require('./support/second-level-strategy.cjs');
+    const options={waves:level.waves,startingGold:level.startingGold,...strategy};
+    const advanced=replayFirstLevel(options);assert.equal(advanced.coreHealth,1);assert.equal(advanced.waveResults.length,8);
+    assert.deepEqual(advanced.waveResults.map(w=>w.leaked),[0,2,6,0,0,1,0,0]);
+    for(const [frameDeltaSeconds,speedScale]of [[1/60,1],[1/20,2]]) {
+        assert.deepEqual(replayFirstLevel({...options,frameDeltaSeconds,speedScale}).waveResults,advanced.waveResults);
+    }
+    for(let i=0;i<8;i++)for(let j=0;j<level.waves[i].groups.length;j++) {
+        const current=level.waves[i].groups[j],before=SECOND_LEVEL_BASE_WAVES[i].groups[j];
+        assert.equal(current.enemy.killReward,before.enemy.killReward);
+        assert.equal(level.waves[i].clearReward,SECOND_LEVEL_BASE_WAVES[i].clearReward);
+        if(i>=2)assert.ok(current.spawnIntervalSeconds<before.spawnIntervalSeconds);
+        if(i>=3)assert.ok(current.enemy.speedCellsPerSecond>before.enemy.speedCellsPerSecond);
     }
 });
 test('两关最快时间和核心纪录分开持久化，重读第二关不混入首关',()=>{

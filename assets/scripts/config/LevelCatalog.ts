@@ -15,7 +15,7 @@ export interface LevelDefinition {
 }
 
 // 第二关提前混编并加强后段，保留基础奖励；多20起始金币给熟练玩家选择构筑，避免一漏怪就错过首个补塔预算。
-const secondWaves: readonly WaveDefinition[] = FIRST_LEVEL_WAVE_BLUEPRINTS.map(wave => ({ ...wave,
+export const SECOND_LEVEL_BASE_WAVES: readonly WaveDefinition[] = FIRST_LEVEL_WAVE_BLUEPRINTS.map(wave => ({ ...wave,
     groups: wave.wave === 2 ? [
         { enemy: { ...wave.groups[0].enemy, maxHealth: 94, speedCellsPerSecond: 1.05 }, count: 7, spawnIntervalSeconds: 0.5525 },
         { enemy: { ...CLOCKWORK_RUNNER, maxHealth: 94, speedCellsPerSecond: 1.7 }, count: 3, spawnIntervalSeconds: 0.55 },
@@ -28,6 +28,17 @@ const secondWaves: readonly WaveDefinition[] = FIRST_LEVEL_WAVE_BLUEPRINTS.map(w
         enemy: { ...group.enemy,
             maxHealth: Math.round(group.enemy.maxHealth * (wave.wave >= 6 ? 1.5 : wave.wave === 5 ? 1.2 : 1.1)),
             speedCellsPerSecond: group.enemy.speedCellsPerSecond * (wave.wave >= 6 ? 1.6 : 1.05),
+        },
+    })),
+}));
+
+// 保留前两波观察窗口，第三波起压缩输出时间；赏金不提高，避免更强的敌人反而送来升级红利。
+const secondWaves: readonly WaveDefinition[] = SECOND_LEVEL_BASE_WAVES.map(wave => ({ ...wave,
+    groups: wave.groups.map(group => ({ ...group,
+        spawnIntervalSeconds: group.spawnIntervalSeconds * (wave.wave >= 6 ? 0.7 : wave.wave >= 3 ? 0.75 : 1),
+        enemy: { ...group.enemy,
+            maxHealth: Math.round(group.enemy.maxHealth * (wave.wave >= 6 ? 1.25 : wave.wave >= 4 ? 1.15 : wave.wave === 3 ? 1.1 : 1)),
+            speedCellsPerSecond: group.enemy.speedCellsPerSecond * (wave.wave >= 4 ? 1.15 : 1),
         },
     })),
 }));

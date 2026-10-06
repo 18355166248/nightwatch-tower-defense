@@ -30,7 +30,7 @@ test('390及320字号和按钮同比缩放，面板与常驻塔栏不相交',()=
         assert.ok((geometry.sell.top-geometry.sell.bottom)*px>=44);
         assert.ok((geometry.closeHit.top-geometry.closeHit.bottom)*px>=44);
         assert.ok(geometry.panel.bottom>-764);assert.ok(geometry.sell.right<geometry.upgrade.left);
-        assert.ok(Math.abs(geometry.title.size-14*geometry.scale)<.001);
+        assert.ok(Math.abs(geometry.title.size-16*geometry.scale)<.001);
         for(const key of ['sell','upgrade','closeHit']){const rect=geometry[key];assert.equal(action({x:(rect.left+rect.right)/2,y:(rect.top+rect.bottom)/2},geometry),key==='closeHit'?'close':key);}
         assert.equal(action({x:geometry.panel.left+3,y:geometry.panel.top-3},geometry),'surface');assert.equal(action({x:0,y:geometry.panel.top+3},geometry),null);
     }
@@ -50,4 +50,30 @@ test('建造条不遮挡六列战场，战斗下排落点和确认按钮各自�
         assert.equal(action({x:(rect.left+rect.right)/2,y:(rect.top+rect.bottom)/2},panel),'upgrade');
         assert.ok(Math.abs((rect.top-rect.bottom)/panel.scale-44)<1e-8);
     }
+});
+
+test('升级对比给出真实下一阶属性，满级没有虚构第四阶',()=>{
+ for(const towerId of ['rivet-gun','frost-coil'])for(const level of [1,2,3]){
+  const model=present(input({towerId,level}));assert.equal(model.nextLevel,level===3?null:level+1);
+  for(const stat of model.stats)assert.equal(stat.nextValue===null,level===3);
+ }
+});
+
+test('升级弹层跟随真实塔位，边缘格按钮仍命中且不落入底栏',()=>{
+ const {PhaseBLayout}=require('../.test-dist/presentation/PhaseBLayout');
+ const {PHASE_A_GRIDS}=require('../.test-dist/config/PhaseAGrids');
+ for(const width of [1080,1080*320/390]){
+  const board=new PhaseBLayout();board.setVisibleWidth(width);const grid=PHASE_A_GRIDS['grid-6x13'];
+  const tops=new Set();
+  for(let row=0;row<13;row++)for(let column=0;column<6;column++){
+   const anchor={center:board.gridPointCenter({column,row},grid),cellSize:board.boardMetrics(grid).cellSize};
+   const g=layout(width,false,anchor);tops.add(g.panel.top);
+   assert.ok(g.panel.left>=-board.safeHalfWidth-.001);assert.ok(g.panel.right<=board.safeHalfWidth+.001);
+   assert.ok(g.panel.top<=730+.001);assert.ok(g.panel.bottom>=-730-.001);
+   for(const key of ['upgrade','sell','closeHit']){
+    const r=g[key];assert.equal(action({x:(r.left+r.right)/2,y:(r.bottom+r.top)/2},g),key==='closeHit'?'close':key);
+   }
+  }
+  assert.ok(tops.size>3,'弹层随塔位变化，不再固定底部');
+ }
 });

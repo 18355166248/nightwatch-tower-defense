@@ -1,3 +1,5 @@
+import { CellBuildMenuView } from '../presentation/CellBuildMenuView';
+import { cellBuildMenuAction, cellBuildMenuLayout, type CellBuildMenuInput } from '../presentation/CellBuildMenuPresentation';
 import { LEVELS, type LevelId } from '../config/LevelCatalog';
 import {
     _decorator,
@@ -148,6 +150,8 @@ export class NightwatchPocBootstrap extends Component {
     private selectedGridId: GridId = DEFAULT_GRID_ID;
     private selectedTowerId: TowerId = 'rivet-gun';
     private preview: PlacementPreview | null = null;
+    private buildCell: GridCell | null = null;
+    private buildMenuView: CellBuildMenuView | null = null;
     private inputMode: TowerInputMode = 'idle';
     private primaryTouchId: number | null = null;
     private pressStart = new Vec3();
@@ -162,7 +166,7 @@ export class NightwatchPocBootstrap extends Component {
     private initialCoreHealth = 10;
     private initialPathLength = this.model.flowField.distanceAt(this.model.grid.entry);
     private runCheckpoint: BattleRunCheckpoint | null = null;
-    private statusText = '拖动底部炮塔，或点塔后双击格子提交';
+    private statusText = '点空地选择炮塔，一次点选即可建造';
     private readonly layout = new PhaseBLayout();
     private readonly browserDiagnostics = new BrowserBattleDiagnostics();
     private readonly renderBudgetProbe = new CocosRenderBudgetProbe();
@@ -172,7 +176,7 @@ export class NightwatchPocBootstrap extends Component {
     private readonly experience = new FirstLevelExperience(this.qaMode);
     private readonly onBrowserBlur = (): void => {
         // 浏览器失焦不等同退后台，但拖放必须原子取消，不能靠下一次 TOUCH_END 误提交。
-        if (this.inputMode !== 'idle') this.cancelInput('画布失焦：已取消放置，未扣费');
+        if (this.buildCell || this.inputMode !== 'idle') this.cancelInput('画布失焦：已取消放置，未扣费');
     };
 
     protected override onLoad(): void {
@@ -205,6 +209,7 @@ export class NightwatchPocBootstrap extends Component {
         this.foregroundFeedback = new CombatForegroundView(layer, this.layout);
         this.hud = new PhaseBHudView(layer, this.layout, level => this.unitSprites?.frostStructureFrame(level) ?? null);
         this.experienceView = new FirstLevelExperienceView(layer, this.layout);
+        this.buildMenuView = new CellBuildMenuView(layer, this.layout);
         this.pauseView = new PhaseBPauseOverlayView(layer, this.layout);
 
         this.canvas.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
@@ -335,7 +340,7 @@ export class NightwatchPocBootstrap extends Component {
             this.primaryTouchId = null;
             return;
         }
-        if (this.handlePlacementPanelTouch(point) || this.handleInspectedTowerTouch(point) || this.handleTopControls(point)) {
+        if (this.handleCellBuildMenuTouch(point) || this.handlePlacementPanelTouch(point) || this.handleInspectedTowerTouch(point) || this.handleTopControls(point)) {
             this.primaryTouchId = null;
             return;
         }
@@ -353,6 +358,7 @@ export class NightwatchPocBootstrap extends Component {
     }
 
     private beginTowerInput(): void {
+        this.buildCell = null;
         this.towerInspection.clear();
         this.inputMode = 'tower-pressed';
         this.preview = null;
@@ -580,7 +586,7 @@ export class NightwatchPocBootstrap extends Component {
     private handleInspectedTowerTouch(point: Vec3): boolean {
         const cell = this.towerInspection.cell;
         if (!cell) return false;
-        const panelAction = this.qaMode ? null : firstLevelTowerPanelAction(point, firstLevelTowerPanelLayout(this.layout.visibleDesignWidth));
+        const panelAction = this.qaMode ? null : firstLevelTowerPanelAction(point, firstLevelTowerPanelLayout(this.layout.visibleDesignWidth,false,this.towerPanelInput()?.anchor));
         if (panelAction === 'close') {
             this.towerInspection.clear();
             this.statusText = '已收起炮塔面板';
@@ -624,6 +630,30 @@ export class NightwatchPocBootstrap extends Component {
         return true;
     }
 
+    private cellBuildMenuInput(): CellBuildMenuInput | null {
+        if (!this.buildCell) return null;
+        return { cell: this.buildCell, options: PHASE_B_TOWERS.map(tower => {
+            const preview = this.model.preview(this.buildCell!, this.enemyStates(), tower.id);
+            return { towerId: tower.id, enabled: preview.accepted, reason: preview.accepted ? '' : this.rejectText(preview.reason) };
+        }) };
+    }
+
+    private handleCellBuildMenuTouch(point: Vec3): boolean {
+        const input = this.cellBuildMenuInput(); if (!input) return false;
+        const action = cellBuildMenuAction(point,cellBuildMenuLayout(this.layout,this.model.grid,input.cell,input.options.length));
+        if (action === null || action === 'close') { this.buildCell = null; return action === 'close'; }
+        if (action === 'surface') return true;
+        const option = input.options[action];
+        if (!option.enabled) { this.statusText = option.reason; this.playSound('reject'); return true; }
+        // 战斗在弹层打开时仍推进；此处重新生成并提交预览，复用版本/敌人校验而非绕过规则扣费。
+        this.selectedTowerId = option.towerId;
+        this.preview = this.model.preview(input.cell,this.enemyStates(),option.towerId);
+        this.commitCurrentPreview();
+        // 失败保留多塔选择，玩家可改选或关闭，不能退回割裂的底栏确认流程。
+        if (this.preview) { this.preview = null; this.inputMode = 'idle'; this.buildCell = input.cell; }
+        return true;
+    }
+
     private handlePlacementPanelTouch(point: Vec3): boolean {
         if (this.qaMode || !this.preview || this.inputMode !== 'click-preview' && this.inputMode !== 'armed') return false;
         const action = firstLevelTowerPanelAction(point, firstLevelTowerPanelLayout(this.layout.visibleDesignWidth, true));
@@ -644,7 +674,7 @@ export class NightwatchPocBootstrap extends Component {
         const cell = this.towerInspection.cell;
         const deployment = cell ? this.model.deployments.find(tower => sameCell(tower.cell,cell)) : null;
         if (!cell || !deployment) return null;
-        return {towerId: deployment.towerId, level: deployment.level ?? 1, gold: this.model.gold,
+        return {anchor:{center:this.layout.gridPointCenter(cell,this.model.grid),cellSize:this.layout.boardMetrics(this.model.grid).cellSize},towerId: deployment.towerId, level: deployment.level ?? 1, gold: this.model.gold,
             saleRefund: this.model.saleQuote(cell,towerSaleWindow(this.preparing,this.battle.snapshot.phase,this.guidedIntermissionHeld)), opening:this.preparing,
             combat: towerSaleWindow(this.preparing,this.battle.snapshot.phase,this.guidedIntermissionHeld) === 'combat'};
     }
@@ -810,6 +840,13 @@ export class NightwatchPocBootstrap extends Component {
             this.towerInspection.clear();
             this.statusText = '已关闭炮塔射程查看';
         }
+        if (!this.qaMode) {
+            // 空格直接打开多塔选择；只因金币不足也允许打开，让玩家看见价格与禁用原因。
+            const candidate = this.model.preview(cell, this.enemyStates(), 'rivet-gun');
+            if (candidate.accepted || candidate.reason === 'insufficient-gold') {
+                this.buildCell = cell; this.statusText = '选择炮塔，点击即可建造'; this.playSound('ui');
+            } else { this.buildCell = null; this.statusText = this.rejectText(candidate.reason); this.playSound('reject'); }
+        }
     }
 
     private updatePreviewAt(point: Vec3): void {
@@ -862,12 +899,14 @@ export class NightwatchPocBootstrap extends Component {
             return;
         }
         this.preview = null;
+        this.buildCell = null;
         this.inputMode = 'idle';
     }
 
     private cancelInput(message: string): void {
         this.primaryTouchId = null;
         this.preview = null;
+        this.buildCell = null;
         this.inputMode = 'idle';
         this.statusText = message;
     }
@@ -957,6 +996,7 @@ export class NightwatchPocBootstrap extends Component {
     private selectTower(towerId: TowerId): void {
         this.selectedTowerId = towerId;
         this.preview = null;
+        this.buildCell = null;
         this.inputMode = 'idle';
         this.statusText = towerSelectionSummary(PHASE_B_TOWERS.find(({ id }) => id === towerId)!);
         this.playSound('pickup');
@@ -1191,6 +1231,7 @@ export class NightwatchPocBootstrap extends Component {
             towerLevelsByCell: new Map(this.model.deployments.map(({ cell, level }) => [cellKey(cell), level ?? 1])),
             guidedIntermissionHeld: this.guidedIntermissionHeld,
         });
+        this.buildMenuView?.render(this.pauseOverlay.snapshot.visible || result ? null : this.cellBuildMenuInput(), this.model.grid);
         const baselinePath = this.model.flowField.pathFrom(this.model.grid.entry);
         this.sound.updateMusic(firstLevelMusicMood({ home: experience.mode === 'home', phase: battle.phase,
             wave: battle.wave, preparing: this.preparing, pauseVisible: this.pauseOverlay.snapshot.visible,
@@ -1308,7 +1349,7 @@ export class NightwatchPocBootstrap extends Component {
             towerPanel: this.towerPanelInput(),
             coach: {experience,phase:battle.phase,preparing:this.preparing,held:this.guidedIntermissionHeld,
                 overlayVisible:this.pauseOverlay.snapshot.visible || this.homeSettingsVisible,
-                panelVisible:Boolean(this.preview || inspectedDeployment), guidanceText,
+                panelVisible:Boolean(this.buildCell || this.preview || inspectedDeployment), guidanceText,
                 countdownSeconds:battle.countdownSeconds,
                 upgradeTargetSelected:shouldOutlineGuidedUpgrade(experience.suggestedCell,inspectedCell),
                 upcoming:this.preparing ? upcomingWaveBriefing(this.waves.get(1)) : upcomingWave},

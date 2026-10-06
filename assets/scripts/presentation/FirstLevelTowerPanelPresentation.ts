@@ -4,6 +4,7 @@ import { nextUpgradeCost, towerAtLevel } from '../systems/TowerLevelRules';
 import type { PhaseBPoint, PhaseBRect } from './PhaseBLayout';
 
 export interface TowerPanelInput {
+    readonly anchor?: { readonly center: PhaseBPoint; readonly cellSize: number };
     readonly towerId: TowerId;
     readonly level: number;
     readonly gold: number;
@@ -30,11 +31,12 @@ export function firstLevelTowerPanelPresentation(input: TowerPanelInput) {
     const placement = input.placement;
     return {
         towerId: input.towerId, title: base.label, badge: placement ? '建造预览' : `Lv.${input.level}`,
+        nextLevel: next ? input.level + 1 : null,
         role: current.effect ? '范围减速 · 优先控制疾行机' : '稳定单体输出',
         stats: [
-            { caption: current.effect ? '范围减速' : '单次伤害', value: power(current) },
-            { caption: '射程', value: `${current.rangeCells} 格` },
-            { caption: current.effect ? '持续时间' : '攻击间隔', value: `${current.effect?.durationSeconds ?? current.attackIntervalSeconds} 秒` },
+            { caption: current.effect ? '范围减速' : '单次伤害', value: power(current), nextValue: next ? power(next) : null },
+            { caption: '射程', value: `${current.rangeCells} 格`, nextValue: next ? `${next.rangeCells} 格` : null },
+            { caption: current.effect ? '持续时间' : '攻击间隔', value: `${current.effect?.durationSeconds ?? current.attackIntervalSeconds} 秒`, nextValue: next ? `${next.effect?.durationSeconds ?? next.attackIntervalSeconds} 秒` : null },
         ],
         preview: placement ? placement.accepted ? input.hover ? `已拿起${base.label} · 点击选择落点 · ${base.cost} 金币` : `可放置：${placement.clickConfirm ? '再次点落点' : '松手'}建造 · 消耗 ${base.cost} 金币`
             : `不可放置：${placement.reason ? REJECTION[placement.reason] : '请重选位置'}`
@@ -52,12 +54,19 @@ export function firstLevelTowerPanelPresentation(input: TowerPanelInput) {
 }
 
 /** 同一获批面板相对常驻塔栏顶部锚定；不缩放/移动棋盘，也不因面板隐藏而留下空槽。 */
-export function firstLevelTowerPanelLayout(visibleWidth: number, placement = false) {
+export function firstLevelTowerPanelLayout(visibleWidth: number, placement = false, anchor?: TowerPanelInput['anchor']) {
     const scale = Math.min(1080, visibleWidth) / 390;
-    const bottom = -764 + 12 * scale;
-    const top = bottom + (placement ? 84 : 205) * scale;
+    const height = (placement ? 84 : 268) * scale;
+    const width = 366 * scale;
+    const half = Math.min(1080,visibleWidth)/2-24;
+    const above = anchor ? anchor.center.y + anchor.cellSize/2 + 10*scale : 0;
+    // 详情贴近真实塔位，优先放上方；边缘空间不足则放下方并限制在HUD/塔栏之间。
+    const bottom = anchor && !placement ? Math.max(-730,Math.min(730-height,
+        above+height<=730 ? above : anchor.center.y-anchor.cellSize/2-10*scale-height)) : -764 + 12 * scale;
+    const shiftX = anchor && !placement ? Math.max(-half,Math.min(anchor.center.x-width/2,half-width)) + 183*scale : 0;
+    const top = bottom + (placement ? 84 : 268) * scale;
     const rect = (x: number, y: number, w: number, h: number): PhaseBRect => ({
-        left: (x - 195) * scale, right: (x + w - 195) * scale, top: top - y * scale, bottom: top - (y + h) * scale,
+        left: (x - 195) * scale + shiftX, right: (x + w - 195) * scale + shiftX, top: top - y * scale, bottom: top - (y + h) * scale,
     });
     const text = (x: number, y: number, w: number, h: number, size: number, bold = false) => ({rect: rect(x,y,w,h),size:size*scale,bold});
     const compact = placement ? {
@@ -67,13 +76,16 @@ export function firstLevelTowerPanelLayout(visibleWidth: number, placement = fal
     } : {};
     // 建造只占棋盘与常驻塔栏之间的空隙，不能用详情面板拦截下排落点；渲染与命中共用此布局。
     return {
-        scale, panel: rect(12,0,366,205), portrait: rect(30,13,36,36),
-        title: text(76,14.5,49,20,14,true), badge: text(125,17.5,150,15,11), role: text(76,34.5,220,15,10),
+        scale, panel: rect(12,0,366,268), portrait: rect(30,13,36,36),
+        title: text(26,9,180,24,16,true), badge: text(208,12,72,18,11), role: text(26,33,260,16,10),
         close: text(300,13,60,38,11), closeHit: rect(300,5,54,54),
-        captions: [30,144,258].map(x=>text(x,55,102,15,10)),
-        values: [30,144,258].map(x=>text(x,70,102,20,13)),
+        currentArt: rect(42,55,116,80), nextArt: rect(232,55,116,80),
+        currentBadge: text(32,130,140,18,11,true), nextBadge: text(222,130,140,18,11,true),
+        arrow: text(174,76,42,40,25,true),
+        captions: [26,142,258].map(x=>text(x,156,106,16,10)),
+        values: [26,142,258].map(x=>text(x,173,106,22,12,true)),
         divider: rect(30,94,330,1), preview: text(30,100,330,17,11),
-        sell: rect(30,122,136.17,54), upgrade: rect(176.17,122,183.83,54),
+        sell: rect(26,202,132,54), upgrade: rect(170,202,194,54),
         actionSize: 12*scale, help:text(30,178,330,15,10), ...compact,
     };
 }

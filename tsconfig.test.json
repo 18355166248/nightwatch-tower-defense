@@ -52,6 +52,7 @@
     "assets/scripts/presentation/CoreObjectiveView.ts",
     "assets/scripts/presentation/CoreObjectiveArtView.ts",
     "assets/scripts/presentation/EnemyEntryArtView.ts",
-    "assets/scripts/presentation/EnemyGroundingView.ts"
+    "assets/scripts/presentation/EnemyGroundingView.ts",
+    "assets/scripts/presentation/CellBuildMenuView.ts"
   ]
 }

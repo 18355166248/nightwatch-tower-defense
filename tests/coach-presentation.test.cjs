@@ -6,7 +6,7 @@ const input = overrides => ({experience:{mode:'guided',step:'select',guidanceTex
 
 test('首个教学动作按获批小提示层次呈现，不改变规则快照',()=>{
     const state=input();const original=JSON.stringify(state);const model=present(state);
-    assert.equal(model.title,'先点机枪塔');assert.equal(model.progress,'布防 1 / 4');assert.equal(model.visible,true);assert.equal(model.skipVisible,true);
+    assert.equal(model.title,'先点亮起的空地');assert.equal(model.progress,'布防 1 / 4');assert.equal(model.visible,true);assert.equal(model.skipVisible,true);
     assert.equal(JSON.stringify(state),original);
 });
 test('预览/选塔让位，用户暂停隐藏，普通战斗不留下教学和跳过热区',()=>{
