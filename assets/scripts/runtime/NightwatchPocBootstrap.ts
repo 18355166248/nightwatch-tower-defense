@@ -357,12 +357,13 @@ export class NightwatchPocBootstrap extends Component {
             this.primaryTouchId = null;
             return;
         }
-        if (this.layout.insideRect(point, firstLevelControlRect(PHASE_B_RIVET_BUTTON, !this.qaMode))) {
+        // 正式玩法统一点棋盘选塔，旧塔栏热区仅保留给 QA，避免透明按钮截获新的底部控制。
+        if (this.qaMode && this.layout.insideRect(point, PHASE_B_RIVET_BUTTON)) {
             this.selectTower('rivet-gun');
             this.beginTowerInput();
             return;
         }
-        if (this.layout.insideRect(point, firstLevelControlRect(PHASE_B_FROST_BUTTON, !this.qaMode))) {
+        if (this.qaMode && this.layout.insideRect(point, PHASE_B_FROST_BUTTON)) {
             this.selectTower('frost-coil');
             this.beginTowerInput();
             return;

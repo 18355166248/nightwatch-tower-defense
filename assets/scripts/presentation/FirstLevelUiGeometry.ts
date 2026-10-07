@@ -8,8 +8,8 @@ export function firstLevelControlRect(rect: PhaseBRect, quality: boolean): Phase
     if (!quality) return rect;
     if (rect === PHASE_B_RIVET_BUTTON) return { left: -492, right: -182, bottom: -936, top: -764 };
     if (rect === PHASE_B_FROST_BUTTON) return { left: -172, right: 138, bottom: -936, top: -764 };
-    if (rect === PHASE_B_SPEED_BUTTON) return { left: 164, right: 314, bottom: -936, top: -764 };
-    if (rect === PHASE_B_EARLY_WAVE_BUTTON) return { left: 320, right: 492, bottom: -936, top: -764 };
+    if (rect === PHASE_B_SPEED_BUTTON) return { left: 35, right: 205, bottom: -926, top: -774 };
+    if (rect === PHASE_B_EARLY_WAVE_BUTTON) return { left: 225, right: 492, bottom: -926, top: -774 };
     if (rect === PHASE_B_SELL_BUTTON) return { left: -320, right: 0, bottom: -728, top: -568 };
     if (rect === PHASE_B_UPGRADE_BUTTON || rect === PHASE_B_UPGRADE_FULL_BUTTON)
         return { left: 20, right: 360, bottom: -728, top: -568 };

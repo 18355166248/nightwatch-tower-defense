@@ -1,5 +1,4 @@
 import { Color, Graphics, HorizontalTextAlignment, isValid, Label, Node, resources, Sprite, SpriteFrame, UITransform, VerticalTextAlignment } from 'cc';
-import { FROST_COIL, RIVET_GUN } from '../config/PhaseBCombatConfig';
 import { firstLevelControlRect } from './FirstLevelUiGeometry';
 import { FIRST_LEVEL_UI_FONT, FIRST_LEVEL_UI_TEXT_SCALE, firstLevelFontSize } from './FirstLevelUiStyle';
 import { firstLevelGuidanceVisible } from './FirstLevelControlPolicy';
@@ -35,7 +34,7 @@ export class FirstLevelUiSkinView {
         fallbackNode.layer = parent.layer;
         this.root.addChild(fallbackNode);
         this.fallback = fallbackNode.addComponent(Graphics);
-        for (const key of ['hud', 'tray', 'speed', 'next', 'pause', 'rivet-icon', 'frost-icon', 'gold-icon', 'wave-icon', 'core-icon']) {
+        for (const key of ['hud', 'speed', 'next', 'pause', 'gold-icon', 'wave-icon', 'core-icon']) {
             const node = new Node(`Skin-${key}`);
             node.layer = parent.layer;
             const sprite = node.addComponent(Sprite);
@@ -55,16 +54,7 @@ export class FirstLevelUiSkinView {
                 if (this.snapshot) this.render(this.snapshot);
             });
         }
-        // 塔栏复用真正的透明战斗素材，不把设计稿带地面的概念肖像当正式图标。
-        for (const name of ['rivet-gun', 'frost-coil']) {
-            resources.load(`level-one/units/${name}/spriteFrame`, SpriteFrame, (error, frame) => {
-                if (error || !frame || !isValid(this.root)) return;
-                this.frames.set(name, frame);
-                this.renderedSignature = '';
-                if (this.snapshot) this.render(this.snapshot);
-            });
-        }
-        for (const name of ['hud-frame', 'tray-frame', 'button-frame', 'disabled-frame']) {
+        for (const name of ['hud-frame', 'button-frame', 'disabled-frame']) {
             resources.load(`level-one/ui/quality-v2/${name}/spriteFrame`, SpriteFrame, (error, frame) => {
                 // 场景退出后丢弃异步结果；失败时原有 Graphics 和文字仍可操作。
                 if (error || !frame || !isValid(this.root)) return;
@@ -91,7 +81,7 @@ export class FirstLevelUiSkinView {
             return;
         }
         const signature = [state.gold, state.wave, state.totalWaves, state.coreHealth, state.maxCoreHealth,
-            state.speedMultiplier, state.showPause, state.phase, state.statusText, state.guidanceText, state.entryMode,
+            state.activeEnemyCount, state.speedMultiplier, state.showPause, state.phase, state.statusText, state.guidanceText, state.entryMode,
             state.upcomingWave?.wave, state.upcomingWave?.lineup, state.upcomingWave?.tactic,
             state.waveStartButton.label, state.waveStartButton.active, state.activePlacementTowerId,
             state.inspectedUpgrade?.towerId, state.inspectedUpgrade?.level, state.inspectedUpgrade?.cost,
@@ -103,7 +93,7 @@ export class FirstLevelUiSkinView {
         this.labels.begin();
         this.fallback.clear();
         this.place('hud', 'hud-frame', { left: -516, right: 516, bottom: 784, top: 936 });
-        this.place('tray', 'tray-frame', { left: -516, right: 516, bottom: -936, top: -764 });
+        this.drawBattleControls();
         const panelVisible = Boolean(state.towerPanel);
         // 右上角共用一个控制槽：布防时返回地图，开战后暂停；不再叠加菜单浮层盖住暂停饰面。
         const mapControl = state.phase === 'preparing';
@@ -112,11 +102,6 @@ export class FirstLevelUiSkinView {
             ['next', PHASE_B_EARLY_WAVE_BUTTON, state.waveStartButton.active],
             ['pause', PHASE_B_CENTER_PAUSE_BUTTON, mapControl || state.showPause],
         ] as const) this.place(key, enabled ? 'button-frame' : 'disabled-frame', firstLevelControlRect(rect, true));
-        for (const [key, frame, x] of [['rivet-icon', 'rivet-gun', -408], ['frost-icon', 'frost-coil', -88]] as const) {
-            this.place(key, frame, { left: x - 56, right: x + 56, bottom: -904, top: -792 });
-            this.skins.get(key)!.sprite.color = new Color(state.activePlacementTowerId === frame ? '#FFF0BA'
-                : state.gold >= (frame === 'rivet-gun' ? RIVET_GUN.cost : FROST_COIL.cost) ? '#FFFFFF' : '#8B969C');
-        }
         for (const [key, frame, x] of [['gold-icon', 'gold-coins', -433], ['wave-icon', 'wave-beacon', -167], ['core-icon', 'core-heart', 95]] as const)
             this.place(key, frame, { left: x - 35, right: x + 35, bottom: 825, top: 895 });
         this.label('gold-caption', '金币', -384, 887, 40, 160, '#B8C6CC');
@@ -129,17 +114,16 @@ export class FirstLevelUiSkinView {
         this.label(mapControl ? 'map-label' : 'pause', mapControl ? '地图' : 'Ⅱ', 415, mapControl ? 831 : 861, mapControl ? 34 : 64,
             mapControl ? 130 : 100, mapControl || state.showPause ? '#F4E9CD' : '#AEBBC2', true, true);
         this.label('chapter', state.levelTitle ?? '夜城广场', -480, 744, 40, 700, '#DFD3B8',false,!state.coach?.upcoming);
-        this.label('rivet', state.activePlacementTowerId === 'rivet-gun' ? '已选机枪' : '机枪塔', -336, -835, 44, 180,
-            state.activePlacementTowerId === 'rivet-gun' ? '#FFE39B' : '#F4E9CD');
-        this.label('rivet-price', `${RIVET_GUN.cost}`, -336, -887, 48, 160, state.gold >= RIVET_GUN.cost ? '#F4CF79' : '#AEBBC2');
-        this.label('frost', state.activePlacementTowerId === 'frost-coil' ? '已选冷凝' : '冷凝塔', -16, -835, 44, 180,
-            state.activePlacementTowerId === 'frost-coil' ? '#8FF4FF' : '#F4E9CD');
-        this.label('frost-price', `${FROST_COIL.cost}`, -16, -887, 48, 150, state.gold >= FROST_COIL.cost ? '#F4CF79' : '#AEBBC2');
-        this.label('speed', `${state.speedMultiplier}×`, 239, -850, 46, 110, '#F4E9CD', true);
+        this.label('build-hint', '点击棋盘建塔', -465, -817, 39, 460, '#F4E9CD');
+        const waveSummary = state.phase === 'preparing' ? `第 1 波 · 待布防`
+            : state.upcomingWave ? `下一波 ${state.upcomingWave.wave} / ${state.totalWaves}`
+            : `第 ${state.wave} 波 · 场内 ${state.activeEnemyCount}`;
+        this.label('battle-summary', waveSummary, -465, -881, 30, 460, '#98B5C2');
+        this.label('speed', `${state.speedMultiplier}×`, 120, -850, 46, 150, '#F4E9CD', true);
         // 首波/倒计时文案保留显式两行，不能把五六个字挤出窄按钮的内边框。
         const waveText = state.waveStartButton.active ? state.waveStartButton.label
             : state.phase === 'preparing' ? '先布防' : '来袭中';
-        this.label('next', waveText, 406, -850, 36, 176, state.waveStartButton.active ? '#F4E9CD' : '#AEBBC2', true);
+        this.label('next', waveText, 358, -850, 38, 240, state.waveStartButton.active ? '#F4E9CD' : '#AEBBC2', true);
         // 敌情继承真实波次配置，不能因关闭旧HUD而遗漏混编预告；教学跳过占右侧独立槽。
         this.label('event', state.statusText, -480, 683, 32, 700, '#B8C6CC', false, !state.coach?.upcoming && !panelVisible);
         this.label('tactic', '', -480, 635, 29, 700, '#9DE2CB', false, false);
@@ -155,6 +139,16 @@ export class FirstLevelUiSkinView {
                     .map(([key, label]) => ({ key, text: label.string, fontSize: label.fontSize })),
             }));
         }
+    }
+
+    private drawBattleControls(): void {
+        const g = this.fallback;
+        g.fillColor = new Color('#10232F');
+        g.strokeColor = new Color('#947C52'); g.lineWidth = 3;
+        g.roundRect(-516, -936, 1032, 172, 26); g.fill(); g.stroke();
+        // 底栏独立于塔目录；所有关卡共用状态区、速度与开波按钮。
+        g.strokeColor = new Color('#375563'); g.lineWidth = 2;
+        g.moveTo(10, -907); g.lineTo(10, -793); g.stroke();
     }
 
     private label(key: string, text: string, x: number, y: number, baseSize: number, width: number, color = '#F4E9CD', center = false, visible = true): void {

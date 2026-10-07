@@ -46,7 +46,7 @@ test('所有弹窗动作按钮留在面板内，320宽至少44px且互不重叠'
 });
 test('普通模式操作热区共享设计坐标，320宽下至少44px且相邻按钮不重叠', () => {
     const groups = [
-        [layout.PHASE_B_RIVET_BUTTON, layout.PHASE_B_FROST_BUTTON, layout.PHASE_B_SPEED_BUTTON, layout.PHASE_B_EARLY_WAVE_BUTTON],
+        [layout.PHASE_B_SPEED_BUTTON, layout.PHASE_B_EARLY_WAVE_BUTTON],
         [layout.PHASE_B_SELL_BUTTON, layout.PHASE_B_UPGRADE_BUTTON],
     ];
     for (const group of groups) {
