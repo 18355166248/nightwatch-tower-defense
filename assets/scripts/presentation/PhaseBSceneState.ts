@@ -9,6 +9,7 @@ import type { WaveStartButtonViewModel } from './PhaseBHudText';
 export interface PhaseBSceneState {
     readonly qaMode: boolean;
     readonly useUnitSprites: boolean;
+    readonly missingUnitArt?: ReadonlySet<EnemyId | TowerId>;
     readonly selectedGridId: GridId;
     readonly grid: GridDefinition;
     readonly towers: ReadonlySet<string>;
@@ -23,7 +24,8 @@ export interface PhaseBSceneState {
         readonly id: string;
         readonly spawnOrder: number;
         readonly health: number;
-        readonly archetype: { readonly id: EnemyId; readonly maxHealth: number };
+        readonly shield?: number;
+        readonly archetype: { readonly id: EnemyId; readonly maxHealth: number; readonly maxShield?: number };
         readonly fromCell: GridCell;
         readonly toCell: GridCell;
         readonly progress: number;

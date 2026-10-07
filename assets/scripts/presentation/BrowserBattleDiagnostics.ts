@@ -85,6 +85,9 @@ export interface BrowserBattleDiagnosticsState {
     readonly canStartNextWaveEarly: boolean;
     readonly coreHealth: number;
     readonly activeEnemyCount: number;
+    readonly runTowerIds?: readonly string[];
+    readonly enemyDefenseSamples?: readonly { readonly id:string; readonly archetype:string; readonly health:number;
+        readonly shield:number; readonly maxShield:number; readonly armor:number }[];
     readonly waveSpawnedEnemyCount: number;
     readonly waveTotalEnemyCount: number;
     readonly infantryGaitFrameLoaded: boolean;

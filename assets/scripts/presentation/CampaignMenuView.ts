@@ -1,6 +1,15 @@
+import { codexEntry, codexCount, codexLayout, type CodexState } from './CodexPresentation';
+import { FROST_UPGRADE_PATHS, FROST_UPGRADE_SPECS } from './FrostUpgradeArt';
+import { FROST_COIL_LAYER_SPEC, RIVET_GUN_LAYER_SPEC } from './LayeredTowerGeometry';
+import { LayeredTowerRig } from './LayeredTowerRig';
+import { poseDirectionalTowerHead } from './EightDirectionTowerView';
+import { RIVET_HEAD_REGISTRATIONS } from './RivetHeadRegistrations';
+import { rivetHeadResourcePath } from './RivetHeadResourcePaths';
+import { ALL_TOWERS } from '../config/ThirdLevelCombatConfig';
+import { towerPortraitPath, towerRole } from '../config/TowerCatalog';
 import { PHASE_B_TOWERS } from '../config/PhaseBCombatConfig';
 import { Color, Graphics, HorizontalTextAlignment, isValid, Label, Node, resources, Sprite, SpriteFrame, UITransform, VerticalTextAlignment } from 'cc';
-import { campaignLayout, type CampaignSnapshot, type CampaignStage } from './CampaignMenuPresentation';
+import { campaignLayout, campaignLoadoutCards, type CampaignLoadoutInput, type CampaignSnapshot, type CampaignStage } from './CampaignMenuPresentation';
 import { FirstLevelHomeArtView } from './FirstLevelHomeArtView';
 import { FIRST_LEVEL_UI_FONT } from './FirstLevelUiStyle';
 import type { PhaseBLayout, PhaseBRect } from './PhaseBLayout';
@@ -15,6 +24,9 @@ export class CampaignMenuView {
     private signature = '';
     private readonly loadoutFrames = new Map<string, SpriteFrame>();
     private loadoutRequested = false;
+    private readonly codexFrames=new Map<string,SpriteFrame>();
+    private readonly codexRequested=new Set<string>();
+    private readonly codexFailed=new Set<string>();
     private repaint: (() => void) | null = null;
     public constructor(parent: Node, private readonly layout: PhaseBLayout) {
         this.root.layer = parent.layer;
@@ -23,15 +35,19 @@ export class CampaignMenuView {
         this.graphics = this.root.addComponent(Graphics);
         this.art = new FirstLevelHomeArtView(this.root, () => { this.signature = ''; this.repaint?.(); });
         this.root.active = false;
+        this.root.on(Node.EventType.NODE_DESTROYED,()=>{
+            this.repaint=null;
+            for(const frame of Array.from(this.codexFrames.values()))frame.decRef();this.codexFrames.clear();
+        });
     }
-    public render(visible: boolean, state: CampaignSnapshot, stages: readonly CampaignStage[]): void {
-        this.repaint = () => this.render(visible,state,stages);
+    public render(visible: boolean, state: CampaignSnapshot, stages: readonly CampaignStage[], loadout?: CampaignLoadoutInput): void {
+        this.repaint = () => this.render(visible,state,stages,loadout);
         this.root.active = visible;
         this.art.setVisible(visible && state.screen === 'welcome');
         if (!visible) {
             this.clearLabels(); this.signature = ''; return;
         }
-        const signature = JSON.stringify([this.layout.visibleDesignWidth,state,stages,this.art.diagnostics]);
+        const signature = JSON.stringify([this.layout.visibleDesignWidth,state,stages,loadout,this.art.diagnostics]);
         if (signature === this.signature) return;
         this.signature = signature;
         this.clearLabels();
@@ -42,10 +58,11 @@ export class CampaignMenuView {
         // 雾气用静态半透明层叠，界面不持续刷新，避免菜单装饰占用战斗帧预算。
         for (let i=6;i>0;i--) this.disc(130,180,110+i*55,new Color(33,91,105,12));
         if (state.screen === 'welcome') this.welcome(l);
-        else if (state.screen === 'loadout') this.loadout(l, stages[state.selectedIndex]);
+        else if(state.screen==='codex')this.codex(l,state.codex!);
+        else if (state.screen === 'loadout') this.loadout(l, stages[state.selectedIndex], loadout);
         else this.map(l,state,stages);
         this.box(l.settings,'#172B36','#48636B',24); this.gear((l.settings.left+l.settings.right)/2,815);
-        if (typeof document !== 'undefined') document.querySelector('canvas')?.setAttribute('data-campaign-ui', JSON.stringify({screen:state.screen,page:state.page,selected:stages[state.selectedIndex]?.id,layout:l}));
+        if (typeof document !== 'undefined') document.querySelector('canvas')?.setAttribute('data-campaign-ui', JSON.stringify({screen:state.screen,page:state.page,selected:stages[state.selectedIndex]?.id,layout:l,codex:state.screen==='codex'?{state:state.codex,entry:codexEntry(state.codex!),layout:codexLayout(this.layout.visibleDesignWidth),ready:Array.from(this.codexFrames.keys()),failed:Array.from(this.codexFailed)}:null}));
     }
     private welcome(l: ReturnType<typeof campaignLayout>): void {
         this.text('N I G H T W A T C H',0,800,25,'#91B9BE',l.half*2-180);
@@ -56,8 +73,7 @@ export class CampaignMenuView {
         this.text('当夜幕落下，城市由你守护',0,-280,44,'#F3E8CF',l.half*2);
         this.text('建造炮塔，改变路线\n让每一段街道成为你的防线',0,-388,33,'#9CB6C5',l.half*2,130);
         this.button(l.start,'开始游戏');
-        this.text('进入夜城战役 · 选择你的下一场防守',0,-786,28,'#7D98A6',l.half*2);
-        this.text('NIGHT CITY  /  TOWER DEFENSE',0,-900,23,'#536E7B',l.half*2);
+        this.codexButton(l.codex);
     }
     private map(l: ReturnType<typeof campaignLayout>, state: CampaignSnapshot, stages: readonly CampaignStage[]): void {
         const g=this.graphics;
@@ -106,7 +122,7 @@ export class CampaignMenuView {
         // 固定页头/详情压住地图边缘，关卡数量增加后地图按每页三关继续扩展。
         this.box({left:-540,right:540,bottom:690,top:960},'#070F1A');
         this.text('夜城战役',0,818,58,'#F0D9A7',l.half*2-270,100);
-        this.text('第一章  /  雾港防线',0,718,30,'#9DB8C5',l.half*2);
+        this.codexButton(l.codex);
         this.box(l.back,'#172B36','#48636B',24);this.text('‹',(l.back.left+l.back.right)/2,820,66,'#BDD5D7',90,90);
         if(state.page>0){this.box(l.previous,'#142B37','#47636C',18);this.text('‹ 上页',(l.previous.left+l.previous.right)/2,-340,26,'#CBD8D4',126,65);}
         if((state.page+1)*3<stages.length){this.box(l.next,'#142B37','#47636C',18);this.text('下页 ›',(l.next.left+l.next.right)/2,-340,26,'#CBD8D4',126,65);}
@@ -121,11 +137,10 @@ export class CampaignMenuView {
         }
         this.text(`点击据点选择关卡  ·  ${state.page+1} / ${Math.max(1,Math.ceil(stages.length/3))}`,0,-922,25,'#6B8999',l.half*2,44);
     }
-    /** 配塔页先接入前两关固定阵容；第三关可编辑阵容随正式塔素材与目录一起开放。 */
-    private loadout(l: ReturnType<typeof campaignLayout>, stage: CampaignStage | undefined): void {
+    private loadout(l: ReturnType<typeof campaignLayout>, stage: CampaignStage | undefined, input?: CampaignLoadoutInput): void {
         if (!this.loadoutRequested) {
             this.loadoutRequested = true;
-            for (const tower of PHASE_B_TOWERS) resources.load(`level-one/units/${tower.id}/spriteFrame`, SpriteFrame, (error, frame) => {
+            for (const tower of ALL_TOWERS) resources.load(towerPortraitPath(tower.id), SpriteFrame, (error, frame) => {
                 if (error || !frame || !isValid(this.root)) return;
                 this.loadoutFrames.set(tower.id, frame); this.signature = ''; this.repaint?.();
             });
@@ -134,25 +149,102 @@ export class CampaignMenuView {
         this.text('‹',(l.back.left+l.back.right)/2,820,66,'#BDD5D7',90,90);
         this.text('出战配塔',0,818,58,'#F0D9A7',l.half*2-270,100);
         this.text(`${stage?.label ?? ''} · ${stage?.district ?? ''}`,0,684,36,'#9DB8C5',l.half*2);
-        this.text('本关固定携带以下炮塔',0,570,34,'#D8CBAC',l.half*2);
-        const w=l.half*2-60;
-        for (const [index,tower] of PHASE_B_TOWERS.entries()) {
-            const y=310-index*390;
-            this.box({left:-w/2,right:w/2,bottom:y-150,top:y+150},'#142C38','#698987',28);
+        this.text(input?.fixed ? '本关固定携带以下炮塔' : '点击选择 · 至少一种 · 最多五种',0,570,34,'#D8CBAC',l.half*2);
+        const towers = input?.towers ?? PHASE_B_TOWERS;
+        const rects = campaignLoadoutCards(this.layout.visibleDesignWidth, towers.length);
+        towers.forEach((tower,index) => {
+            const r=rects[index],x=(r.left+r.right)/2,y=(r.bottom+r.top)/2,w=r.right-r.left;
+            const selected = input?.selected.includes(tower.id) ?? true;
+            this.box(r,selected?'#173C40':'#142C38',selected?'#80C7B6':'#435C65',24);
             const frame=this.loadoutFrames.get(tower.id);
             if (frame) {
-                const icon=new Node('LoadoutTowerPortrait');icon.layer=this.root.layer;icon.setPosition(-w/2+120,y+12);this.labels!.addChild(icon);
+                const icon=new Node('LoadoutTowerPortrait');icon.layer=this.root.layer;icon.setPosition(x,y+54);this.labels!.addChild(icon);
                 const sprite=icon.addComponent(Sprite);sprite.spriteFrame=frame;sprite.sizeMode=Sprite.SizeMode.CUSTOM;
-                icon.getComponent(UITransform)!.setContentSize(180,180);
+                icon.getComponent(UITransform)!.setContentSize(140,140);
             }
-            this.text(tower.label,90,y+77,46,'#F3DEB1',w-250,80);
-            this.text(index===0?'持续火力 · 守住防线':'范围减速 · 控制疾行',90,y+5,30,'#A7BCC8',w-250,72);
-            this.text(`建造 ${tower.cost} 金币`,90,y-70,32,'#E9BF73',w-250,64);
-            this.text('✓ 已携带',0,y-124,27,'#8CDED0',w-60,48);
-        }
-        this.text('最多携带 5 种炮塔\n当前关卡使用固定教学阵容',0,-438,30,'#8FACB8',w,116);
+            this.text(tower.label,x,y-28,38,'#F3DEB1',w-24,60);
+            this.text(towerRole(tower.id),x,y-80,26,'#A7BCC8',w-20,48);
+            const rank=input?.selected.indexOf(tower.id) ?? index;
+            this.text(`${tower.cost} 金币   ${selected ? `✓ ${rank+1}` : '未携带'}`,x,y-126,27,selected?'#8CDED0':'#91A3AC',w-18,48);
+        });
+        const warnings=input?.warnings ?? [];
+        this.text(warnings.length ? warnings.join('\n') : input?.fixed ? '教学阵容固定 · 两种炮塔均可升级' : `已携带 ${input?.selected.length ?? 0} 种 · 克制阵容就绪`,0,-478,29,warnings.length?'#E5BD83':'#8FACB8',l.half*2-60,138);
         this.button(l.deploy,stage?.guided?'开始布防 · 新手引导':'开始布防');
-        this.text('进入后可布塔改路，开波后仍能建造',0,-850,27,'#7D98A6',w,66);
+        this.text('进入后可布塔改路，开波后仍能建造',0,-850,27,'#7D98A6',l.half*2-60,66);
+    }
+    private codexButton(r:PhaseBRect):void {
+        this.box(r,'#102733','#47636B',22);
+        this.text('炮塔 / 怪物图鉴',(r.left+r.right)/2,(r.bottom+r.top)/2,36,'#BCD5CE',r.right-r.left-30,90);
+    }
+    private codex(l:ReturnType<typeof campaignLayout>,state:CodexState):void {
+        const c=codexLayout(this.layout.visibleDesignWidth),entry=codexEntry(state),half=l.half;
+        this.box(l.back,'#172B36','#48636B',24);this.text('‹',(l.back.left+l.back.right)/2,820,66,'#BDD5D7',90,90);
+        this.text('夜城图鉴',0,818,58,'#F0D9A7',half*2-270,100);
+        for(const [i,title] of ['炮塔','怪物'].entries()){
+            const r=c.tabs[i],selected=(state.category==='towers')===(i===0);
+            this.box(r,selected?'#234B50':'#122632',selected?'#BDA16E':'#39525C',22);
+            this.text(title,(r.left+r.right)/2,650,42,selected?'#F1D8A5':'#94ADB7',r.right-r.left,90);
+        }
+        this.text(entry.label,0,510,58,'#F3DEB1',half*2-40,90);
+        this.disc(0,265,170,new Color(42,85,95,70),'#48666D',3);
+        this.disc(0,265,143,new Color(21,43,53,80));
+        for(const [r,label] of [[c.previous,'‹'],[c.next,'›']] as const){
+            this.box(r,'#142C38','#50666B',22);this.text(label,(r.left+r.right)/2,270,76,'#DEC799',130,130);
+        }
+        if(!this.codexPortrait(state))this.text(this.codexFailed.size?'图片暂不可用':'插画加载中',0,265,30,'#95AFB8',300,80);
+        this.text(entry.role,0,72,34,'#9CCFC8',half*2-40,74);
+        if(state.category==='towers')c.tiers.forEach((r,i)=>{
+            const selected=state.level===i+1;this.box(r,selected?'#294A48':'#142A35',selected?'#C6A96C':'#40555E',18);
+            this.text(`Lv.${i+1}`,(r.left+r.right)/2,-30,38,selected?'#F0D59B':'#A0B7C0',r.right-r.left,85);
+        });
+        else this.text('认识敌人 · 选择应对火力',0,-30,31,'#8FACB8',half*2-40,100);
+        entry.stats.forEach(([label,value],i)=>{
+            const x=(i%2?1:-1)*half*.5,y=-235-Math.floor(i/2)*165,w=half-18;
+            this.box({left:x-w/2,right:x+w/2,bottom:y-72,top:y+72},'#102530','#35505B',18);
+            this.text(label,x,y+32,29,'#859FAE',w-20,50);
+            this.text(value,x,y-25,42,'#F0DEBA',w-20,64);
+        });
+        this.box({left:-half,right:half,bottom:-727,top:-510},'#112E36','#406064',22);
+        this.text(state.category==='towers'?'战术特点':'推荐应对',0,-551,31,'#94D2C5',half*2-36,54);
+        this.text(entry.advice,0,-638,35,'#D7DCCE',half*2-70,128);
+        this.text(entry.footnote,0,-815,27,'#879EAD',half*2-36,112);
+        this.text(`${state.index+1} / ${codexCount(state.category)}   ·   点击左右浏览`,0,-923,28,'#BBA87C',half*2-36,52);
+    }
+    private codexFrame(path:string):SpriteFrame|null {
+        if(!this.codexRequested.has(path)){
+            this.codexRequested.add(path);
+            resources.load(path,SpriteFrame,(error,frame)=>{
+                if(!isValid(this.root))return;
+                if(error||!frame)this.codexFailed.add(path);else{frame.addRef();this.codexFrames.set(path,frame);}
+                // 图片只重绘最近菜单快照；切换条目后的旧请求不能覆盖当前选择。
+                this.signature='';this.repaint?.();
+            });
+        }
+        return this.codexFrames.get(path)??null;
+    }
+    private codexPortrait(state:CodexState):boolean {
+        const entry=codexEntry(state),id=entry.id,level=state.level,center={x:0,y:235},size=240;
+        if(state.category==='towers'&&(id==='rivet-gun'||id==='frost-coil')){
+            const frost=id==='frost-coil',upgrade=level>1;
+            const basePath=frost?upgrade?FROST_UPGRADE_PATHS[level as 2|3].base:'level-one/units/frost-coil-base-v2/spriteFrame':'level-one/units/rivet-gun-base-v2/spriteFrame';
+            const activePath=frost?upgrade?FROST_UPGRADE_PATHS[level as 2|3].active:'level-one/units/frost-coil-core-v2/spriteFrame':rivetHeadResourcePath(level,'south');
+            const base=this.codexFrame(basePath),active=this.codexFrame(activePath);
+            // 结构、炮头或能量芯完整到齐才展示，沿用战场注册点，避免三级预览错位。
+            if(!base||!active)return false;
+            const spec=frost?upgrade?FROST_UPGRADE_SPECS[level as 2|3]:FROST_COIL_LAYER_SPEC:RIVET_GUN_LAYER_SPEC;
+            const node=LayeredTowerRig.create('CodexTower',this.labels!,base,active,size,spec);
+            // Sprite首次赋帧可能重置尺寸；绑定后再摆放，确保两层按图鉴展示尺寸缩放。
+            LayeredTowerRig.bindFrames(node,base,active,size,spec);
+            LayeredTowerRig.pose(node,center,size,null,spec);
+            if(!frost)poseDirectionalTowerHead(node,active,RIVET_HEAD_REGISTRATIONS.south,center,size,null);
+            return true;
+        }
+        const path=state.category==='towers'?towerPortraitPath(id as 'piercing-cannon'|'arc-tower',level):
+            `${id==='siege-tank'||id==='shield-guard'?'level-three':'level-one'}/units/${id}/spriteFrame`;
+        const frame=this.codexFrame(path);if(!frame)return false;
+        const icon=new Node('CodexPortrait');icon.layer=this.root.layer;this.labels!.addChild(icon);icon.setPosition(0,265);
+        const sprite=icon.addComponent(Sprite);sprite.spriteFrame=frame;sprite.sizeMode=Sprite.SizeMode.CUSTOM;sprite.trim=false;
+        icon.getComponent(UITransform)!.setContentSize(320,320);return true;
     }
     private building(x:number,y:number,w:number,h:number,seed:number):void{
         const g=this.graphics,peak=y+h/2+16;

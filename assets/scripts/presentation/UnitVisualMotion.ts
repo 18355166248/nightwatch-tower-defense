@@ -35,7 +35,7 @@ export function enemyStridePose(archetypeId: EnemyId, progress: number, spawnOrd
     const phase = enemyGaitPhase(archetypeId, progress, spawnOrder);
     const stride = Math.sin(phase);
     const bounce = Math.abs(stride);
-    const heavy = archetypeId === 'iron-canister-hauler';
+    const heavy = archetypeId === 'iron-canister-hauler' || archetypeId === 'siege-tank';
     const compression = Math.cos(phase) * (heavy ? 0.012 : runner ? 0.045 : 0.032);
     return {
         x: 0,
@@ -59,7 +59,7 @@ function enemyGaitPhase(archetypeId: EnemyId, progress: number, spawnOrder: numb
 }
 
 function enemyGaitTurns(archetypeId: EnemyId, progress: number, spawnOrder: number): number {
-    const cycles = archetypeId === 'iron-canister-hauler' ? 1 : archetypeId === 'clockwork-runner' ? 3 : 2;
+    const cycles = archetypeId === 'iron-canister-hauler' || archetypeId === 'siege-tank' ? 1 : archetypeId === 'clockwork-runner' ? 3 : 2;
     return Math.max(0, Math.min(1, progress)) * cycles + (spawnOrder % 4) / 4;
 }
 

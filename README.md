@@ -2,7 +2,7 @@
 
 ## 当前开发入口
 
-第三关扩展以 [实施规格](docs/THIRD-LEVEL-SPEC.md) 和 [进度追踪](docs/THIRD-LEVEL-PROGRESS.md) 为准，包括炮塔克制、每局最多五种出战塔、环形建造菜单及三关独立背景。当前已接入前两关配塔页，护甲／护盾、新塔及第三关波表已完成基础规则；第三关入口、正式素材和环形菜单尚未接入。开发前先读取规格，交接时更新任务状态和证据。
+第三关扩展以 [实施规格](docs/THIRD-LEVEL-SPEC.md) 和 [进度追踪](docs/THIRD-LEVEL-PROGRESS.md) 为准，包括炮塔克制、每局最多五种出战塔、紧凑选塔浮层、升级圆环及三关独立背景。当前已开放第三关、可编辑四塔阵容、两新兵两新塔、紧凑建造浮层／升级环及三关独立背景；302项规则测试和八波策略回放通过。浏览器局部流程已验证，整局结算、动效、真机和真人验收仍开放。开发前先读取规格，交接时更新任务状态和证据。
 
 下文保留首关历史介绍及验证记录；旧阶段结论不代表第三关或最新构建已经验收。
 
@@ -68,3 +68,5 @@ npm start
 - Phase B 表现边界已拆分：`PhaseBLayout` 统一输入与绘制坐标，`PhaseBCanvasRenderer` 只消费只读绘制快照，`CombatFeedbackView` 独立绘制开火、命中与死亡等短特效，`PhaseBHudView` 管理 HUD/结算节点，`CoreObjectiveView` 显示出口核心状态，`BrowserBattleDiagnostics` 隔离浏览器 QA 快照；战斗规则不依赖这些适配层。
 - 按当前范围先在右侧浏览器验证；不做 Android 真机测试，也不得把“未阻断开发”表述为“真机已通过”。
 - 当前证据先看 `docs/validation.md`、`docs/poc/phase-b-fixed-step-regression.md` 与 `docs/poc/phase-b-core-objective-regression.md`；历史阶段记录仍保留在 `docs/poc/`。Phase A 交叉评审按 `docs/poc/phase-a-review-checklist.md` 执行。
+
+炮塔与怪物图鉴：欢迎页“开始游戏”下方及战役地图页头均可进入。支持四种炮塔三级外观／属性和五种怪物浏览，返回保留原页面及选关；图鉴属性来自正式战斗配置。

@@ -40,7 +40,12 @@ export class CombatFeedbackView {
             if(this.alignmentSamples.length<6)this.alignmentSamples.push({targetId:tracer.targetId,barrel:tracer.barrel,origin,target,logicalTarget});
             const life = tracer.remainingSeconds / tracer.durationSeconds;
             const frost = tracer.towerId === 'frost-coil';
-            if (frost) {
+            if (tracer.towerId === 'arc-tower') {
+                graphics.strokeColor=new Color(124,237,255,Math.round(230*life));graphics.lineWidth=4;
+                graphics.moveTo(origin.x,origin.y);
+                for(let i=1;i<5;i++)graphics.lineTo(origin.x+(target.x-origin.x)*i/5+(i%2?6:-6),origin.y+(target.y-origin.y)*i/5);
+                graphics.lineTo(target.x,target.y);graphics.stroke();
+            } else if (frost) {
                 // 冷凝是持续短束，保持塔到目标的连接感；机枪则只画局部移动弹迹以免密集战斗铺满光线。
                 graphics.strokeColor = new Color(80, 209, 234, Math.round(65 * life));
                 graphics.lineWidth = 10;
@@ -110,6 +115,17 @@ export class CombatFeedbackView {
                 ?? this.center(impact.origin,state.grid);
             const progress = 1 - impact.remainingSeconds / impact.durationSeconds;
             const life = 1 - progress;
+            if(impact.shieldBroken){
+                // 破盾是独立防御事件，蓝色碎环只显示真实破盾，不触发击杀金币。
+                graphics.strokeColor=new Color(111,235,255,Math.round(245*life));graphics.lineWidth=4;
+                const radius=cellSize*(.32+progress*.34);
+                for(let i=0;i<8;i++){
+                    const angle=i*Math.PI/4;
+                    graphics.moveTo(point.x+Math.cos(angle)*radius,point.y+Math.sin(angle)*radius);
+                    graphics.lineTo(point.x+Math.cos(angle)*(radius+cellSize*.12),point.y+Math.sin(angle)*(radius+cellSize*.12));
+                }
+                graphics.stroke();
+            }
             const frost = impact.towerId === 'frost-coil';
             graphics.fillColor = frost
                 ? new Color(184, 246, 255, Math.round(85 * life))

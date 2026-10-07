@@ -1,12 +1,15 @@
-import { FROST_COIL, RIVET_GUN, type TowerId } from '../config/PhaseBCombatConfig';
+import { cellBuildDetailLayout, radialMenuLayout } from './CellBuildMenuPresentation';
+import { towerDefinition, towerRole } from '../config/TowerCatalog';
+import { type TowerId } from '../config/PhaseBCombatConfig';
 import type { PlacementRejectReason } from '../core/GridTypes';
 import { nextUpgradeCost, towerAtLevel } from '../systems/TowerLevelRules';
-import type { PhaseBPoint, PhaseBRect } from './PhaseBLayout';
+import { PhaseBLayout, type PhaseBPoint, type PhaseBRect } from './PhaseBLayout';
 
 export interface TowerPanelInput {
     readonly anchor?: { readonly center: PhaseBPoint; readonly cellSize: number };
     readonly towerId: TowerId;
     readonly level: number;
+    readonly hoverAction?: 'upgrade' | 'sell';
     readonly gold: number;
     readonly saleRefund: number | null;
     readonly opening: boolean;
@@ -23,7 +26,7 @@ const REJECTION: Record<PlacementRejectReason, string> = {
 
 /** 只适配真实配置与校验快照，不持有经济/寻路；禁用原因不能被UI自行推断为交易成功。 */
 export function firstLevelTowerPanelPresentation(input: TowerPanelInput) {
-    const base = input.towerId === 'frost-coil' ? FROST_COIL : RIVET_GUN;
+    const base = towerDefinition(input.towerId);
     const current = towerAtLevel(base, input.level);
     const cost = nextUpgradeCost(base, input.level);
     const next = cost === null ? null : towerAtLevel(base, input.level + 1);
@@ -31,8 +34,9 @@ export function firstLevelTowerPanelPresentation(input: TowerPanelInput) {
     const placement = input.placement;
     return {
         towerId: input.towerId, title: base.label, badge: placement ? '建造预览' : `Lv.${input.level}`,
+        levelPips: [1,2,3].map(level=>({level,purchased:level<=input.level})),
         nextLevel: next ? input.level + 1 : null,
-        role: current.effect ? '范围减速 · 优先控制疾行机' : '稳定单体输出',
+        role: input.towerId === 'frost-coil' ? '范围减速 · 优先控制疾行机' : input.towerId === 'rivet-gun' ? '稳定单体输出' : towerRole(input.towerId),
         stats: [
             { caption: current.effect ? '范围减速' : '单次伤害', value: power(current), nextValue: next ? power(next) : null },
             { caption: '射程', value: `${current.rangeCells} 格`, nextValue: next ? `${next.rangeCells} 格` : null },
@@ -54,7 +58,7 @@ export function firstLevelTowerPanelPresentation(input: TowerPanelInput) {
 }
 
 /** 同一获批面板相对常驻塔栏顶部锚定；不缩放/移动棋盘，也不因面板隐藏而留下空槽。 */
-export function firstLevelTowerPanelLayout(visibleWidth: number, placement = false, anchor?: TowerPanelInput['anchor']) {
+function rectangularTowerPanelLayout(visibleWidth: number, placement = false, anchor?: TowerPanelInput['anchor']) {
     const scale = Math.min(1080, visibleWidth) / 390;
     const height = (placement ? 84 : 268) * scale;
     const width = 366 * scale;
@@ -76,7 +80,7 @@ export function firstLevelTowerPanelLayout(visibleWidth: number, placement = fal
     } : {};
     // 建造只占棋盘与常驻塔栏之间的空隙，不能用详情面板拦截下排落点；渲染与命中共用此布局。
     return {
-        scale, panel: rect(12,0,366,268), portrait: rect(30,13,36,36),
+        ring: null as ReturnType<typeof radialMenuLayout> | null, scale, panel: rect(12,0,366,268), portrait: rect(30,13,36,36),
         title: text(26,9,180,24,16,true), badge: text(208,12,72,18,11), role: text(26,33,260,16,10),
         close: text(300,13,60,38,11), closeHit: rect(300,5,54,54),
         currentArt: rect(42,55,116,80), nextArt: rect(232,55,116,80),
@@ -90,9 +94,46 @@ export function firstLevelTowerPanelLayout(visibleWidth: number, placement = fal
     };
 }
 
+/** 就地升级共用建造圆环；旧 QA 和拖放预览仍保留紧凑矩形条。 */
+export function firstLevelTowerPanelLayout(visibleWidth: number, placement = false, anchor?: TowerPanelInput['anchor']) {
+    const base=rectangularTowerPanelLayout(visibleWidth,placement,anchor);
+    if (!anchor || placement) return base;
+    const board=new PhaseBLayout();board.setVisibleWidth(visibleWidth);
+    // 升级价牌伸出按钮下缘，预留少量空间避免盖住中央真实塔。
+    const ring=radialMenuLayout(board,anchor.center,anchor.cellSize,2,12*base.scale);
+    return {...base,ring,panel:ring.panel,upgrade:ring.options[0],sell:ring.options[1],closeHit:null};
+}
+
+/** 悬停说明独立于菜单展开；避让包含塔图超出按钮的部分及价格牌，而非只检查点击矩形。 */
+export function firstLevelTowerPanelDetail(input:TowerPanelInput,width:number) {
+    if(!input.anchor||input.placement||!input.hoverAction)return null;
+    const model=firstLevelTowerPanelPresentation(input),g=firstLevelTowerPanelLayout(width,false,input.anchor),s=g.scale;
+    const board=new PhaseBLayout();board.setVisibleWidth(width);
+    const protectedRects=[{...g.upgrade,top:g.upgrade.top+24*s,bottom:g.upgrade.bottom-9*s},g.sell,
+        {left:input.anchor.center.x-28*s,right:input.anchor.center.x+28*s,bottom:input.anchor.center.y-28*s,top:input.anchor.center.y+40*s}];
+    const index=input.hoverAction==='upgrade'?0:1;
+    const rect=cellBuildDetailLayout(board,{options:protectedRects,center:input.anchor.center,scale:s},index);
+    return {rect,protectedRects,
+        title:index===0?`${model.title} · Lv.${model.nextLevel??input.level}`:'回收炮塔',
+        body:index===0?model.nextLevel?`${model.stats[0].caption} ${model.stats[0].nextValue}\n射程 ${model.stats[1].nextValue}`:model.role:
+            input.saleRefund===null?'当前阶段不能回收':input.opening?'战前返还全部投入':input.combat?'战斗返还总投入50%':'波间返还总投入70%',
+        footer:index===0?model.upgrade:input.saleRefund===null?'当前不可回收':`返还 ${input.saleRefund} 金币`,
+        enabled:index===0?model.upgradeEnabled:model.saleEnabled};
+}
+
+/** 悬停范围包含实际塔图和价牌，不能让伸出圆钮的炮头没有说明。 */
+export function firstLevelTowerPanelHoverAction(point:PhaseBPoint,g:ReturnType<typeof firstLevelTowerPanelLayout>):'upgrade'|'sell'|null {
+    if(!g.ring)return null;
+    const inside=(r:PhaseBRect)=>point.x>=r.left&&point.x<=r.right&&point.y>=r.bottom&&point.y<=r.top;
+    if(inside({...g.upgrade,top:g.upgrade.top+24*g.scale,bottom:g.upgrade.bottom-9*g.scale}))return 'upgrade';
+    return inside(g.sell)?'sell':null;
+}
+
 export type TowerPanelAction = 'close' | 'sell' | 'upgrade' | 'surface' | null;
 /** 禁用按钮及面板空白也消费触摸，防止点穿饰面把下面的塔/落点误选。 */
 export function firstLevelTowerPanelAction(point: PhaseBPoint, layout: ReturnType<typeof firstLevelTowerPanelLayout>): TowerPanelAction {
-    const inside=(rect:PhaseBRect)=>point.x>=rect.left&&point.x<=rect.right&&point.y>=rect.bottom&&point.y<=rect.top;
-    return inside(layout.closeHit)?'close':inside(layout.sell)?'sell':inside(layout.upgrade)?'upgrade':inside(layout.panel)?'surface':null;
+    // 就地菜单的价牌和炮头也属于操作区域，不能显示可点却被当作空白收起。
+    if(layout.ring)return firstLevelTowerPanelHoverAction(point,layout);
+    const inside=(rect:PhaseBRect|null)=>Boolean(rect&&point.x>=rect.left&&point.x<=rect.right&&point.y>=rect.bottom&&point.y<=rect.top);
+    return inside(layout.closeHit)?'close':inside(layout.sell)?'sell':inside(layout.upgrade)?'upgrade':!layout.ring&&inside(layout.panel)?'surface':null;
 }

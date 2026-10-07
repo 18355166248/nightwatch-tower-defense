@@ -28,7 +28,8 @@ export class BattleRunCheckpoint {
             return sum + towerInvestment(tower, deployment.level ?? 1);
         }, 0);
         const economy = new EconomyLedger(this.remainingGold + investedGold);
-        const model = new PlacementModel(this.grid, economy, this.towers);
+        // 阵容可以只携带电弧等新塔；恢复目录以本局首塔为默认，不能强制要求机枪。
+        const model = new PlacementModel(this.grid, economy, this.towers, this.towers[0].id);
         for (const deployment of this.deployments) {
             const result = model.commit(model.preview(deployment.cell, [], deployment.towerId), []);
             if (!result.accepted) throw new Error(`无法恢复塔坐标 (${deployment.cell.column},${deployment.cell.row})：${result.reason}`);

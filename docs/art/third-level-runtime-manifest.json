@@ -1,0 +1,224 @@
+{
+  "version": 1,
+  "engine": "Cocos Creator 3.8.8",
+  "decision": "用户委托评估，选择清晰卡通蒸汽风；独立关卡场景",
+  "human_runtime_approved": false,
+  "units": {
+    "format": "128 RGBA, linear, no mipmap, no trim",
+    "normalization": "alpha>32 bounds, resize to fit108x108, center on128 canvas, feet baseline120",
+    "collision": "仅逻辑格子，不来自像素"
+  },
+  "assets": [
+    {
+      "path": "assets/resources/level-three/units/arc-tower-level-1.png",
+      "width": 128,
+      "height": 128,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        30,
+        12,
+        98,
+        120
+      ],
+      "bytes": 16303,
+      "decodedRgbaBytes": 65536,
+      "baseline": 120,
+      "fallback": "程序几何单位；升级图缺失回退已加载一级图"
+    },
+    {
+      "path": "assets/resources/level-three/units/arc-tower-level-2.png",
+      "width": 128,
+      "height": 128,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        28,
+        12,
+        100,
+        120
+      ],
+      "bytes": 18013,
+      "decodedRgbaBytes": 65536,
+      "baseline": 120,
+      "fallback": "程序几何单位；升级图缺失回退已加载一级图"
+    },
+    {
+      "path": "assets/resources/level-three/units/arc-tower-level-3.png",
+      "width": 128,
+      "height": 128,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        13,
+        12,
+        114,
+        120
+      ],
+      "bytes": 26921,
+      "decodedRgbaBytes": 65536,
+      "baseline": 120,
+      "fallback": "程序几何单位；升级图缺失回退已加载一级图"
+    },
+    {
+      "path": "assets/resources/level-three/units/piercing-cannon-level-1.png",
+      "width": 128,
+      "height": 128,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        19,
+        12,
+        108,
+        120
+      ],
+      "bytes": 20832,
+      "decodedRgbaBytes": 65536,
+      "baseline": 120,
+      "fallback": "程序几何单位；升级图缺失回退已加载一级图"
+    },
+    {
+      "path": "assets/resources/level-three/units/piercing-cannon-level-2.png",
+      "width": 128,
+      "height": 128,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        26,
+        12,
+        101,
+        120
+      ],
+      "bytes": 16468,
+      "decodedRgbaBytes": 65536,
+      "baseline": 120,
+      "fallback": "程序几何单位；升级图缺失回退已加载一级图"
+    },
+    {
+      "path": "assets/resources/level-three/units/piercing-cannon-level-3.png",
+      "width": 128,
+      "height": 128,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        13,
+        12,
+        114,
+        120
+      ],
+      "bytes": 24147,
+      "decodedRgbaBytes": 65536,
+      "baseline": 120,
+      "fallback": "程序几何单位；升级图缺失回退已加载一级图"
+    },
+    {
+      "path": "assets/resources/level-three/units/shield-guard-step-b.png",
+      "width": 128,
+      "height": 128,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        10,
+        14,
+        118,
+        120
+      ],
+      "bytes": 21832,
+      "decodedRgbaBytes": 65536,
+      "baseline": 120,
+      "fallback": "程序几何单位；升级图缺失回退已加载一级图"
+    },
+    {
+      "path": "assets/resources/level-three/units/shield-guard.png",
+      "width": 128,
+      "height": 128,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        12,
+        12,
+        115,
+        120
+      ],
+      "bytes": 20654,
+      "decodedRgbaBytes": 65536,
+      "baseline": 120,
+      "fallback": "程序几何单位；升级图缺失回退已加载一级图"
+    },
+    {
+      "path": "assets/resources/level-three/units/siege-tank-step-b.png",
+      "width": 128,
+      "height": 128,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        10,
+        24,
+        118,
+        120
+      ],
+      "bytes": 21860,
+      "decodedRgbaBytes": 65536,
+      "baseline": 120,
+      "fallback": "程序几何单位；升级图缺失回退已加载一级图"
+    },
+    {
+      "path": "assets/resources/level-three/units/siege-tank.png",
+      "width": 128,
+      "height": 128,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        10,
+        23,
+        118,
+        120
+      ],
+      "bytes": 22120,
+      "decodedRgbaBytes": 65536,
+      "baseline": 120,
+      "fallback": "程序几何单位；升级图缺失回退已加载一级图"
+    },
+    {
+      "path": "assets/resources/level-two/backdrop-v1.jpg",
+      "width": 720,
+      "height": 1280,
+      "bytes": 246648,
+      "decodedRgbaBytes": 3686400,
+      "fallback": "程序战场",
+      "residentPolicy": "只保留当前可见关卡租约"
+    },
+    {
+      "path": "assets/resources/level-three/backdrop-v1.jpg",
+      "width": 720,
+      "height": 1280,
+      "bytes": 199912,
+      "decodedRgbaBytes": 3686400,
+      "fallback": "程序战场",
+      "residentPolicy": "只保留当前可见关卡租约"
+    }
+  ],
+  "transferBytes": 655710,
+  "unitDecodedBytes": 655360,
+  "singleBackdropDecodedBytes": 3686400
+}

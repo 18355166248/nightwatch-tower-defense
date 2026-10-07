@@ -68,12 +68,59 @@ test('升级弹层跟随真实塔位，边缘格按钮仍命中且不落入底�
   for(let row=0;row<13;row++)for(let column=0;column<6;column++){
    const anchor={center:board.gridPointCenter({column,row},grid),cellSize:board.boardMetrics(grid).cellSize};
    const g=layout(width,false,anchor);tops.add(g.panel.top);
-   assert.ok(g.panel.left>=-board.safeHalfWidth-.001);assert.ok(g.panel.right<=board.safeHalfWidth+.001);
-   assert.ok(g.panel.top<=730+.001);assert.ok(g.panel.bottom>=-730-.001);
-   for(const key of ['upgrade','sell','closeHit']){
+   assert.deepEqual(g.ring.menuCenter,anchor.center);
+   assert.deepEqual(g.ring.center,anchor.center);
+   assert.equal(g.closeHit,null);
+   assert.equal(g.ring.options.length,2);
+   assert.equal(g.upgrade.left,g.sell.left);assert.ok(g.upgrade.bottom>g.sell.top);
+   for(const key of ['upgrade','sell']){
     const r=g[key];assert.equal(action({x:(r.left+r.right)/2,y:(r.bottom+r.top)/2},g),key==='closeHit'?'close':key);
    }
   }
   assert.ok(tops.size>3,'弹层随塔位变化，不再固定底部');
+ }
+});
+
+
+test('升级说明只在悬停对应图标时存在，避让真实塔图、回收和关闭节点',()=>{
+ const {firstLevelTowerPanelDetail:detail,firstLevelTowerPanelHoverAction:hover}=require('../.test-dist/presentation/FirstLevelTowerPanelPresentation');
+ const {PhaseBLayout}=require('../.test-dist/presentation/PhaseBLayout');const {PHASE_A_GRIDS}=require('../.test-dist/config/PhaseAGrids');
+ for(const width of [1080,1080*320/390]){
+  const board=new PhaseBLayout();board.setVisibleWidth(width);const grid=PHASE_A_GRIDS['grid-9x13'];
+  for(let row=0;row<grid.rows;row++)for(let column=0;column<grid.columns;column++){
+   const anchor={center:board.gridPointCenter({row,column},grid),cellSize:board.boardMetrics(grid).cellSize},g=layout(width,false,anchor);
+   assert.equal(detail(input({anchor}),width),null,'单击展开后无常驻说明');
+   assert.equal(hover({x:0,y:-950},g),null);
+   for(const hoverAction of ['upgrade','sell']){
+    const d=detail(input({anchor,hoverAction}),width),r=d.rect;
+    assert.ok(r.left>=-width/2-.001&&r.right<=width/2+.001&&r.top<=960.001&&r.bottom>=-960.001);
+    for(const protectedRect of d.protectedRects)assert.ok(!(r.left<protectedRect.right&&r.right>protectedRect.left&&r.bottom<protectedRect.top&&r.top>protectedRect.bottom),'提示不能挡住塔图或操作节点');
+   }
+   assert.equal(hover({x:(g.upgrade.left+g.upgrade.right)/2,y:g.upgrade.top+10*g.scale},g),'upgrade','炮头伸出按钮仍可悬停');
+  }
+ }
+ const anchor={center:{x:0,y:0},cellSize:80};
+ const sale=detail(input({anchor,hoverAction:'sell'}),1080);assert.match(sale.footer,/30/);
+ const next=detail(input({anchor,hoverAction:'upgrade'}),1080);assert.match(next.title,/Lv.2/);assert.match(next.body,/11/);
+ const max=detail(input({anchor,level:3,hoverAction:'upgrade'}),1080);assert.match(max.footer,/已满级/);
+});
+
+// 升级的炮头、等级点和价牌比圆钮大，顶行和末行也必须全部避开HUD。
+test('四档屏宽全棋盘升级始终在真实塔的正上正下，距离对称',()=>{
+ const {PhaseBLayout}=require('../.test-dist/presentation/PhaseBLayout');const {PHASE_A_GRIDS}=require('../.test-dist/config/PhaseAGrids');
+ const {battleFloatingBounds}=require('../.test-dist/presentation/CellBuildMenuPresentation');
+ for(const width of [1080*320/390,1080*375/390,1080,1080*414/390]){
+  const board=new PhaseBLayout();board.setVisibleWidth(width);const grid=PHASE_A_GRIDS['grid-9x13'],bounds=battleFloatingBounds(board);
+  for(let row=0;row<grid.rows;row++)for(let column=0;column<grid.columns;column++){
+   const anchor={center:board.gridPointCenter({row,column},grid),cellSize:board.boardMetrics(grid).cellSize};
+   const g=layout(width,false,anchor);
+   assert.deepEqual(g.ring.menuCenter,anchor.center);
+   assert.ok(Math.abs((g.upgrade.left+g.upgrade.right)/2-anchor.center.x)<.001);
+   assert.ok(Math.abs((g.upgrade.top+g.upgrade.bottom+g.sell.top+g.sell.bottom)/4-anchor.center.y)<.001);
+   assert.ok(g.ring.footprints[0].bottom>g.ring.footprints[1].top);
+   assert.equal(action({x:(g.upgrade.left+g.upgrade.right)/2,y:g.upgrade.bottom-7*g.scale},g),'upgrade','伸出的价格牌也能点击升级');
+   const protectedTower={left:anchor.center.x-28*g.scale,right:anchor.center.x+28*g.scale,bottom:anchor.center.y-28*g.scale,top:anchor.center.y+40*g.scale};
+   for(const r of g.ring.footprints)assert.ok(!(r.left<protectedTower.right&&r.right>protectedTower.left&&r.bottom<protectedTower.top&&r.top>protectedTower.bottom));
+  }
  }
 });

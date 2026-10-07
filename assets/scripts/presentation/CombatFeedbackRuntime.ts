@@ -20,6 +20,9 @@ export interface TracerFeedback extends TimedFeedback {
 }
 
 export interface ImpactFeedback extends TimedFeedback {
+    readonly shieldBroken?: boolean;
+    readonly shieldDamage?: number;
+    readonly healthDamage?: number;
     readonly barrel: 0 | 1;
     readonly targetId: string;
     readonly origin: GridPoint;
@@ -113,7 +116,8 @@ export class CombatFeedbackRuntime {
         this.activeImpacts.push(...result.shots.map((shot, index) => ({
             // 同一射击只选一次炮管，命中火花不得再次推进交替序列。
             barrel: tracers[index].barrel,
-            ...this.timed(shot.targetPoint, IMPACT_SECONDS),
+            ...this.timed(shot.targetPoint, shot.shieldBroken ? 0.45 : IMPACT_SECONDS),
+            shieldBroken: shot.shieldBroken, shieldDamage: shot.shieldDamage, healthDamage: shot.healthDamage,
             origin: { column: shot.towerCell.column, row: shot.towerCell.row },
             towerId: shot.towerId,
             targetId: shot.targetId,

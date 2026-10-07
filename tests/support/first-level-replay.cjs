@@ -24,11 +24,12 @@ function replayFirstLevel({
     onCombatStep = null,
     traffic = TWO_LANE_TRAFFIC,
     routeDiagnostics = null,
+    onWaveClear = null,
 } = {}) {
     // 回放默认使用实际推荐配置；Phase A 的旧短折线只在明确传入时作为独立 fixture。
     const shortCells = openingCells ?? opening.map(({ cell }) => cell);
     const economy = new EconomyLedger(startingGold);
-    const model = new PlacementModel(grid, economy, towers);
+    const model = new PlacementModel(grid, economy, towers, towers[0].id);
     const combat = new WaveCombatRuntime(grid, towers, traffic);
     const clock = new SimulationClock();
     if (speedScale === 2) clock.cycleScale();
@@ -62,7 +63,7 @@ function replayFirstLevel({
         let emptySpawnSeconds = 0;
         let multiEnemySeconds = 0;
         let peakActiveEnemies = 0;
-        const shotsByTower = { 'rivet-gun': 0, 'frost-coil': 0 };
+        const shotsByTower = Object.fromEntries(towers.map(tower=>[tower.id,0]));
         const shotsByCell = {};
         const frostShotsByCell = {};
         let slowApplications = 0;
@@ -102,6 +103,7 @@ function replayFirstLevel({
         if (coreHealth > 0) combat.completeWave();
         if (coreHealth > 0) {
             rewards.settle(wave, economy);
+            if (onWaveClear) onWaveClear({model,wave:wave.wave});
             for (const upgrade of upgradesAfterWave.filter(({ wave: afterWave }) => afterWave === wave.wave)) {
                 const result = model.upgrade(upgrade.cell);
                 if (!result.accepted) throw new Error(`升级失败 ${cellKey(upgrade.cell)}：${result.reason}`);

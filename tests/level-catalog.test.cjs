@@ -8,7 +8,7 @@ const {buildBattleResultViewModel}=require('../.test-dist/presentation/BattleRes
 
 test('第一关保留新手配置，第二关提前混编且不共享可修改敌人对象',()=>{
     assert.equal(LEVELS['first-level'].waves,PHASE_B_WAVES);assert.equal(LEVELS['first-level'].startingGold,140);
-    assert.equal(LEVELS['first-level'].nextLevel,'second-level');assert.equal(LEVELS['second-level'].nextLevel,undefined);
+    assert.equal(LEVELS['first-level'].nextLevel,'second-level');assert.equal(LEVELS['second-level'].nextLevel,'third-level');assert.equal(LEVELS['third-level'].nextLevel,undefined);
     const waves=LEVELS['second-level'].waves;assert.equal(waves.length,8);
     assert.ok(waves[1].groups.some(g=>g.enemy.id==='clockwork-runner'));
     assert.ok(waves[3].groups.some(g=>g.enemy.id==='iron-canister-hauler'));

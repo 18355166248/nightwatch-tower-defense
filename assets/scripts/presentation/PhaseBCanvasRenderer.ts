@@ -1,3 +1,4 @@
+import { towerDefinition } from '../config/TowerCatalog';
 import { Color, Graphics } from 'cc';
 import { FROST_COIL, RIVET_GUN } from '../config/PhaseBCombatConfig';
 import { towerAtLevel } from '../systems/TowerLevelRules';
@@ -100,8 +101,9 @@ export class PhaseBCanvasRenderer {
         const graphics = this.graphics;
         const metrics = this.layout.boardMetrics(state.grid);
         this.battlefieldSurface.draw(state);
-        if (!state.useUnitSprites) {
+        {
             for (const key of Array.from(state.towers)) {
+                if (state.useUnitSprites && !state.missingUnitArt?.has(state.towerIdsByCell.get(key)!)) continue;
                 const [column, row] = key.split(',').map(Number);
                 const center = this.center({ column, row }, state.grid);
                 this.drawTower(center, metrics.cellSize, state.towerIdsByCell.get(key) === 'frost-coil');
@@ -130,15 +132,16 @@ export class PhaseBCanvasRenderer {
         this.drawPlacementRange(state, metrics.cellSize);
         this.coreObjective.draw(state.grid, state.coreHealth, state.maxCoreHealth);
 
-        const slowRingIds = state.useUnitSprites ? null : visibleSlowIndicatorIds(state.enemies);
+        const slowRingIds = visibleSlowIndicatorIds(state.enemies);
         const healthBars: EnemyHealthBarCandidate[] = [];
         for (const enemy of state.enemies) {
             const point = this.layout.routePointCenter({column:enemy.fromCell.column+(enemy.toCell.column-enemy.fromCell.column)*enemy.progress,
                 row:enemy.fromCell.row+(enemy.toCell.row-enemy.fromCell.row)*enemy.progress},state.grid);
             const x=point.x,y=point.y;
-            if (!state.useUnitSprites) {
+            const fallback=!state.useUnitSprites || Boolean(state.missingUnitArt?.has(enemy.archetype.id));
+            if (fallback) {
                 const runner = enemy.archetype.id === 'clockwork-runner';
-                const heavy = enemy.archetype.id === 'iron-canister-hauler';
+                const heavy = enemy.archetype.id === 'iron-canister-hauler' || enemy.archetype.id === 'siege-tank';
                 graphics.fillColor = new Color(heavy ? '#D7A455' : runner ? '#33D7E7' : '#F06A63');
                 if (heavy) graphics.roundRect(x - metrics.cellSize * 0.31, y - metrics.cellSize * 0.31,
                     metrics.cellSize * 0.62, metrics.cellSize * 0.62, 8);
@@ -151,11 +154,11 @@ export class PhaseBCanvasRenderer {
                 else graphics.circle(x, y, metrics.cellSize * 0.25);
                 graphics.stroke();
             }
-            if (!state.useUnitSprites && slowRingIds?.has(enemy.id)) {
+            if (fallback && slowRingIds.has(enemy.id)) {
                 const strength = enemySlowVisualStrength(enemy.slowRemainingSeconds, FROST_COIL.effect?.durationSeconds ?? 0);
                 EnemySlowIndicatorView.draw(graphics, x, y, metrics.cellSize * 0.31, strength);
             }
-            if (!state.useUnitSprites) {
+            if (fallback) {
                 const ratio = enemyHealthBarRatio(enemy.health, enemy.archetype.maxHealth);
                 if (ratio !== null) {
                     healthBars.push({ id: enemy.id, spawnOrder: enemy.spawnOrder, x, y: y + metrics.cellSize * 0.42,
@@ -163,7 +166,7 @@ export class PhaseBCanvasRenderer {
                 }
             }
         }
-        if (!state.useUnitSprites) drawEnemyHealthBars(graphics, layoutEnemyHealthBars(healthBars, {
+        drawEnemyHealthBars(graphics, layoutEnemyHealthBars(healthBars, {
             left: metrics.left + 4, right: metrics.left + metrics.width - 4,
             bottom: metrics.bottom + 4, top: metrics.bottom + metrics.height - 4,
         }));
@@ -261,16 +264,16 @@ export class PhaseBCanvasRenderer {
         const inspected = state.inspectedTower;
         if (!inspected) return;
         const center = this.center(inspected.cell, state.grid);
-        const tower = towerAtLevel(inspected.towerId === 'frost-coil' ? FROST_COIL : RIVET_GUN, inspected.level);
+        const tower = towerAtLevel(towerDefinition(inspected.towerId), inspected.level);
         const color = inspected.towerId === 'frost-coil'
             ? new Color(139, 232, 244, 205)
             : new Color(255, 218, 139, 205);
-        this.drawRangeRing(center, cellSize, tower.rangeCells, color);
-        const graphics = this.graphics;
-        graphics.strokeColor = color;
-        graphics.lineWidth = 6;
-        graphics.circle(center.x, center.y, cellSize * 0.43);
-        graphics.stroke();
+        if(state.qaMode)this.drawRangeRing(center,cellSize,tower.rangeCells,color);
+        else {
+            // 选塔仅用淡色覆盖提示真实射程，去掉与菜单外圈混在一起的圆线；上层四角保留选中定位。
+            this.graphics.fillColor=new Color(color.r,color.g,color.b,16);
+            this.graphics.circle(center.x,center.y,cellSize*tower.rangeCells);this.graphics.fill();
+        }
     }
 
     private drawRangeRing(center: PhaseBPoint, cellSize: number, rangeCells: number, color: Color): void {

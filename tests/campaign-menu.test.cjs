@@ -2,7 +2,7 @@ const test=require('node:test');const assert=require('node:assert/strict');
 const {CampaignMenu,campaignStages,campaignLayout,campaignAction}=require('../.test-dist/presentation/CampaignMenuPresentation');
 const {LEVELS}=require('../.test-dist/config/LevelCatalog');
 const center=r=>({x:(r.left+r.right)/2,y:(r.bottom+r.top)/2});
-test('欢迎页只提供开始入口，关卡选择不直接部署且返回保留选择',()=>{
+test('欢迎页开始入口可达，关卡选择不直接部署且返回保留选择',()=>{
  const menu=new CampaignMenu();assert.equal(menu.snapshot.screen,'welcome');
  const layout=campaignLayout(1080,menu.snapshot,2);
  assert.equal(campaignAction(center(layout.start),1080,menu.snapshot,2),'start');

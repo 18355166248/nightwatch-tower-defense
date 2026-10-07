@@ -1,4 +1,5 @@
 import { Color, Graphics, HorizontalTextAlignment, isValid, Label, Node, resources, Sprite, SpriteFrame, UIOpacity, UITransform, VerticalTextAlignment } from 'cc';
+import { towerPortraitPath } from '../config/TowerCatalog';
 import { FROST_COIL, type EnemyId, type TowerId } from '../config/PhaseBCombatConfig';
 import { towerVisualRank } from './TowerVisualRank';
 import type { GridCell } from '../core/GridTypes';
@@ -32,6 +33,10 @@ import { FrostUpgradeArtFrames } from './FrostUpgradeArtFrames';
 import { frostUpgradePulse, selectFrostArt } from './FrostUpgradeArt';
 
 const UNIT_ASSETS = {
+    'piercing-cannon': 'level-three/units/piercing-cannon-level-1/spriteFrame',
+    'arc-tower': 'level-three/units/arc-tower-level-1/spriteFrame',
+    'siege-tank': 'level-three/units/siege-tank/spriteFrame',
+    'shield-guard': 'level-three/units/shield-guard/spriteFrame',
     'rivet-gun': 'level-one/units/rivet-gun/spriteFrame',
     'frost-coil': 'level-one/units/frost-coil/spriteFrame',
     'clockwork-infantry': 'level-one/units/clockwork-infantry/spriteFrame',
@@ -40,6 +45,8 @@ const UNIT_ASSETS = {
 } as const;
 type UnitArtId = keyof typeof UNIT_ASSETS;
 const ENEMY_GAIT_ASSETS = {
+    'siege-tank': 'level-three/units/siege-tank-step-b/spriteFrame',
+    'shield-guard': 'level-three/units/shield-guard-step-b/spriteFrame',
     'clockwork-infantry': 'level-one/units/clockwork-infantry-step-b-v2/spriteFrame',
     'clockwork-runner': 'level-one/units/clockwork-runner-step-b-v2/spriteFrame',
     'iron-canister-hauler': 'level-one/units/iron-canister-hauler-step-b-v1/spriteFrame',
@@ -84,6 +91,7 @@ export class PhaseBUnitSpriteView {
     public overlappingHealthBarPairs = 0;
     public nearCoincidentEnemyAnchorPairs = 0;
     private readonly shopLayer = new Node('ShopSprites');
+    private readonly newTowerFrames = new Map<string, SpriteFrame>();
     private readonly frames = new Map<EnemyId | TowerId, SpriteFrame>();
     private readonly gaitFrames = new Map<EnemyId, SpriteFrame>();
     private readonly deathFrames = new Map<EnemyDeathArtId, SpriteFrame>();
@@ -149,6 +157,11 @@ export class PhaseBUnitSpriteView {
                 this.deathFrames.set(id, frame);
             });
         }
+        for (const id of ['piercing-cannon', 'arc-tower'] as const) for (const level of [2, 3]) {
+            resources.load(towerPortraitPath(id, level), SpriteFrame, (error, frame) => {
+                if (!error && frame && isValid(this.root)) this.newTowerFrames.set(`${id}:${level}`, frame);
+            });
+        }
         for (const [towerId, paths] of Object.entries(TOWER_LAYER_ASSETS) as [LayeredTowerId, { base: string; active: string }][]) {
             for (const [part, resourcePath] of Object.entries(paths) as ['base' | 'active', string][]) {
                 resources.load(resourcePath, SpriteFrame, (error, frame) => {
@@ -160,7 +173,10 @@ export class PhaseBUnitSpriteView {
     }
 
     public get ready(): boolean {
-        return this.frames.size === Object.keys(UNIT_ASSETS).length;
+        return ['rivet-gun','frost-coil','clockwork-infantry','clockwork-runner','iron-canister-hauler'].every(id => this.frames.has(id as UnitArtId));
+    }
+    public get missingArtIds(): ReadonlySet<UnitArtId> {
+        return new Set((Object.keys(UNIT_ASSETS) as UnitArtId[]).filter(id=>!this.frames.has(id)));
     }
 
     public hasGaitFrame(id: EnemyGaitArtId): boolean {
@@ -261,7 +277,7 @@ export class PhaseBUnitSpriteView {
         // Creator 的发布转译对 iterable 展开存在差异，Map 在表现层显式转数组后迭代。
         for (const [key, towerId] of Array.from(state.towerIdsByCell.entries())) {
             const cell = this.cellFromKey(key);
-            const frame = this.frames.get(towerId);
+            const frame = this.newTowerFrames.get(`${towerId}:${state.towerLevelsByCell.get(key) ?? 1}`) ?? this.frames.get(towerId);
             if (!frame) continue;
             // 战场单位不得大于格子，否则相邻布塔会互相遮挡，也会盖住敌人与路径。
             const point = this.layout.gridPointCenter(cell, state.grid);
@@ -345,7 +361,7 @@ export class PhaseBUnitSpriteView {
         for (const enemy of state.enemies) {
             const frame = this.frames.get(enemy.archetype.id);
             if (!frame) continue;
-            const heavy = enemy.archetype.id === 'iron-canister-hauler';
+            const heavy = enemy.archetype.id === 'iron-canister-hauler' || enemy.archetype.id === 'siege-tank';
             const displaySize = enemyDisplaySize(cellSize, heavy, this.layout.safeHalfWidth < 360);
             const node = this.ensureEnemyNode(enemy.id, frame, displaySize);
             const arrival = this.arrival.pose(enemy.id, runElapsedSeconds, state.reducedMotion);
@@ -360,7 +376,7 @@ export class PhaseBUnitSpriteView {
             const offset = { x: crowdOffset.column * cellSize, y: -crowdOffset.row * cellSize };
             node.setPosition(x + offset.x, y + offset.y, 0);
             depths.push({ node, y: y + offset.y, spawnOrder: enemy.spawnOrder });
-            const ratio = enemyHealthBarRatio(enemy.health, enemy.archetype.maxHealth);
+            const ratio = enemyHealthBarRatio(enemy.health, enemy.archetype.maxHealth) ?? (enemy.archetype.maxShield ? 1 : null);
             if (ratio !== null) healthBars.push({ id: enemy.id, spawnOrder: enemy.spawnOrder,
                 x: x + offset.x, y: y + offset.y + (heavy ? 55 : 48), width: heavy ? 66 : 52, ratio });
             const hit = state.feedback.tracers.find((tracer) => tracer.targetId === enemy.id);
@@ -417,6 +433,21 @@ export class PhaseBUnitSpriteView {
         const bars = layoutEnemyHealthBars(healthBars, { left: metrics.left + 4, right: metrics.left + metrics.width - 4,
             bottom: metrics.bottom + 4, top: metrics.bottom + metrics.height - 4 });
         drawEnemyHealthBars(this.healthGraphics, bars);
+        for(const enemy of state.enemies){
+            if(!enemy.shield)continue;
+            const point=this.visualAnchors.resolveTarget(enemy.id,this.layout.routePointCenter(enemy.fromCell,state.grid));
+            this.healthGraphics.strokeColor=new Color(97,222,249,150);this.healthGraphics.lineWidth=2;
+            this.healthGraphics.ellipse(point.x,point.y,cellSize*.36,cellSize*.42);this.healthGraphics.stroke();
+        }
+        for (const bar of bars) {
+            const enemy = state.enemies.find(item => item.id === bar.id);
+            if (!enemy?.archetype.maxShield || !enemy.shield) continue;
+            // 护盾独立于生命绘制；破盾后立即清掉蓝条，不能以生命比例冒充剩余盾量。
+            this.healthGraphics.fillColor = new Color('#183B56');
+            this.healthGraphics.rect(bar.x-bar.width/2,bar.y+10,bar.width,5); this.healthGraphics.fill();
+            this.healthGraphics.fillColor = new Color('#59DDEC');
+            this.healthGraphics.rect(bar.x-bar.width/2,bar.y+10,bar.width*Math.min(1,enemy.shield/enemy.archetype.maxShield),5); this.healthGraphics.fill();
+        }
         this.renderedHealthBarCount = bars.length;
         this.displacedHealthBarCount = bars.filter((bar) => bar.x !== bar.anchorX || bar.y !== bar.anchorY).length;
         this.overlappingHealthBarPairs = healthBarOverlapCount(bars);

@@ -2,6 +2,7 @@ import { DEFAULT_GRID_ID } from './PhaseAGrids';
 import { FIRST_LEVEL_STARTING_GOLD } from './FirstLevelOpening';
 import { CLOCKWORK_RUNNER, IRON_CANISTER_HAULER, FIRST_LEVEL_WAVE_BLUEPRINTS, PHASE_B_WAVES, type WaveDefinition } from './PhaseBCombatConfig';
 import type { GridId } from '../core/GridTypes';
+import { THIRD_LEVEL_WAVES, THIRD_LEVEL_STARTING_GOLD } from './ThirdLevelCombatConfig';
 
 export type LevelId = keyof typeof LEVEL_DATA;
 export interface LevelDefinition {
@@ -12,6 +13,7 @@ export interface LevelDefinition {
     readonly startingGold: number;
     readonly waves: readonly WaveDefinition[];
     readonly nextLevel?: LevelId;
+    readonly backdropResource?: string;
     readonly campaign: { readonly district: string; readonly briefing: string; readonly difficulty: string; readonly guided: boolean };
 }
 
@@ -51,8 +53,11 @@ const LEVEL_DATA = {
         startingGold: FIRST_LEVEL_STARTING_GOLD, waves: PHASE_B_WAVES, nextLevel: 'second-level' as const,
         campaign: { district: '夜城广场', briefing: '在广场建立第一道防线，学习布塔、改路与升级。', difficulty: '新手教学', guided: true } },
     'second-level': { id: 'second-level' as const, label: '第二关', title: '高压防守', gridId: DEFAULT_GRID_ID,
-        startingGold: 160, waves: secondWaves,
+        startingGold: 160, waves: secondWaves, nextLevel: 'third-level' as const, backdropResource: 'level-two/backdrop-v1/spriteFrame',
         campaign: { district: '铸铁街巷', briefing: '快行者与重装混编来袭，提前升级，守住街巷。', difficulty: '高压挑战', guided: false } },
+    'third-level': { id: 'third-level' as const, label: '第三关', title: '钢铁堡垒 · 克制构筑', gridId: DEFAULT_GRID_ID,
+        startingGold: THIRD_LEVEL_STARTING_GOLD, waves: THIRD_LEVEL_WAVES, backdropResource: 'level-three/backdrop-v1/spriteFrame',
+        campaign: { district: '钢铁堡垒', briefing: '穿甲炮应对坦克，电弧塔破盾；混合配塔守住八波。', difficulty: '克制挑战', guided: false } },
 };
 
 export const LEVELS: Readonly<Record<LevelId, LevelDefinition>> = LEVEL_DATA;

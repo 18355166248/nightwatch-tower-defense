@@ -1,3 +1,4 @@
+import { towerDefinition } from '../config/TowerCatalog';
 import type { TowerArchetype, TowerId } from '../config/PhaseBCombatConfig';
 import type { BattlePhase } from '../systems/BattleStateMachine';
 import { towerAtLevel } from '../systems/TowerLevelRules';
@@ -59,7 +60,7 @@ export function towerSelectionSummary(tower: TowerArchetype): string {
 export function towerUpgradeSuccessText(towerId: TowerId, level: number): string {
     return towerId === 'frost-coil'
         ? `冷凝塔升至 Lv${level} · 范围减速增强`
-        : `机枪塔升至 Lv${level} · 火力与射程提升`;
+        : `${towerDefinition(towerId).label}升至 Lv${level} · 火力与射程提升`;
 }
 
 export type WaveClearTone = 'clean' | 'damaged' | 'critical';
