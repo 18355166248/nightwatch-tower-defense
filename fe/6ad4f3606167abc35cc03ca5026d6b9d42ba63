@@ -1,0 +1,32 @@
+assets/scripts/presentation/FirstLevelUiGeometry.ts
+  s_7edfb490771d4a::t_13a03e72769e6f 11-12
+docs/THIRD-LEVEL-SPEC.md
+  s_7edfb490771d4a::t_c3297fa1e53a04 3,43,94,139
+tests/quality-ui.test.cjs
+  s_7edfb490771d4a::t_071e1060652466 49
+assets/scripts/presentation/FirstLevelUiSkinView.ts
+  s_7edfb490771d4a::t_071e1060652466 37,57,84,96,117-122,126,144-151
+  s_7edfb490771d4a::t_73071b9daf12d9 152-153
+assets/scripts/runtime/NightwatchPocBootstrap.ts
+  s_7edfb490771d4a::t_13a03e72769e6f 360-361,366
+docs/THIRD-LEVEL-PROGRESS.md
+  s_7edfb490771d4a::t_911c15e44bce39 117
+  s_7edfb490771d4a::t_96300afe5598cf 3,27,110-116
+  s_7edfb490771d4a::t_c6a9adc97ccf97 118
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "fe6ad4f3606167abc35cc03ca5026d6b9d42ba63",
+  "prompts": {},
+  "sessions": {
+    "s_7edfb490771d4a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a111ba-8479-7b83-9b15-85cf783a5576",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
