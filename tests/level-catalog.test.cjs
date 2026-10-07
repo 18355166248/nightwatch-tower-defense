@@ -14,15 +14,18 @@ test('第一关保留新手配置，第二关提前混编且不共享可修改�
     assert.ok(waves[3].groups.some(g=>g.enemy.id==='iron-canister-hauler'));
     for(let i=0;i<8;i++) assert.notEqual(waves[i].groups[0].enemy,PHASE_B_WAVES[i].groups[0].enemy);
 });
-test('第二关加强后首关方案第五波失守，分段改路和冷凝升级仍能以1点核心通关',()=>{
+test('第二关加强后首关方案第五波失守，提前升级配合分段改路仍能通关',()=>{
     const first=replayFirstLevel();assert.equal(first.coreHealth,9);
     const level=LEVELS['second-level'];
     const old=replayFirstLevel({waves:level.waves,startingGold:level.startingGold});
     assert.equal(old.coreHealth,0);assert.equal(old.waveResults.at(-1).wave,5);
     const strategy=require('./support/second-level-strategy.cjs');
     const options={waves:level.waves,startingGold:level.startingGold,...strategy};
-    const advanced=replayFirstLevel(options);assert.equal(advanced.coreHealth,1);assert.equal(advanced.waveResults.length,8);
-    assert.deepEqual(advanced.waveResults.map(w=>w.leaked),[0,2,6,0,0,1,0,0]);
+    const advanced=replayFirstLevel(options);assert.equal(advanced.coreHealth,5);assert.equal(advanced.waveResults.length,8);
+    assert.deepEqual(advanced.waveResults.map(w=>w.leaked),[0,4,0,0,0,1,0,0]);
+    // 同一路线只把升级延后一波就失守，验证前段加强真正要求更早决策，而非靠回放自动补足预算。
+    const delayed=replayFirstLevel({...options,upgradesAfterWave:strategy.upgradesAfterWave.map(u=>({...u,wave:u.wave+1}))});
+    assert.equal(delayed.coreHealth,0);assert.equal(delayed.waveResults.at(-1).wave,3);
     for(const [frameDeltaSeconds,speedScale]of [[1/60,1],[1/20,2]]) {
         assert.deepEqual(replayFirstLevel({...options,frameDeltaSeconds,speedScale}).waveResults,advanced.waveResults);
     }

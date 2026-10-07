@@ -32,13 +32,14 @@ export const SECOND_LEVEL_BASE_WAVES: readonly WaveDefinition[] = FIRST_LEVEL_WA
     })),
 }));
 
-// 保留前两波观察窗口，第三波起压缩输出时间；赏金不提高，避免更强的敌人反而送来升级红利。
+// 第二关前五波也提高生命、移速和出怪密度，促使玩家更早补塔与升级；末三波保留已加强的强度。
+// 赏金不提高，避免更强的敌人反而送来升级红利。
 const secondWaves: readonly WaveDefinition[] = SECOND_LEVEL_BASE_WAVES.map(wave => ({ ...wave,
     groups: wave.groups.map(group => ({ ...group,
-        spawnIntervalSeconds: group.spawnIntervalSeconds * (wave.wave >= 6 ? 0.7 : wave.wave >= 3 ? 0.75 : 1),
+        spawnIntervalSeconds: group.spawnIntervalSeconds * (wave.wave >= 6 ? 0.7 : wave.wave >= 3 ? 0.75 : 1) * (wave.wave <= 5 ? 0.9 : 1),
         enemy: { ...group.enemy,
-            maxHealth: Math.round(group.enemy.maxHealth * (wave.wave >= 6 ? 1.25 : wave.wave >= 4 ? 1.15 : wave.wave === 3 ? 1.1 : 1)),
-            speedCellsPerSecond: group.enemy.speedCellsPerSecond * (wave.wave >= 4 ? 1.15 : 1),
+            maxHealth: Math.round(group.enemy.maxHealth * (wave.wave >= 6 ? 1.29 : wave.wave >= 4 ? 1.15 : wave.wave === 3 ? 1.1 : 1) * (wave.wave <= 5 ? 1.06 : 1)),
+            speedCellsPerSecond: group.enemy.speedCellsPerSecond * (wave.wave >= 4 ? 1.15 : 1) * (wave.wave <= 5 ? 1.03 : 1),
         },
     })),
 }));

@@ -8,8 +8,8 @@ const opening=[
 const reinforcements=[[1,0,2],[1,4,2],[2,3,5],[3,4,5],[3,5,5],[4,1,5],[5,2,8],[5,3,8],[6,4,8],[6,1,8],[6,0,8]]
  .map(([afterWave,column,row])=>({afterWave,cell:{column,row},towerId:'rivet-gun'}));
 const upgradesAfterWave=[
- {wave:3,cell:{column:2,row:5},targetLevel:2},
- {wave:4,cell:{column:2,row:2},targetLevel:2},
- {wave:5,cell:{column:2,row:5},targetLevel:3},
+ {wave:2,cell:{column:2,row:5},targetLevel:2},
+ {wave:3,cell:{column:2,row:2},targetLevel:2},
+ {wave:4,cell:{column:2,row:5},targetLevel:3},
 ];
 module.exports={opening,reinforcements,upgradesAfterWave};

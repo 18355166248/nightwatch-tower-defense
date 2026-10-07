@@ -1,3 +1,4 @@
 {"version":"previous","policy":"first-level-plan","health":2,"waves":8,"leaks":[1,0,0,3,1,3,0,0],"gold":341}
 {"version":"strengthened","policy":"first-level-plan","health":0,"waves":5,"leaks":[1,0,0,7,2],"gold":59}
-{"version":"strengthened","policy":"segmented-route","health":1,"waves":8,"leaks":[0,2,6,0,0,1,0,0],"gold":241}
+{"version":"strengthened","policy":"delayed-upgrades","health":0,"waves":3,"leaks":[0,4,6],"gold":34}
+{"version":"strengthened","policy":"segmented-route","health":5,"waves":8,"leaks":[0,4,0,0,0,1,0,0],"gold":254}
