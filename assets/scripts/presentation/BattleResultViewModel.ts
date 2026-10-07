@@ -77,6 +77,6 @@ export function buildBattleResultViewModel(
         ],
         footnote: recordFootnote || (battle.phase === 'victory' ? `${context.levelLabel ?? '首关'}已守住` : '调整布防后可再次挑战'),
         actionLabel: battle.phase === 'victory' && context.nextLevelLabel ? `挑战${context.nextLevelLabel}` : '重新部署',
-        homeActionLabel: '返回首页',
+        homeActionLabel: '返回地图',
     };
 }

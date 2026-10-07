@@ -11,15 +11,15 @@ export interface FirstLevelConfirmationCopy {
     readonly actionKinds: readonly [FirstLevelConfirmationAction, FirstLevelConfirmationAction];
 }
 
-/** 文案与语义动作成对提供，返回首页的安全主操作换序后不依赖旧按钮下标。 */
-export function firstLevelConfirmationPresentation(screen: FirstLevelConfirmationScreen): FirstLevelConfirmationCopy {
+/** 文案与语义动作成对提供，返回地图的安全主操作换序后不依赖旧按钮下标。 */
+export function firstLevelConfirmationPresentation(screen: FirstLevelConfirmationScreen, preparing = false): FirstLevelConfirmationCopy {
     if (screen === 'confirm-home') return {
-        title: '返回首页？',
-        kicker: '离开当前战斗',
-        body: ['当前战斗将结束，本局进度不会保存。', '再次开始时，从第一波重新布防。', '历史最好纪录与设置仍保留。'],
-        actions: ['保留原局 · 返回暂停', '结束本局 · 返回首页'],
+        title: '返回地图？',
+        kicker: preparing ? '离开当前布防' : '离开当前战斗',
+        body: [preparing ? '当前布防将结束，塔位与金币不会保存。' : '当前战斗将结束，本局进度不会保存。', '再次开始时，从第一波重新布防。', '历史最好纪录与设置仍保留。'],
+        actions: [preparing ? '保留布防 · 返回关卡' : '保留原局 · 返回暂停', '结束本局 · 返回地图'],
         actionKinds: ['cancel', 'home'],
-        footer: '返回暂停后，可手动继续战斗',
+        footer: preparing ? '返回关卡后，可继续布塔与升级' : '返回暂停后，可手动继续战斗',
     };
     // 检查点恢复开战前的剩余金币，而不是清零；战斗中获得的收益不会带回布防。
     return {

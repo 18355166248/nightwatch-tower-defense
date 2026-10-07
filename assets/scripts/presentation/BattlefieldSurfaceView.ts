@@ -41,11 +41,8 @@ export class BattlefieldSurfaceView {
                 const isTower = state.towers.has(key);
                 const isPreview = state.preview && sameCell(cell, state.preview.cell);
 
-                if (isEntry || isExit) {
-                    graphics.fillColor = new Color(isEntry ? 73 : 174, isEntry ? 138 : 81, isEntry ? 184 : 83, 180);
-                    graphics.roundRect(center.x - size * 0.43, center.y - size * 0.43, size * 0.86, size * 0.86, 9);
-                    graphics.fill();
-                } else if (isTower || isPreview) {
+                // 保留逻辑端点格为通道，不在棋盘内再绘一套彩色“门”；独立地标画在中线两端。
+                if (!isEntry && !isExit && (isTower || isPreview)) {
                     const color = isPreview
                         ? state.preview?.accepted ? new Color(63, 207, 146, 176) : new Color(225, 82, 82, 176)
                         : state.towerIdsByCell.get(key) === 'frost-coil'
@@ -55,12 +52,35 @@ export class BattlefieldSurfaceView {
                     graphics.fill();
                 }
 
+                // 地标移到棋盘外后，端点格仍是必经通道；铜色护栏和斜纹区分普通可建空地。
+                if (isEntry || isExit) {
+                    graphics.fillColor = new Color(164, 139, 93, 38);
+                    graphics.rect(center.x - size * .46, center.y - size * .46, size * .92, size * .92); graphics.fill();
+                    graphics.strokeColor = new Color(196, 161, 98, 190); graphics.lineWidth = 3;
+                    for (const side of [-1, 1]) {
+                        const x = center.x + side * size * .42;
+                        graphics.moveTo(x, center.y - size * .35); graphics.lineTo(x, center.y + size * .35);
+                        for (const dy of [-.32, .32]) {
+                            graphics.moveTo(x, center.y + size * dy);
+                            graphics.lineTo(x - side * size * .12, center.y + size * (dy + .08));
+                        }
+                    }
+                    graphics.stroke();
+                }
+
                 // 未占用的格子只留细线提示可布塔；敌人与地图原画仍能透出。
                 graphics.strokeColor = new Color(136, 164, 171, 43);
                 graphics.lineWidth = 1;
                 graphics.rect(center.x - size / 2, center.y - size / 2, size, size);
                 graphics.stroke();
             }
+        }
+        for (const cell of [state.grid.entry, state.grid.exit]) {
+            const port = this.layout.routePointCenter(cell, state.grid);
+            graphics.fillColor = new Color('#152936');
+            graphics.circle(port.x, port.y, size * 0.64); graphics.fill();
+            graphics.strokeColor = new Color('#A48B5D'); graphics.lineWidth = 3;
+            graphics.circle(port.x, port.y, size * 0.58); graphics.stroke();
         }
         this.drawRoutePreviewDifference(state, size);
     }

@@ -15,7 +15,7 @@ test('实际绘制弹迹、枪口亮点和命中火花读取本发炮管，不�
     vm.runInNewContext(compiled,{module,exports:module.exports,require:name=>name==='cc'?{Color:class Color{}}:load(name)});
     const circles=[], moves=[];
     const graphics={circle:(x,y)=>circles.push([x,y]),moveTo:(x,y)=>moves.push([x,y]),lineTo(){},fill(){},stroke(){}};
-    const view = new module.exports.CombatFeedbackView(graphics,{gridPointCenter:p=>({x:p.column*10,y:p.row*10})});
+    const view = new module.exports.CombatFeedbackView(graphics,{routePointCenter:p=>({x:p.column*10,y:p.row*10})});
     const feedback=new CombatFeedbackRuntime();
     const shot={towerCell:{column:4,row:3},towerId:'rivet-gun',targetId:'enemy-a',
         targetPoint:{column:3,row:2},damage:7,lethal:false,appliedSlow:false};
@@ -54,7 +54,7 @@ test('实际反馈绘制：击杀圈读取本帧尸影，金币起点在尸影�
     const circles = [];
     const graphics = { circle: (x, y) => circles.push([x, y]), fill() {}, stroke() {}, moveTo() {}, lineTo() {} };
     const view = new module.exports.CombatFeedbackView(graphics,
-        { gridPointCenter: point => ({ x: point.column * 10, y: point.row * 10 }) });
+        { routePointCenter: point => ({ x: point.column * 10, y: point.row * 10 }) });
     const timed = { point: { column: 2, row: 3 }, durationSeconds: .7, remainingSeconds: .7 };
     const state = { grid: {}, reducedMotion: true, feedback: { tracers: [], impacts: [], coreHits: [],
         slowPulses: [{ ...timed, radiusCells: 1, affectedEnemyCount: 1 }],

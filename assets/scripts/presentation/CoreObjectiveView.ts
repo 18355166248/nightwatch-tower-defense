@@ -16,7 +16,7 @@ const DIGIT_SEGMENTS: readonly (readonly number[])[] = [
     [0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 5, 6],
 ];
 
-/** 将可被敌人攻击的出口做成持续可读的世界目标，位置始终跟随网格出口。 */
+/** 将可被敌人攻击的出口做成持续可读的世界目标，位置始终跟随独立出口投影。 */
 export class CoreObjectiveView {
     public constructor(private readonly graphics: Graphics, private readonly layout: PhaseBLayout) {}
 
@@ -24,7 +24,7 @@ export class CoreObjectiveView {
         const objective = buildCoreObjectiveState(health, maxHealth);
         const board = this.layout.boardMetrics(grid);
         const cellSize = board.cellSize;
-        const center = this.layout.gridPointCenter(grid.exit, grid);
+        const center = this.layout.routePointCenter(grid.exit, grid);
         const radius = cellSize * 0.46;
         const color = new Color(CORE_COLORS[objective.tone]);
         const graphics = this.graphics;

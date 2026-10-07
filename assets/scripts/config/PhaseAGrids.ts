@@ -30,6 +30,7 @@ export const PHASE_A_GRIDS: Readonly<Record<GridId, GridDefinition>> = {
     },
 };
 
-export const DEFAULT_GRID_ID: GridId = 'grid-6x13';
+// 正式关卡使用奇数列，中央格与棋盘中轴重合，外部出入口无需横向接驳。
+export const DEFAULT_GRID_ID: GridId = 'grid-9x13';
 export const PHASE_A_TOWER_COST = 30;
 export const PHASE_A_INITIAL_GOLD = 120;

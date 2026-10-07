@@ -37,7 +37,7 @@ export function firstLevelSettingsPresentation(settings: FirstLevelSettings, spe
         settings.volumeStep === step, { kind: 'volume', step }));
     pair(-95).forEach((rect, i) => add(i ? '开' : '关', rect, settings.reducedMotion === Boolean(i), { kind: 'motion', reduced: Boolean(i) }));
     if (!fromHome) pair(-285).forEach((rect, i) => add(`${i + 1}×`, rect, speed === i + 1, { kind: 'speed', multiplier: i ? 2 : 1 }));
-    add(fromHome ? '返回首页' : '返回暂停', { left: -360, right: 360, bottom: -545, top: -395 }, false, { kind: 'back' });
+    add(fromHome ? '返回菜单' : '返回暂停', { left: -360, right: 360, bottom: -545, top: -395 }, false, { kind: 'back' });
     return { choices, captions: [
         { text: '声音', x: -360, y: 330, width: 340, size: 36 },
         { text: '音量', x: -360, y: 215, width: 200, size: 36 },

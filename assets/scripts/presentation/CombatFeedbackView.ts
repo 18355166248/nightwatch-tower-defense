@@ -198,6 +198,6 @@ export class CombatFeedbackView {
     }
 
     private center(point: { readonly column: number; readonly row: number }, grid: GridDefinition): PhaseBPoint {
-        return this.layout.gridPointCenter(point, grid);
+        return this.layout.routePointCenter(point, grid);
     }
 }

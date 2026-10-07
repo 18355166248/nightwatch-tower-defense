@@ -6,14 +6,21 @@ const {FirstLevelExperience}=require('../.test-dist/presentation/FirstLevelExper
 const {firstLevelCoachPresentation}=require('../.test-dist/presentation/FirstLevelCoachPresentation');
 test('每个地图格的多塔菜单都在安全范围内，塔型与关闭热区独立且命中一致',()=>{
  for(const width of [1080,1080*320/390]){
-  const layout=new PhaseBLayout();layout.setVisibleWidth(width);const grid=PHASE_A_GRIDS['grid-6x13'];
-  for(let row=0;row<13;row++)for(let column=0;column<6;column++){
+  const layout=new PhaseBLayout();layout.setVisibleWidth(width);const grid=PHASE_A_GRIDS['grid-9x13'];
+  for(let row=0;row<grid.rows;row++)for(let column=0;column<grid.columns;column++){
    const g=cellBuildMenuLayout(layout,grid,{row,column});assert.ok(g.panel.left>=-layout.safeHalfWidth);assert.ok(g.panel.right<=layout.safeHalfWidth);
    assert.ok(g.panel.top<=730);assert.ok(g.panel.bottom> -764);
    g.options.forEach((r,i)=>assert.equal(cellBuildMenuAction({x:(r.left+r.right)/2,y:(r.top+r.bottom)/2},g),i));
    assert.equal(cellBuildMenuAction({x:(g.close.left+g.close.right)/2,y:(g.close.top+g.close.bottom)/2},g),'close');
    assert.equal(cellBuildMenuAction({x:0,y:-950},g),null);
    assert.ok((g.options[0].top-g.options[0].bottom)/g.scale>=44);
+   for(const adjacentRow of [row-1,row+1]){
+    if(adjacentRow<0||adjacentRow>=grid.rows)continue;
+    const adjacent=layout.gridPointCenter({column,row:adjacentRow},grid);
+    assert.equal(cellBuildMenuAction(adjacent,g),null,'上下相邻格中心必须能直接换选');
+    const half=layout.boardMetrics(grid).cellSize/2;
+    assert.ok(adjacent.y-half>g.panel.top||adjacent.y+half<g.panel.bottom,'相邻整行不得被浮层遮挡');
+   }
   }
  }
 });

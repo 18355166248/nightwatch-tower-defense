@@ -85,7 +85,8 @@ export interface PhaseBBoardMetrics {
 
 const BOARD_TOP = 610;
 const BOARD_MAX_WIDTH = 860;
-const BOARD_MAX_HEIGHT = 1110;
+// 为棋盘上下独立的出怪口与核心留出空间，避免端点压住敌情或底部引导卡。
+const BOARD_MAX_HEIGHT = 1000;
 
 /** 输入与渲染共享同一套几何换算，避免调整画板尺寸后出现“看得见但点不中”。 */
 export class PhaseBLayout {
@@ -204,6 +205,59 @@ export class PhaseBLayout {
             x: metrics.left + (point.column + 0.5) * metrics.cellSize,
             y: metrics.bottom + metrics.height - (point.row + 0.5) * metrics.cellSize,
         };
+    }
+
+    public routePointCenter(point: PhaseBGridPoint, grid: GridDefinition): PhaseBPoint {
+        const base = this.gridPointCenter(point, grid);
+        for (const cell of [grid.entry, grid.exit]) {
+            const distance = Math.abs(point.column - cell.column) + Math.abs(point.row - cell.row);
+            if (distance >= 1) continue;
+            const original = this.gridPointCenter(cell, grid);
+            const port = this.endpointCenter(cell, grid);
+            if (distance === 0) return port;
+            const neighbor = this.gridPointCenter({
+                column: cell.column + (point.column - cell.column) / distance,
+                row: cell.row + (point.row - cell.row) / distance,
+            }, grid);
+            // 偶数列的格心偏离中轴：先笔直接入棋盘，再在棋盘内正交衔接实际寻路格。
+            // 按折线路程投影首尾逻辑步，怪物与道路共用位置，避免斜走和跳位。
+            const points = [port, { x: port.x, y: original.y }, original, neighbor];
+            const lengths = points.slice(1).map((p, i) => Math.hypot(p.x - points[i].x, p.y - points[i].y));
+            let remaining = lengths.reduce((sum, length) => sum + length, 0) * distance;
+            for (let i = 0; i < lengths.length; i++) {
+                const length = lengths[i];
+                if (length === 0) continue;
+                if (remaining <= length) {
+                    const t = remaining / length;
+                    return { x: points[i].x + (points[i + 1].x - points[i].x) * t,
+                        y: points[i].y + (points[i + 1].y - points[i].y) * t };
+                }
+                remaining -= length;
+            }
+            return neighbor;
+        }
+        return base;
+    }
+
+    private endpointCenter(cell: GridCell, grid: GridDefinition): PhaseBPoint {
+        const board = this.boardMetrics(grid);
+        return { x: board.left + board.width / 2,
+            y: cell.row === grid.entry.row ? board.bottom + board.height + board.cellSize * 0.7 : board.bottom - board.cellSize * 0.7 };
+    }
+
+    public routePolyline(path: readonly GridCell[], grid: GridDefinition): PhaseBPoint[] {
+        const points = path.map(cell => this.gridPointCenter(cell, grid));
+        const first = path[0], last = path[path.length - 1];
+        if (first && first.column === grid.entry.column && first.row === grid.entry.row) {
+            const port = this.endpointCenter(grid.entry, grid);
+            points.unshift(port, { x: port.x, y: points[0].y });
+        }
+        if (last && last.column === grid.exit.column && last.row === grid.exit.row) {
+            const port = this.endpointCenter(grid.exit, grid);
+            points.push({ x: port.x, y: points[points.length - 1].y }, port);
+        }
+        // 奇数列中轴与格心重合，去掉重复接驳点，避免道路描边在零长度段产生尖角。
+        return points.filter((point, index) => index === 0 || point.x !== points[index - 1].x || point.y !== points[index - 1].y);
     }
 
     public insideRect(point: PhaseBPoint, rect: PhaseBRect): boolean {

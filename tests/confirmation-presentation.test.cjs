@@ -26,12 +26,12 @@ test('重部署提示符合实际检查点：保留战前等级与剩余金币�
     assert.deepEqual(copy.actionKinds, ['restart', 'cancel']);
 });
 
-test('返回首页的安全主操作为取消；次操作明确结束本局，文案与动作不串位', () => {
+test('返回地图的安全主操作为取消；次操作明确结束本局，文案与动作不串位', () => {
     const copy = firstLevelConfirmationPresentation('confirm-home');
-    assert.equal(copy.title, '返回首页？');
+    assert.equal(copy.title, '返回地图？');
     assert.match(copy.body[0], /本局进度不会保存/);
     assert.match(copy.body[2], /纪录与设置仍保留/);
-    assert.deepEqual(copy.actions, ['保留原局 · 返回暂停', '结束本局 · 返回首页']);
+    assert.deepEqual(copy.actions, ['保留原局 · 返回暂停', '结束本局 · 返回地图']);
     assert.deepEqual(copy.actionKinds, ['cancel', 'home']);
 });
 
@@ -54,4 +54,11 @@ test('390与320获批稿文字和几何同比例，两个54高按钮缩放后仍
         }
     }
     assert.deepEqual(phaseBConfirmationButtons('menu', 1080), phaseBPauseButtons('menu'));
+});
+
+test('战前返回地图的取消语义是保留布防，而非恢复不存在的战斗暂停',()=>{
+    const copy=firstLevelConfirmationPresentation('confirm-home',true);
+    assert.equal(copy.actions[0],'保留布防 · 返回关卡');
+    assert.deepEqual(copy.actionKinds,['cancel','home']);
+    assert.match(copy.body[0],/当前布防/);assert.match(copy.footer,/继续布塔/);
 });

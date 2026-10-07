@@ -19,6 +19,7 @@ interface PauseLabels {
 
 export interface PhaseBPauseViewState {
     readonly pause: PauseOverlaySnapshot;
+    readonly preparing?: boolean;
     readonly wave: number;
     readonly totalWaves: number;
     readonly coreHealth: number;
@@ -133,7 +134,7 @@ export class PhaseBPauseOverlayView {
             labels = [`声音 · ${state.soundEnabled ? '开' : '关'}`, `音量 · ${state.volumeStep * 25}%`,
                 `减弱动态 · ${state.reducedMotion ? '开' : '关'}`,
                 state.homeSettingsVisible ? '' : `速度 · ${state.speedMultiplier}×`,
-                state.homeSettingsVisible ? '返回首页' : '返回暂停'];
+                state.homeSettingsVisible ? '返回菜单' : '返回暂停'];
             labelsView.footer.string = '偏好保存在本机；不会改变战斗数值';
         } else {
             const copy = firstLevelPauseMenuPresentation(state.pause);
@@ -142,7 +143,7 @@ export class PhaseBPauseOverlayView {
             labelsView.footer.string = copy.footer;
         }
         labelsView.subtitle.string = screen === 'route-error' ? state.routeErrorDetail ?? '诊断已保存，请重新部署'
-            : state.homeSettingsVisible ? '第一关 · 画面与声音' : `第 ${state.wave}/${state.totalWaves} 波 · 核心 ${state.coreHealth}/${state.maxCoreHealth}`;
+            : state.homeSettingsVisible ? '夜城防线 · 画面与声音' : `第 ${state.wave}/${state.totalWaves} 波 · 核心 ${state.coreHealth}/${state.maxCoreHealth}`;
         labelsView.title.node.getComponent(UITransform)?.setContentSize(menu ? 580 : panel.right - panel.left - 48, orientationBlocked ? 130 : 100);
         labelsView.subtitle.node.getComponent(UITransform)?.setContentSize(menu ? 580 : panel.right - panel.left - 48, orientationBlocked ? 90 : 70);
         labelsView.footer.node.getComponent(UITransform)?.setContentSize(panel.right - panel.left - 48, orientationBlocked ? 90 : 70);
@@ -190,7 +191,7 @@ export class PhaseBPauseOverlayView {
     }
 
     private renderConfirmation(screen: FirstLevelConfirmationScreen | 'route-error', state: PhaseBPauseViewState, labels: PauseLabels): void {
-        const copy = screen === 'route-error' ? firstLevelRouteRecoveryPresentation() : firstLevelConfirmationPresentation(screen);
+        const copy = screen === 'route-error' ? firstLevelRouteRecoveryPresentation() : firstLevelConfirmationPresentation(screen, state.preparing);
         const layout = firstLevelConfirmationLayout(this.layout.visibleDesignWidth);
         const place = (label: Label, text: string, spec: typeof layout.title, left = true, color = '#F4E9CD', bold = false) => {
             label.node.active = true;

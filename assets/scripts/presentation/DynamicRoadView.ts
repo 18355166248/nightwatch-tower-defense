@@ -21,7 +21,7 @@ export class DynamicRoadView {
         graphics.strokeColor = previewAccepted ? new Color(55, 112, 91, 145) : new Color(33, 44, 48, 172);
         graphics.lineWidth = Math.max(4, cellSize * 0.05);
         for (const seam of seams) {
-            const center = this.layout.gridPointCenter(seam.cell, grid);
+            const center = this.layout.routePointCenter(seam.cell, grid);
             const half = cellSize * 0.27;
             if (seam.axis === 'horizontal') {
                 graphics.moveTo(center.x - half, center.y);
@@ -38,19 +38,16 @@ export class DynamicRoadView {
         const graphics = this.graphics;
         graphics.strokeColor = color;
         graphics.lineWidth = width;
-        const start = this.layout.gridPointCenter(path[0], grid);
-        graphics.moveTo(start.x, start.y);
-        for (let index = 1; index < path.length; index += 1) {
-            const point = this.layout.gridPointCenter(path[index], grid);
-            graphics.lineTo(point.x, point.y);
-        }
+        const points = this.layout.routePolyline(path, grid);
+        graphics.moveTo(points[0].x, points[0].y);
+        for (const point of points.slice(1)) graphics.lineTo(point.x, point.y);
         graphics.stroke();
         // 只补真正的转角，四层圆角沿用同一格心；不在每格生成贴片和额外节点。
         graphics.fillColor = color;
-        for (const cell of corners) {
+        for (const cell of [...corners, path[0], path[path.length - 1]]) {
             const center = this.layout.gridPointCenter(cell, grid);
             graphics.circle(center.x, center.y, width * 0.5);
         }
-        if (corners.length > 0) graphics.fill();
+        graphics.fill();
     }
 }

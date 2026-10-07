@@ -133,10 +133,9 @@ export class PhaseBCanvasRenderer {
         const slowRingIds = state.useUnitSprites ? null : visibleSlowIndicatorIds(state.enemies);
         const healthBars: EnemyHealthBarCandidate[] = [];
         for (const enemy of state.enemies) {
-            const from = this.center(enemy.fromCell, state.grid);
-            const to = this.center(enemy.toCell, state.grid);
-            const x = from.x + (to.x - from.x) * enemy.progress;
-            const y = from.y + (to.y - from.y) * enemy.progress;
+            const point = this.layout.routePointCenter({column:enemy.fromCell.column+(enemy.toCell.column-enemy.fromCell.column)*enemy.progress,
+                row:enemy.fromCell.row+(enemy.toCell.row-enemy.fromCell.row)*enemy.progress},state.grid);
+            const x=point.x,y=point.y;
             if (!state.useUnitSprites) {
                 const runner = enemy.archetype.id === 'clockwork-runner';
                 const heavy = enemy.archetype.id === 'iron-canister-hauler';
@@ -203,16 +202,16 @@ export class PhaseBCanvasRenderer {
     }
 
     private drawRouteArrows(state: PhaseBSceneState, cellSize: number): void {
-        const path = state.activePath;
-        if (!path || path.length < 2) return;
+        if (!state.activePath || state.activePath.length < 2) return;
+        const path = this.layout.routePolyline(state.activePath, state.grid);
         const graphics = this.graphics;
         graphics.fillColor = state.preview?.accepted ? new Color('#90FFD0') : new Color('#B8DDF5');
         // 每隔一格画一个方向标，既标明动态改路结果，又避免箭头盖满敌人与塔。
         for (let index = 0; index < path.length - 1; index += 2) {
-            const from = this.center(path[index], state.grid);
-            const to = this.center(path[index + 1], state.grid);
-            const dx = (to.x - from.x) / cellSize;
-            const dy = (to.y - from.y) / cellSize;
+            const from = path[index], to = path[index + 1];
+            const distance = Math.hypot(to.x-from.x,to.y-from.y) || 1;
+            const dx = (to.x - from.x) / distance;
+            const dy = (to.y - from.y) / distance;
             const x = (from.x + to.x) / 2;
             const y = (from.y + to.y) / 2;
             const length = cellSize * 0.19;
@@ -464,6 +463,6 @@ export class PhaseBCanvasRenderer {
     }
 
     private center(point: PhaseBGridPoint, grid: GridDefinition): PhaseBPoint {
-        return this.layout.gridPointCenter(point, grid);
+        return this.layout.routePointCenter(point, grid);
     }
 }

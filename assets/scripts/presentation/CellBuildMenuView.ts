@@ -1,6 +1,7 @@
 import { Color, Graphics, HorizontalTextAlignment, Label, Node, resources, Sprite, SpriteFrame, UITransform, VerticalTextAlignment } from 'cc';
 import { PHASE_B_TOWERS } from '../config/PhaseBCombatConfig';
 import type { GridDefinition } from '../core/GridTypes';
+import { sameCell } from '../core/GridTypes';
 import { cellBuildMenuLayout, type CellBuildMenuInput } from './CellBuildMenuPresentation';
 import { FIRST_LEVEL_UI_FONT } from './FirstLevelUiStyle';
 import type { PhaseBLayout, PhaseBRect } from './PhaseBLayout';
@@ -53,7 +54,9 @@ export class CellBuildMenuView {
             this.graphics.strokeColor = new Color('#F4D58D'); this.graphics.lineWidth = 4*s;
             this.graphics.circle(geometry.center.x,geometry.center.y,this.layout.boardMetrics(grid).cellSize*.48); this.graphics.stroke();
             this.card(geometry.panel,'#0E202D','#95784F',12*s);
-            this.text('title','选择炮塔 · 点选即建造',{...geometry.panel,bottom:geometry.panel.top-35*s,right:geometry.close.left},14*s);
+            const channel = sameCell(input.cell, grid.exit) ? '出口接出通道'
+                : sameCell(input.cell, grid.entry) ? '入口接入通道' : null;
+            this.text('title',channel ? `${channel} · 不可建塔` : '选择炮塔 · 点选即建造',{...geometry.panel,bottom:geometry.panel.top-35*s,right:geometry.close.left},14*s);
             this.text('close','收起',geometry.close,11*s);
             input.options.forEach((option,index)=>{
                 const tower = PHASE_B_TOWERS.find(t=>t.id===option.towerId)!;

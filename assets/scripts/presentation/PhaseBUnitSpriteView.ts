@@ -284,7 +284,7 @@ export class PhaseBUnitSpriteView {
                     ? upgradedFrost ? frostPulse.pose : frostCorePulsePose(shot?.remainingSeconds ?? 0, shot?.durationSeconds ?? 0)
                     : recoil;
                 const aim = towerId === 'rivet-gun' ? recentAims.get(key) : undefined;
-                const fallbackTarget = aim ? this.layout.gridPointCenter(aim.point,state.grid) : point;
+                const fallbackTarget = aim ? this.layout.routePointCenter(aim.point,state.grid) : point;
                 const visualTarget = aim ? this.visualAnchors.resolveTarget(aim.targetId,fallbackTarget) : point;
                 const cellSize = this.layout.boardMetrics(state.grid).cellSize;
                 const aimPoint = aim ? {column:aim.point.column+(visualTarget.x-fallbackTarget.x)/cellSize,
@@ -350,10 +350,11 @@ export class PhaseBUnitSpriteView {
             const arrival = this.arrival.pose(enemy.id, runElapsedSeconds, state.reducedMotion);
             EnemyGroundingView.render(node, enemy.archetype.id, displaySize, arrival);
             this.renderEnemyIndicators(node, enemy, heavy, slowRingIds.has(enemy.id));
-            const from = this.layout.gridPointCenter(enemy.fromCell, state.grid);
-            const to = this.layout.gridPointCenter(enemy.toCell, state.grid);
-            const x = from.x + (to.x - from.x) * enemy.progress;
-            const y = from.y + (to.y - from.y) * enemy.progress;
+            const point = this.layout.routePointCenter({
+                column: enemy.fromCell.column + (enemy.toCell.column - enemy.fromCell.column) * enemy.progress,
+                row: enemy.fromCell.row + (enemy.toCell.row - enemy.fromCell.row) * enemy.progress,
+            }, state.grid);
+            const x = point.x, y = point.y;
             const crowdOffset = crowdOffsets.get(enemy.id)!;
             const offset = { x: crowdOffset.column * cellSize, y: -crowdOffset.row * cellSize };
             node.setPosition(x + offset.x, y + offset.y, 0);
@@ -363,7 +364,12 @@ export class PhaseBUnitSpriteView {
                 x: x + offset.x, y: y + offset.y + (heavy ? 55 : 48), width: heavy ? 66 : 52, ratio });
             const hit = state.feedback.tracers.find((tracer) => tracer.targetId === enemy.id);
             const life = hit ? hit.remainingSeconds / hit.durationSeconds : 0;
-            const direction = walkDirection(enemy.fromCell, enemy.toCell);
+            const nextProgress = Math.min(1, enemy.progress + 0.001);
+            const ahead = this.layout.routePointCenter({column:enemy.fromCell.column+(enemy.toCell.column-enemy.fromCell.column)*nextProgress,
+                row:enemy.fromCell.row+(enemy.toCell.row-enemy.fromCell.row)*nextProgress},state.grid);
+            const dx = ahead.x-x, dy = ahead.y-y;
+            const direction = Math.abs(dx)+Math.abs(dy)<0.00001 ? walkDirection(enemy.fromCell,enemy.toCell)
+                : walkDirection({column:0,row:0},{column:Math.abs(dx)>Math.abs(dy)?Math.sign(dx):0,row:Math.abs(dx)>Math.abs(dy)?0:-Math.sign(dy)});
             const directionalIndex = directionalWalkFrame(enemy.progress, enemy.spawnOrder, state.reducedMotion);
             const directionalFrame = enemy.archetype.id === 'clockwork-infantry'
                 ? this.infantryAtlas?.frame(direction, directionalIndex) : null;
@@ -501,7 +507,7 @@ export class PhaseBUnitSpriteView {
                 ? baseSize * collapseLayout.frames.down[0].w / this.infantryAtlas.layout.frames.down[0].w : baseSize;
             const node = this.ensureNode(this.deaths, death.enemyId, this.deathLayer, displayedFrame,
                 displaySize);
-            const point = this.layout.gridPointCenter(death.point, state.grid);
+            const point = this.layout.routePointCenter(death.point, state.grid);
             // 死亡继续沿用最后脚点，不能在倒地瞬间跳回原始四槽错位。
             const crowdOffset = this.crowd.get(death.enemyId);
             const offset = crowdOffset ? { x: crowdOffset.column * cellSize, y: -crowdOffset.row * cellSize }

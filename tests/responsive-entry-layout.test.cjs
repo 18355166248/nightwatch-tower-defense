@@ -76,7 +76,7 @@ test('极窄屏教学跳过保留独立槽和44px热区，不遮挡棋盘或HUD'
 test('极窄屏完整棋盘与外列中心都在安全区内，绘制坐标往返仍落在同一逻辑格', () => {
     const layout=new PhaseBLayout();
     const normal=layout.boardMetrics(PHASE_A_GRIDS['grid-9x13']);
-    assert.equal(normal.cellSize,85);
+    assert.equal(normal.cellSize,76);
     layout.setVisibleWidth(1920*320/900);
     for(const grid of Object.values(PHASE_A_GRIDS)) {
         const metrics=layout.boardMetrics(grid);

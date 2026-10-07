@@ -31,10 +31,10 @@ export class EnemyEntryArtView {
     public render(grid: GridDefinition, resultVisible: boolean): void {
         this.node.active = this.ready && !resultVisible;
         if (!this.node.active) return;
-        const center = this.layout.gridPointCenter(grid.entry, grid);
-        // 原图周围有透明安全边；在小屏扩大到约一格可见主体，并向内退让上方简报。
+        const center = this.layout.routePointCenter(grid.entry, grid);
+        // 棋盘上方独立地标按中线定位，透明安全边保留，不再随某一列格心偏移。
         const size = this.layout.boardMetrics(grid).cellSize * 1.55;
-        this.node.setPosition(center.x, center.y - size * 0.08, 0);
+        this.node.setPosition(center.x, center.y, 0);
         this.node.getComponent(UITransform)?.setContentSize(size, size);
     }
 }

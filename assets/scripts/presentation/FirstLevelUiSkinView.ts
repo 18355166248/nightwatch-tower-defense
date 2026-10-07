@@ -105,10 +105,12 @@ export class FirstLevelUiSkinView {
         this.place('hud', 'hud-frame', { left: -516, right: 516, bottom: 784, top: 936 });
         this.place('tray', 'tray-frame', { left: -516, right: 516, bottom: -936, top: -764 });
         const panelVisible = Boolean(state.towerPanel);
+        // 右上角共用一个控制槽：布防时返回地图，开战后暂停；不再叠加菜单浮层盖住暂停饰面。
+        const mapControl = state.phase === 'preparing';
         for (const [key, rect, enabled] of [
             ['speed', PHASE_B_SPEED_BUTTON, true],
             ['next', PHASE_B_EARLY_WAVE_BUTTON, state.waveStartButton.active],
-            ['pause', PHASE_B_CENTER_PAUSE_BUTTON, state.showPause],
+            ['pause', PHASE_B_CENTER_PAUSE_BUTTON, mapControl || state.showPause],
         ] as const) this.place(key, enabled ? 'button-frame' : 'disabled-frame', firstLevelControlRect(rect, true));
         for (const [key, frame, x] of [['rivet-icon', 'rivet-gun', -408], ['frost-icon', 'frost-coil', -88]] as const) {
             this.place(key, frame, { left: x - 56, right: x + 56, bottom: -904, top: -792 });
@@ -123,7 +125,9 @@ export class FirstLevelUiSkinView {
         this.label('wave', `${state.wave} / ${state.totalWaves}`, -119, 836, 55, 190);
         this.label('core-caption', '核心', 143, 887, 40, 160, '#B8C6CC');
         this.label('core', `${state.coreHealth} / ${state.maxCoreHealth}`, 143, 836, 55, 195, state.coreHealth <= 3 ? '#FF8580' : '#A4EFEA');
-        this.label('pause', 'Ⅱ', 415, 861, 64, 100, state.showPause ? '#F4E9CD' : '#AEBBC2', true, true);
+        this.label('map-return', '↶', 415, 891, 46, 110, '#F4CF79', true, mapControl);
+        this.label(mapControl ? 'map-label' : 'pause', mapControl ? '地图' : 'Ⅱ', 415, mapControl ? 831 : 861, mapControl ? 34 : 64,
+            mapControl ? 130 : 100, mapControl || state.showPause ? '#F4E9CD' : '#AEBBC2', true, true);
         this.label('chapter', state.levelTitle ?? '夜城广场', -480, 744, 40, 700, '#DFD3B8',false,!state.coach?.upcoming);
         this.label('rivet', state.activePlacementTowerId === 'rivet-gun' ? '已选机枪' : '机枪塔', -336, -835, 44, 180,
             state.activePlacementTowerId === 'rivet-gun' ? '#FFE39B' : '#F4E9CD');

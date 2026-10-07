@@ -67,7 +67,8 @@ export class FirstLevelHomeArtView {
         return item;
     }
 
-    public setLayout(hero: PhaseBRect, contentWidth: number): void {
+    public setLayout(hero: PhaseBRect, contentWidth: number, showUnits = true): void {
+        for (const name of ['rivet', 'frost']) { const item = this.sprites.get(name); if (item) item.node.active = showUnits; }
         this.place('hero',{left:hero.left+10,right:hero.right-10,bottom:hero.bottom+10,top:hero.top-10});
         const half = Math.min(425,contentWidth/2-22);
         this.place('rivet',{left:-half+12,right:-half+124,bottom:-326,top:-214});

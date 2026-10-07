@@ -29,12 +29,12 @@ export class CoreObjectiveArtView {
     public render(grid: GridDefinition, coreHits: readonly TimedFeedback[], resultVisible: boolean, reducedMotion = false): void {
         this.node.active = Boolean(this.sprite.spriteFrame) && !resultVisible;
         if (!this.node.active) return;
-        const center = this.layout.gridPointCenter(grid.exit, grid);
+        const center = this.layout.routePointCenter(grid.exit, grid);
         // 减弱动态只移除目标抖动/缩放，漏怪警示仍由战场圆环保留。
         const reaction = coreObjectiveReactionPose(reducedMotion ? [] : coreHits);
-        // 实物比单格略大，底座上移避免压住战场下沿；目标仍由出口格唯一定位。
+        // 核心独立放在棋盘下方并横向居中，生命环与受击反馈使用同一出口投影。
         const size = this.layout.boardMetrics(grid).cellSize * 1.22;
-        this.node.setPosition(center.x, center.y + size * 0.18 + reaction.offsetY, 0);
+        this.node.setPosition(center.x, center.y + reaction.offsetY, 0);
         this.node.setScale(reaction.scaleX, reaction.scaleY, 1);
         this.sprite.color = new Color(255, reaction.green, reaction.blue);
         this.node.getComponent(UITransform)?.setContentSize(size, size);

@@ -1,3 +1,5 @@
+import { CampaignMenu, campaignAction, campaignStages, type CampaignStage } from '../presentation/CampaignMenuPresentation';
+import { CampaignMenuView } from '../presentation/CampaignMenuView';
 import { CellBuildMenuView } from '../presentation/CellBuildMenuView';
 import { cellBuildMenuAction, cellBuildMenuLayout, type CellBuildMenuInput } from '../presentation/CellBuildMenuPresentation';
 import { LEVELS, type LevelId } from '../config/LevelCatalog';
@@ -23,7 +25,7 @@ import { firstLevelMusicMood } from '../audio/FirstLevelMusicPolicy';
 import { PHASE_A_FIXTURES } from '../config/PhaseAFixtures';
 import { DEFAULT_GRID_ID, PHASE_A_GRIDS, PHASE_A_INITIAL_GOLD } from '../config/PhaseAGrids';
 import { FIRST_LEVEL_STARTING_GOLD } from '../config/FirstLevelOpening';
-import { firstLevelCoachSkipRect, firstLevelHomeLayout } from '../presentation/FirstLevelEntryLayout';
+import { firstLevelCoachSkipRect } from '../presentation/FirstLevelEntryLayout';
 import { PHASE_B_TOWERS, type TowerId } from '../config/PhaseBCombatConfig';
 import { cellKey, sameCell, type EnemyRouteState, type GridCell, type GridId } from '../core/GridTypes';
 import { PhaseBDebugInput, type PhaseBDebugAction } from '../input/PhaseBDebugInput';
@@ -127,6 +129,9 @@ export class NightwatchPocBootstrap extends Component {
     private coreArt: CoreObjectiveArtView | null = null;
     private entryArt: EnemyEntryArtView | null = null;
     private experienceView: FirstLevelExperienceView | null = null;
+    private readonly campaignMenu = new CampaignMenu();
+    private campaignView: CampaignMenuView | null = null;
+    private campaignEntries: CampaignStage[] = [];
     private pauseView: PhaseBPauseOverlayView | null = null;
     private levelId: LevelId = 'first-level';
     private waves = new WaveCatalog(LEVELS[this.levelId].waves);
@@ -209,6 +214,8 @@ export class NightwatchPocBootstrap extends Component {
         this.foregroundFeedback = new CombatForegroundView(layer, this.layout);
         this.hud = new PhaseBHudView(layer, this.layout, level => this.unitSprites?.frostStructureFrame(level) ?? null);
         this.experienceView = new FirstLevelExperienceView(layer, this.layout);
+        this.campaignView = new CampaignMenuView(layer, this.layout);
+        this.refreshCampaignEntries();
         this.buildMenuView = new CellBuildMenuView(layer, this.layout);
         this.pauseView = new PhaseBPauseOverlayView(layer, this.layout);
 
@@ -300,21 +307,20 @@ export class NightwatchPocBootstrap extends Component {
         const point = this.localPoint(event);
         this.pressStart.set(point);
 
-        // 入场卡独占输入；玩家未开始前不能误触底下的塔和战斗按钮。
+        // 欢迎页/地图独占触控，点选据点不穿透到下面的棋盘；只有“进入关卡”才创建新战斗。
         if (this.experience.entryMode === 'home') {
-            if (this.homeSettingsVisible) {
-                this.handleHomeSettingsTouch(point);
-            } else if (this.layout.insideRect(point, firstLevelHomeLayout(this.layout).settings)) {
-                this.homeSettingsVisible = true;
-                this.playSound('ui');
-            } else if (this.layout.insideRect(point, firstLevelHomeLayout(this.layout).start)) {
-                this.enterLevel('first-level', true);
-                // 入场后由中央教学承担首个动作，顶栏事件槽留给真正发生的建造/战斗事件。
-                this.statusText = '新手引导开始 · 先学布塔改路';
-                this.playSound('ui');
-            } else if (this.layout.insideRect(point, firstLevelHomeLayout(this.layout).skip)) {
-                this.enterLevel('second-level', false);
-                this.playSound('ui');
+            if (this.homeSettingsVisible) this.handleHomeSettingsTouch(point);
+            else {
+                const action = campaignAction(point, this.layout.visibleDesignWidth, this.campaignMenu.snapshot, this.campaignEntries.length);
+                if (action === 'settings') this.homeSettingsVisible = true;
+                else if (action === 'start') { this.refreshCampaignEntries(); this.campaignMenu.openMap(); }
+                else if (action === 'back') this.campaignMenu.welcome();
+                else if (action === 'previous' || action === 'next') this.campaignMenu.turnPage(action === 'next' ? 1 : -1, this.campaignEntries.length);
+                else if (action === 'deploy') {
+                    const stage = this.campaignEntries[this.campaignMenu.snapshot.selectedIndex];
+                    if (stage) this.enterLevel(stage.id, stage.guided);
+                } else if (action && typeof action === 'object') this.campaignMenu.select(action.select, this.campaignEntries.length);
+                if (action) this.playSound('ui');
             }
             this.primaryTouchId = null;
             return;
@@ -457,6 +463,12 @@ export class NightwatchPocBootstrap extends Component {
             else this.resetGrid();
             return true;
         }
+        // 战前也要有退出选关的入口；已有布塔先确认，不把“返回地图”误当开第一波。
+        if (this.preparing && !this.qaMode && this.layout.insideRect(point, firstLevelControlRect(PHASE_B_CENTER_PAUSE_BUTTON, true))) {
+            if (this.model.towers.size === 0) this.returnToHome();
+            else { this.pauseOverlay.enterUser(); this.pauseOverlay.show('confirm-home'); this.cancelInput('返回地图前确认结束布防'); }
+            return true;
+        }
         if (centerPauseVisible(this.preparing, this.battle.snapshot.phase, this.guidedIntermissionHeld)
             && this.layout.insideRect(point, this.layout.safeRect(firstLevelControlRect(PHASE_B_CENTER_PAUSE_BUTTON, !this.qaMode)))) {
             this.toggleBattle();
@@ -533,7 +545,7 @@ export class NightwatchPocBootstrap extends Component {
         if (pause.screen === 'confirm-restart' || pause.screen === 'confirm-home') {
             // 首页确认的主按钮是保留原局；按语义分发，不能沿用旧的“索引0一律确认”。
             const action = firstLevelConfirmationPresentation(pause.screen).actionKinds[button];
-            if (action === 'cancel') this.pauseOverlay.show('menu');
+            if (action === 'cancel') { if (this.preparing) { this.pauseOverlay.clear(); this.statusText = '已保留布防，可继续建塔与升级'; } else this.pauseOverlay.show('menu'); }
             else if (action === 'restart') this.restartFromCheckpoint();
             else if (action === 'home') this.returnToHome();
             return true;
@@ -841,10 +853,14 @@ export class NightwatchPocBootstrap extends Component {
             this.statusText = '已关闭炮塔射程查看';
         }
         if (!this.qaMode) {
-            // 空格直接打开多塔选择；只因金币不足也允许打开，让玩家看见价格与禁用原因。
+            // 外部地标仍依赖棋盘内端点格；点击保留通道也打开说明，不能像空白失效区域一样无反馈。
+            // 金币不足同样展示价格与禁用原因，具体塔型提交时仍重读真实建造规则。
             const candidate = this.model.preview(cell, this.enemyStates(), 'rivet-gun');
-            if (candidate.accepted || candidate.reason === 'insufficient-gold') {
-                this.buildCell = cell; this.statusText = '选择炮塔，点击即可建造'; this.playSound('ui');
+            if (candidate.accepted || candidate.reason === 'insufficient-gold' || candidate.reason === 'entry' || candidate.reason === 'exit') {
+                this.buildCell = cell;
+                this.statusText = candidate.reason === 'entry' || candidate.reason === 'exit'
+                    ? this.rejectText(candidate.reason) : '选择炮塔，点击即可建造';
+                this.playSound('ui');
             } else { this.buildCell = null; this.statusText = this.rejectText(candidate.reason); this.playSound('reject'); }
         }
     }
@@ -1058,10 +1074,21 @@ export class NightwatchPocBootstrap extends Component {
         this.statusText = `${level.label} · ${level.title} · ${guided ? '新手引导开始' : '自由布防'}`;
     }
 
+    private refreshCampaignEntries(): void {
+        this.campaignEntries = campaignStages(id => ({
+            bestSeconds: new FirstLevelBestTimeStore(this.qaMode, undefined, id).bestSeconds,
+            bestHealth: new FirstLevelBestHealthStore(this.qaMode, undefined, id).bestRemainingHealth,
+        }));
+    }
+
     private returnToHome(): void {
-        if (!this.resultViewModel() && !(this.battle.snapshot.phase === 'paused' && this.pauseOverlay.snapshot.visible)) return;
-        this.enterLevel('first-level', false);
+        if (!this.preparing && !this.resultViewModel() && !(this.battle.snapshot.phase === 'paused' && this.pauseOverlay.snapshot.visible)) return;
+        const previous = this.levelId;
+        this.enterLevel(previous, false);
         this.experience.returnHome();
+        this.refreshCampaignEntries();
+        this.campaignMenu.select(this.campaignEntries.findIndex(stage => stage.id === previous), this.campaignEntries.length);
+        this.homeSettingsVisible = false;
         this.playSound('ui');
     }
 
@@ -1076,8 +1103,11 @@ export class NightwatchPocBootstrap extends Component {
 
     private startCurrentWave(): void {
         // 自动倒计时和玩家提前开波都汇入这里，避免生成器出现两套初始化顺序。
-        // 未提交的预览不能跨入战斗：否则画面显示候选路线，敌人却沿已提交流场行动。
+        // 候选路线与拖拽在开波时清理，但点格打开的选塔浮层保留，避免倒计时打断选择。
+        // 浮层每帧重读金币/敌人占格，点选时重新提交预览，不沿用开波前的可建判断。
+        const pendingBuildCell = this.buildCell;
         this.cancelInput('开波时已取消未提交的布塔');
+        this.buildCell = pendingBuildCell;
         this.towerInspection.clear();
         const wave = this.waves.get(this.battle.snapshot.wave);
         this.combat.start(wave);
@@ -1304,7 +1334,9 @@ export class NightwatchPocBootstrap extends Component {
         this.foregroundFeedback?.render(sceneState, this.unitSprites?.visualAnchors);
         this.experienceView?.render(experience, this.model.grid, Boolean(result), this.preview?.cell ?? null, inspectedCell,
             this.bestTime.bestSeconds, this.bestHealth.bestRemainingHealth, this.coachVisualSeconds, this.settings.snapshot.reducedMotion);
+        this.campaignView?.render(experience.mode === 'home', this.campaignMenu.snapshot, this.campaignEntries);
         this.pauseView?.render({
+            preparing: this.preparing,
             pause: this.pauseOverlay.snapshot,
             routeErrorDetail: this.routeDiagnostics.fault
                 ? `第${battle.wave}波 · 地图v${this.routeDiagnostics.fault.mapVersion} · 诊断已保存` : undefined,
@@ -1323,7 +1355,7 @@ export class NightwatchPocBootstrap extends Component {
             : this.model.flowField.distanceAt(this.model.grid.entry);
         const waveSpawnProgress = this.combat.waveSpawnProgress;
         this.hud?.render({
-            levelTitle: `${LEVELS[this.levelId].label} · ${this.levelId === 'first-level' ? '新手关' : '高压防守'}`,
+            levelTitle: `${LEVELS[this.levelId].label} · ${LEVELS[this.levelId].campaign.district}`,
             qaMode: this.qaMode,
             entryMode: this.experience.entryMode,
             guidanceText,
@@ -1492,13 +1524,14 @@ export class NightwatchPocBootstrap extends Component {
             status: this.statusText,
         },
             this.experience.entryMode === 'home'
-                ? this.homeSettingsVisible ? '夜城防线游戏设置，声音、音量、减弱动态，返回首页'
-                    : '夜城防线：第一关新手引导，第二关高压防守，设置'
+                ? this.homeSettingsVisible ? '夜城防线游戏设置，声音、音量、减弱动态，返回菜单'
+                    : this.campaignMenu.snapshot.screen === 'welcome' ? '夜城防线欢迎页，开始游戏进入关卡地图，设置'
+                    : `夜城战役关卡地图，${this.campaignEntries.map(stage => `${stage.label}${stage.district}`).join('，')}，已选择${this.campaignEntries[this.campaignMenu.snapshot.selectedIndex]?.label}，进入关卡，返回欢迎页，设置`
                 : result
                 ? `${result.title}，${result.summary.replace('\n', '，')}，${result.runDetails.map(({ label, value }) => `${label}${value}`).join('，')}，${result.footnote}，${result.actionLabel}，${result.homeActionLabel}`
                 : this.pauseOverlay.snapshot.visible
                 ? this.pauseOverlay.hasReason('route-error')
-                    ? `夜城防线路线异常，战斗已冻结，诊断已保存，不能继续；重新部署或返回首页，第${this.battle.snapshot.wave}波，地图版本${this.model.mapVersion}`
+                    ? `夜城防线路线异常，战斗已冻结，诊断已保存，不能继续；重新部署或返回地图，第${this.battle.snapshot.wave}波，地图版本${this.model.mapVersion}`
                     : this.pauseOverlay.hasReason('orientation')
                     ? `夜城防线横屏安全暂停，请转回竖屏，再点继续战斗。第${this.battle.snapshot.wave}波，核心${this.battle.snapshot.coreHealth}`
                     : `夜城防线暂停，${this.pauseOverlay.snapshot.screen === 'menu' ? firstLevelPauseMenuPresentation(this.pauseOverlay.snapshot).actions.join('，') : this.pauseOverlay.snapshot.screen === 'settings' ? '声音、音量、减弱动态、速度设置，返回暂停' : '请确认或取消'}，第${this.battle.snapshot.wave}波，核心${this.battle.snapshot.coreHealth}`
@@ -1546,8 +1579,8 @@ export class NightwatchPocBootstrap extends Component {
     private rejectText(reason: PlacementPreview['reason']): string {
         const messages: Record<string, string> = {
             'out-of-bounds': '不能建造：战场外',
-            entry: '不能建造：入口格',
-            exit: '不能建造：出口格',
+            entry: '入口接入通道，需保持畅通',
+            exit: '出口接出通道，需保持畅通',
             occupied: '不能建造：已有炮塔',
             'enemy-current-cell': '不能建造：敌人当前格',
             'enemy-committed-cell': '不能建造：敌人下一步',

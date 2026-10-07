@@ -5,10 +5,18 @@ const { FIRST_LEVEL_WAVE_BLUEPRINTS, PHASE_B_WAVES, CLOCKWORK_INFANTRY, IRON_CAN
 const { FIRST_LEVEL_OPENING, FIRST_LEVEL_REINFORCEMENTS, FIRST_LEVEL_OPTIONAL_FORTIFICATIONS, FIRST_LEVEL_GUIDED_UPGRADES } = require('../.test-dist/config/FirstLevelOpening.js');
 const { TWO_LANE_TRAFFIC } = require('../.test-dist/systems/EnemyTrafficRules.js');
 const { replayFirstLevel } = require('./support/first-level-replay.cjs');
+const { LEVELS } = require('../.test-dist/config/LevelCatalog.js');
+const { PhaseBLayout } = require('../.test-dist/presentation/PhaseBLayout.js');
 
-test('首关6列，入口和推荐塔位仍对齐，全部建议与可选塔位合法', () => {
+test('首关9列，入口和推荐塔位仍对齐，全部建议与可选塔位合法', () => {
     const grid = PHASE_A_GRIDS[DEFAULT_GRID_ID];
-    assert.equal(grid.columns, 6); assert.equal(grid.rows, 13);
+    assert.equal(grid.columns, 9); assert.equal(grid.rows, 13);
+    for (const level of Object.values(LEVELS)) assert.equal(level.gridId, 'grid-9x13');
+    const layout = new PhaseBLayout();
+    for (const endpoint of [grid.entry, grid.exit]) {
+        assert.equal(layout.gridPointCenter(endpoint, grid).x, 0);
+        assert.equal(layout.routePointCenter(endpoint, grid).x, 0);
+    }
     assert.equal(grid.entry.column, FIRST_LEVEL_OPENING[0].cell.column);
     for (const {cell} of [...FIRST_LEVEL_OPENING, ...FIRST_LEVEL_REINFORCEMENTS, ...FIRST_LEVEL_OPTIONAL_FORTIFICATIONS, ...FIRST_LEVEL_GUIDED_UPGRADES]) {
         assert.ok(cell.column >= 0 && cell.column < grid.columns && cell.row >= 0 && cell.row < grid.rows);
