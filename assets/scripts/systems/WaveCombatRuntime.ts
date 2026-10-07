@@ -5,12 +5,14 @@ import type { TowerDeployment } from './PlacementModel';
 import { towerAtLevel } from './TowerLevelRules';
 import { trafficEntryLane, trafficMove, type EnemyTrafficSettings, type TrafficLane } from './EnemyTrafficRules';
 import { RouteMovementError } from './RouteDiagnostics';
+import { resolveCombatDamage } from './CombatDamage';
 import { TowerTargetLocks } from './TowerTargetLocks';
 
 export interface CombatEnemy {
     readonly id: string;
     readonly archetype: EnemyArchetype;
     health: number;
+    shield?: number;
     fromCell: GridCell;
     toCell: GridCell;
     progress: number;
@@ -32,6 +34,9 @@ export interface ShotEvent {
     readonly targetId: string;
     readonly targetPoint: GridPoint;
     readonly damage: number;
+    readonly shieldDamage?: number;
+    readonly healthDamage?: number;
+    readonly shieldBroken?: boolean;
     readonly lethal: boolean;
     readonly appliedSlow: boolean;
     readonly slowedEnemyIds?: readonly string[];
@@ -217,6 +222,7 @@ export class WaveCombatRuntime {
                 id,
                 archetype: group.enemy,
                 health: group.enemy.maxHealth,
+                shield: group.enemy.maxShield ?? 0,
                 fromCell: this.grid.entry,
                 toCell: next,
                 progress: 0,
@@ -304,8 +310,10 @@ export class WaveCombatRuntime {
                 this.towerCooldowns.set(key, 0);
                 continue;
             }
-            const damage = Math.min(target.health, tower.damage);
-            target.health -= damage;
+            const resolved = resolveCombatDamage(target.health, target.shield ?? 0, target.archetype, tower);
+            const damage = resolved.healthDamage;
+            target.health = Math.max(0, target.health - damage);
+            target.shield = Math.max(0, (target.shield ?? 0) - resolved.shieldDamage);
             const targetPoint = this.enemyPoint(target);
             // 冷凝仍只对主目标造成伤害；短脉冲给同一小群敌人施加控制，避免纯机枪在密集波次始终更优。
             const slowedEnemyIds = tower.effect?.kind === 'slow'
@@ -318,6 +326,9 @@ export class WaveCombatRuntime {
                 targetId: target.id,
                 targetPoint,
                 damage,
+                healthDamage: resolved.healthDamage,
+                shieldDamage: resolved.shieldDamage,
+                shieldBroken: resolved.shieldBroken,
                 lethal: target.health <= 0,
                 appliedSlow: slowedEnemyIds.length > 0,
                 slowedEnemyIds,
@@ -365,7 +376,12 @@ export class WaveCombatRuntime {
             const y = enemy.fromCell.row + (enemy.toCell.row - enemy.fromCell.row) * enemy.progress;
             return Math.hypot(x - towerCell.column, y - towerCell.row) <= tower.rangeCells;
         });
+        const counterClass = (enemy: CombatEnemy): number => tower.targetPriority === 'armored'
+            ? Number((enemy.archetype.armorReduction ?? 0) > 0)
+            : tower.targetPriority === 'shielded' ? Number((enemy.shield ?? 0) > 0) : 0;
         candidates.sort((left, right) => {
+            const counterOrder = counterClass(right) - counterClass(left);
+            if (counterOrder !== 0) return counterOrder;
             if (tower.targetPriority === 'fast-uncontrolled') {
                 // 控制塔优先压制疾行威胁；同速目标优先补未减速者，避免反复刷新一只敌人而放走整队。
                 const speedOrder = right.archetype.speedCellsPerSecond - left.archetype.speedCellsPerSecond;
@@ -380,6 +396,8 @@ export class WaveCombatRuntime {
         });
         return this.targetLocks.choose(key,tower.id,candidates,(locked,best)=>{
             // 锁定不能推翻出口优先/冷凝控制优先策略；只在同威胁层级和数值误差内保持原目标。
+            // 新出现的克制目标必须抢占锁定；破盾后电弧塔可转向仍有盾的敌人。
+            if (counterClass(locked) !== counterClass(best)) return false;
             if(tower.targetPriority==='fast-uncontrolled'
                 && (locked.archetype.speedCellsPerSecond!==best.archetype.speedCellsPerSecond
                     || (locked.slowRemainingSeconds>0)!==(best.slowRemainingSeconds>0)))return false;

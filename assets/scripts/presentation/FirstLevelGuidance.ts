@@ -1,3 +1,4 @@
+import type { TowerId } from '../config/PhaseBCombatConfig';
 import { FIRST_WAVE_MIN_PATH_DELTA, FIRST_WAVE_MIN_TOWER_COUNT } from '../systems/BattleStateMachine';
 import { waveStartActionText } from './PhaseBHudText';
 
@@ -6,7 +7,7 @@ export interface FirstLevelGuidanceState {
     readonly towerCount: number;
     readonly pathDelta: number;
     readonly previewAccepted: boolean | null;
-    readonly selectedTowerId: 'rivet-gun' | 'frost-coil';
+    readonly selectedTowerId: TowerId;
 }
 
 /** 只根据玩法快照生成首关引导；提示不反向改变布塔或战斗规则。 */

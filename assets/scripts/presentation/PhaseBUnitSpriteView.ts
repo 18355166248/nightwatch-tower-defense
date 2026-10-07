@@ -1,5 +1,5 @@
 import { Color, Graphics, HorizontalTextAlignment, isValid, Label, Node, resources, Sprite, SpriteFrame, UIOpacity, UITransform, VerticalTextAlignment } from 'cc';
-import { FROST_COIL } from '../config/PhaseBCombatConfig';
+import { FROST_COIL, type EnemyId, type TowerId } from '../config/PhaseBCombatConfig';
 import { towerVisualRank } from './TowerVisualRank';
 import type { GridCell } from '../core/GridTypes';
 import { PHASE_B_DESIGN_HEIGHT, PHASE_B_DESIGN_WIDTH, PhaseBLayout } from './PhaseBLayout';
@@ -84,8 +84,8 @@ export class PhaseBUnitSpriteView {
     public overlappingHealthBarPairs = 0;
     public nearCoincidentEnemyAnchorPairs = 0;
     private readonly shopLayer = new Node('ShopSprites');
-    private readonly frames = new Map<UnitArtId, SpriteFrame>();
-    private readonly gaitFrames = new Map<EnemyGaitArtId, SpriteFrame>();
+    private readonly frames = new Map<EnemyId | TowerId, SpriteFrame>();
+    private readonly gaitFrames = new Map<EnemyId, SpriteFrame>();
     private readonly deathFrames = new Map<EnemyDeathArtId, SpriteFrame>();
     private readonly towerLayers = new Map<string, SpriteFrame>();
     private readonly towers = new Map<string, Node>();
@@ -272,7 +272,8 @@ export class PhaseBUnitSpriteView {
             }) : null;
             let base = this.towerLayers.get(`${towerId}:base`);
             let active = this.towerLayers.get(`${towerId}:active`);
-            if (base && active) {
+            // 新塔没有旧双塔的分层契约，正式素材接入前保留 Graphics 降级，不能套用冷凝机架。
+            if (base && active && (towerId === 'rivet-gun' || towerId === 'frost-coil')) {
                 const level = state.towerLevelsByCell.get(key) ?? 1;
                 const frostArt = towerId === 'frost-coil' ? selectFrostArt(level, this.frostUpgradeFrames.pair(level), { base, active }) : null;
                 if (frostArt) { base = frostArt.pair.base; active = frostArt.pair.active; }

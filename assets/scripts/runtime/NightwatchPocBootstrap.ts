@@ -314,11 +314,18 @@ export class NightwatchPocBootstrap extends Component {
                 const action = campaignAction(point, this.layout.visibleDesignWidth, this.campaignMenu.snapshot, this.campaignEntries.length);
                 if (action === 'settings') this.homeSettingsVisible = true;
                 else if (action === 'start') { this.refreshCampaignEntries(); this.campaignMenu.openMap(); }
-                else if (action === 'back') this.campaignMenu.welcome();
+                else if (action === 'back') {
+                    if (this.campaignMenu.snapshot.screen === 'loadout') this.campaignMenu.openMap();
+                    else this.campaignMenu.welcome();
+                }
                 else if (action === 'previous' || action === 'next') this.campaignMenu.turnPage(action === 'next' ? 1 : -1, this.campaignEntries.length);
                 else if (action === 'deploy') {
                     const stage = this.campaignEntries[this.campaignMenu.snapshot.selectedIndex];
-                    if (stage) this.enterLevel(stage.id, stage.guided);
+                    if (stage) {
+                        // 地图部署先进入独立配塔页，只有确认阵容才建立新战斗。
+                        if (this.campaignMenu.snapshot.screen === 'loadout') this.enterLevel(stage.id, stage.guided);
+                        else this.campaignMenu.openLoadout();
+                    }
                 } else if (action && typeof action === 'object') this.campaignMenu.select(action.select, this.campaignEntries.length);
                 if (action) this.playSound('ui');
             }
@@ -1526,6 +1533,7 @@ export class NightwatchPocBootstrap extends Component {
             this.experience.entryMode === 'home'
                 ? this.homeSettingsVisible ? '夜城防线游戏设置，声音、音量、减弱动态，返回菜单'
                     : this.campaignMenu.snapshot.screen === 'welcome' ? '夜城防线欢迎页，开始游戏进入关卡地图，设置'
+                    : this.campaignMenu.snapshot.screen === 'loadout' ? '出战配塔，本关固定携带机枪塔与冷凝塔，开始布防，返回地图，设置'
                     : `夜城战役关卡地图，${this.campaignEntries.map(stage => `${stage.label}${stage.district}`).join('，')}，已选择${this.campaignEntries[this.campaignMenu.snapshot.selectedIndex]?.label}，进入关卡，返回欢迎页，设置`
                 : result
                 ? `${result.title}，${result.summary.replace('\n', '，')}，${result.runDetails.map(({ label, value }) => `${label}${value}`).join('，')}，${result.footnote}，${result.actionLabel}，${result.homeActionLabel}`

@@ -1,4 +1,4 @@
-export type EnemyId = 'clockwork-infantry' | 'clockwork-runner' | 'iron-canister-hauler';
+export type EnemyId = 'clockwork-infantry' | 'clockwork-runner' | 'iron-canister-hauler' | 'siege-tank' | 'shield-guard';
 
 export interface EnemyArchetype {
     readonly id: EnemyId;
@@ -6,9 +6,11 @@ export interface EnemyArchetype {
     readonly maxHealth: number;
     readonly speedCellsPerSecond: number;
     readonly killReward: number;
+    readonly armorReduction?: number;
+    readonly maxShield?: number;
 }
 
-export type TowerId = 'rivet-gun' | 'frost-coil';
+export type TowerId = 'rivet-gun' | 'frost-coil' | 'piercing-cannon' | 'arc-tower';
 
 export interface SlowEffect {
     readonly kind: 'slow';
@@ -33,7 +35,9 @@ export interface TowerArchetype {
     readonly rangeCells: number;
     readonly damage: number;
     readonly attackIntervalSeconds: number;
-    readonly targetPriority?: 'nearest-exit' | 'fast-uncontrolled';
+    readonly armorIgnore?: number;
+    readonly shieldDamageMultiplier?: number;
+    readonly targetPriority?: 'nearest-exit' | 'fast-uncontrolled' | 'armored' | 'shielded';
     readonly effect?: SlowEffect;
     readonly upgrade?: TowerUpgrade;
     readonly finalUpgrade?: TowerUpgrade;
@@ -79,6 +83,7 @@ export const IRON_CANISTER_HAULER: EnemyArchetype = {
 
 export const RIVET_GUN: TowerArchetype = {
     id: 'rivet-gun',
+    shieldDamageMultiplier: 0.6,
     label: '机枪塔',
     cost: 30,
     rangeCells: 2.6,

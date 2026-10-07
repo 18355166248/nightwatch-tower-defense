@@ -1,4 +1,5 @@
-import { Color, Graphics, HorizontalTextAlignment, Label, Node, UITransform, VerticalTextAlignment } from 'cc';
+import { PHASE_B_TOWERS } from '../config/PhaseBCombatConfig';
+import { Color, Graphics, HorizontalTextAlignment, isValid, Label, Node, resources, Sprite, SpriteFrame, UITransform, VerticalTextAlignment } from 'cc';
 import { campaignLayout, type CampaignSnapshot, type CampaignStage } from './CampaignMenuPresentation';
 import { FirstLevelHomeArtView } from './FirstLevelHomeArtView';
 import { FIRST_LEVEL_UI_FONT } from './FirstLevelUiStyle';
@@ -12,6 +13,8 @@ export class CampaignMenuView {
     private readonly art: FirstLevelHomeArtView;
     private labels: Node | null = null;
     private signature = '';
+    private readonly loadoutFrames = new Map<string, SpriteFrame>();
+    private loadoutRequested = false;
     private repaint: (() => void) | null = null;
     public constructor(parent: Node, private readonly layout: PhaseBLayout) {
         this.root.layer = parent.layer;
@@ -39,6 +42,7 @@ export class CampaignMenuView {
         // 雾气用静态半透明层叠，界面不持续刷新，避免菜单装饰占用战斗帧预算。
         for (let i=6;i>0;i--) this.disc(130,180,110+i*55,new Color(33,91,105,12));
         if (state.screen === 'welcome') this.welcome(l);
+        else if (state.screen === 'loadout') this.loadout(l, stages[state.selectedIndex]);
         else this.map(l,state,stages);
         this.box(l.settings,'#172B36','#48636B',24); this.gear((l.settings.left+l.settings.right)/2,815);
         if (typeof document !== 'undefined') document.querySelector('canvas')?.setAttribute('data-campaign-ui', JSON.stringify({screen:state.screen,page:state.page,selected:stages[state.selectedIndex]?.id,layout:l}));
@@ -116,6 +120,39 @@ export class CampaignMenuView {
                 `最佳核心 ${stage.bestHealth}/10${stage.bestSeconds===null?'':`  ·  最快 ${formatRunDuration(stage.bestSeconds)}`}`,0,-832,26,'#8FACB8',l.half*2-60,50);
         }
         this.text(`点击据点选择关卡  ·  ${state.page+1} / ${Math.max(1,Math.ceil(stages.length/3))}`,0,-922,25,'#6B8999',l.half*2,44);
+    }
+    /** 配塔页先接入前两关固定阵容；第三关可编辑阵容随正式塔素材与目录一起开放。 */
+    private loadout(l: ReturnType<typeof campaignLayout>, stage: CampaignStage | undefined): void {
+        if (!this.loadoutRequested) {
+            this.loadoutRequested = true;
+            for (const tower of PHASE_B_TOWERS) resources.load(`level-one/units/${tower.id}/spriteFrame`, SpriteFrame, (error, frame) => {
+                if (error || !frame || !isValid(this.root)) return;
+                this.loadoutFrames.set(tower.id, frame); this.signature = ''; this.repaint?.();
+            });
+        }
+        this.box(l.back,'#172B36','#48636B',24);
+        this.text('‹',(l.back.left+l.back.right)/2,820,66,'#BDD5D7',90,90);
+        this.text('出战配塔',0,818,58,'#F0D9A7',l.half*2-270,100);
+        this.text(`${stage?.label ?? ''} · ${stage?.district ?? ''}`,0,684,36,'#9DB8C5',l.half*2);
+        this.text('本关固定携带以下炮塔',0,570,34,'#D8CBAC',l.half*2);
+        const w=l.half*2-60;
+        for (const [index,tower] of PHASE_B_TOWERS.entries()) {
+            const y=310-index*390;
+            this.box({left:-w/2,right:w/2,bottom:y-150,top:y+150},'#142C38','#698987',28);
+            const frame=this.loadoutFrames.get(tower.id);
+            if (frame) {
+                const icon=new Node('LoadoutTowerPortrait');icon.layer=this.root.layer;icon.setPosition(-w/2+120,y+12);this.labels!.addChild(icon);
+                const sprite=icon.addComponent(Sprite);sprite.spriteFrame=frame;sprite.sizeMode=Sprite.SizeMode.CUSTOM;
+                icon.getComponent(UITransform)!.setContentSize(180,180);
+            }
+            this.text(tower.label,90,y+77,46,'#F3DEB1',w-250,80);
+            this.text(index===0?'持续火力 · 守住防线':'范围减速 · 控制疾行',90,y+5,30,'#A7BCC8',w-250,72);
+            this.text(`建造 ${tower.cost} 金币`,90,y-70,32,'#E9BF73',w-250,64);
+            this.text('✓ 已携带',0,y-124,27,'#8CDED0',w-60,48);
+        }
+        this.text('最多携带 5 种炮塔\n当前关卡使用固定教学阵容',0,-438,30,'#8FACB8',w,116);
+        this.button(l.deploy,stage?.guided?'开始布防 · 新手引导':'开始布防');
+        this.text('进入后可布塔改路，开波后仍能建造',0,-850,27,'#7D98A6',w,66);
     }
     private building(x:number,y:number,w:number,h:number,seed:number):void{
         const g=this.graphics,peak=y+h/2+16;

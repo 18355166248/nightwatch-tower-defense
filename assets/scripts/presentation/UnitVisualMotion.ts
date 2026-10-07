@@ -1,5 +1,5 @@
 import type { PhaseBPoint } from './PhaseBLayout';
-import type { EnemyId } from '../config/PhaseBCombatConfig';
+import type { EnemyId, TowerId } from '../config/PhaseBCombatConfig';
 
 /** 正交战场以脚下地面决定前后，位置相同时保持出生序；姿态和血条不参与排序。 */
 export function compareEnemyGroundDepth(a: { readonly y: number; readonly spawnOrder: number }, b: { readonly y: number; readonly spawnOrder: number }): number {
@@ -65,7 +65,7 @@ function enemyGaitTurns(archetypeId: EnemyId, progress: number, spawnOrder: numb
 
 /** 发射反馈只改变炮塔视觉姿态，归零后严格回到静止态，不移动逻辑塔位。 */
 export function towerRecoilPose(
-    towerId: 'rivet-gun' | 'frost-coil',
+    towerId: TowerId,
     remainingSeconds: number,
     durationSeconds: number,
     targetDirection: PhaseBPoint,

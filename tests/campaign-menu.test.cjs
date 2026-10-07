@@ -17,6 +17,15 @@ test('目录自动生成地图与每关独立记录，不将未通关伪造成�
  assert.equal(stages[0].guided,true);assert.equal(stages[1].guided,false);
  assert.equal(stages[0].bestHealth,9);assert.equal(stages[1].bestHealth,null);
 });
+test('独立配塔页只接收确认和返回，地图据点点击不穿透，返回保持选关',()=>{
+ const menu=new CampaignMenu();menu.openMap();menu.select(1,2);menu.openLoadout();
+ assert.equal(menu.snapshot.screen,'loadout');
+ const l=campaignLayout(1080,menu.snapshot,2);
+ assert.equal(campaignAction(center(l.deploy),1080,menu.snapshot,2),'deploy');
+ assert.equal(campaignAction(center(l.back),1080,menu.snapshot,2),'back');
+ for(const node of l.stages) assert.equal(campaignAction({x:node.x,y:node.y},1080,menu.snapshot,2),null);
+ menu.openMap();assert.equal(menu.snapshot.selectedIndex,1);
+});
 test('扩展到二十关时分页可达所有关卡，非本页节点不参与命中',()=>{
  const menu=new CampaignMenu();menu.openMap();const seen=[];
  for(let page=0;page<7;page++){

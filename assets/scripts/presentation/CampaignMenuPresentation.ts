@@ -21,7 +21,7 @@ export function campaignStages(records: (id: LevelId) => { bestSeconds: number |
     });
 }
 
-export type CampaignScreen = 'welcome' | 'map';
+export type CampaignScreen = 'welcome' | 'map' | 'loadout';
 export interface CampaignSnapshot {
     readonly screen: CampaignScreen;
     readonly selectedIndex: number;
@@ -31,6 +31,7 @@ export class CampaignMenu {
     private state: CampaignSnapshot = { screen: 'welcome', selectedIndex: 0, page: 0 };
     public get snapshot(): CampaignSnapshot { return this.state; }
     public openMap(): void { this.state = { ...this.state, screen: 'map' }; }
+    public openLoadout(): void { this.state = { ...this.state, screen: 'loadout' }; }
     public welcome(): void { this.state = { ...this.state, screen: 'welcome' }; }
     public select(index: number, count: number): void {
         if (!Number.isInteger(index) || index < 0 || index >= count) return;
@@ -70,6 +71,7 @@ export function campaignAction(point: PhaseBPoint, width: number, state: Campaig
     if (inside(layout.settings)) return 'settings';
     if (state.screen === 'welcome') return inside(layout.start) ? 'start' : null;
     if (inside(layout.back)) return 'back';
+    if (state.screen === 'loadout') return inside(layout.deploy) ? 'deploy' : null;
     if (inside(layout.deploy) && count > 0) return 'deploy';
     if (state.page > 0 && inside(layout.previous)) return 'previous';
     if ((state.page + 1) * 3 < count && inside(layout.next)) return 'next';

@@ -17,12 +17,16 @@ const SHORT_ENEMY_NAMES: Record<EnemyId, string> = {
     'clockwork-infantry': '步兵',
     'clockwork-runner': '疾行',
     'iron-canister-hauler': '重装',
+    'siege-tank': '坦克',
+    'shield-guard': '护盾',
 };
 
 const DENSE_ENEMY_NAMES: Record<EnemyId, string> = {
     'clockwork-infantry': '步兵',
     'clockwork-runner': '疾行',
     'iron-canister-hauler': '重甲',
+    'siege-tank': '坦克',
+    'shield-guard': '护盾',
 };
 
 function countedEnemies(wave: WaveDefinition): readonly CountedEnemy[] {
@@ -64,6 +68,9 @@ export function waveStartStatus(wave: WaveDefinition): string {
 
 export function waveThreatHint(wave: WaveDefinition): string {
     const ids = new Set(wave.groups.map(({ enemy }) => enemy.id));
+    if (ids.has('siege-tank') && ids.has('shield-guard')) return '穿甲破甲 · 电弧破盾';
+    if (ids.has('siege-tank')) return '坦克护甲高 · 穿甲炮集火';
+    if (ids.has('shield-guard')) return '护盾吸收伤害 · 电弧先破盾';
     if (ids.has('iron-canister-hauler') && ids.has('clockwork-runner')) return '疾行控速 · 重装集火';
     if (ids.has('iron-canister-hauler')) return '冷凝拖慢 · 机枪集火';
     return ids.has('clockwork-runner') ? '疾行更快 · 冷凝压速' : '机枪守线 · 留意改路';
