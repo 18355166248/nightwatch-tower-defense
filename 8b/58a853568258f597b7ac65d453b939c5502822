@@ -1,0 +1,44 @@
+docs/THIRD-LEVEL-SPEC.md
+  s_7edfb490771d4a::t_f1ddc062c0cbb9 1-2,4-97,118-167
+  s_7edfb490771d4a::t_7e63178502634c 3,98-117,168
+assets/scripts/systems/TowerLoadout.ts
+  s_7edfb490771d4a::t_d6ca987f961d4a 1-69
+docs/THIRD-LEVEL-PROGRESS.md
+  s_7edfb490771d4a::t_12f29905f2d3a7 5,22-24,29,46-47,50,89-101
+  s_7edfb490771d4a::t_ad126eb5d5b2ae 27
+  s_7edfb490771d4a::t_f1ddc062c0cbb9 1-2,4,6-21,25-26,31-34,41-45,48-49,51-81
+  s_7edfb490771d4a::t_7e63178502634c 3,28,30,35-40,82-88,102
+  s_7edfb490771d4a::t_5028f0a1a3d84b 103-109
+tests/campaign-menu.test.cjs
+  s_7edfb490771d4a::t_ad09e5fd8b8522 20-28
+README.md
+  s_7edfb490771d4a::t_f1ddc062c0cbb9 3-4,6-8
+  s_7edfb490771d4a::t_12f29905f2d3a7 5
+docs/validation.md
+  s_7edfb490771d4a::t_12f29905f2d3a7 6
+  s_7edfb490771d4a::t_f1ddc062c0cbb9 7
+assets/scripts/systems/CombatDamage.ts
+  s_7edfb490771d4a::t_0579f23cc80450 1-21
+assets/scripts/config/ThirdLevelCombatConfig.ts
+  s_7edfb490771d4a::t_0579f23cc80450 1-39
+tests/third-level-foundation.test.cjs
+  s_7edfb490771d4a::t_f1d1fc119ebd00 1-134
+docs/art/third-level-concept-v1.md
+  s_7edfb490771d4a::t_0a1be6573ff245 1-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.1",
+  "base_commit_sha": "8b58a853568258f597b7ac65d453b939c5502822",
+  "prompts": {},
+  "sessions": {
+    "s_7edfb490771d4a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a111ba-8479-7b83-9b15-85cf783a5576",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "lang.jiang <lang.jiang@ximalaya.com>"
+    }
+  }
+}
