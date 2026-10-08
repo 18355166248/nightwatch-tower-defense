@@ -216,8 +216,8 @@ export class PhaseBPauseOverlayView {
             index === 2 ? '#A9BDCA' : '#F4E9CD'));
         // 获批正文只强调操作后果，分段原生Label保留可编辑文字，不把整行烘焙进图片。
         if (screen !== 'route-error') {
-            const prefix = screen === 'confirm-home' ? '当前战斗将结束，' : '恢复开战前的';
-            const emphasis = screen === 'confirm-home' ? '本局进度不会保存' : '塔位、等级与金币';
+            const prefix = screen === 'confirm-home' ? '当前战斗将结束，' : '清空全部炮塔，';
+            const emphasis = screen === 'confirm-home' ? '本局进度不会保存' : '金币恢复关卡初始值';
             const body = layout.body[0];
             const segment = (start: number, count: number) => ({ ...body,
                 rect: { ...body.rect, left: body.rect.left + start * body.size, right: body.rect.left + (start + count) * body.size } });

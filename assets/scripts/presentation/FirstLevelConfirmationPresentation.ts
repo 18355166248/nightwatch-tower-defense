@@ -21,14 +21,14 @@ export function firstLevelConfirmationPresentation(screen: FirstLevelConfirmatio
         actionKinds: ['cancel', 'home'],
         footer: preparing ? '返回关卡后，可继续布塔与升级' : '返回暂停后，可手动继续战斗',
     };
-    // 检查点恢复开战前的剩余金币，而不是清零；战斗中获得的收益不会带回布防。
+    // 重新开始与恢复检查点区分：清空全部塔与升级，金币恢复当前关卡初始预算。
     return {
-        title: '回到战前布防？',
-        kicker: '重新部署',
-        body: ['恢复开战前的塔位、等级与金币。', '本局敌人、波次及战斗统计将重置。', '历史最好纪录不受影响。'],
-        actions: ['确认重新部署', '保留原局 · 返回暂停'],
+        title: '重新开始本关？',
+        kicker: '重新开始',
+        body: ['清空全部炮塔，金币恢复关卡初始值。', '敌人、核心生命与波次重新开始。', '历史最好纪录与出战阵容仍保留。'],
+        actions: ['确认重新开始', '保留原局 · 返回暂停'],
         actionKinds: ['restart', 'cancel'],
-        footer: '重新部署后，可调整塔位再开波',
+        footer: '从空棋盘重新布防，再开始第一波',
     };
 }
 

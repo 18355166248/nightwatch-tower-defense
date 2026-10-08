@@ -2,27 +2,13 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { firstLevelConfirmationPresentation, firstLevelConfirmationLayout } = require('../.test-dist/presentation/FirstLevelConfirmationPresentation');
 const { phaseBConfirmationButtons, phaseBPauseButtons, PhaseBLayout } = require('../.test-dist/presentation/PhaseBLayout');
-const { BattleRunCheckpoint } = require('../.test-dist/systems/BattleRunCheckpoint');
-const { PlacementModel } = require('../.test-dist/systems/PlacementModel');
-const { EconomyLedger } = require('../.test-dist/systems/EconomyLedger');
-const { PHASE_A_GRIDS } = require('../.test-dist/config/PhaseAGrids');
-const { PHASE_B_TOWERS } = require('../.test-dist/config/PhaseBCombatConfig');
 
-test('重部署提示符合实际检查点：保留战前等级与剩余金币，不带回战斗收益', () => {
-    const ledger = new EconomyLedger(80);
-    const model = new PlacementModel(PHASE_A_GRIDS['grid-9x13'], ledger, PHASE_B_TOWERS);
-    const cell = { column: 2, row: 2 };
-    assert.equal(model.commit(model.preview(cell, [], 'rivet-gun'), []).accepted, true);
-    assert.equal(model.upgrade(cell).accepted, true);
-    const checkpoint = BattleRunCheckpoint.capture(model);
-    ledger.credit(24);
-    const restored = checkpoint.restore().model;
-    assert.equal(restored.gold, 26);
-    assert.deepEqual(restored.deployments, model.deployments);
+test('重新开始确认明确清空炮塔和恢复关卡初始金币，不暗示保留战前部署', () => {
     const copy = firstLevelConfirmationPresentation('confirm-restart');
-    assert.match(copy.body[0], /塔位、等级与金币/);
-    assert.doesNotMatch(copy.body.join(''), /金币清零/);
-    assert.deepEqual(copy.actions, ['确认重新部署', '保留原局 · 返回暂停']);
+    assert.match(copy.body[0], /清空全部炮塔/);
+    assert.match(copy.body[0], /金币恢复关卡初始值/);
+    assert.match(copy.body[1], /核心生命与波次重新开始/);
+    assert.deepEqual(copy.actions, ['确认重新开始', '保留原局 · 返回暂停']);
     assert.deepEqual(copy.actionKinds, ['restart', 'cancel']);
 });
 

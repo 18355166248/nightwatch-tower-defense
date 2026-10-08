@@ -31,7 +31,7 @@ test('路线错误优先于后台恢复，不提供继续或假胜败，也不�
     assert.equal(pause.continue(), false);
     const copy = firstLevelRouteRecoveryPresentation();
     assert.deepEqual(copy.actionKinds, ['restart', 'home']);
-    assert.match(copy.body.join(''), /恢复战前塔位、等级与金币/);
+    assert.match(copy.body.join(''), /清空炮塔，恢复关卡初始金币/);
     assert.match(copy.body.join(''), /本局统计将重置/);
     assert.match(copy.body[0], /不会自动判胜负/);
     assert.doesNotMatch(copy.actions.join(''), /继续/);

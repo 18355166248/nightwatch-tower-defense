@@ -14,7 +14,7 @@ import { visibleSlowIndicatorIds } from './EnemySlowIndicatorSelection';
 import { enemyCrowdGroups } from './EnemyCrowdGroups';
 import { crowdNearCoincidentPairs, EnemyCrowdPresentation } from './EnemyCrowdLayout';
 import { compareEnemyGroundDepth, enemyDeathArtFrame, enemyDeathPose, enemyGaitFrame, enemySlowVisualStrength, enemyStridePose, enemyVisualOffset, frostCorePulsePose, towerRecoilPose } from './UnitVisualMotion';
-import { enemyDisplaySize, towerDisplaySize } from './UnitDisplaySize';
+import { enemyDisplaySize, towerDisplaySize, flatTowerArtLayout } from './UnitDisplaySize';
 import { enemySpriteRegistrationY } from './UnitSpriteRegistration';
 import { rivetAimAngleDegrees } from './TowerAimVisual';
 import { EnemyArrivalPresentation, enemyGroundingStyle } from './EnemyArrivalPresentation';
@@ -33,8 +33,8 @@ import { FrostUpgradeArtFrames } from './FrostUpgradeArtFrames';
 import { frostUpgradePulse, selectFrostArt } from './FrostUpgradeArt';
 
 const UNIT_ASSETS = {
-    'piercing-cannon': 'level-three/units/piercing-cannon-level-1/spriteFrame',
-    'arc-tower': 'level-three/units/arc-tower-level-1/spriteFrame',
+    'piercing-cannon': 'level-three/units/piercing-cannon-level-1-v2/spriteFrame',
+    'arc-tower': 'level-three/units/arc-tower-level-1-v2/spriteFrame',
     'siege-tank': 'level-three/units/siege-tank/spriteFrame',
     'shield-guard': 'level-three/units/shield-guard/spriteFrame',
     'rivet-gun': 'level-one/units/rivet-gun/spriteFrame',
@@ -277,9 +277,11 @@ export class PhaseBUnitSpriteView {
         // Creator 的发布转译对 iterable 展开存在差异，Map 在表现层显式转数组后迭代。
         for (const [key, towerId] of Array.from(state.towerIdsByCell.entries())) {
             const cell = this.cellFromKey(key);
-            const frame = this.newTowerFrames.get(`${towerId}:${state.towerLevelsByCell.get(key) ?? 1}`) ?? this.frames.get(towerId);
+            const requestedLevel=state.towerLevelsByCell.get(key)??1;
+            const upgradeFrame=this.newTowerFrames.get(`${towerId}:${requestedLevel}`);
+            const frame = upgradeFrame ?? this.frames.get(towerId);
             if (!frame) continue;
-            // 战场单位不得大于格子，否则相邻布塔会互相遮挡，也会盖住敌人与路径。
+            // 显示以可见主体而非透明画布比较；单图新塔补偿留白，逻辑塔位始终保持原格心。
             const point = this.layout.gridPointCenter(cell, state.grid);
             const shot = state.reducedMotion ? undefined : recentShots.get(key);
             const recoil = shot ? towerRecoilPose(towerId, shot.remainingSeconds, shot.durationSeconds, {
@@ -338,8 +340,10 @@ export class PhaseBUnitSpriteView {
                 }
                 this.visualAnchors.emitter(key, emitter);
             } else {
-                const node = this.ensureNode(this.towers, key, this.towerLayer, frame, towerSize);
-                node.setPosition(point.x + (recoil?.x ?? 0), point.y + 3 + (recoil?.y ?? 0), 0);
+                // 升级图未就绪时沿用一级图的配准，不能把1254画布当作旧128升级帧缩放。
+                const art=flatTowerArtLayout(this.layout.boardMetrics(state.grid).cellSize,towerId,upgradeFrame?requestedLevel:1);
+                const node = this.ensureNode(this.towers, key, this.towerLayer, frame, art?.width??towerSize,art?.height??towerSize);
+                node.setPosition(point.x + (art?.x??0) + (recoil?.x ?? 0), point.y + 3 + (art?.y??0) + (recoil?.y ?? 0), 0);
                 node.setScale(recoil?.scaleX ?? 1, recoil?.scaleY ?? 1, 1);
             }
             visible.add(key);
@@ -595,8 +599,9 @@ export class PhaseBUnitSpriteView {
         if (sprite) sprite.spriteFrame = this.frames.get(selected.towerId) ?? null;
         const point = this.layout.gridPointCenter(selected.cell, state.grid);
         this.preview.setPosition(point.x, point.y + 3, 0);
-        const size = towerDisplaySize(this.layout.boardMetrics(state.grid).cellSize);
-        this.preview.getComponent(UITransform)!.setContentSize(size, size);
+        const cellSize=this.layout.boardMetrics(state.grid).cellSize,size=towerDisplaySize(cellSize),art=flatTowerArtLayout(cellSize,selected.towerId);
+        this.preview.setPosition(point.x+(art?.x??0),point.y+3+(art?.y??0),0);
+        this.preview.getComponent(UITransform)!.setContentSize(art?.width??size,art?.height??size);
         if (sprite) sprite.color = new Color(selected.accepted ? '#ABFFE5' : '#FF9898');
     }
 
@@ -642,7 +647,7 @@ export class PhaseBUnitSpriteView {
         }
     }
 
-    private ensureNode(nodes: Map<string, Node>, key: string, layer: Node, frame: SpriteFrame, size: number): Node {
+    private ensureNode(nodes: Map<string, Node>, key: string, layer: Node, frame: SpriteFrame, size: number, height=size): Node {
         const current = nodes.get(key);
         if (current && (LayeredTowerRig.hasParts(current, RIVET_GUN_LAYER_SPEC) || LayeredTowerRig.hasParts(current, FROST_COIL_LAYER_SPEC))) {
             current.destroy();
@@ -651,7 +656,7 @@ export class PhaseBUnitSpriteView {
         const existing = nodes.get(key);
         if (existing) {
             const transform = existing.getComponent(UITransform);
-            if (transform && transform.contentSize.width !== size) transform.setContentSize(size, size);
+            if (transform && (transform.contentSize.width !== size||transform.contentSize.height !== height)) transform.setContentSize(size, height);
             const sprite = existing.getComponent(Sprite);
             if (sprite && sprite.spriteFrame !== frame) sprite.spriteFrame = frame;
             return existing;
@@ -662,7 +667,8 @@ export class PhaseBUnitSpriteView {
         const sprite = node.addComponent(Sprite);
         sprite.spriteFrame = frame;
         sprite.sizeMode = Sprite.SizeMode.CUSTOM;
-        transform.setContentSize(size, size);
+        sprite.trim=false;
+        transform.setContentSize(size, height);
         layer.addChild(node);
         nodes.set(key, node);
         return node;

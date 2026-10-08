@@ -14,5 +14,5 @@ export function towerRole(id: TowerId): string {
 }
 export function towerPortraitPath(id: TowerId, level = 1): string {
     return id === 'piercing-cannon' || id === 'arc-tower'
-        ? `level-three/units/${id}-level-${level}/spriteFrame` : `level-one/units/${id}/spriteFrame`;
+        ? `level-three/units/${id}-level-${Math.max(1,Math.min(3,level))}-v2/spriteFrame` : `level-one/units/${id}/spriteFrame`;
 }

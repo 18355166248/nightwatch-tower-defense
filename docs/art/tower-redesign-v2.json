@@ -1,0 +1,167 @@
+{
+  "version": 2,
+  "human_runtime_approved": false,
+  "scope": "两种塔三级完整同族素材：保留一级结构，二三级强化装甲/炮管/电极；地图主体大小和脚点统一",
+  "display": {
+    "visibleWidthCells": 0.95,
+    "visibleHeightCells": 1.3,
+    "grounding": "旧塔分层底座地面线",
+    "normalization": "原图不编辑；运行时按alpha>32边界设置宽高和脚点，菜单与图鉴使用原始比例"
+  },
+  "assets": [
+    {
+      "towerId": "arc-tower",
+      "level": 1,
+      "path": "assets/resources/level-three/units/arc-tower-level-1-v2.png",
+      "width": 1254,
+      "height": 1254,
+      "alphaBounds": [
+        153,
+        84,
+        1100,
+        1192
+      ],
+      "bytes": 1553870,
+      "decodedRgbaBytes": 6290064
+    },
+    {
+      "towerId": "arc-tower",
+      "level": 2,
+      "path": "assets/resources/level-three/units/arc-tower-level-2-v2.png",
+      "width": 1254,
+      "height": 1254,
+      "alphaBounds": [
+        152,
+        69,
+        1102,
+        1195
+      ],
+      "bytes": 1596113,
+      "decodedRgbaBytes": 6290064
+    },
+    {
+      "towerId": "arc-tower",
+      "level": 3,
+      "path": "assets/resources/level-three/units/arc-tower-level-3-v2.png",
+      "width": 1254,
+      "height": 1254,
+      "alphaBounds": [
+        150,
+        72,
+        1103,
+        1194
+      ],
+      "bytes": 1591849,
+      "decodedRgbaBytes": 6290064
+    },
+    {
+      "towerId": "piercing-cannon",
+      "level": 1,
+      "path": "assets/resources/level-three/units/piercing-cannon-level-1-v2.png",
+      "width": 1254,
+      "height": 1254,
+      "alphaBounds": [
+        101,
+        83,
+        1153,
+        1180
+      ],
+      "bytes": 1670829,
+      "decodedRgbaBytes": 6290064
+    },
+    {
+      "towerId": "piercing-cannon",
+      "level": 2,
+      "path": "assets/resources/level-three/units/piercing-cannon-level-2-v2.png",
+      "width": 1254,
+      "height": 1254,
+      "alphaBounds": [
+        92,
+        81,
+        1162,
+        1182
+      ],
+      "bytes": 1760898,
+      "decodedRgbaBytes": 6290064
+    },
+    {
+      "towerId": "piercing-cannon",
+      "level": 3,
+      "path": "assets/resources/level-three/units/piercing-cannon-level-3-v2.png",
+      "width": 1254,
+      "height": 1254,
+      "alphaBounds": [
+        93,
+        72,
+        1161,
+        1183
+      ],
+      "bytes": 1785698,
+      "decodedRgbaBytes": 6290064
+    }
+  ],
+  "sources": [
+    {
+      "tool": "image_gen built-in",
+      "source": "/Users/xmly/.codex/generated_images/01a111ba-8479-7b83-9b15-85cf783a5576/exec-cc8263cf-d202-4dde-a8fc-fa11a9c4cbeb.png",
+      "references": [
+        "level-one/units/rivet-gun.png",
+        "level-one/units/frost-coil.png",
+        "piercing-cannon-level-1.png"
+      ],
+      "intent": "重做宽铜底座、饱满藏蓝机架，匹配旧塔游戏缩放下可见主体；厚重装甲穿甲炮管",
+      "alpha": "preserved generated transparency; original pixels copied unchanged"
+    },
+    {
+      "tool": "image_gen built-in",
+      "source": "/Users/xmly/.codex/generated_images/01a111ba-8479-7b83-9b15-85cf783a5576/exec-2f776d2b-d4b3-4c37-ad5f-ebff70f938f6.png",
+      "references": [
+        "level-one/units/rivet-gun.png",
+        "level-one/units/frost-coil.png",
+        "arc-tower-level-1.png"
+      ],
+      "intent": "重做宽铜底座、饱满藏蓝机架，匹配旧塔游戏缩放下可见主体；双侧粗电极和青色电核",
+      "alpha": "preserved generated transparency; original pixels copied unchanged"
+    },
+    {
+      "tool": "image_gen built-in",
+      "source": "/Users/xmly/.codex/generated_images/01a111ba-8479-7b83-9b15-85cf783a5576/exec-f048c752-6269-4c45-a601-fd4ed918be84.png",
+      "references": [
+        "piercing-cannon-level-1-v2.png"
+      ],
+      "level": 2,
+      "prompt": "Use case: precise-object-edit. Production standalone transparent 2D tower-defense sprite. Input is the level-1 tower, edit target and strict family reference. Make LEVEL 2 of the SAME tower. Keep the exact elevated three-quarter front camera, orientation, round wide copper pedestal diameter, navy metal, warm amber lighting, thick outline, hand-painted cartoon style, image occupancy and ground contact of the reference. Full single object centered, square transparent canvas, no scenery, no text, no labels. IMPORTANT do not change tower species or replace base with angular feet; it must be recognizably the same tower upgraded, compact chunky body and big details legible at 32px. Preserve single forward cannon barrel and two round amber side lights. Upgrade with thicker navy shoulder armor, a strong copper barrel reinforcement collar and a pair of small armored side vents. Keep pedestal and body just as broad and visually large as original, height nearly the same. No detached sparks outside silhouette.",
+      "alpha": "preserved generated transparency; original pixels copied unchanged"
+    },
+    {
+      "tool": "image_gen built-in",
+      "source": "/Users/xmly/.codex/generated_images/01a111ba-8479-7b83-9b15-85cf783a5576/exec-c310ac78-6d49-4875-8af7-b5afc46937b2.png",
+      "references": [
+        "piercing-cannon-level-1-v2.png"
+      ],
+      "level": 3,
+      "prompt": "Use case: precise-object-edit. Production standalone transparent 2D tower-defense sprite. Input is the level-1 tower, edit target and strict family reference. Make LEVEL 3 of the SAME tower. Keep the exact elevated three-quarter front camera, orientation, round wide copper pedestal diameter, navy metal, warm amber lighting, thick outline, hand-painted cartoon style, image occupancy and ground contact of the reference. Full single object centered, square transparent canvas, no scenery, no text, no labels. IMPORTANT do not change tower species or replace base with angular feet; it must be recognizably the same tower upgraded, compact chunky body and big details legible at 32px. Preserve single forward cannon barrel and amber side lights. Final upgrade: heavier stacked navy shoulder armor, bold two-ring copper reinforcement on the same large single barrel, extra bronze protective side brackets. Distinct strongest tier but no extra barrels. Keep pedestal and body just as broad and visually large as original, height nearly the same. No detached sparks outside silhouette.",
+      "alpha": "preserved generated transparency; original pixels copied unchanged"
+    },
+    {
+      "tool": "image_gen built-in",
+      "source": "/Users/xmly/.codex/generated_images/01a111ba-8479-7b83-9b15-85cf783a5576/exec-1da71379-c43e-48f1-862b-4f457483eda3.png",
+      "references": [
+        "arc-tower-level-1-v2.png"
+      ],
+      "level": 2,
+      "prompt": "Use case: precise-object-edit. Production standalone transparent 2D tower-defense sprite. Input is the level-1 tower, edit target and strict family reference. Make LEVEL 2 of the SAME tower. Keep the exact elevated three-quarter front camera, orientation, round wide copper pedestal diameter, navy metal, warm amber lighting, thick outline, hand-painted cartoon style, image occupancy and ground contact of the reference. Full single object centered, square transparent canvas, no scenery, no text, no labels. IMPORTANT do not change tower species or replace base with angular feet; it must be recognizably the same tower upgraded, compact chunky body and big details legible at 32px. Preserve two large fork electrodes and large cyan spherical core above cylindrical generator. Upgrade with reinforced bronze electrode tips, double copper cuffs on generator and thicker side braces; same fork shape and pedestal. Keep pedestal and body just as broad and visually large as original, height nearly the same. No detached sparks outside silhouette.",
+      "alpha": "preserved generated transparency; original pixels copied unchanged"
+    },
+    {
+      "tool": "image_gen built-in",
+      "source": "/Users/xmly/.codex/generated_images/01a111ba-8479-7b83-9b15-85cf783a5576/exec-37121c99-0376-4dec-a687-b99939d67e57.png",
+      "references": [
+        "arc-tower-level-1-v2.png"
+      ],
+      "level": 3,
+      "prompt": "Use case: precise-object-edit. Production standalone transparent 2D tower-defense sprite. Input is the level-1 tower, edit target and strict family reference. Make LEVEL 3 of the SAME tower. Keep the exact elevated three-quarter front camera, orientation, round wide copper pedestal diameter, navy metal, warm amber lighting, thick outline, hand-painted cartoon style, image occupancy and ground contact of the reference. Full single object centered, square transparent canvas, no scenery, no text, no labels. IMPORTANT do not change tower species or replace base with angular feet; it must be recognizably the same tower upgraded, compact chunky body and big details legible at 32px. Preserve two large fork electrodes and large cyan spherical core above cylindrical generator. Final upgrade: massive reinforced navy-and-brass fork electrodes, three glowing generator bands, bold copper side energy housings and small contained cyan arcs between fork tips and core. Same family, no new antenna or tall thin pole. Keep pedestal and body just as broad and visually large as original, height nearly the same. No detached sparks outside silhouette.",
+      "alpha": "preserved generated transparency; original pixels copied unchanged"
+    }
+  ]
+}

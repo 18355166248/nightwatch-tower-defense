@@ -583,7 +583,7 @@ export class NightwatchPocBootstrap extends Component {
         else if (action === 'apply-guided-purchases') this.applyGuidedQaWavePurchases();
         else if (action === 'select-rivet') this.selectTower('rivet-gun');
         else if (action === 'select-frost') this.selectTower('frost-coil');
-        else if (action === 'restart-run') this.restartFromCheckpoint();
+        else if (action === 'restart-run') this.restartLevel();
         else if (action === 'toggle-speed') this.toggleSpeed();
         else if (action === 'start-next-wave') this.startNextWaveEarly();
         else this.toggleBattle();
@@ -595,7 +595,7 @@ export class NightwatchPocBootstrap extends Component {
         if (this.layout.insideRect(point, this.layout.fitRect(PHASE_B_RESULT_RESTART_BUTTON))) {
             const next = this.battle.snapshot.phase === 'victory' ? LEVELS[this.levelId].nextLevel : undefined;
             if (next) this.openLoadout(next);
-            else this.restartFromCheckpoint();
+            else this.restartLevel();
         }
         else if (this.layout.insideRect(point, this.layout.fitRect(PHASE_B_RESULT_HOME_BUTTON))) this.returnToHome();
         return true;
@@ -616,12 +616,12 @@ export class NightwatchPocBootstrap extends Component {
             // 首页确认的主按钮是保留原局；按语义分发，不能沿用旧的“索引0一律确认”。
             const action = firstLevelConfirmationPresentation(pause.screen).actionKinds[button];
             if (action === 'cancel') { if (this.preparing) { this.pauseOverlay.clear(); this.statusText = '已保留布防，可继续建塔与升级'; } else this.pauseOverlay.show('menu'); }
-            else if (action === 'restart') this.restartFromCheckpoint();
+            else if (action === 'restart') this.restartLevel();
             else if (action === 'home') this.returnToHome();
             return true;
         }
         if (pause.screen === 'route-error') {
-            if (button === 0) this.restartFromCheckpoint();
+            if (button === 0) this.restartLevel();
             else if (button === 1) this.returnToHome();
             return true;
         }
@@ -631,7 +631,7 @@ export class NightwatchPocBootstrap extends Component {
             else if (button === 2) this.pauseOverlay.show('settings');
             else if (button === 3) this.pauseOverlay.show('confirm-home');
         } else if (button === 1) this.pauseOverlay.show('menu');
-        else if (button === 0 && pause.screen === 'confirm-restart') this.restartFromCheckpoint();
+        else if (button === 0 && pause.screen === 'confirm-restart') this.restartLevel();
         else if (button === 0) this.returnToHome();
         return true;
     }
@@ -1117,36 +1117,16 @@ export class NightwatchPocBootstrap extends Component {
         return towerInspectionSummary(towerDefinition(towerId), level);
     }
 
-    private restartFromCheckpoint(): void {
-        const checkpoint = this.runCheckpoint;
-        const pausedRun = this.battle.snapshot.phase === 'paused' && this.pauseOverlay.snapshot.visible;
-        if (!checkpoint || (!this.resultViewModel() && !pausedRun)) return;
-        this.sound.updateMusic('off');
-        this.model.observeMutations(null);
-        const restored = checkpoint.restore();
-        this.economy = restored.economy;
-        this.model = restored.model;
-        this.selectedGridId = restored.model.grid.id;
-        this.battle = new BattleStateMachine(this.waves.totalWaves, this.initialCoreHealth);
-        this.combat = new WaveCombatRuntime(restored.model.grid, this.runTowers, this.enemyTraffic);
-        this.waveRewards = new WaveRewardRuntime();
-        this.simulationClock.reset();
-        this.runClock.reset();
-        this.feedback.clear();
-        this.routeChange.clear();
-        this.resultReveal.clear();
-        this.preparing = true;
-        this.pauseOverlay.clear();
-        this.guidedIntermissionHeld = false;
-        this.qaGuidedRun = false;
-        this.waveKillGold = 0;
-        this.waveLeakedCount = 0;
-        this.resultWasNewRecord = false;
-        this.resultWasNewHealthRecord = false;
-        this.towerInspection.clear();
-        this.cancelInput('已恢复开战前部署，可调整后再次开波');
-        this.runCheckpoint = checkpoint;
-        this.connectRouteDiagnostics();
+    private restartLevel(): void {
+        if(!this.preparing&&!this.resultViewModel()&&!this.pauseOverlay.snapshot.visible)return;
+        const guided=this.experience.entryMode==='guided';
+        // “重新开始”必须创建关卡初始空场，不能恢复开战检查点中的塔、等级和剩余金币。
+        // 复用新局重置，连同敌人、奖励、计时、特效、选中态及旧检查点一起清理；保留当前出战阵容和历史记录。
+        this.resetGrid(LEVELS[this.levelId].startingGold);
+        this.selectedTowerId=this.runTowers[0].id;
+        this.experience.returnHome();
+        if(guided)this.experience.begin();else this.experience.skip();
+        this.statusText=`${LEVELS[this.levelId].label}已重新开始 · 空棋盘 · 金币 ${this.model.gold}`;
         this.playSound('ui');
     }
 
