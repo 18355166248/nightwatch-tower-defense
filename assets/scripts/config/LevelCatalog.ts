@@ -11,6 +11,7 @@ export interface LevelDefinition {
     readonly title: string;
     readonly gridId: GridId;
     readonly startingGold: number;
+    readonly interWaveSeconds?: number;
     readonly waves: readonly WaveDefinition[];
     readonly nextLevel?: LevelId;
     readonly backdropResource?: string;
@@ -56,7 +57,7 @@ const LEVEL_DATA = {
         startingGold: 160, waves: secondWaves, nextLevel: 'third-level' as const, backdropResource: 'level-two/backdrop-v1/spriteFrame',
         campaign: { district: '铸铁街巷', briefing: '快行者与重装混编来袭，提前升级，守住街巷。', difficulty: '高压挑战', guided: false } },
     'third-level': { id: 'third-level' as const, label: '第三关', title: '钢铁堡垒 · 克制构筑', gridId: DEFAULT_GRID_ID,
-        startingGold: THIRD_LEVEL_STARTING_GOLD, waves: THIRD_LEVEL_WAVES, backdropResource: 'level-three/backdrop-v1/spriteFrame',
+        startingGold: THIRD_LEVEL_STARTING_GOLD, interWaveSeconds: 16, waves: THIRD_LEVEL_WAVES, backdropResource: 'level-three/backdrop-v1/spriteFrame',
         campaign: { district: '钢铁堡垒', briefing: '穿甲炮应对坦克，电弧塔破盾；混合配塔守住八波。', difficulty: '克制挑战', guided: false } },
 };
 

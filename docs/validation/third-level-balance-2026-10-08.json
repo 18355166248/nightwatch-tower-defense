@@ -1,0 +1,1027 @@
+{
+  "generatedOn": "2026-10-08",
+  "scope": "真实战斗系统自动回放；固定策略场景通过比例，不是真人胜率或浏览器完整游玩验收",
+  "before": {
+    "total": 24,
+    "passed": 16,
+    "scenarios": [
+      {
+        "name": "row-1/buildFirstfalse/skip0",
+        "passed": true,
+        "coreHealth": 1,
+        "lastWave": 8,
+        "leaks": [
+          2,
+          3,
+          1,
+          3,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row-1/buildFirstfalse/skip1",
+        "passed": false,
+        "coreHealth": 0,
+        "lastWave": 4,
+        "leaks": [
+          2,
+          5,
+          2,
+          1
+        ]
+      },
+      {
+        "name": "row-1/buildFirstfalse/skip2",
+        "passed": false,
+        "coreHealth": 0,
+        "lastWave": 3,
+        "leaks": [
+          2,
+          3,
+          5
+        ]
+      },
+      {
+        "name": "row-1/buildFirstfalse/skip3",
+        "passed": false,
+        "coreHealth": 0,
+        "lastWave": 5,
+        "leaks": [
+          2,
+          3,
+          1,
+          3,
+          1
+        ]
+      },
+      {
+        "name": "row-1/buildFirsttrue/skip0",
+        "passed": false,
+        "coreHealth": 0,
+        "lastWave": 4,
+        "leaks": [
+          2,
+          4,
+          2,
+          2
+        ]
+      },
+      {
+        "name": "row-1/buildFirsttrue/skip1",
+        "passed": false,
+        "coreHealth": 0,
+        "lastWave": 4,
+        "leaks": [
+          2,
+          5,
+          2,
+          2
+        ]
+      },
+      {
+        "name": "row-1/buildFirsttrue/skip2",
+        "passed": false,
+        "coreHealth": 0,
+        "lastWave": 3,
+        "leaks": [
+          2,
+          4,
+          4
+        ]
+      },
+      {
+        "name": "row-1/buildFirsttrue/skip3",
+        "passed": false,
+        "coreHealth": 0,
+        "lastWave": 4,
+        "leaks": [
+          2,
+          4,
+          2,
+          2
+        ]
+      },
+      {
+        "name": "row0/buildFirstfalse/skip0",
+        "passed": true,
+        "coreHealth": 6,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          1,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row0/buildFirstfalse/skip1",
+        "passed": true,
+        "coreHealth": 3,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          4,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row0/buildFirstfalse/skip2",
+        "passed": true,
+        "coreHealth": 6,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          1,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row0/buildFirstfalse/skip3",
+        "passed": true,
+        "coreHealth": 5,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          1,
+          2,
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row0/buildFirsttrue/skip0",
+        "passed": true,
+        "coreHealth": 2,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          3,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row0/buildFirsttrue/skip1",
+        "passed": true,
+        "coreHealth": 1,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          4,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row0/buildFirsttrue/skip2",
+        "passed": true,
+        "coreHealth": 2,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          3,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row0/buildFirsttrue/skip3",
+        "passed": false,
+        "coreHealth": 0,
+        "lastWave": 4,
+        "leaks": [
+          1,
+          3,
+          4,
+          2
+        ]
+      },
+      {
+        "name": "row1/buildFirstfalse/skip0",
+        "passed": true,
+        "coreHealth": 7,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row1/buildFirstfalse/skip1",
+        "passed": true,
+        "coreHealth": 4,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          4,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row1/buildFirstfalse/skip2",
+        "passed": true,
+        "coreHealth": 6,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          1,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row1/buildFirstfalse/skip3",
+        "passed": true,
+        "coreHealth": 7,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row1/buildFirsttrue/skip0",
+        "passed": true,
+        "coreHealth": 4,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          2,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row1/buildFirsttrue/skip1",
+        "passed": true,
+        "coreHealth": 2,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          4,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row1/buildFirsttrue/skip2",
+        "passed": true,
+        "coreHealth": 4,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          2,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row1/buildFirsttrue/skip3",
+        "passed": true,
+        "coreHealth": 1,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          2,
+          3,
+          3,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "after": {
+    "total": 24,
+    "passed": 20,
+    "scenarios": [
+      {
+        "name": "row-1/buildFirstfalse/skip0",
+        "passed": true,
+        "coreHealth": 9,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row-1/buildFirstfalse/skip1",
+        "passed": true,
+        "coreHealth": 3,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          5,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row-1/buildFirstfalse/skip2",
+        "passed": true,
+        "coreHealth": 9,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row-1/buildFirstfalse/skip3",
+        "passed": true,
+        "coreHealth": 9,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row-1/buildFirsttrue/skip0",
+        "passed": false,
+        "coreHealth": 0,
+        "lastWave": 3,
+        "leaks": [
+          1,
+          4,
+          5
+        ]
+      },
+      {
+        "name": "row-1/buildFirsttrue/skip1",
+        "passed": false,
+        "coreHealth": 0,
+        "lastWave": 3,
+        "leaks": [
+          1,
+          5,
+          4
+        ]
+      },
+      {
+        "name": "row-1/buildFirsttrue/skip2",
+        "passed": false,
+        "coreHealth": 0,
+        "lastWave": 3,
+        "leaks": [
+          1,
+          4,
+          5
+        ]
+      },
+      {
+        "name": "row-1/buildFirsttrue/skip3",
+        "passed": false,
+        "coreHealth": 0,
+        "lastWave": 3,
+        "leaks": [
+          1,
+          4,
+          5
+        ]
+      },
+      {
+        "name": "row0/buildFirstfalse/skip0",
+        "passed": true,
+        "coreHealth": 9,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row0/buildFirstfalse/skip1",
+        "passed": true,
+        "coreHealth": 3,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          4,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row0/buildFirstfalse/skip2",
+        "passed": true,
+        "coreHealth": 9,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row0/buildFirstfalse/skip3",
+        "passed": true,
+        "coreHealth": 9,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row0/buildFirsttrue/skip0",
+        "passed": true,
+        "coreHealth": 9,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row0/buildFirsttrue/skip1",
+        "passed": true,
+        "coreHealth": 2,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          4,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row0/buildFirsttrue/skip2",
+        "passed": true,
+        "coreHealth": 9,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row0/buildFirsttrue/skip3",
+        "passed": true,
+        "coreHealth": 9,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row1/buildFirstfalse/skip0",
+        "passed": true,
+        "coreHealth": 9,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row1/buildFirstfalse/skip1",
+        "passed": true,
+        "coreHealth": 6,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row1/buildFirstfalse/skip2",
+        "passed": true,
+        "coreHealth": 9,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row1/buildFirstfalse/skip3",
+        "passed": true,
+        "coreHealth": 9,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row1/buildFirsttrue/skip0",
+        "passed": true,
+        "coreHealth": 9,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row1/buildFirsttrue/skip1",
+        "passed": true,
+        "coreHealth": 3,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          3,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row1/buildFirsttrue/skip2",
+        "passed": true,
+        "coreHealth": 9,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "name": "row1/buildFirsttrue/skip3",
+        "passed": true,
+        "coreHealth": 9,
+        "lastWave": 8,
+        "leaks": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "recommended": {
+    "opening": [
+      {
+        "tower": "piercing-cannon",
+        "column": 4,
+        "row": 2
+      },
+      {
+        "tower": "frost-coil",
+        "column": 3,
+        "row": 3
+      },
+      {
+        "tower": "arc-tower",
+        "column": 5,
+        "row": 3
+      }
+    ],
+    "coordinates": "0-based grid; player guide uses 1-based rows and columns",
+    "coreHealth": 9,
+    "waveResults": [
+      {
+        "wave": 1,
+        "killed": 10,
+        "leaked": 1,
+        "coreHealth": 9,
+        "towers": 3
+      },
+      {
+        "wave": 2,
+        "killed": 14,
+        "leaked": 0,
+        "coreHealth": 9,
+        "towers": 3
+      },
+      {
+        "wave": 3,
+        "killed": 17,
+        "leaked": 0,
+        "coreHealth": 9,
+        "towers": 4
+      },
+      {
+        "wave": 4,
+        "killed": 12,
+        "leaked": 0,
+        "coreHealth": 9,
+        "towers": 4
+      },
+      {
+        "wave": 5,
+        "killed": 12,
+        "leaked": 0,
+        "coreHealth": 9,
+        "towers": 4
+      },
+      {
+        "wave": 6,
+        "killed": 42,
+        "leaked": 0,
+        "coreHealth": 9,
+        "towers": 8
+      },
+      {
+        "wave": 7,
+        "killed": 44,
+        "leaked": 0,
+        "coreHealth": 9,
+        "towers": 9
+      },
+      {
+        "wave": 8,
+        "killed": 62,
+        "leaked": 0,
+        "coreHealth": 9,
+        "towers": 9
+      }
+    ],
+    "purchases": [
+      {
+        "afterWave": 1,
+        "kind": "upgrade",
+        "towerId": "piercing-cannon",
+        "cell": {
+          "column": 4,
+          "row": 2
+        },
+        "level": 2,
+        "gold": 50
+      },
+      {
+        "afterWave": 1,
+        "kind": "upgrade",
+        "towerId": "frost-coil",
+        "cell": {
+          "column": 3,
+          "row": 3
+        },
+        "level": 2,
+        "gold": 18
+      },
+      {
+        "afterWave": 2,
+        "kind": "upgrade",
+        "towerId": "piercing-cannon",
+        "cell": {
+          "column": 4,
+          "row": 2
+        },
+        "level": 3,
+        "gold": 19
+      },
+      {
+        "afterWave": 3,
+        "kind": "build",
+        "towerId": "piercing-cannon",
+        "cell": {
+          "column": 4,
+          "row": 6
+        },
+        "level": 1,
+        "gold": 33
+      },
+      {
+        "afterWave": 4,
+        "kind": "upgrade",
+        "towerId": "piercing-cannon",
+        "cell": {
+          "column": 4,
+          "row": 6
+        },
+        "level": 2,
+        "gold": 62
+      },
+      {
+        "afterWave": 4,
+        "kind": "upgrade",
+        "towerId": "frost-coil",
+        "cell": {
+          "column": 3,
+          "row": 3
+        },
+        "level": 3,
+        "gold": 14
+      },
+      {
+        "afterWave": 5,
+        "kind": "upgrade",
+        "towerId": "piercing-cannon",
+        "cell": {
+          "column": 4,
+          "row": 6
+        },
+        "level": 3,
+        "gold": 41
+      },
+      {
+        "afterWave": 6,
+        "kind": "build",
+        "towerId": "arc-tower",
+        "cell": {
+          "column": 3,
+          "row": 7
+        },
+        "level": 1,
+        "gold": 168
+      },
+      {
+        "afterWave": 6,
+        "kind": "build",
+        "towerId": "frost-coil",
+        "cell": {
+          "column": 5,
+          "row": 7
+        },
+        "level": 1,
+        "gold": 128
+      },
+      {
+        "afterWave": 6,
+        "kind": "build",
+        "towerId": "piercing-cannon",
+        "cell": {
+          "column": 4,
+          "row": 9
+        },
+        "level": 1,
+        "gold": 68
+      },
+      {
+        "afterWave": 6,
+        "kind": "build",
+        "towerId": "arc-tower",
+        "cell": {
+          "column": 3,
+          "row": 10
+        },
+        "level": 1,
+        "gold": 3
+      },
+      {
+        "afterWave": 7,
+        "kind": "upgrade",
+        "towerId": "piercing-cannon",
+        "cell": {
+          "column": 4,
+          "row": 9
+        },
+        "level": 2,
+        "gold": 138
+      },
+      {
+        "afterWave": 7,
+        "kind": "upgrade",
+        "towerId": "piercing-cannon",
+        "cell": {
+          "column": 4,
+          "row": 9
+        },
+        "level": 3,
+        "gold": 63
+      },
+      {
+        "afterWave": 7,
+        "kind": "build",
+        "towerId": "rivet-gun",
+        "cell": {
+          "column": 5,
+          "row": 10
+        },
+        "level": 1,
+        "gold": 33
+      },
+      {
+        "afterWave": 7,
+        "kind": "upgrade",
+        "towerId": "frost-coil",
+        "cell": {
+          "column": 5,
+          "row": 7
+        },
+        "level": 2,
+        "gold": 1
+      }
+    ],
+    "telemetry": [
+      {
+        "wave": 1,
+        "gold": 18,
+        "combatSeconds": 37.79999999999914,
+        "pathLength": 16
+      },
+      {
+        "wave": 2,
+        "gold": 19,
+        "combatSeconds": 24.99999999999986,
+        "pathLength": 16
+      },
+      {
+        "wave": 3,
+        "gold": 33,
+        "combatSeconds": 30.249999999999563,
+        "pathLength": 16
+      },
+      {
+        "wave": 4,
+        "gold": 14,
+        "combatSeconds": 32.48333333333277,
+        "pathLength": 16
+      },
+      {
+        "wave": 5,
+        "gold": 41,
+        "combatSeconds": 45.866666666665346,
+        "pathLength": 16
+      },
+      {
+        "wave": 6,
+        "gold": 3,
+        "combatSeconds": 82.88333333332992,
+        "pathLength": 16
+      },
+      {
+        "wave": 7,
+        "gold": 1,
+        "combatSeconds": 115.3666666666614,
+        "pathLength": 16
+      },
+      {
+        "wave": 8,
+        "gold": 279,
+        "combatSeconds": 127.68333333332737,
+        "pathLength": 16
+      }
+    ]
+  }
+}

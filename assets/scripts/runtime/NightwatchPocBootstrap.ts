@@ -1032,7 +1032,8 @@ export class NightwatchPocBootstrap extends Component {
         this.model = new PlacementModel(grid, this.economy, this.runTowers, this.runTowers[0].id);
         // 开战门槛以当前地图空场流场为基线，不能假设入口出口永远纵向对齐。
         this.initialPathLength = this.model.flowField.distanceAt(grid.entry);
-        this.battle = new BattleStateMachine(this.waves.totalWaves, coreHealth);
+        // 克制关需要多塔补建与升级，使用关卡准备时间；旧关卡继续沿用8秒默认值。
+        this.battle = new BattleStateMachine(this.waves.totalWaves, coreHealth, LEVELS[this.levelId].interWaveSeconds ?? 8);
         this.combat = new WaveCombatRuntime(grid, this.runTowers, this.enemyTraffic);
         this.waveRewards = new WaveRewardRuntime();
         this.simulationClock.reset();
